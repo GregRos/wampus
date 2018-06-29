@@ -1,0 +1,18 @@
+{
+  "name": "wampus",
+  "version": "0.1.0-pre",
+  "description": "WAMP client for JavaScript",
+  "main": "dist/index.js",
+  "repository": "https://github.com/GregRos/wampus",
+  "author": "GregRos",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@types/node": "^10.5.1",
+    "ava": "^0.25.0",
+    "tslint": "^5.10.0",
+    "typedoc": "^0.11.1",
+    "typescript": "^2.9.2",
+    "yamprint": "^0.8.1"
+  }
+}

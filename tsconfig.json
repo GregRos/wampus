@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "noImplicitAny": false,
+    "sourceMap": true,
+    "allowUnreachableCode": true,
+    "lib": [
+      "es6",
+      "dom",
+      "es2015.collection"
+    ],
+    "declaration": true,
+    "sourceRoot": "src",
+    "outDir": "dist"
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}
