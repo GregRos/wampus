@@ -7,8 +7,8 @@
     "allowUnreachableCode": true,
     "lib": [
       "es6",
-      "dom",
-      "es2015.collection"
+      "es2015.collection",
+      "es2016.array.include"
     ],
     "declaration": true,
     "sourceRoot": "src",
