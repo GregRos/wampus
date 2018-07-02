@@ -14,18 +14,18 @@ export interface WampusSessionConfig {
 import WM = WampMessage;
 import {WampusNetworkError} from "../errors/errors";
 import {Stream} from "most";
+import {ExpectationStore} from "../utils/expectation-store";
 
 export interface WampusSessionStuff {
     on(event : "message", handler : (arg : WM.Any) => void);
 }
 
-export class WampusSession implements WampusSessionStuff{
+export class WampusSession extends EventEmitter implements WampusSessionStuff{
     private _config : WampusSessionConfig;
     id : number;
     private _transport : WampusTransport;
     private _factory : WampMessageFactory;
-    private _messages : Stream<WampMessage.Any>;
-
+    private _expectations : ExpectationStore;
     private async _handshake() {
         let transport = this._transport;
         let config = this._config;
@@ -41,7 +41,7 @@ export class WampusSession implements WampusSessionStuff{
                     "Transport closed during handshake.", {
                         reason : x.type
                     }
-                )
+                );
             } else if (!(x.data instanceof WM.Welcome)) {
                 throw new WampusNetworkError(
                     "Sent HELLO and received an unexpected message.", {
@@ -54,7 +54,32 @@ export class WampusSession implements WampusSessionStuff{
         }).toPromise();
         await transport.send(this._factory.hello(config.realm, {}));
         let msg = await welcomeMessage;
-        
+        this.id = msg.sessionId;
+    }
+
+    private _onError(err) {
+
+    }
+
+    private _registerExpectationSystem() {
+        this._expectations = new ExpectationStore(x => this._factory.read(x));
+        this._transport.events.subscribe({
+            next : x => {
+                if (!this._expectations.resolve(x.data)) {
+                    this._onError(new WampusNetworkError("Received unexpected message.", {
+                        type : x[0],
+                        arg1 : x[1]
+                    }))
+                }
+            },
+            complete : () => {
+                this._expectations.close();
+            },
+            error : () => {
+                this._expectations.close();
+                throw new Error("Unexpected!");
+            }
+        })
     }
 
     static async create(config : WampusSessionConfig) {
@@ -62,9 +87,20 @@ export class WampusSession implements WampusSessionStuff{
         let wm = session._factory = new WampMessageFactory(() => Math.floor(Math.random() * (2 << 50)));
         let transport = await config.transport();
         session._transport = transport;
-        let waitWelcome = transport.events.take(1).toPromise().then(x => x.type === "message" ? x.data : null);
-        await transport.send(wm.hello(config.realm, {}));
-        let welcome = await waitWelcome;
-        if (welcome.)
+        await session._handshake();
+        session._registerExpectationSystem();
+        return session;
+    }
+
+    private _expectReply(type : WampMsgType, requestId : number) {
+        return new Promise((resolve, reject) => {
+            this._expectations.addExpectation(type, requestId, x => {
+                return true;
+            });
+        })
+    }
+
+    async call(name : string, args : any[], kwargs : any) {
+
     }
 }

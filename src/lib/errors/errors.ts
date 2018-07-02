@@ -64,6 +64,8 @@ export module NetworkErrors {
 
     }
 
+    export function
+
 
 }
 export module IllegalOperations {

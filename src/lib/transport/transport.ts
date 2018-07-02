@@ -26,6 +26,7 @@ export type TransportEvent = TransportError | TransportMessage | TransportClosed
 export interface WampusTransport {
     send(msg : WampMessage.Any) : Promise<void>;
     events : most.Stream<TransportEvent>;
+    messages : most.Stream<WampMessage.Any>;
     close() : Promise<void>;
 }
 
