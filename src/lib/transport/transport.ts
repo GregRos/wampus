@@ -13,7 +13,7 @@ export interface TransportClosed {
 
 export interface TransportMessage {
     type : "message";
-    data : WampMessage.Any;
+    data : WampRawMessage;
 }
 
 export interface TransportError {
@@ -26,7 +26,6 @@ export type TransportEvent = TransportError | TransportMessage | TransportClosed
 export interface WampusTransport {
     send(msg : WampMessage.Any) : Promise<void>;
     events : most.Stream<TransportEvent>;
-    messages : most.Stream<WampMessage.Any>;
     close() : Promise<void>;
 }
 

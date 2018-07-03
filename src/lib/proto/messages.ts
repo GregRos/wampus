@@ -103,6 +103,14 @@ export class WampMessageFactory {
         return new WampMessage.Yield(invocationId, options, args, kwargs);
     }
 
+    cancel(callRequestId : number, options : object) {
+        return new WampMessage.Cancel(callRequestId, options);
+    }
+
+    authenticate(signature : string, options : object) {
+        return new WampMessage.Authenticate(signature, options);
+    }
+
      read(raw : WampRawMessage) : WampMessage.Any {
         switch (raw[0]) {
             case WampMsgType.Welcome:
@@ -129,6 +137,10 @@ export class WampMessageFactory {
                 return new WampMessage.Unregistered(raw[1]);
             case WampMsgType.Invocation:
                 return new WampMessage.Invocation(raw[1], raw[2], raw[3], raw[4], raw[5]);
+            case WampMsgType.Challenge:
+                return new WampMessage.Challenge(raw[1], raw[2]);
+            case WampMsgType.Interrupt:
+                return new WampMessage.Interrupt(raw[1], raw[2]);
             case WampMsgType.Subscribe:
             case WampMsgType.Unregister:
             case WampMsgType.Publish:
@@ -136,6 +148,8 @@ export class WampMessageFactory {
             case WampMsgType.Register:
             case WampMsgType.Hello:
             case WampMsgType.Yield:
+            case WampMsgType.Authenticate:
+            case WampMsgType.Cancel:
                 throw new WampusIllegalOperationError("Received a WAMP message not intended for clients.", {
                     type : WampMsgType[raw[0]],
                     msg : raw
@@ -346,7 +360,48 @@ export module WampMessage {
         }
     }
 
-    export type Any = Hello | Welcome | Abort | Goodbye | Error | Publish | Published | Subscribe | Subscribed | Unsubscribe | Unsubscribed | Event | Call | Result | Register | Registered | Unregister | Unregistered | Invocation | Yield;
+    export class Challenge implements WampMessage {
+        type = WampMsgType.Challenge;
+
+        constructor(public authMethod : string, public extra : object) {
+
+        }
+    }
+
+    export class Cancel implements WampMessage {
+        type = WampMsgType.Cancel;
+
+        constructor(public callRequestId : number, public options : object) {
+
+        }
+
+        toTransportFormat() {
+            return [this.type, this.callRequestId, this.options];
+        }
+    }
+
+    export class Interrupt implements WampMessage {
+        type = WampMsgType.Interrupt;
+
+        constructor(public callRequestId : number, public options : object) {
+
+        }
+    }
+
+    export class Authenticate implements WampMessage {
+        type = WampMsgType.Authenticate;
+
+        constructor(public signature : string, public extra : object) {
+
+        }
+
+        toTransportFormat() {
+            return [this.type, this.signature, this.extra];
+        }
+    }
+
+
+    export type Any = Cancel | Interrupt | Authenticate | Challenge | Hello | Welcome | Abort | Goodbye | Error | Publish | Published | Subscribe | Subscribed | Unsubscribe | Unsubscribed | Event | Call | Result | Register | Registered | Unregister | Unregistered | Invocation | Yield;
 
 
 }

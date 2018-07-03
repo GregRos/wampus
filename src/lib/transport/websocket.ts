@@ -21,7 +21,6 @@ export class WebsocketTransport implements WampusTransport{
     private _ws : ws;
     private _expectingClose : Promise<void>;
     events : most.Stream<TransportEvent>;
-    messages : most.Stream<WampMessage.Any>;
     constructor() {
 
     }

@@ -19,5 +19,9 @@ export enum WampMsgType {
     Unregistered = 67,
     Invocation = 68,
     Yield = 70,
+    Cancel = 49,
+    Challenge = 4,
+    Authenticate = 5,
+    Interrupt = 6,
     _Unknown = -1
 }

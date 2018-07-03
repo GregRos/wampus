@@ -3,10 +3,17 @@
   <component name="ChangeListManager">
     <list default="true" id="479a9b66-b2d3-4247-b6ef-de9bcc439169" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/errors/errors.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/errors/errors.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/must-ext/events.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/must-ext/events.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/proto/message.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/proto/message.type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/proto/messages.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/proto/messages.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/transport/transport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/transport/transport.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/transport/websocket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/transport/websocket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/utils/expectation-store.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/utils/message-router.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/utils/message-router.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/wamp/test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/wamp/test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -15,44 +22,13 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="DockManager">
-    <window id="1">
-      <content type="file-editors">
-        <state>
-          <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-            <file leaf-file-name="messages.ts" pinned="false" current-in-tab="false">
-              <entry file="file://$PROJECT_DIR$/src/lib/proto/messages.ts">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="28">
-                    <caret line="164" column="47" selection-start-line="164" selection-start-column="47" selection-end-line="164" selection-end-column="47" />
-                    <folding>
-                      <element signature="e#0#61#0" expanded="true" />
-                    </folding>
-                  </state>
-                </provider>
-              </entry>
-            </file>
-            <file leaf-file-name="message.type.ts" pinned="false" current-in-tab="true">
-              <entry file="file://$PROJECT_DIR$/src/lib/proto/message.type.ts">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="28">
-                    <caret line="1" column="4" selection-start-line="1" selection-start-column="4" selection-end-line="1" selection-end-column="4" />
-                  </state>
-                </provider>
-              </entry>
-            </file>
-          </leaf>
-        </state>
-      </content>
-    </window>
-  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="messages.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lib/proto/messages.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2996">
-              <caret line="108" column="39" selection-start-line="108" selection-start-column="39" selection-end-line="108" selection-end-column="39" />
+            <state relative-caret-position="3724">
+              <caret line="134" column="65" selection-start-line="134" selection-start-column="65" selection-end-line="134" selection-end-column="65" />
               <folding>
                 <element signature="e#0#61#0" expanded="true" />
               </folding>
@@ -60,14 +36,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="websocket.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/transport/websocket.ts">
+      <file leaf-file-name="uris.ts" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/proto/uris.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="672">
-              <caret line="31" selection-start-line="31" selection-end-line="31" />
-              <folding>
-                <element signature="e#0#36#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="1260">
+              <caret line="45" column="5" selection-start-line="45" selection-start-column="5" selection-end-line="45" selection-end-column="5" />
             </state>
           </provider>
         </entry>
@@ -75,32 +48,41 @@
       <file leaf-file-name="test.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lib/wamp/test.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="827">
-              <caret line="96" column="42" lean-forward="true" selection-start-line="96" selection-start-column="42" selection-end-line="96" selection-end-column="42" />
+            <state relative-caret-position="186">
+              <caret line="102" lean-forward="true" selection-start-line="102" selection-end-line="102" />
               <folding>
-                <element signature="e#0#55#0" expanded="true" />
+                <element signature="e#0#73#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="expectation-store.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/utils/expectation-store.ts">
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="532">
+                <caret line="19" column="36" lean-forward="true" selection-start-line="19" selection-start-column="36" selection-end-line="19" selection-end-column="36" />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ext-promise.ts" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/ext-promise.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-84">
-              <caret line="3" column="38" selection-start-line="3" selection-end-line="4" />
-              <folding>
-                <element signature="e#0#50#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="56">
+              <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="message-router.ts" pinned="false" current-in-tab="true">
+      <file leaf-file-name="message-router.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lib/utils/message-router.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="140">
-              <caret line="26" column="39" lean-forward="true" selection-start-line="26" selection-start-column="39" selection-end-line="26" selection-end-column="39" />
+            <state relative-caret-position="1680">
+              <caret line="61" column="64" selection-start-line="61" selection-start-column="64" selection-end-line="61" selection-end-column="64" />
               <folding>
                 <element signature="e#0#46#0" expanded="true" />
               </folding>
@@ -108,20 +90,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="errors.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/errors/errors.ts">
+      <file leaf-file-name="most.d.ts" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/node_modules/most/type-definitions/most.d.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1848">
-              <caret line="66" column="19" selection-start-line="66" selection-start-column="19" selection-end-line="66" selection-end-column="19" />
+            <state relative-caret-position="1876">
+              <caret line="67" lean-forward="true" selection-start-line="67" selection-end-line="67" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="most.d.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/node_modules/most/type-definitions/most.d.ts">
+      <file leaf-file-name="most.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/node_modules/most/dist/most.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="331">
-              <caret line="42" column="17" selection-start-line="42" selection-start-column="17" selection-end-line="42" selection-end-column="17" />
+            <state relative-caret-position="29792">
+              <caret line="1064" column="9" selection-start-line="1064" selection-start-column="9" selection-end-line="1064" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -129,26 +111,17 @@
       <file leaf-file-name="events.ts" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lib/must-ext/events.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="812">
-              <caret line="29" column="11" selection-start-line="29" selection-start-column="11" selection-end-line="29" selection-end-column="11" />
+            <state relative-caret-position="308">
+              <caret line="11" column="26" lean-forward="true" selection-start-line="11" selection-start-column="26" selection-end-line="11" selection-end-column="26" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="transport.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/transport/transport.ts">
+      <file leaf-file-name="message.type.ts" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/proto/message.type.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="644">
-              <caret line="25" column="17" selection-start-line="25" selection-start-column="17" selection-end-line="25" selection-end-column="17" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="serializer.ts" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/serializer/serializer.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="17" selection-start-column="17" selection-end-column="17" />
+            <state relative-caret-position="672">
+              <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -177,7 +150,11 @@
       <find>producer</find>
       <find>interface producer</find>
       <find>then</find>
+      <find>Subject =</find>
+      <find>seri</find>
       <find>observe</find>
+      <find>subscriber</find>
+      <find>Sink</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;wamp.registration.$1</replace>
@@ -204,19 +181,20 @@
         <option value="$PROJECT_DIR$/src/lib/proto/uris.ts" />
         <option value="$PROJECT_DIR$/src/lib/h.ts" />
         <option value="$PROJECT_DIR$/src/lib/ext-promise.ts" />
-        <option value="$PROJECT_DIR$/src/lib/proto/message.type.ts" />
         <option value="$PROJECT_DIR$/src/lib/serializer/serializer.ts" />
         <option value="$PROJECT_DIR$/tsconfig.json" />
         <option value="$PROJECT_DIR$/src/lib/serializer/json.ts" />
-        <option value="$PROJECT_DIR$/src/lib/proto/messages.ts" />
         <option value="$PROJECT_DIR$/src/lib/utils/events.ts" />
-        <option value="$PROJECT_DIR$/src/lib/must-ext/events.ts" />
         <option value="$PROJECT_DIR$/src/lib/errors/errors.ts" />
+        <option value="$PROJECT_DIR$/src/lib/utils/expectation-store.ts" />
         <option value="$PROJECT_DIR$/src/lib/transport/websocket.ts" />
         <option value="$PROJECT_DIR$/src/lib/transport/transport.ts" />
-        <option value="$PROJECT_DIR$/src/lib/wamp/test.ts" />
-        <option value="$PROJECT_DIR$/src/lib/utils/expectation-store.ts" />
+        <option value="$PROJECT_DIR$/src/lib/proto/message.type.ts" />
+        <option value="$PROJECT_DIR$/src/lib/proto/messages.ts" />
         <option value="$PROJECT_DIR$/src/lib/utils/message-router.ts" />
+        <option value="$PROJECT_DIR$/src/lib/must-ext/events.ts" />
+        <option value="$PROJECT_DIR$/src/lib/wamp/test.ts" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -235,8 +213,8 @@
     </packageJsonPaths>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-284" />
-    <option name="y" value="954" />
+    <option name="x" value="-427" />
+    <option name="y" value="397" />
     <option name="width" value="1805" />
     <option name="height" value="160" />
   </component>
@@ -265,6 +243,27 @@
               <item name="wampus" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="lib" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wampus" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="must-ext" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wampus" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="proto" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wampus" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="transport" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
@@ -336,15 +335,18 @@
       <workItem from="1530464911426" duration="6165000" />
       <workItem from="1530479830786" duration="2595000" />
       <workItem from="1530532029745" duration="22186000" />
-      <workItem from="1530561610303" duration="3643000" />
+      <workItem from="1530561610303" duration="12133000" />
+      <workItem from="1530615157434" duration="38000" />
+      <workItem from="1530615336045" duration="734000" />
+      <workItem from="1530618222500" duration="1034000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="65156000" />
+    <option name="totallyTimeSpent" value="75452000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="106" y="-8" width="2462" height="1456" extended-state="6" />
+    <frame x="109" y="-8" width="1819" height="1216" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -352,9 +354,9 @@
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49915826" weight="0.4211321" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.49957913" weight="0.32981133" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.5019305" side_tool="true" visible="true" weight="0.18943396" />
-      <window_info anchor="bottom" id="TypeScript" order="12" sideWeight="0.49641478" weight="0.2359447" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2614488" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.5059693" side_tool="true" visible="true" weight="0.24331798" />
+      <window_info anchor="bottom" id="TypeScript" order="12" sideWeight="0.4940307" visible="true" weight="0.24331798" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.26662877" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -368,6 +370,28 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4980695" weight="0.32903227" />
     </layout>
+    <layout-to-restore>
+      <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.49957913" weight="0.32981133" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2614488" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="TypeScript" order="12" sideWeight="0.49641478" weight="0.2359447" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49915826" weight="0.4211321" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="right" id="Database" order="3" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.5019305" side_tool="true" visible="true" weight="0.18943396" />
+      <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
+      <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4980695" weight="0.32903227" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+    </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
@@ -381,23 +405,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/node_modules/@types/string-template/index.d.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="476">
-          <caret line="20" column="8" selection-start-line="20" selection-start-column="8" selection-end-line="20" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/__test__/test.ts">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/proto/messages.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9940">
-          <caret line="355" column="19" selection-start-line="355" selection-start-column="19" selection-end-line="355" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/package.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="644">
@@ -503,14 +510,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor />
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tslint.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="392">
@@ -591,13 +590,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/proto/uris.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1260">
-          <caret line="45" column="5" selection-start-line="45" selection-start-column="5" selection-end-line="45" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tsconfig.json">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -608,13 +600,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="168">
           <caret line="6" column="7" selection-start-line="6" selection-start-column="7" selection-end-line="6" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/ext-promise.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="56">
-          <caret line="2" column="22" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="22" />
         </state>
       </provider>
     </entry>
@@ -633,24 +618,25 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/serializer/serializer.ts">
+    <entry file="file://$PROJECT_DIR$/src/lib/errors/errors.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="17" selection-start-column="17" selection-end-column="17" />
+        <state relative-caret-position="1848">
+          <caret line="66" column="19" selection-start-line="66" selection-start-column="19" selection-end-line="66" selection-end-column="19" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/must-ext/events.ts">
+    <entry file="file://$PROJECT_DIR$/src/lib/utils/expectation-store.ts" />
+    <entry file="file://$PROJECT_DIR$/src/lib/serializer/serializer.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="812">
-          <caret line="29" column="11" selection-start-line="29" selection-start-column="11" selection-end-line="29" selection-end-column="11" />
+        <state relative-caret-position="84">
+          <caret line="3" column="4" selection-start-line="3" selection-start-column="4" selection-end-line="3" selection-end-column="4" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/transport/websocket.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="672">
-          <caret line="31" selection-start-line="31" selection-end-line="31" />
+        <state relative-caret-position="470">
+          <caret line="24" selection-start-line="24" selection-end-line="24" />
           <folding>
             <element signature="e#0#36#0" expanded="true" />
           </folding>
@@ -659,69 +645,95 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/transport/transport.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="644">
-          <caret line="25" column="17" selection-start-line="25" selection-start-column="17" selection-end-line="25" selection-end-column="17" />
+        <state relative-caret-position="504">
+          <caret line="20" column="4" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="4" />
+          <folding>
+            <element signature="e#0#65#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/errors/errors.ts">
+    <entry file="file://$PROJECT_DIR$/node_modules/most/dist/most.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1848">
-          <caret line="66" column="19" selection-start-line="66" selection-start-column="19" selection-end-line="66" selection-end-column="19" />
+        <state relative-caret-position="29792">
+          <caret line="1064" column="9" selection-start-line="1064" selection-start-column="9" selection-end-line="1064" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/ext-promise.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="56">
+          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/most-subject/lib/types.d.ts" />
+    <entry file="file://$PROJECT_DIR$/node_modules/most-subject/lib/create.d.ts" />
+    <entry file="file://$PROJECT_DIR$/src/lib/proto/uris.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1260">
+          <caret line="45" column="5" selection-start-line="45" selection-start-column="5" selection-end-line="45" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/proto/message.type.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="672">
+          <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/utils/message-router.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1680">
+          <caret line="61" column="64" selection-start-line="61" selection-start-column="64" selection-end-line="61" selection-end-column="64" />
+          <folding>
+            <element signature="e#0#46#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/proto/messages.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2996">
-          <caret line="108" column="39" selection-start-line="108" selection-start-column="39" selection-end-line="108" selection-end-column="39" />
+        <state relative-caret-position="3724">
+          <caret line="134" column="65" selection-start-line="134" selection-start-column="65" selection-end-line="134" selection-end-column="65" />
           <folding>
             <element signature="e#0#61#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/proto/message.type.ts">
+    <entry file="file://$PROJECT_DIR$/src/lib/must-ext/events.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="28">
-          <caret line="1" column="4" selection-start-line="1" selection-start-column="4" selection-end-line="1" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/wamp/test.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="827">
-          <caret line="96" column="42" lean-forward="true" selection-start-line="96" selection-start-column="42" selection-end-line="96" selection-end-column="42" />
-          <folding>
-            <element signature="e#0#55#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="308">
+          <caret line="11" column="26" lean-forward="true" selection-start-line="11" selection-start-column="26" selection-end-line="11" selection-end-column="26" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/node_modules/most/type-definitions/most.d.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="331">
-          <caret line="42" column="17" selection-start-line="42" selection-start-column="17" selection-end-line="42" selection-end-column="17" />
+        <state relative-caret-position="1876">
+          <caret line="67" lean-forward="true" selection-start-line="67" selection-end-line="67" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/utils/expectation-store.ts">
+    <entry file="file://$PROJECT_DIR$/src/lib/wamp/test.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-84">
-          <caret line="3" column="38" selection-start-line="3" selection-end-line="4" />
+        <state relative-caret-position="186">
+          <caret line="102" lean-forward="true" selection-start-line="102" selection-end-line="102" />
           <folding>
-            <element signature="e#0#50#0" expanded="true" />
+            <element signature="e#0#73#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/utils/message-router.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="140">
-          <caret line="26" column="39" lean-forward="true" selection-start-line="26" selection-start-column="39" selection-end-line="26" selection-end-column="39" />
-          <folding>
-            <element signature="e#0#46#0" expanded="true" />
-          </folding>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="532">
+            <caret line="19" column="36" lean-forward="true" selection-start-line="19" selection-start-column="36" selection-end-line="19" selection-end-column="36" />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>

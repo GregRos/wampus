@@ -26,7 +26,6 @@
     "buffer": "^5.1.0",
     "isomorphic-ws": "^4.0.1",
     "most": "^1.7.3",
-    "most-subject": "^6.0.0",
     "p-event": "^2.1.0",
     "promise-stuff": "^0.3.2",
     "string-template": "^1.0.0",
