@@ -1,6 +1,7 @@
-import {WampusError, WampusNetworkError} from "../errors/errors";
+import {WampusNetworkError} from "../errors/types";
 import {WampMessage, WampRawMessage} from "../proto/messages";
 import most = require("most");
+import {WampusError} from "../errors/types";
 export interface WampusCloseEvent {
     expected : boolean;
     data : any;

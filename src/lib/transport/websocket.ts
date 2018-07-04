@@ -2,12 +2,13 @@ import {EventEmitter} from "events";
 import {TransportClosed, TransportError, TransportEvent, TransportMessage, WampusTransport} from "./transport";
 import * as ws from "ws";
 import most = require("most");
-import {WampusError, WampusNetworkError} from "../errors/errors";
+import {WampusNetworkError} from "../errors/types";
 const WebSocket = require('isomorphic-ws') as typeof ws;
 import {MyPromise} from "../ext-promise";
 import {WampusSerializer} from "../serializer/serializer";
 import {WampMessage, WampRawMessage} from "../proto/messages";
 import {fromEvent} from "most";
+import {WampusError} from "../errors/types";
 
 export interface WebsocketTransportConfig {
     url: string;

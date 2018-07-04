@@ -1,38 +1,172 @@
-import {WampusIllegalOperationError} from "../errors/errors";
 import {WampMsgType} from "./message.type";
 
 export type WampRawMessage = any[];
 
-export interface WampCallOptions {
+export interface PublisherFeatures {
+    subscriber_blackwhite_listing : boolean;
+    publisher_exclusion : boolean;
+    publisher_identification : boolean;
+    shareded_subscriptions : boolean;
+}
 
+export interface SubscriberFeatures {
+    pattern_based_subscription : boolean;
+    shareded_subscriptions : boolean;
+    event_history : boolean;
+    publisher_identification : boolean
+    publication_trustlevels : boolean;
+}
+
+export interface CallerFeatures {
+    progressive_call_results : boolean;
+    call_timeout : boolean;
+    call_cancelling : boolean;
+    caller_identification : boolean;
+    sharded_registration : boolean;
+}
+
+export interface CalleeFeatures {
+    progressive_call_results : boolean;
+    call_trustlevels : boolean;
+    pattern_based_registration : boolean;
+    shared_registration : boolean;
+    call_timeout : boolean;
+    call_cancelling : boolean;
+    caller_identification : boolean;
+    sharded_registration : boolean;
+}
+
+
+
+export interface HelloDetails {
+    agent ?: string;
+    roles : {
+        publisher ?: {
+            features ?: Partial<PublisherFeatures>
+        };
+        subscriber ?: {
+            features ?: Partial<SubscriberFeatures>
+        };
+        caller ?: {
+            features ?: Partial<CallerFeatures>
+        };
+        callee ?: {
+            features ?: Partial<CalleeFeatures>;
+        };
+    }
+}
+
+export interface WelcomeDetails {
+    agent ?: string;
+    roles : {
+        broker ?: {
+            features ?: Partial<BrokerFeatures>;
+        };
+        dealer ?: {
+            features ?: Partial<DealerFeatures>;
+        }
+    };
+}
+
+export interface DealerFeatures {
+    registration_meta_api : boolean;
+    shared_registration : boolean;
+    session_meta_api : boolean;
+    progressive_call_results : boolean;
+    call_timeout : boolean;
+    call_cancelling : boolean;
+    caller_identification : boolean;
+    call_trustlevels : boolean;
+    pattern_based_registration : boolean;
+    sharded_registration : boolean;
+
+}
+
+export interface BrokerFeatures {
+    pattern_based_registration : boolean;
+    shareded_subscriptions : boolean;
+    event_history : boolean;
+    session_meta_api : boolean;
+    subscriber_blackwhite_listing : boolean;
+    publisher_exclusion : boolean;
+    publisher_identification : boolean;
+    publication_trustlevels : boolean;
+    pattern_based_subscription : boolean;
+    sharded_subscription : boolean;
+}
+
+export enum InvocationPolicy {
+    Single = "single",
+    RoundRobin = "roundrobin",
+    Random = "random",
+    First = "first",
+    Last = "last"
+}
+
+export enum MatchType {
+    Prefix = "prefix",
+    Wildcard = "wildcard"
 }
 
 export interface WampPublishOptions {
-
+    acknowledge ?: boolean;
+    exclude ?: number[];
+    exclude_authid ?: string[];
+    excluse_authrole ?: string[];
+    eligible ?: number[];
+    eligible_authid ?: number[];
+    eligible_authrole ?: number[];
+    // Defaults to true!
+    exclude_me ?: boolean;
 }
 
 export interface WampSubscribeOptions {
-
+    match ?: MatchType;
 }
 
 export interface WampRegisterOptions {
-
+    disclose_caller ?: boolean;
+    match ?: MatchType;
+    invoke ?: InvocationPolicy;
 }
 
 export interface WampYieldOptions {
+    progress ?: boolean;
 
 }
 
 export interface WampEventOptions {
-
+    publisher ?: number;
+    trustlevel ?: number;
+    topic ?: string;
 }
 
-export interface WampResultOptions {
+export enum CancelMode {
+    Skip = "skip",
+    Kill = "kill",
+    KillNoWait = "killnowait"
+}
 
+export interface WampCancelOptions {
+    mode ?: CancelMode;
+}
+
+export interface WampCallOptions {
+    receive_progress ?: boolean;
+    disclose_me ?: boolean;
+    timeout ?: number;
+}
+
+
+export interface WampResultOptions {
+    progress ?: boolean;
 }
 
 export interface WampInvocationOptions {
-
+    receive_progress ?: boolean;
+    caller ?: number;
+    trustlevel ?: number;
+    procedure ?: string;
 }
 
 
@@ -62,107 +196,6 @@ export module DSFF{
     }
 }
 
-export class WampMessageFactory {
-    constructor(private _requestIdProvider : () => number) {
-
-    }
-
-    hello(realm : string, details : object) {
-        return new WampMessage.Hello(realm, details);
-    }
-
-    abort(details : object, reason : string) {
-        return new WampMessage.Abort(details, reason);
-    }
-
-    call(options : WampCallOptions, procedure : string, args ?: any[], kwargs ?: any) {
-        return new WampMessage.Call(this._requestIdProvider(), options, procedure, args, kwargs);
-    }
-
-    publish(options : WampPublishOptions, topic : string, args ?: any[], kwargs ?: any) {
-        return new WampMessage.Publish(this._requestIdProvider(), options, topic, args, kwargs);
-    }
-
-    subscribe(options : WampSubscribeOptions, topic : string) {
-        return new WampMessage.Subscribe(this._requestIdProvider(), options, topic);
-    }
-
-    unsubscribe(subscription : number) {
-        return new WampMessage.Unsubscribe(this._requestIdProvider(), subscription);
-    }
-
-    register(options : WampRegisterOptions, procedure : string) {
-        return new WampMessage.Register(this._requestIdProvider(), options, procedure);
-    }
-
-    unregister(registration : number) {
-        return new WampMessage.Unregister(this._requestIdProvider(), registration);
-    }
-
-    yield(invocationId : number, options : WampYieldOptions, args ?: any[], kwargs : any) {
-        return new WampMessage.Yield(invocationId, options, args, kwargs);
-    }
-
-    cancel(callRequestId : number, options : object) {
-        return new WampMessage.Cancel(callRequestId, options);
-    }
-
-    authenticate(signature : string, options : object) {
-        return new WampMessage.Authenticate(signature, options);
-    }
-
-     read(raw : WampRawMessage) : WampMessage.Any {
-        switch (raw[0]) {
-            case WampMsgType.Welcome:
-                return new WampMessage.Welcome(raw[1], raw[2]);
-            case WampMsgType.Abort:
-                return new WampMessage.Abort(raw[1], raw[2]);
-            case WampMsgType.Goodbye:
-                return new WampMessage.Goodbye(raw[1], raw[2]);
-            case WampMsgType.Error:
-                return new WampMessage.Error(raw[1], raw[2], raw[3], raw[4], raw[5]);
-            case WampMsgType.Published:
-                return new WampMessage.Published(raw[1], raw[2]);
-            case WampMsgType.Subscribed:
-                return new WampMessage.Subscribed(raw[1], raw[2]);
-            case WampMsgType.Unsubscribed:
-                return new WampMessage.Unsubscribed(raw[1]);
-            case WampMsgType.Event:
-                return new WampMessage.Event(raw[1], raw[2], raw[3], raw[4], raw[5]);
-            case WampMsgType.Result:
-                return new WampMessage.Result(raw[1], raw[2], raw[3], raw[4]);
-            case WampMsgType.Registered:
-                return new WampMessage.Registered(raw[1], raw[2]);
-            case WampMsgType.Unregistered:
-                return new WampMessage.Unregistered(raw[1]);
-            case WampMsgType.Invocation:
-                return new WampMessage.Invocation(raw[1], raw[2], raw[3], raw[4], raw[5]);
-            case WampMsgType.Challenge:
-                return new WampMessage.Challenge(raw[1], raw[2]);
-            case WampMsgType.Interrupt:
-                return new WampMessage.Interrupt(raw[1], raw[2]);
-            case WampMsgType.Subscribe:
-            case WampMsgType.Unregister:
-            case WampMsgType.Publish:
-            case WampMsgType.Call:
-            case WampMsgType.Register:
-            case WampMsgType.Hello:
-            case WampMsgType.Yield:
-            case WampMsgType.Authenticate:
-            case WampMsgType.Cancel:
-                throw new WampusIllegalOperationError("Received a WAMP message not intended for clients.", {
-                    type : WampMsgType[raw[0]],
-                    msg : raw
-                });
-            default:
-                throw new WampusIllegalOperationError("Received a WAMP message of an unrecognized type.", {
-                    type : raw[0],
-                    msg : raw
-                });
-        }
-    }
-}
-
 export module WampMessage {
     export class Call implements WampMessage{
         type = WampMsgType.Call;
@@ -189,7 +222,7 @@ export module WampMessage {
 
     export class Hello implements WampMessage {
         type = WampMsgType.Hello;
-        constructor(public realm : string, public details : Record<string, any>) {
+        constructor(public realm : string, public details : HelloDetails) {
 
         }
 
@@ -263,6 +296,13 @@ export module WampMessage {
         }
     }
 
+    export class Unknown {
+        type = WampMsgType._Unknown;
+        constructor(public raw : any[]) {
+
+        }
+    }
+
     export class Unregister  {
         type = WampMsgType.Unregister;
 
@@ -290,7 +330,7 @@ export module WampMessage {
     export class Welcome implements WampMessage {
         type = WampMsgType.Welcome;
 
-        constructor(public sessionId : number, public details : any) {
+        constructor(public sessionId : number, public details : WelcomeDetails) {
 
         }
     }
@@ -331,7 +371,7 @@ export module WampMessage {
     export class Result implements WampMessage {
         type = WampMsgType.Result;
 
-        constructor(public callReqId : number, details : WampResultOptions, args ?: any[], kwargs ?: any) {
+        constructor(public callReqId : number, public details : WampResultOptions, public args ?: any[], public kwargs ?: any) {
 
         }
     }
@@ -401,7 +441,7 @@ export module WampMessage {
     }
 
 
-    export type Any = Cancel | Interrupt | Authenticate | Challenge | Hello | Welcome | Abort | Goodbye | Error | Publish | Published | Subscribe | Subscribed | Unsubscribe | Unsubscribed | Event | Call | Result | Register | Registered | Unregister | Unregistered | Invocation | Yield;
+    export type Any = Cancel | Unknown | Interrupt | Authenticate | Challenge | Hello | Welcome | Abort | Goodbye | Error | Publish | Published | Subscribe | Subscribed | Unsubscribe | Unsubscribed | Event | Call | Result | Register | Registered | Unregister | Unregistered | Invocation | Yield;
 
 
 }

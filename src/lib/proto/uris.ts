@@ -1,12 +1,13 @@
 export module WampUri {
     export enum Error {
+        Prefix = "wamp.error",
         NotAuthorized = "wamp.error.not_authorized",
         ProcAlreadyExists = "wamp.error.procedure_already_exists",
         ProtoViolation = "wamp.error.protocol_violation",
         NoSuchRealm = "wamp.error.no_such_realm",
         NoSuchSubscription = "wamp.error.no_such_subscription",
         NoSuchRegistration = "wamp.error.no_such_registration",
-        NoSuchProedure = "wamp.error.no_such_procedure",
+        NoSuchProcedure = "wamp.error.no_such_procedure",
         InvalidUri = "wamp.error.invalid_uri",
         InvalidArgument = "wamp.error.invalid_argument",
         AuthFailed = "wamp.error.authorization_failed",

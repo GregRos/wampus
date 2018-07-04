@@ -4,7 +4,7 @@ import most = require("most");
 /**
  * A function that returns true if the route is considered "handled" and should be removed.
  */
-export type RouteTarget<T> = (msg : T) => boolean;
+export type RouteTarget<T> = (msg : T) => void;
 
 interface RouteIndex<T> {
     match ?: RouteTarget<T>[];
@@ -20,15 +20,13 @@ export class MessageRouter<T> {
         let rec = (cur : RouteIndex<T>, index : number) => {
             if (!cur) {
                 cur = {
-                    match : []
+                    match : [],
+                    next : new Map()
                 };
             }
             if (keys.length <= index) {
                 cur.match.push(target);
                 return cur;
-            }
-            if (!cur.next) {
-                cur.next = new Map();
             }
             let nextIndex = cur.next.get(keys[index]);
             nextIndex = rec(nextIndex, index + 1);
@@ -45,30 +43,28 @@ export class MessageRouter<T> {
                 let foundIndex = cur.match.indexOf(target);
                 if (foundIndex === -1) return cur;
                 cur.match.splice(index, 1);
-                if (cur.match.length === 0 && !cur.next) return null;
-            }
-            if (cur.next){
-                let next = cur.next.get(keys[index]);
-                if (!next) return cur;
-                next = rec(next, index + 1);
-                if (!next) {
-                    cur.next.delete(keys[index]);
+                if (cur.match.length === 0 && cur.next.size === 0) {
+                    return null;
+                } else {
+                    return cur;
                 }
+            }
+            let next = cur.next.get(keys[index]);
+            if (!next) return cur;
+            next = rec(next, index + 1);
+            if (!next) {
+                cur.next.delete(keys[index]);
             }
             return cur;
         };
     }
 
-    expectFirst(...options : any[][]) : most.Stream<WampMessage.Any> {
-        return most.mergeArray(options.map(key => this.expectOne(key))).take(1);
-    }
 
-    expectOne(...keys : any[]) {
+    expect(...keys : any[]) {
         return new most.Stream<WampMessage.Any>({
             run : (sink, sch) => {
                 let target = x => {
                     sink.event(sch.now(), x);
-                    return true;
                 };
                 this.insertRoute(keys, target);
                 return {
@@ -83,26 +79,31 @@ export class MessageRouter<T> {
     match(keys : any[], object : T) {
         let anyMatches = false;
         let rec = (cur : RouteIndex<T>, index : number) => {
-            if (!cur) return null;
+            if (!cur) return;
             if (cur.match.length > 0) {
                 anyMatches = true;
             }
-            cur.match = cur.match.filter(rt => !rt(object));
-            if (cur.match.length === 0 && !cur.next) {
-                return null;
-            }
-            if (cur.next) {
-                let next = cur.next.get(keys[index]);
-                if (!next) return cur;
-                next = rec(next, index + 1);
-                if (!next) {
-                    cur.next.delete(keys[index]);
-                }
-            }
-            return cur;
+            cur.match.forEach(target => {
+                target(object);
+            });
+            if (index >= keys.length) return;
+            let next = cur.next.get(keys[index]);
+            if (!next) return cur;
+            rec(next, index + 1);
         };
         rec(this._root, 0);
         return anyMatches;
+    }
+
+    broadcast(object : T) {
+        let rec = (cur : RouteIndex<T>) => {
+            if (!cur) return;
+            cur.match.forEach(f => f(object));
+            for (let [k,v] of cur.next) {
+                rec(v);
+            }
+        };
+        rec(this._root);
     }
 
     reset() {
