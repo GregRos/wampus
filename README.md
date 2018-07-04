@@ -31,5 +31,3 @@ Note that this is basically a wish list. It doesn't work yet.
 5. User-readable error messages for possible issues, protocol violations, connection errors, etc.
 
 6. Support for serializing/deserializing data into desired formats. E.g. receive a JSON-encoded object graph, turn into JS complex nested object.
-
-7. Lower-level access to a message sending API for integration with custom protocol implementations and using experimental features.
