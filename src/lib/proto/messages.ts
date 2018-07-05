@@ -443,6 +443,8 @@ export module WampMessage {
 
     export type Any = Cancel | Unknown | Interrupt | Authenticate | Challenge | Hello | Welcome | Abort | Goodbye | Error | Publish | Published | Subscribe | Subscribed | Unsubscribe | Unsubscribed | Event | Call | Result | Register | Registered | Unregister | Unregistered | Invocation | Yield;
 
+    export type SendableMessage = Any & {toTransportFormat() : any[]};
+
 
 }
 

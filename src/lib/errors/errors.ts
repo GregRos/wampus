@@ -42,9 +42,9 @@ export module Errs {
             );
         }
 
-        export function unrecognizedError(error : WampMessage.Error) {
+        export function unrecognizedError(error : WampMessage.Abort) {
             return new WampusIllegalOperationError("During handshake, received ERROR reply from the server: {error}.", {
-                error : error.error,
+                error : error.reason,
                 message : error
             });
         }
@@ -57,6 +57,21 @@ export module Errs {
             return new WampusIllegalOperationError("Tried to join realm {realm}, but it did not exist, and the router refused to auto-create it.", {
                 realm,
                 code: WampUri.Error.NoSuchRealm
+            });
+        }
+    }
+
+    export module Register {
+        export function procedureAlreadyExists(name : string) {
+            return new WampusIllegalOperationError("Tried to register procedure {name}, but it's already registered.", {
+                name
+            });
+        }
+
+        export function error(name : string, err : WampMessage.Error) {
+            return new WampusIllegalOperationError("Failed to register procedure {name}.", {
+                err,
+                name
             });
         }
     }

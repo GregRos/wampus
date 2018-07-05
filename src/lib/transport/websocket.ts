@@ -6,14 +6,13 @@ import {WampusNetworkError} from "../errors/types";
 const WebSocket = require('isomorphic-ws') as typeof ws;
 import {MyPromise} from "../ext-promise";
 import {WampusSerializer} from "../serializer/serializer";
-import {WampMessage, WampRawMessage} from "../proto/messages";
+import {SendableMessage, WampMessage, WampRawMessage} from "../proto/messages";
 import {fromEvent} from "most";
 import {WampusError} from "../errors/types";
 
 export interface WebsocketTransportConfig {
     url: string;
     serializer: WampusSerializer;
-    protocols?: string | string[];
     timeout: number;
 }
 
@@ -29,10 +28,9 @@ export class WebsocketTransport implements WampusTransport{
     static async create(config: WebsocketTransportConfig) {
         let transport = new WebsocketTransport();
         transport._config = config;
-
         try {
-            var ws = new WebSocket(config.url, config.protocols, {
-                handshakeTimeout: config.timeout == null ? undefined : config.timeout
+            var ws = new WebSocket(config.url, `wamp.2.${config.serializer.id}`, {
+
             });
         }
         catch (err) {
@@ -48,9 +46,9 @@ export class WebsocketTransport implements WampusTransport{
             } as TransportClosed;
         });
 
-        let msgEvent : most.Stream<TransportEvent> = fromEvent("message", ws).map(msg => {
+        let msgEvent : most.Stream<TransportEvent> = fromEvent("message", ws).map((msg : any) => {
             try {
-                var result = transport._config.serializer.deserialize(msg as any);
+                var result = transport._config.serializer.deserialize(msg.data);
             }
             catch (err) {
                 return {
@@ -78,11 +76,14 @@ export class WebsocketTransport implements WampusTransport{
             if (x.type === "closed") {
                 return most.of(x);
             } else {
-                return messages;
+                return messages.startWith(x);
             }
         }).switchLatest();
-
+        transport.events = messages;
         await new MyPromise((resolve, reject) => {
+            if (ws.readyState === ws.OPEN) {
+                return resolve();
+            }
             ws.onopen = () => {
                 ws.onopen = null;
                 resolve();
@@ -93,7 +94,7 @@ export class WebsocketTransport implements WampusTransport{
                 reject(new WampusNetworkError("Failed to establish WebSocket connection with {url}. Reason: {reason}", {
                     url: config.url,
                     type: event.type,
-                    message: event.message,
+                    reason: event.message,
                     error: event.error
                 }));
             };
@@ -104,8 +105,11 @@ export class WebsocketTransport implements WampusTransport{
                 return Promise.reject(new WampusNetworkError("WebSocket connection timed out.", {
                     url: config.url
                 }));
-            }
+            } else {
+                return Promise.reject(x);
+        }
         });
+        return transport;
     }
 
     close(code ?: number, data ?: any): Promise<void> {
@@ -125,27 +129,34 @@ export class WebsocketTransport implements WampusTransport{
         return this._expectingClose;
     }
 
-    send(msg: WampMessage.Any): Promise<void> {
-
-        return new MyPromise((resolve, reject) => {
-            try {
-                var payload = this._config.serializer.serialize(msg);
-            }
-            catch (err) {
-                throw new WampusNetworkError("The message could not be serialized.", {
-                    err
-                });
-            }
-            this._ws.send(payload, {
-
-            }, err => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
+    send(msg: WampMessage.SendableMessage): most.Stream<undefined> {
+        return most.of(null).flatMap(() => new most.Stream<any>({
+            run : (sink, sch) => {
+                try {
+                    var payload = this._config.serializer.serialize(msg.toTransportFormat());
                 }
-            });
-        });
+                catch (err) {
+                    throw new WampusNetworkError("The message could not be serialized.", {
+                        err
+                    });
+                }
+                this._ws.send(payload, {
+
+                }, err => {
+                    if (err) {
+                        sink.error(sch.now(), err);
+                    } else {
+                        sink.event(sch.now(), undefined);
+                        sink.end(sch.now());
+                    }
+                });
+                return {
+                    dispose() {
+
+                    }
+                }
+            }
+        }));
     }
 
 }

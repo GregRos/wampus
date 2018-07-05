@@ -1,6 +1,7 @@
 import {WampMsgType} from "./message.type";
 import {WampusIllegalOperationError} from "../errors/types";
 import {
+    HelloDetails,
     WampCallOptions,
     WampMessage,
     WampPublishOptions,
@@ -10,12 +11,12 @@ import {
     WampYieldOptions
 } from "./messages";
 
-export class WampMessageFactory {
+export class WampMsgHelper {
     constructor(private _requestIdProvider: () => number) {
 
     }
 
-    hello(realm: string, details: object) {
+    hello(realm: string, details: HelloDetails) {
         return new WampMessage.Hello(realm, details);
     }
 
@@ -43,6 +44,10 @@ export class WampMessageFactory {
         return new WampMessage.Register(this._requestIdProvider(), options, procedure);
     }
 
+    error(sourceType : WampMsgType, requestId : number, details : any, name : string, args : any[], kwargs : any) {
+        return new WampMessage.Error(sourceType, requestId, details, name, args, kwargs);
+    }
+
     unregister(registration: number) {
         return new WampMessage.Unregister(this._requestIdProvider(), registration);
     }
@@ -58,6 +63,40 @@ export class WampMessageFactory {
     authenticate(signature: string, options: object) {
         return new WampMessage.Authenticate(signature, options);
     }
+
+    expect = {
+        goodbye : [WampMsgType.Goodbye],
+        error(type : WampMsgType, param2 ?: number) {
+            return param2 ? [WampMsgType.Error, type, param2] : [type];
+        },
+        published(publishReqId : number) {
+            return [WampMsgType.Published, publishReqId];
+        },
+        subscribed(subReqId : number) {
+            return [WampMsgType.Subscribed, subReqId];
+        },
+        unsubscribed(unsubReqId : number) {
+            return [WampMsgType.Unsubscribed, unsubReqId];
+        },
+        event(subId : number) {
+            return [WampMsgType.Event, subId];
+        },
+        registered(registerReqId : number) {
+            return [WampMsgType.Registered, registerReqId];
+        },
+        unregistered(registrationId : number) {
+            return [WampMsgType.Unregistered, registrationId];
+        },
+        invocation(registrationId : number) {
+            // NOTE: This isn't the actual order of the fields for an INVOCATION message.
+            // The fields need to be reordered in this one special case. Indexes 1, 2 must be switched.
+            return [WampMsgType.Invocation, registrationId];
+        },
+        result(reqId : number) {
+            return [WampMsgType.Result, reqId];
+        }
+
+    };
 
     read(raw: WampRawMessage): WampMessage.Any {
         switch (raw[0]) {
@@ -96,9 +135,9 @@ export class WampMessageFactory {
             case WampMsgType.Publish:
                 return new WampMessage.Publish(raw[1], raw[2], raw[3], raw[4], raw[5]);
             case WampMsgType.Call:
-                return new WampMessage.Call(raw[1], raw[], raw[3], raw[3], raw[5]);
+                return new WampMessage.Call(raw[1], raw[2], raw[3], raw[3], raw[5]);
             case WampMsgType.Register:
-                return new WampMessage.Register(raw[1], raw[], raw[3]);
+                return new WampMessage.Register(raw[1], raw[2], raw[3]);
             case WampMsgType.Hello:
                 return new WampMessage.Hello(raw[1], raw[2]);
             case WampMsgType.Yield:

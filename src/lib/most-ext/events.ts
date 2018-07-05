@@ -12,6 +12,9 @@ declare module "most" {
         choose<B>(f : (x : A) => B) : Stream<B>;
         subscribe(x : Partial<Subscriber<A>>) : Subscription<A>;
         publishReplay(size : number) : Stream<A> & {attach() : Subscription<A>};
+        mapError(projection : (x : any) => any) : Stream<A>;
+        lastly(f : () => void) : Stream<A>;
+        tapFull(observer : Partial<Subscriber<A>>) : Stream<A>;
     }
 
 
@@ -41,6 +44,69 @@ Object.assign(most.Stream.prototype, {
     },
     choose<T, S>(this : most.Stream<T>, f : (x : T) => S) {
         return this.map(f).filter(x => x !== undefined);
+    },
+    mapError<T>(this : most.Stream<T>, projection : (x : any) => any) {
+        return this.recoverWith<any>(err => {
+            return most.throwError(projection(err));
+        });
+    },
+    tapFull<T>(this : most.Stream<T>, subscriber : Subscriber<T>) {
+        return new most.Stream({
+            run : (sink, sch) => {
+                let sub = this.subscribe({
+                    next(v) {
+                        try {
+                            subscriber.next && subscriber.next(v);
+                        }
+                        catch (err) {
+                            sub.unsubscribe();
+                            return sink.error(sch.now(), err);
+                        }
+                        sink.event(sch.now(), v);
+                    },
+                    complete(v) {
+                        sub.unsubscribe();
+                        try {
+                            subscriber.complete && subscriber.complete(v);
+                        }
+                        catch (err) {
+                            return sink.error(sch.now(), err);
+                        }
+                        sink.end(sch.now(), v);
+                    },
+                    error(e) {
+                        sub.unsubscribe();
+                        try {
+                            subscriber.error && subscriber.error(e);
+                        }
+                        catch (err) {
+                            sink.error(sch.now(), err);
+                            return;
+                        }
+                        sink.error(sch.now(), e);
+                    }
+                });
+                return {
+                    dispose() {
+                        return sub.unsubscribe();
+                    }
+                }
+            }
+        })
+    },
+    lastly<T>(this : most.Stream<T>, f : () => Promise<void>) {
+        let whenDisposed = new most.Stream<any>({
+            run(sink, sch) {
+                return {
+                    async dispose() {
+                        await f();
+                        return {};
+                    }
+                }
+
+            }
+        });
+        return this.merge(whenDisposed) as most.Stream<T>;
     },
     publishReplay<T>(this : most.Stream<T>, size : number) : most.Stream<T> & {attach() : most.Subscription<T>} {
         let buffer = Array(size);

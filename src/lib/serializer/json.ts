@@ -1,8 +1,7 @@
 import {WampusSerializer} from "./serializer";
 declare type Blob = any;
-const toBuffer = require('blob-to-buffer')
 export class WampusJsonSerializer implements WampusSerializer {
-    readonly id: string;
+    readonly id = "json";
 
     deserialize(buffer: Buffer): object {
         let str = buffer.toString("utf8");
@@ -10,7 +9,8 @@ export class WampusJsonSerializer implements WampusSerializer {
     }
 
     serialize(msg: object): Buffer | ArrayBuffer | string {
-        return undefined;
+        let str =  JSON.stringify(msg);
+        return Buffer.from(str, "utf8");
     }
 
 }

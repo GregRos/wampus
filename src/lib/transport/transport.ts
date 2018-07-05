@@ -2,6 +2,7 @@ import {WampusNetworkError} from "../errors/types";
 import {WampMessage, WampRawMessage} from "../proto/messages";
 import most = require("most");
 import {WampusError} from "../errors/types";
+import {Stream} from "most";
 export interface WampusCloseEvent {
     expected : boolean;
     data : any;
@@ -25,8 +26,8 @@ export interface TransportError {
 export type TransportEvent = TransportError | TransportMessage | TransportClosed;
 
 export interface WampusTransport {
-    send(msg : WampMessage.Any) : Promise<void>;
-    events : most.Stream<TransportEvent>;
+    send(msg : WampMessage.Any) : Stream<undefined>;
+    events : Stream<TransportEvent>;
     close() : Promise<void>;
 }
 

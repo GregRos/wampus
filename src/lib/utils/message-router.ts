@@ -4,7 +4,7 @@ import most = require("most");
 /**
  * A function that returns true if the route is considered "handled" and should be removed.
  */
-export type RouteTarget<T> = (msg : T) => void;
+export type RouteTarget<T> = (x : T) => void;
 
 interface RouteIndex<T> {
     match ?: RouteTarget<T>[];
@@ -59,17 +59,21 @@ export class MessageRouter<T> {
         };
     }
 
-
     expect(...keys : any[]) {
-        return new most.Stream<WampMessage.Any>({
+        return new most.Stream<T>({
             run : (sink, sch) => {
-                let target = x => {
-                    sink.event(sch.now(), x);
+                let inv = x => {
+                    try {
+                        sink.event(sch.now(), x);
+                    }
+                    catch (err) {
+                        sink.error(sch.now(), err);
+                    }
                 };
-                this.insertRoute(keys, target);
+                this.insertRoute(keys, inv);
                 return {
                     dispose : () => {
-                        this.removeRoute(keys, target);
+                        this.removeRoute(keys, inv);
                     }
                 }
             }
