@@ -2,22 +2,22 @@ import "../setup";
 
 import {yamprint} from "yamprint";
 import _ = require("lodash");
-import {WebsocketTransport} from "./transport/websocket";
-import {WampusJsonSerializer} from "./serializer/json";
-import {WampMsgType} from "./proto/message.type";
+import {WebsocketTransport} from "./low/transport/websocket";
+import {JsonSerializer} from "./low/serializer/json";
+import {WampType} from "./low/wamp/message.type";
 import {MyPromise} from "./ext-promise";
-import {WampusSession} from "./wamp/session";
+import {InternalSession} from "./low/session";
 
 (async () => {
     let transport = await WebsocketTransport.create({
         url: "ws://127.0.0.1:9003",
-        serializer: new WampusJsonSerializer(),
+        serializer: new JsonSerializer(),
         timeout: 10 * 1000
     });
     transport.events.forEach(x => {
         console.log(yamprint(x.data));
     });
-    let session = await WampusSession.create({
+    let session = await InternalSession.create({
         transport: async () => transport,
         realm: "proxy",
         timeout: 10000

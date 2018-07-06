@@ -1,8 +1,9 @@
 import {WampusIllegalOperationError, WampusInvocationCanceledError} from "../errors/types";
-import {WampUri} from "../proto/uris";
-import {WampInvocationOptions, WampMessage} from "../proto/messages";
-import {WampusInternalSession, WampusSession} from "./session";
-import {WampMsgType} from "../proto/message.type";
+import {WampUri} from "./wamp/uris";
+import {WampMessage} from "./wamp/messages";
+import {InternalSession} from "./session";
+import {WampType} from "./wamp/message.type";
+import {WampInvocationOptions} from "./wamp/options";
 
 export interface DisposableToken {
     dispose() : Promise<void>;
@@ -20,7 +21,7 @@ export class InvocationArgs {
     get options() {
         return this._msg.options;
     }
-    constructor(private _msg : WampMessage.Invocation, private _session : WampusInternalSession) {
+    constructor(private _msg : WampMessage.Invocation, private _session : InternalSession) {
 
     }
 
@@ -30,7 +31,7 @@ export class InvocationArgs {
 
     async error(args : any[], kwargs : any) {
         this.isHandled = true;
-        await this._session._transport.send(this._session._factory.error(WampMsgType.Invocation, this._msg.requestId, {}, "wamp.error.runtime_error", args, kwargs));
+        await this._session._transport.send(this._session._factory.error(WampType.INVOCATION, this._msg.requestId, {}, "wamp.error.runtime_error", args, kwargs));
     }
 }
 

@@ -1,22 +1,22 @@
 import {EventEmitter} from "events";
-import {TransportClosed, TransportError, TransportEvent, TransportMessage, WampusTransport} from "./transport";
+import {TransportClosed, TransportError, TransportEvent, TransportMessage, Transport} from "./transport";
 import * as ws from "ws";
 import most = require("most");
-import {WampusNetworkError} from "../errors/types";
+import {WampusNetworkError} from "../../errors/types";
 const WebSocket = require('isomorphic-ws') as typeof ws;
-import {MyPromise} from "../ext-promise";
-import {WampusSerializer} from "../serializer/serializer";
-import {SendableMessage, WampMessage, WampRawMessage} from "../proto/messages";
+import {MyPromise} from "../../ext-promise";
+import {Serializer} from "../serializer/serializer";
+import {WampMessage, WampRawMessage} from "../wamp/messages";
 import {fromEvent} from "most";
-import {WampusError} from "../errors/types";
+import {WampusError} from "../../errors/types";
 
 export interface WebsocketTransportConfig {
     url: string;
-    serializer: WampusSerializer;
+    serializer: Serializer;
     timeout: number;
 }
 
-export class WebsocketTransport implements WampusTransport{
+export class WebsocketTransport implements Transport{
     private _config : WebsocketTransportConfig;
     private _ws : ws;
     private _expectingClose : Promise<void>;

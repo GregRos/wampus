@@ -1,6 +1,6 @@
-import {WampusSerializer} from "./serializer";
+import {Serializer} from "./serializer";
 declare type Blob = any;
-export class WampusJsonSerializer implements WampusSerializer {
+export class JsonSerializer implements Serializer {
     readonly id = "json";
 
     deserialize(buffer: Buffer): object {

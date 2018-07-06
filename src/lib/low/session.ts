@@ -1,17 +1,11 @@
-import {TransportMessage, WampusTransport} from "../transport/transport";
+import {TransportMessage, Transport} from "./transport/transport";
 import {
-    WampCallOptions,
-    WampInvocationOptions,
-    WampMessage, WampPublishOptions,
-    WampRegisterOptions,
-    WampSubscribeOptions
-} from "../proto/messages";
+    WampMessage} from "./wamp/messages";
 import {EventEmitter} from "events";
-import pEvent = require("p-event");
-import {WampMsgType} from "../proto/message.type";
+import {WampType} from "./wamp/message.type";
 import most = require("most");
 import "../most-ext/events";
-export interface WampusSessionConfig {
+export interface SessionConfig {
     realm: string;
     timeout: number;
 
@@ -21,12 +15,20 @@ export interface WampusSessionConfig {
 import WM = WampMessage;
 import {Errs, IllegalOperations, NetworkErrors} from "../errors/errors";
 
-import {MessageRouter} from "../utils/message-router";
-import {WampUri} from "../proto/uris";
-import {WampMsgHelper} from "../proto/helper";
+import {MessageRouter} from "../low/routing/message-router";
+import {WampUri} from "./wamp/uris";
+import {MessageReader, MessageBuilder} from "./wamp/helper";
 import {WampusIllegalOperationError, WampusInvocationError, WampusNetworkError} from "../errors/types";
 import {DisposableToken, EventArgs, InvocationArgs} from "./call";
-import {WebsocketTransport} from "../transport/websocket";
+import {WebsocketTransport} from "../low/transport/websocket";
+import {Routes} from "../low/routing/routing";
+import {
+    WampCallOptions,
+    WampInvocationOptions,
+    WampPublishOptions,
+    WampRegisterOptions,
+    WampSubscribeOptions
+} from "./wamp/options";
 
 function processAbortDuringHandshake(hello: WM.Hello, msg: WM.Abort) {
     switch (msg.reason) {
@@ -66,24 +68,19 @@ function processErrorDuringSubscribe(subscribe : WM.Subscribe, error : WM.Error)
     return new Error("Failed!");
 }
 
-export type WampusInternalSession = Partial<WampusSession> & {
-    _config: WampusSessionConfig;
-    _transport: WampusTransport;
-    _factory: WampMsgHelper;
-    _routes: MessageRouter<WM.Any>;
-}
 
-export class WampusSession {
+let factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
+export class InternalSession {
     id: number;
-    private _config: WampusSessionConfig;
-    private _transport: WebsocketTransport;
-    private _factory: WampMsgHelper;
-    private _routes: MessageRouter<WM.Any>;
+    _config: SessionConfig;
+    _transport: WebsocketTransport;
+    _factory: MessageBuilder;
+    _router: MessageRouter<WM.Any>;
 
-    static async create(config: WampusSessionConfig) {
-        let session = new WampusSession();
+    static async create(config: SessionConfig) {
+        let session = new InternalSession();
         session._config = config;
-        let wm = session._factory = new WampMsgHelper(() => Math.floor(Math.random() * (2 << 50)));
+        let wm = session._factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
         let transport = await config.transport();
         session._transport = transport;
         await session._handshake();
@@ -93,14 +90,13 @@ export class WampusSession {
 
     register(options: WampRegisterOptions, name: string, handler : (args : InvocationArgs) => Promise<any>): Promise<DisposableToken> {
         let factory = this._factory;
-        let expect = factory.expect;
         let msg = factory.register(options, name);
         let sending = this._transport.send(msg).flatMap(() => most.empty());
 
         return new Promise<DisposableToken>((resolve, reject) => {
-            this._routes.expect(
-                expect.registered(msg.requestId),
-                expect.error(WampMsgType.Register, msg.requestId)
+            this._router.expect(
+                Routes.registered(msg.requestId),
+                Routes.error(WampType.REGISTER, msg.requestId)
             ).merge(sending).map(x => {
                 if (x instanceof WampMessage.Error) {
                     throw processErrorDuringRegister(msg, x);
@@ -114,15 +110,15 @@ export class WampusSession {
                     resolve({
                         dispose : () => {
                             let sending = this._transport.send(factory.unregister(registered.registrationId));
-                            return this._routes.expect(expect.unregistered(registered.registrationId))
+                            return this._router.expect(Routes.unregistered(registered.registrationId))
                                 .merge(sending)
                                 .drain();
                         }
                     });
                 }
             }).flatMap(registered => {
-                let unregisteredSent = this._routes.expect(expect.unregistered(registered.registrationId));
-                return this._routes.expect(expect.invocation(registered.registrationId)).takeUntil(unregisteredSent);
+                let unregisteredSent = this._router.expect(Routes.unregistered(registered.registrationId));
+                return this._router.expect(Routes.invocation(registered.registrationId)).takeUntil(unregisteredSent);
             }).map(x => x as WampMessage.Invocation)
             .flatMap(msg => {
                 let args = new InvocationArgs(msg, this as any);
@@ -134,7 +130,6 @@ export class WampusSession {
 
     publish(options : WampPublishOptions, name : string) {
         let factory = this._factory;
-        let expecting = factory.expect;
         return async (args) => {
             let publish = factory.publish(options, name, args);
             let sending = this._transport.send(publish);
@@ -144,13 +139,12 @@ export class WampusSession {
 
     event(options: WampSubscribeOptions, name: string) {
         let factory = this._factory;
-        let expecting = factory.expect;
         return most.just(null).flatMap(() => {
             let msg = factory.subscribe(options, name);
             let sending = this._transport.send(msg).flatMap(() => most.empty())
-            return this._routes.expect(
-                expecting.subscribed(msg.requestId),
-                expecting.error(WampMsgType.Subscribe, msg.requestId)
+            return this._router.expect(
+                Routes.subscribed(msg.requestId),
+                Routes.error(WampType.SUBSCRIBE, msg.requestId)
             ).merge(sending).map(x => {
                 if (x instanceof WM.Error) {
                     throw processErrorDuringSubscribe(msg, x);
@@ -158,8 +152,8 @@ export class WampusSession {
                 return x as WM.Subscribed;
             });
         }).flatMap(subscribed => {
-            return this._routes.expect(expecting.event(subscribed.subscriptionId)).lastly(async () => {
-                return this._routes.expect(expecting.unsubscribed(subscribed.subscriptionId))
+            return this._router.expect(Routes.event(subscribed.subscriptionId)).lastly(async () => {
+                return this._router.expect(Routes.unsubscribed(subscribed.subscriptionId))
                     .merge(this._transport.send(factory.unsubscribe(subscribed.subscriptionId)))
                     .drain()
             });
@@ -172,7 +166,6 @@ export class WampusSession {
     call(options: WampCallOptions, name: string, args: any[], kwargs: any) {
         let self = this;
         let factory = this._factory;
-        let expect = this._factory.expect;
         /*
         TODO: Implement advanced features
         1. Cancellation
@@ -184,11 +177,11 @@ export class WampusSession {
          */
 
         return most.just(null).flatMap(() => {
-            let msg = this._factory.call(options, name, args, kwargs);
+            let msg = factory.call(options, name, args, kwargs);
             let sending = this._transport.send(msg).flatMap(x => most.empty());
-            return self._routes.expect(
-                expect.result(msg.requestId),
-                expect.error(WampMsgType.Call, msg.requestId)
+            return self._router.expect(
+                Routes.result(msg.requestId),
+                Routes.error(WampType.CALL, msg.requestId)
             ).map(x => {
                 if (x instanceof WampMessage.Error) {
                     throw processErrorDuringCall(msg, x);
@@ -199,17 +192,13 @@ export class WampusSession {
     }
 
     async abort(reasonUri: string, details: object) {
-        return this._transport.send(this._factory.abort(details, reasonUri));
-    }
-
-    private _unregister(registration: number) {
-
+        return this._transport.send(factory.abort(details, reasonUri));
     }
 
     private async _handshake() {
         let transport = this._transport;
         let config = this._config;
-        let hello = this._factory.hello(config.realm, {
+        let hello = factory.hello(config.realm, {
             roles : {
                 callee : {}
             }
@@ -220,7 +209,7 @@ export class WampusSession {
             } else if (x.type === "closed") {
                 throw Errs.Handshake.closed();
             } else {
-                let msg = this._factory.read(x.data);
+                let msg = MessageReader.read(x.data);
                 if (msg instanceof WM.Abort) {
                     processAbortDuringHandshake(hello, msg);
                 }
@@ -250,39 +239,40 @@ export class WampusSession {
     }
 
     private _registerRoutes() {
-        this._routes = new MessageRouter<any>();
+        this._router = new MessageRouter<any>();
         this._transport.events.choose(x => x.type === "message" ? x as TransportMessage : undefined).subscribe({
             next: x => {
-                let msg = this._factory.read(x.data);
-                if (!this._routes.match(x.data.slice(0, 2), msg)) {
+                let msg = MessageReader.read(x.data);
+                if (!this._router.push(x.data.slice(0, 2), msg)) {
                     this._onError(Errs.unexpectedMessage(msg));
                 }
             },
             complete: () => {
-                this._routes.reset();
+                this._router.reset();
             },
             error: (rr) => {
-                this._routes.reset();
+                this._router.reset();
                 throw new Error("Unexpected!");
             }
         });
 
-        let serverAborted = this._routes.expect([WampMsgType.Abort]);
-        let serverSentInvalidMessage = this._routes.expect(
-            [WampMsgType.Welcome],
-            [WampMsgType.Challenge]
+        let serverAborted = this._router.expect([WampType.ABORT]).take(1);
+        let serverGoodbye = this._router.expect([WampType.GOODBYE]).take(1);
+        let serverSentInvalidMessage = this._router.expect(
+            [WampType.WELCOME],
+            [WampType.CHALLENGE]
         );
-        let serverSentRouterMessage = this._routes.expect(
-            [WampMsgType.Authenticate],
-            [WampMsgType.Yield],
-            [WampMsgType.Hello],
-            [WampMsgType.Register],
-            [WampMsgType.Call],
-            [WampMsgType.Publish],
-            [WampMsgType.Unregister],
-            [WampMsgType.Subscribe],
-            [WampMsgType.Unsubscribe],
-            [WampMsgType.Cancel]
+        let serverSentRouterMessage = this._router.expect(
+            [WampType.AUTHENTICATE],
+            [WampType.YIELD],
+            [WampType.HELLO],
+            [WampType.REGISTER],
+            [WampType.CALL],
+            [WampType.PUBLISH],
+            [WampType.UNREGISTER],
+            [WampType.SUBSCRIBE],
+            [WampType.UNSUBSCRIBE],
+            [WampType.CANCEL]
         );
     }
 

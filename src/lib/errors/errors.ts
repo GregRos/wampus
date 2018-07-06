@@ -1,6 +1,6 @@
-import {WampUri} from "../proto/uris";
-import {WampMsgType} from "../proto/message.type";
-import {WampMessage} from "../proto/messages";
+import {WampUri} from "../low/wamp/uris";
+import {WampType} from "../low/wamp/message.type";
+import {WampMessage} from "../low/wamp/messages";
 import {WampusIllegalOperationError, WampusInvocationCanceledError, WampusNetworkError} from "./types";
 
 export enum ErrorLevel {
@@ -16,11 +16,11 @@ export module Errs {
         })
     }
 
-    export function receivedProtocolViolation(source : WampMsgType, error : WampMessage.Error) {
+    export function receivedProtocolViolation(source : WampType, error : WampMessage.Error) {
         return new WampusNetworkError("Protocol violation.", {
             level: "WAMP",
             error : error,
-            source : WampMsgType[source],
+            source : WampType[source],
             code: WampUri.Error.ProtoViolation
         });
     }
@@ -37,7 +37,7 @@ export module Errs {
         export function unexpectedMessage(message: WampMessage.Any) {
             return new WampusNetworkError(
                 `Protocol violation. During handshake, expected WELCOME or ERROR, but received: {type}`, {
-                    type: WampMsgType[message.type]
+                    type: WampType[message.type]
                 }
             );
         }
@@ -122,7 +122,7 @@ export module NetworkErrors {
         export function unexpectedMessage(message: WampMessage.Any) {
             return new WampusNetworkError(
                 `Protocol violation. During handshake, expected WELCOME or ERROR, but received: {type}`, {
-                    type: WampMsgType[message.type]
+                    type: WampType[message.type]
                 }
             );
         }
