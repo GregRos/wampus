@@ -3,7 +3,6 @@ import most = require("most");
 import {WampType} from "../wamp/message.type";
 
 
-
 /*
  * When an operation is invoked by the library, it will usually expect a specific message or messages in response.
  * However, the part that's processing messages isn't connected to the part that expects a specific message to arrive.
@@ -30,7 +29,11 @@ import {WampType} from "../wamp/message.type";
 /**
  * A function that returns true if the route is considered "handled" and should be removed.
  */
-export type RouteTarget<T> = (x: T) => void;
+export type RouteTarget<T> = {
+    invoke(x: T): void;
+    error(err: Error): void;
+    complete(x ?: any): void;
+}
 
 interface RouteIndex<T> {
     match?: RouteTarget<T>[];
@@ -51,30 +54,58 @@ export class MessageRouter<T> {
      * @param keys
      * @returns {Stream<T>}
      */
-    expect(...keys: any[]) {
+    expect(...keys: (string | number)[][]) {
         /*
          An optimization can be achieved if some handlers are defined as one-time and are auto-removed once they are invoked
         This will mean the data structure will only need to be traversed once.
         */
         return new most.Stream<T>({
             run: (sink, sch) => {
-                let inv = x => {
-                    try {
-                        // The event hander of a sink can throw an error.
-                        sink.event(sch.now(), x);
-                    }
-                    catch (err) {
+                let inv = {
+                    invoke(x) {
+                        try {
+                            sink.event(sch.now(), x);
+                        }
+                        catch (err) {
+                            // If the subscriber errors, we need to delete the route as though it's been disposed.
+                            disposalToken.dispose();
+                            this.error(err);
+                        }
+                    },
+                    complete(x) {
+                        try {
+                            sink.end(sch.now(), x);
+                        }
+                        catch (err){
+                            disposalToken.dispose();
+                            this.error(err);
+                        }
+                    },
+                    error(err: Error) {
                         sink.error(sch.now(), err);
                     }
                 };
-                this._insertRoute(keys, inv);
-                return {
+                keys.forEach(key => {
+                    this._insertRoute(key,inv);
+                });
+                let disposalToken = {
                     dispose: () => {
-                        this._removeRoute(keys, inv);
+                        keys.forEach(key => {
+                            this._removeRoute(key, inv);
+                        })
                     }
-                }
+                };
+
+                return disposalToken;
             }
         });
+    }
+
+    count() {
+        let rec = (x : RouteIndex<T>) => {
+            return x.match.length + Array.from(x.next.values()).reduce((tot, cur) => tot + rec(cur), 0);
+        };
+        return rec(this._root);
     }
 
     push(keys: any[], object: T) {
@@ -91,7 +122,7 @@ export class MessageRouter<T> {
                 anyMatches = true;
             }
             cur.match.forEach(target => {
-                target(object);
+                target.invoke(object);
             });
             if (index >= keys.length) return;
             let next = cur.next.get(keys[index]);
@@ -105,16 +136,12 @@ export class MessageRouter<T> {
     broadcast(object: T) {
         let rec = (cur: RouteIndex<T>) => {
             if (!cur) return;
-            cur.match.forEach(f => f(object));
+            cur.match.forEach(f => f.invoke(object));
             for (let [k, v] of cur.next) {
                 rec(v);
             }
         };
         rec(this._root);
-    }
-
-    reset() {
-        this._root = null;
     }
 
     private _insertRoute(keys: any[], target: RouteTarget<T>) {
@@ -132,7 +159,7 @@ export class MessageRouter<T> {
             let nextIndex = cur.next.get(keys[index]);
             nextIndex = rec(nextIndex, index + 1);
             cur.next.set(keys[index], nextIndex);
-            return nextIndex;
+            return cur;
         };
         this._root = rec(this._root, 0);
     }
@@ -147,7 +174,7 @@ export class MessageRouter<T> {
             if (keys.length <= index) {
                 let foundIndex = cur.match.indexOf(target);
                 if (foundIndex === -1) return cur;
-                cur.match.splice(index, 1);
+                cur.match.splice(foundIndex, 1);
                 if (cur.match.length === 0 && cur.next.size === 0) {
                     return null;
                 } else {
@@ -159,8 +186,12 @@ export class MessageRouter<T> {
             next = rec(next, index + 1);
             if (!next) {
                 cur.next.delete(keys[index]);
+            } else {
+                cur.next.set(keys[index], next);
             }
             return cur;
         };
+        this._root = rec(this._root, 0);
     }
+
 }

@@ -1,10 +1,12 @@
 import {TransportMessage, Transport} from "./transport/transport";
 import {
-    WampMessage} from "./wamp/messages";
+    WampMessage
+} from "./wamp/messages";
 import {EventEmitter} from "events";
 import {WampType} from "./wamp/message.type";
 import most = require("most");
 import "../most-ext/events";
+
 export interface SessionConfig {
     realm: string;
     timeout: number;
@@ -64,23 +66,21 @@ function processErrorDuringRegister(register: WM.Register, msg: WM.Error) {
     }
 }
 
-function processErrorDuringSubscribe(subscribe : WM.Subscribe, error : WM.Error) {
+function processErrorDuringSubscribe(subscribe: WM.Subscribe, error: WM.Error) {
     return new Error("Failed!");
 }
 
-
 let factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
+
 export class InternalSession {
     id: number;
     _config: SessionConfig;
     _transport: WebsocketTransport;
-    _factory: MessageBuilder;
     _router: MessageRouter<WM.Any>;
 
     static async create(config: SessionConfig) {
         let session = new InternalSession();
         session._config = config;
-        let wm = session._factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
         let transport = await config.transport();
         session._transport = transport;
         await session._handshake();
@@ -88,8 +88,7 @@ export class InternalSession {
         return session;
     }
 
-    register(options: WampRegisterOptions, name: string, handler : (args : InvocationArgs) => Promise<any>): Promise<DisposableToken> {
-        let factory = this._factory;
+    register(options: WampRegisterOptions, name: string, handler: (args: InvocationArgs) => Promise<any> | any): Promise<DisposableToken> {
         let msg = factory.register(options, name);
         let sending = this._transport.send(msg).flatMap(() => most.empty());
 
@@ -108,7 +107,7 @@ export class InternalSession {
                 },
                 next(registered) {
                     resolve({
-                        dispose : () => {
+                        dispose: () => {
                             let sending = this._transport.send(factory.unregister(registered.registrationId));
                             return this._router.expect(Routes.unregistered(registered.registrationId))
                                 .merge(sending)
@@ -119,29 +118,62 @@ export class InternalSession {
             }).flatMap(registered => {
                 let unregisteredSent = this._router.expect(Routes.unregistered(registered.registrationId));
                 return this._router.expect(Routes.invocation(registered.registrationId)).takeUntil(unregisteredSent);
-            }).map(x => x as WampMessage.Invocation)
-            .flatMap(msg => {
-                let args = new InvocationArgs(msg, this as any);
-                handler(args);
-                return most.empty();
-            }).drain();
+            }).map(x => x as WampMessage.Invocation).flatMapPromise(async msg => {
+                    let args = new InvocationArgs(msg, this as any, factory);
+                    try {
+                        let r = await handler(args);
+                        if (!args.isHandled) {
+                            await args.return([], r);
+                        }
+                    }
+                    catch (err) {
+                        if (!args.isHandled) {
+                            await args.error([], err);
+                        } else {
+                            throw err;
+                        }
+                    }
+                }).drain();
         })
     }
 
-    publish(options : WampPublishOptions, name : string) {
-        let factory = this._factory;
-        return async (args) => {
-            let publish = factory.publish(options, name, args);
+    publisher(options: WampPublishOptions, name: string) : (args : any[], kwargs : any) => Promise<void> {
+        return async (args, kwargs) => {
+            let publish = factory.publish(options, name, args, kwargs);
             let sending = this._transport.send(publish);
-
+            return most.just(null).flatMap(() => {
+                if (options.acknowledge) {
+                    return this._router.expect(
+                        Routes.published(publish.requestId),
+                        Routes.error(WampType.PUBLISH, publish.requestId)
+                    ).map(msg => {
+                        if (msg instanceof WM.Error) {
+                            throw new WampusIllegalOperationError("Failed to publish.", {
+                                msg
+                            });
+                        }
+                        return msg as WM.Published;
+                    }).take(1);
+                }
+                return most.empty();
+            }).merge(sending).drain()
         }
     }
 
-    event(options: WampSubscribeOptions, name: string) {
-        let factory = this._factory;
+    /**
+     * Returns a cold stream to a hot data source.
+     * Sends a subscription message. The returned observable fires when the subscription is created,
+     * yielding a hot observable containing the events as they are fired.
+     * Unsubscribing from the outer cold observable terminates the subscription.
+     * If you don't care when the subscription actually happens, just use .switchLatest() to get a flat event stream.
+     * @param {WampSubscribeOptions} options
+     * @param {string} name
+     * @returns {Stream<Stream<EventArgs>>}
+     */
+    event(options: WampSubscribeOptions, name: string) : most.Stream<most.Stream<EventArgs>>    {
         return most.just(null).flatMap(() => {
             let msg = factory.subscribe(options, name);
-            let sending = this._transport.send(msg).flatMap(() => most.empty())
+            let sending = this._transport.send(msg).flatMap(() => most.empty());
             return this._router.expect(
                 Routes.subscribed(msg.requestId),
                 Routes.error(WampType.SUBSCRIBE, msg.requestId)
@@ -151,21 +183,20 @@ export class InternalSession {
                 }
                 return x as WM.Subscribed;
             });
-        }).flatMap(subscribed => {
+        }).map(subscribed => {
             return this._router.expect(Routes.event(subscribed.subscriptionId)).lastly(async () => {
                 return this._router.expect(Routes.unsubscribed(subscribed.subscriptionId))
                     .merge(this._transport.send(factory.unsubscribe(subscribed.subscriptionId)))
                     .drain()
+            }).map((x: WM.Event) => {
+                let a = new EventArgs(x);
+                return a;
             });
-        }).map((x : WM.Event) => {
-            let a = new EventArgs(x);
-            return a;
         });
     }
 
     call(options: WampCallOptions, name: string, args: any[], kwargs: any) {
         let self = this;
-        let factory = this._factory;
         /*
         TODO: Implement advanced features
         1. Cancellation
@@ -199,8 +230,11 @@ export class InternalSession {
         let transport = this._transport;
         let config = this._config;
         let hello = factory.hello(config.realm, {
-            roles : {
-                callee : {}
+            roles: {
+                callee: {},
+                caller: {},
+                publisher : {},
+                subscriber : {}
             }
         });
         let welcomeMessage = transport.events.take(1).map(x => {
@@ -243,15 +277,14 @@ export class InternalSession {
         this._transport.events.choose(x => x.type === "message" ? x as TransportMessage : undefined).subscribe({
             next: x => {
                 let msg = MessageReader.read(x.data);
-                if (!this._router.push(x.data.slice(0, 2), msg)) {
+                if (!this._router.push(x.data.slice(0, 3), msg)) {
                     this._onError(Errs.unexpectedMessage(msg));
                 }
             },
             complete: () => {
-                this._router.reset();
+                console.log("ended!");
             },
             error: (rr) => {
-                this._router.reset();
                 throw new Error("Unexpected!");
             }
         });

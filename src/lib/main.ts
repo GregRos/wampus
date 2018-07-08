@@ -7,6 +7,7 @@ import {JsonSerializer} from "./low/serializer/json";
 import {WampType} from "./low/wamp/message.type";
 import {MyPromise} from "./ext-promise";
 import {InternalSession} from "./low/session";
+import {EventEmitter} from "events";
 
 (async () => {
     let transport = await WebsocketTransport.create({
@@ -23,7 +24,21 @@ import {InternalSession} from "./low/session";
         timeout: 10000
     });
 
-    await session.call({}, "hi", [], {}).drain();
-    let x = 5;
+    await session.register({}, "a.b", x => {
+        return {
+            a : 5
+        };
+    });
 
+    let z = await session.call({}, "a.b", [], {}).drain();
+    session.event({}, "hi.1").take(1).flatMapPromise(async stream => {
+        stream.tap(x => {
+            console.log(yamprint(x));
+        }).drain();
+        await session.publisher({
+            exclude_me : false
+        }, "hi.1")([], {a : 5});
+        console.log("SUBSCRIPTIONS:", session._router.count());
+        console.log("RESULT:", z);
+    }).drain();
 })();

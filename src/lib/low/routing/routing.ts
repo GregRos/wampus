@@ -3,8 +3,10 @@ import {WampType} from "../wamp/message.type";
 export module Routes {
     export const goodbye = [WampType.GOODBYE];
 
+    export const abort = [WampType.ABORT];
+
     export function error(type: WampType, param2 ?: number) {
-        return param2 ? [WampType.ERROR, type, param2] : [type];
+        return param2 != null ? [WampType.ERROR, type, param2] : [WampType.ERROR, type];
     }
 
     export function published(publishReqId: number) {

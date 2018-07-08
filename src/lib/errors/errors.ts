@@ -74,6 +74,18 @@ export module Errs {
                 name
             });
         }
+
+        export function cannotSendResultTwice(name : string) {
+            return new WampusIllegalOperationError("While invoking {name}, tried to send a result or error more than once.", {
+                name
+            });
+        }
+
+        export function doesNotSupportProgress(name : string) {
+            return new WampusIllegalOperationError("While invoking {name}, tried to send a progress report but this call does not support progress reports.", {
+                name
+            })
+        }
     }
 
     export module Call {

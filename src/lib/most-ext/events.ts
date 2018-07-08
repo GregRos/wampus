@@ -15,6 +15,7 @@ declare module "most" {
         mapError(projection : (x : any) => any) : Stream<A>;
         lastly(f : () => void) : Stream<A>;
         tapFull(observer : Partial<Subscriber<A>>) : Stream<A>;
+        flatMapPromise<B>(projection : (x : A) => Stream<B> | Promise<B> | B) : Stream<B>
     }
 
 
@@ -50,6 +51,19 @@ Object.assign(most.Stream.prototype, {
             return most.throwError(projection(err));
         });
     },
+    flatMapPromise<A, B>(this : most.Stream<A>, project : (x : A) => Stream<B> | Promise<B> | B) {
+        return this.flatMap(x => {
+            let result = project(x) as any;
+            if (result instanceof Stream) {
+                return result;
+            } else if (typeof result.then === "function") {
+                return most.fromPromise(result);
+            } else {
+                return most.just(result);
+            }
+        });
+    },
+
     tapFull<T>(this : most.Stream<T>, subscriber : Subscriber<T>) {
         return new most.Stream({
             run : (sink, sch) => {
@@ -57,22 +71,24 @@ Object.assign(most.Stream.prototype, {
                     next(v) {
                         try {
                             subscriber.next && subscriber.next(v);
+                            sink.event(sch.now(), v);
                         }
                         catch (err) {
                             sub.unsubscribe();
                             return sink.error(sch.now(), err);
                         }
-                        sink.event(sch.now(), v);
+
                     },
                     complete(v) {
                         sub.unsubscribe();
                         try {
                             subscriber.complete && subscriber.complete(v);
+                            sink.end(sch.now(), v);
                         }
                         catch (err) {
                             return sink.error(sch.now(), err);
                         }
-                        sink.end(sch.now(), v);
+
                     },
                     error(e) {
                         sub.unsubscribe();

@@ -78,7 +78,7 @@ export class WebsocketTransport implements Transport{
             } else {
                 return messages.startWith(x);
             }
-        }).switchLatest();
+        }).switchLatest().multicast();
         transport.events = messages;
         await new MyPromise((resolve, reject) => {
             if (ws.readyState === ws.OPEN) {

@@ -43,7 +43,7 @@ export module WampMessage {
 
         toTransportFormat() {
             let {args,kwargs} = this;
-            return [this.type, this.requestId, this.options || {}, ...argsKwargsArray(args, kwargs)];
+            return [this.type, this.requestId, this.options || {}, this.procedure, ...argsKwargsArray(args, kwargs)];
         }
     }
 
