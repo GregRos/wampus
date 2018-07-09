@@ -11,7 +11,7 @@ export interface SessionConfig {
     realm: string;
     timeout: number;
 
-    transport(): Promise<WebsocketTransport>;
+    transport: most.Stream<WebsocketTransport>
 }
 
 import WM = WampMessage;
@@ -78,14 +78,16 @@ export class InternalSession {
     _transport: WebsocketTransport;
     _router: MessageRouter<WM.Any>;
 
-    static async create(config: SessionConfig) {
-        let session = new InternalSession();
-        session._config = config;
-        let transport = await config.transport();
-        session._transport = transport;
-        await session._handshake();
-        session._registerRoutes();
-        return session;
+    static create(config: SessionConfig) : most.Stream<InternalSession> {
+        return config.transport.flatMapPromise(async transport => {
+            let session = new InternalSession();
+            session._config = config;
+            session._transport = transport;
+            await session._handshake();
+            session._registerRoutes();
+            return session;
+        })
+
     }
 
     register(options: WampRegisterOptions, name: string, handler: (args: InvocationArgs) => Promise<any> | any): Promise<DisposableToken> {
@@ -101,20 +103,18 @@ export class InternalSession {
                     throw processErrorDuringRegister(msg, x);
                 }
                 return x as WampMessage.Registered;
-            }).tapFull({
-                error(x) {
-                    reject(x);
-                },
-                next(registered) {
-                    resolve({
-                        dispose: () => {
-                            let sending = this._transport.send(factory.unregister(registered.registrationId));
-                            return this._router.expect(Routes.unregistered(registered.registrationId))
-                                .merge(sending)
-                                .drain();
-                        }
-                    });
-                }
+            }).tap(registered => {
+                resolve({
+                    dispose: () => {
+                        let sending = this._transport.send(factory.unregister(registered.registrationId));
+                        return this._router.expect(Routes.unregistered(registered.registrationId))
+                            .merge(sending)
+                            .drain();
+                    }
+                });
+            }).recoverWith((err : any) => {
+                reject(err);
+                return most.throwError(err);
             }).flatMap(registered => {
                 let unregisteredSent = this._router.expect(Routes.unregistered(registered.registrationId));
                 return this._router.expect(Routes.invocation(registered.registrationId)).takeUntil(unregisteredSent);

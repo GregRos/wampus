@@ -10,35 +10,34 @@ import {InternalSession} from "./low/session";
 import {EventEmitter} from "events";
 
 (async () => {
-    let transport = await WebsocketTransport.create({
+    let transport = WebsocketTransport.create({
         url: "ws://127.0.0.1:9003",
         serializer: new JsonSerializer(),
         timeout: 10 * 1000
     });
-    transport.events.forEach(x => {
-        console.log(yamprint(x.data));
-    });
-    let session = await InternalSession.create({
-        transport: async () => transport,
+    let session = InternalSession.create({
+        transport: transport,
         realm: "proxy",
         timeout: 10000
-    });
+    }).flatMapPromise(async session => {
+        await session.register({}, "a.b", x => {
+            return {
+                a : 5
+            };
+        });
 
-    await session.register({}, "a.b", x => {
-        return {
-            a : 5
-        };
-    });
-
-    let z = await session.call({}, "a.b", [], {}).drain();
-    session.event({}, "hi.1").take(1).flatMapPromise(async stream => {
-        stream.tap(x => {
-            console.log(yamprint(x));
+        let z = await session.call({}, "a.b", [], {}).drain();
+        session.event({}, "hi.1").take(1).flatMapPromise(async stream => {
+            stream.tap(x => {
+                console.log(yamprint(x));
+            }).drain();
+            await session.publisher({
+                exclude_me : false
+            }, "hi.1")([], {a : 5});
+            console.log("SUBSCRIPTIONS:", session._router.count());
+            console.log("RESULT:", z);
         }).drain();
-        await session.publisher({
-            exclude_me : false
-        }, "hi.1")([], {a : 5});
-        console.log("SUBSCRIPTIONS:", session._router.count());
-        console.log("RESULT:", z);
     }).drain();
+
+
 })();

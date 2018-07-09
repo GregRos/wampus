@@ -9,6 +9,7 @@ import {Serializer} from "../serializer/serializer";
 import {WampMessage, WampRawMessage} from "../wamp/messages";
 import {fromEvent} from "most";
 import {WampusError} from "../../errors/types";
+import {createStreamSimple} from "../../most-ext/events";
 
 export interface WebsocketTransportConfig {
     url: string;
@@ -25,94 +26,96 @@ export class WebsocketTransport implements Transport{
 
     }
 
-    static async create(config: WebsocketTransportConfig) {
-        let transport = new WebsocketTransport();
-        transport._config = config;
-        try {
-            var ws = new WebSocket(config.url, `wamp.2.${config.serializer.id}`, {
+    static create(config: WebsocketTransportConfig) : most.Stream<WebsocketTransport>{
 
-            });
-        }
-        catch (err) {
-            new WampusNetworkError("The WebSocket client could not be created.", {
-                err : err
+        let errorOnTimeOut = config.timeout == null ? most.never() : most.of(null).delay(config.timeout).map(() => {
+            throw new WampusNetworkError("WebSocket connection timed out.", {
+                url: config.url
             })
-        }
-        transport._ws = ws;
-        let closeEvent = fromEvent("close", ws).map(x => {
-            return {
-                type : "closed",
-                data : x
-            } as TransportClosed;
         });
 
-        let msgEvent : most.Stream<TransportEvent> = fromEvent("message", ws).map((msg : any) => {
+        let transport$ = createStreamSimple(sub => {
+            let transport = new WebsocketTransport();
+            transport._config = config;
             try {
-                var result = transport._config.serializer.deserialize(msg.data);
+                var ws = new WebSocket(config.url, `wamp.2.${config.serializer.id}`, {
+
+                });
             }
             catch (err) {
+                new WampusNetworkError("The WebSocket client could not be created.", {
+                    err : err
+                })
+            }
+            transport._ws = ws;
+            let closeEvent = fromEvent("close", ws).map(x => {
+                return {
+                    type : "closed",
+                    data : x
+                } as TransportClosed;
+            });
+
+            let msgEvent : most.Stream<TransportEvent> = fromEvent("message", ws).map((msg : any) => {
+                try {
+                    var result = transport._config.serializer.deserialize(msg.data);
+                }
+                catch (err) {
+                    return {
+                        type : "error",
+                        data : new WampusNetworkError("Received a message that could not be deserialized.", {
+                            err
+                        })
+                    } as TransportError;
+                }
+                return {
+                    type : "message",
+                    data : result
+                } as TransportMessage;
+            });
+            let errorEvent : most.Stream<TransportEvent>= fromEvent("error", ws).map(x => {
                 return {
                     type : "error",
-                    data : new WampusNetworkError("Received a message that could not be deserialized.", {
-                        err
+                    data : new WampusNetworkError("The WebSocket client emitted an error.", {
+                        err : x
                     })
-                } as TransportError;
-            }
-            return {
-                type : "message",
-                data : result
-            } as TransportMessage;
-        });
-        let errorEvent : most.Stream<TransportEvent>= fromEvent("error", ws).map(x => {
-            return {
-                type : "error",
-                data : new WampusNetworkError("The WebSocket client emitted an error.", {
-                    err : x
-                })
-            } as TransportError
-        });
+                } as TransportError
+            });
 
-        let messages: most.Stream<TransportEvent> = msgEvent.merge(closeEvent, errorEvent).map(x => {
-            if (x.type === "closed") {
-                return most.of(x);
-            } else {
-                return messages.startWith(x);
-            }
-        }).switchLatest().multicast();
-        transport.events = messages;
-        await new MyPromise((resolve, reject) => {
+            let messages: most.Stream<TransportEvent> = msgEvent.merge(closeEvent, errorEvent).map(x => {
+                if (x.type === "closed") {
+                    return most.of(x);
+                } else {
+                    return messages.startWith(x);
+                }
+            }).switchLatest().multicast();
+            transport.events = messages;
             if (ws.readyState === ws.OPEN) {
-                return resolve();
+                sub.next(transport);
             }
             ws.onopen = () => {
                 ws.onopen = null;
-                resolve();
+                sub.next(transport);
             };
-
             ws.onerror = event => {
                 ws.onerror = ws.onopen = null;
-                reject(new WampusNetworkError("Failed to establish WebSocket connection with {url}. Reason: {reason}", {
+                sub.error(new WampusNetworkError("Failed to establish WebSocket connection with {url}. Reason: {reason}", {
                     url: config.url,
                     type: event.type,
                     reason: event.message,
                     error: event.error
                 }));
             };
-        }).timeout(config.timeout == null ? config.timeout : config.timeout + 1, async () => {
-            throw "TimedOut"
-        }).catch(x => {
-            if (x === "TimedOut") {
-                return Promise.reject(new WampusNetworkError("WebSocket connection timed out.", {
-                    url: config.url
-                }));
-            } else {
-                return Promise.reject(x);
-        }
+            return {
+                async dispose() {
+                    await transport._close();
+                }
+            }
         });
-        return transport;
+
+        return most.from([errorOnTimeOut, transport$]).race();
     }
 
-    close(code ?: number, data ?: any): Promise<void> {
+    private _close(code ?: number, data ?: any): Promise<void> {
         if (this._expectingClose) {
             return this._expectingClose;
         }
@@ -130,33 +133,31 @@ export class WebsocketTransport implements Transport{
     }
 
     send(msg: WampMessage.SendableMessage): most.Stream<undefined> {
-        return most.of(null).flatMap(() => new most.Stream<any>({
-            run : (sink, sch) => {
-                try {
-                    var payload = this._config.serializer.serialize(msg.toTransportFormat());
-                }
-                catch (err) {
-                    throw new WampusNetworkError("The message could not be serialized.", {
-                        err
-                    });
-                }
-                this._ws.send(payload, {
-
-                }, err => {
-                    if (err) {
-                        sink.error(sch.now(), err);
-                    } else {
-                        sink.event(sch.now(), undefined);
-                        sink.end(sch.now());
-                    }
+        return createStreamSimple(sub => {
+            try {
+                var payload = this._config.serializer.serialize(msg.toTransportFormat());
+            }
+            catch (err) {
+                throw new WampusNetworkError("The message could not be serialized.", {
+                    err
                 });
-                return {
-                    dispose() {
+            }
+            this._ws.send(payload, {
 
-                    }
+            }, err => {
+                if (err) {
+                    sub.error(err);
+                } else {
+                    sub.next(null);
+                    sub.complete();
+                }
+            });
+            return {
+                dispose() {
+
                 }
             }
-        }));
+        });
     }
 
 }
