@@ -1,6 +1,7 @@
-import {WampMessage} from "../wamp/messages";
+import {WampArray, WampMessage, WampPrimitive} from "../../wamp/messages";
 import most = require("most");
-import {WampType} from "../wamp/message.type";
+import {WampType} from "../../wamp/message.type";
+import {Stream} from "most";
 
 
 /*
@@ -29,77 +30,35 @@ import {WampType} from "../wamp/message.type";
 /**
  * A function that returns true if the route is considered "handled" and should be removed.
  */
-export type RouteTarget<T> = {
-    invoke(x: T): void;
-    error(err: Error): void;
-    complete(x ?: any): void;
+export type MessageRoute<T> = {
+    keys : WampArray;
+    next?(x: T): void;
+    complete?() : void;
+    error?(err : Error) : void;
 }
 
 interface RouteIndex<T> {
-    match?: RouteTarget<T>[];
+    match?: MessageRoute<T>[];
     next?: Map<any, RouteIndex<T>>;
 }
 
+function setDefaults(target : MessageRoute<any>) {
+    if (!target.error) {
+        target.error = () => {};
+    }
+    if (!target.next) {
+        target.next = () => {};
+    }
+    if (!target.complete) {
+        target.complete = () => {};
+    }
+}
 
 /**
  * A component that routes WAMP protocol messages to code that expects them.
  */
 export class MessageRouter<T> {
     private _root: RouteIndex<T> = null;
-
-
-    /**
-     * Returns an observable that, when subscribed, will create a route for a sequence of keys.
-     *
-     * @param keys
-     * @returns {Stream<T>}
-     */
-    expect(...keys: (string | number)[][]) {
-        /*
-         An optimization can be achieved if some handlers are defined as one-time and are auto-removed once they are invoked
-        This will mean the data structure will only need to be traversed once.
-        */
-        return new most.Stream<T>({
-            run: (sink, sch) => {
-                let inv = {
-                    invoke(x) {
-                        try {
-                            sink.event(sch.now(), x);
-                        }
-                        catch (err) {
-                            // If the subscriber errors, we need to delete the route as though it's been disposed.
-                            disposalToken.dispose();
-                            this.error(err);
-                        }
-                    },
-                    complete(x) {
-                        try {
-                            sink.end(sch.now(), x);
-                        }
-                        catch (err){
-                            disposalToken.dispose();
-                            this.error(err);
-                        }
-                    },
-                    error(err: Error) {
-                        sink.error(sch.now(), err);
-                    }
-                };
-                keys.forEach(key => {
-                    this._insertRoute(key,inv);
-                });
-                let disposalToken = {
-                    dispose: () => {
-                        keys.forEach(key => {
-                            this._removeRoute(key, inv);
-                        })
-                    }
-                };
-
-                return disposalToken;
-            }
-        });
-    }
 
     count() {
         let rec = (x : RouteIndex<T>) => {
@@ -108,43 +67,43 @@ export class MessageRouter<T> {
         return rec(this._root);
     }
 
-    push(keys: any[], object: T) {
-        let anyMatches = false;
+    matchDefault() {
+        if (this._root) {
+            return this._root.match;
+        } else {
+            return [];
+        }
+    }
+
+    matchAll() {
+        return this.match([]);
+    }
+
+    match(keys: WampPrimitive[]) {
         if (keys[0] === WampType.INVOCATION) {
             //ugly but works
             let a = keys[2];
             keys[2] = keys[1];
             keys[1] = a;
         }
-        let rec = (cur: RouteIndex<T>, index: number) => {
+        let routes = [] as MessageRoute<T>[];
+        let rec = function (cur: RouteIndex<T>, index: number) {
             if (!cur) return;
-            if (cur.match.length > 0) {
-                anyMatches = true;
+            for (let target of cur.match) {
+                routes.push(target);
             }
-            cur.match.forEach(target => {
-                target.invoke(object);
-            });
             if (index >= keys.length) return;
             let next = cur.next.get(keys[index]);
             if (!next) return cur;
             rec(next, index + 1);
         };
         rec(this._root, 0);
-        return anyMatches;
+        return routes;
     }
 
-    broadcast(object: T) {
-        let rec = (cur: RouteIndex<T>) => {
-            if (!cur) return;
-            cur.match.forEach(f => f.invoke(object));
-            for (let [k, v] of cur.next) {
-                rec(v);
-            }
-        };
-        rec(this._root);
-    }
-
-    private _insertRoute(keys: any[], target: RouteTarget<T>) {
+    insertRoute(target: MessageRoute<T>) {
+        let keys = target.keys;
+        setDefaults(target);
         let rec = (cur: RouteIndex<T>, index: number) => {
             if (!cur) {
                 cur = {
@@ -168,7 +127,8 @@ export class MessageRouter<T> {
      * Do not call this method except as part of `.expect`. If you remove a route, that will still leave some Streams expecting that route to be called dangling.
      * To properly remove a route, make sure the Stream that depends on it will complete or error.
      */
-    private _removeRoute(keys: any[], target: RouteTarget<T>) {
+    removeRoute(target: MessageRoute<T>) {
+        let keys = target.keys;
         let rec = (cur: RouteIndex<T>, index: number) => {
             if (!cur) return null;
             if (keys.length <= index) {

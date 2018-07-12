@@ -2,8 +2,8 @@ import "../setup";
 
 import {yamprint} from "yamprint";
 import _ = require("lodash");
-import {WebsocketTransport} from "./low/transport/websocket";
-import {JsonSerializer} from "./low/serializer/json";
+import {WebsocketTransport} from "./low/messaging/transport/websocket";
+import {JsonSerializer} from "./low/messaging/serializer/json";
 import {WampType} from "./low/wamp/message.type";
 import {MyPromise} from "./ext-promise";
 import {InternalSession} from "./low/session";
@@ -34,7 +34,7 @@ import {EventEmitter} from "events";
             await session.publisher({
                 exclude_me : false
             }, "hi.1")([], {a : 5});
-            console.log("SUBSCRIPTIONS:", session._router.count());
+            console.log("SUBSCRIPTIONS:", (session as any)._messenger._router.count());
             console.log("RESULT:", z);
         }).drain();
     }).drain();

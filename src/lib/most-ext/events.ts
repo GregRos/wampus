@@ -10,7 +10,7 @@ declare module "most" {
         choose<B>(f : (x : A) => B) : Stream<B>;
         subscribe(x : Partial<Subscriber<A>>) : Subscription<A>;
         lastly(f : () => void) : Stream<A>;
-        flatMapPromise<B>(projection : (x : A) => Stream<B> | Promise<B> | B) : Stream<B>;
+        flatMapPromise<B>(projection : (x : A) => Stream<B> | Promise<B> | B | Promise<Stream<B>>) : Stream<B>;
         race<B>(this : Stream<Stream<B>>) : Stream<B>;
         switchMap<B>(this : Stream<Stream<A>>, map : (x : A) => Stream<A>) : Stream<B>
         subscribeSimple(next : (x : A) => void, error ?: (x : Error) => void, complete ?: () => void) : Subscription<A>;
@@ -85,7 +85,12 @@ Object.assign(most.Stream.prototype, {
             if (result instanceof Stream) {
                 return result;
             } else if (typeof result.then === "function") {
-                return most.fromPromise(result);
+                return most.fromPromise(result).flatMap(x => {
+                    if (x instanceof Stream) {
+                        return x;
+                    }
+                    return most.of(x);
+                });
             } else {
                 return most.just(result);
             }
@@ -147,7 +152,7 @@ Object.assign(most.Stream.prototype, {
     switchMap<T, S>(this : Stream<T>, map : (x : T) => Stream<S>) {
         return this.map(map).switchLatest();
     },
-    subscribeSimple<A>(this : Stream<A>, error ?: (err : Error) => void, next : (x : A) => void, complete ?: () => void) {
+    subscribeSimple<A>(this : Stream<A>, error ?: (err : Error) => void, next ?: (x : A) => void, complete ?: () => void) {
         return this.subscribe({
             complete,
             next,

@@ -1,6 +1,7 @@
-import {WampType} from "../wamp/message.type";
+import {WampType} from "../../wamp/message.type";
 
 export module Routes {
+
     export const goodbye = [WampType.GOODBYE];
 
     export const abort = [WampType.ABORT];

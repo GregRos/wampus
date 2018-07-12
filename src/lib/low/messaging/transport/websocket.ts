@@ -2,14 +2,14 @@ import {EventEmitter} from "events";
 import {TransportClosed, TransportError, TransportEvent, TransportMessage, Transport} from "./transport";
 import * as ws from "ws";
 import most = require("most");
-import {WampusNetworkError} from "../../errors/types";
+import {WampusNetworkError} from "../../../errors/types";
 const WebSocket = require('isomorphic-ws') as typeof ws;
-import {MyPromise} from "../../ext-promise";
+import {MyPromise} from "../../../ext-promise";
 import {Serializer} from "../serializer/serializer";
-import {WampMessage, WampRawMessage} from "../wamp/messages";
+import {WampMessage, WampRawMessage} from "../../wamp/messages";
 import {fromEvent} from "most";
-import {WampusError} from "../../errors/types";
-import {createStreamSimple} from "../../most-ext/events";
+import {WampusError} from "../../../errors/types";
+import {createStreamSimple} from "../../../most-ext/events";
 
 export interface WebsocketTransportConfig {
     url: string;
@@ -22,10 +22,22 @@ export class WebsocketTransport implements Transport{
     private _ws : ws;
     private _expectingClose : Promise<void>;
     events : most.Stream<TransportEvent>;
-    constructor() {
+
+    /**
+     * Use `WebsocketTransport.create` instead.
+     * @param {never} never
+     */
+    constructor(never : never) {
 
     }
 
+    /**
+     * Creates a COLD observable that will create a WS transport when subscribed to. Unsubscribing will close the transport.
+     * The transport will be open and ready for messaging.
+     * Messages MAY have been received between the opening of the transport and when it's yielded in the observable. This isn't important for our use-case and may be fixed.
+     * @param {WebsocketTransportConfig} config
+     * @returns {Stream<WebsocketTransport>}
+     */
     static create(config: WebsocketTransportConfig) : most.Stream<WebsocketTransport>{
 
         let errorOnTimeOut = config.timeout == null ? most.never() : most.of(null).delay(config.timeout).map(() => {
@@ -35,7 +47,7 @@ export class WebsocketTransport implements Transport{
         });
 
         let transport$ = createStreamSimple(sub => {
-            let transport = new WebsocketTransport();
+            let transport = new WebsocketTransport(null as never);
             transport._config = config;
             try {
                 var ws = new WebSocket(config.url, `wamp.2.${config.serializer.id}`, {
@@ -132,10 +144,15 @@ export class WebsocketTransport implements Transport{
         return this._expectingClose;
     }
 
-    send(msg: WampMessage.SendableMessage): most.Stream<undefined> {
+    close() : Promise<void> {
+
+    }
+
+
+    send(msg: object): most.Stream<any> {
         return createStreamSimple(sub => {
             try {
-                var payload = this._config.serializer.serialize(msg.toTransportFormat());
+                var payload = this._config.serializer.serialize(msg);
             }
             catch (err) {
                 throw new WampusNetworkError("The message could not be serialized.", {
@@ -148,7 +165,6 @@ export class WebsocketTransport implements Transport{
                 if (err) {
                     sub.error(err);
                 } else {
-                    sub.next(null);
                     sub.complete();
                 }
             });

@@ -6,9 +6,15 @@ import {WampType} from "./wamp/message.type";
 import {WampInvocationOptions} from "./wamp/options";
 import {Errs} from "../errors/errors";
 import {MessageBuilder} from "./wamp/helper";
+import {Stream} from "most";
 
 export interface DisposableToken {
     dispose() : Promise<void>;
+}
+
+export interface InvocationArgsCallbacks {
+    send(msg : WampMessage.Any) : Stream<void>;
+    factory : MessageBuilder;
 }
 
 export class InvocationArgs {
@@ -23,7 +29,7 @@ export class InvocationArgs {
     get options() {
         return this._msg.options;
     }
-    constructor(private _msg : WampMessage.Invocation, private _session : InternalSession, private _factory : MessageBuilder) {
+    constructor(private _msg : WampMessage.Invocation, private _args : InvocationArgsCallbacks) {
 
     }
 
@@ -33,12 +39,12 @@ export class InvocationArgs {
         }
         this.isHandled = true;
 
-        await this._session._transport.send(this._factory.yield(this._msg.requestId, {}, args, kwargs)).drain();
+        await this._args.send(this._args.factory.yield(this._msg.requestId, {}, args, kwargs)).drain();
     }
 
     async error(args : any[], kwargs : any) {
         this.isHandled = true;
-        await this._session._transport.send(this._factory.error(WampType.INVOCATION, this._msg.requestId, {}, "wamp.error.runtime_error", args, kwargs));
+        await this._args.send(this._args.factory.error(WampType.INVOCATION, this._msg.requestId, {}, "wamp.error.runtime_error", args, kwargs));
     }
 }
 

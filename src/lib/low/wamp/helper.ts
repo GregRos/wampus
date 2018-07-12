@@ -1,8 +1,11 @@
 import {WampType} from "./message.type";
 import {WampusIllegalOperationError} from "../../errors/types";
 import {
-    WampMessage,
-    WampRawMessage} from "./messages";
+    WampArray,
+    WampId,
+    WampMessage, WampObject,
+    WampRawMessage, WampUriString
+} from "./messages";
 import {
     HelloDetails,
     WampCallOptions,
@@ -76,43 +79,43 @@ export class MessageBuilder {
         return new WampMessage.Hello(realm, details);
     }
 
-    abort(details: object, reason: string) {
+    abort(details: WampObject, reason: WampUriString) {
         return new WampMessage.Abort(details, reason);
     }
 
-    call(options: WampCallOptions, procedure: string, args ?: any[], kwargs ?: any) {
+    call(options: WampCallOptions, procedure: WampUriString, args ?: WampArray, kwargs ?: any) {
         return new WampMessage.Call(this._requestIdProvider(), options, procedure, args, kwargs);
     }
 
-    publish(options: WampPublishOptions, topic: string, args ?: any[], kwargs ?: any) {
+    publish(options: WampPublishOptions, topic: WampUriString, args ?: WampArray, kwargs ?: WampObject) {
         return new WampMessage.Publish(this._requestIdProvider(), options, topic, args, kwargs);
     }
 
-    subscribe(options: WampSubscribeOptions, topic: string) {
+    subscribe(options: WampSubscribeOptions, topic: WampUriString) {
         return new WampMessage.Subscribe(this._requestIdProvider(), options, topic);
     }
 
-    unsubscribe(subscription: number) {
+    unsubscribe(subscription: WampId) {
         return new WampMessage.Unsubscribe(this._requestIdProvider(), subscription);
     }
 
-    register(options: WampRegisterOptions, procedure: string) {
+    register(options: WampRegisterOptions, procedure: WampUriString) {
         return new WampMessage.Register(this._requestIdProvider(), options, procedure);
     }
 
-    error(sourceType : WampType, requestId : number, details : any, name : string, args : any[], kwargs : any) {
-        return new WampMessage.Error(sourceType, requestId, details, name, args, kwargs);
+    error(sourceType : WampType, requestId : WampId, details : WampObject, reason : WampUriString, args ?: WampArray, kwargs ?: WampObject) {
+        return new WampMessage.Error(sourceType, requestId, details, reason, args, kwargs);
     }
 
-    unregister(registration: number) {
+    unregister(registration: WampId) {
         return new WampMessage.Unregister(this._requestIdProvider(), registration);
     }
 
-    yield(invocationId: number, options: WampYieldOptions, args ?: any[], kwargs ?: any) {
+    yield(invocationId: WampId, options: WampYieldOptions, args ?: WampArray, kwargs ?: WampObject) {
         return new WampMessage.Yield(invocationId, options, args, kwargs);
     }
 
-    cancel(callRequestId: number, options: object) {
+    cancel(callRequestId: WampId, options: WampObject) {
         return new WampMessage.Cancel(callRequestId, options);
     }
 
@@ -120,5 +123,8 @@ export class MessageBuilder {
         return new WampMessage.Authenticate(signature, options);
     }
 
+    goodbye(details : WampObject, reason : WampUriString) {
+        return new WampMessage.Goodbye(details, reason);
+    }
 
 }
