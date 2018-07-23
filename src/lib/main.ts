@@ -8,26 +8,29 @@ import {WampType} from "./low/wamp/message.type";
 import {MyPromise} from "./ext-promise";
 import {InternalSession} from "./low/session";
 import {EventEmitter} from "events";
+import {never, of, periodic, Stream} from "most";
 
 (async () => {
-    let transport = WebsocketTransport.create({
+    let transport = WebsocketTransport.create$({
         url: "ws://127.0.0.1:9003",
         serializer: new JsonSerializer(),
         timeout: 10 * 1000
     });
-    let session = InternalSession.create({
-        transport: transport,
+    let session = InternalSession.create$({
+        transport$: transport,
         realm: "proxy",
         timeout: 10000
     }).flatMapPromise(async session => {
-        await session.register({}, "a.b", x => {
-            return {
-                a : 5
-            };
+        session.register$({}, "a.b").switchLatest().flatMapPromise(async x => {
+            await x.return({
+                kwargs : {
+                    a : 5
+                }
+            });
         });
 
-        let z = await session.call({}, "a.b", [], {}).drain();
-        session.event({}, "hi.1").take(1).flatMapPromise(async stream => {
+        let z = await session.call$({}, "a.b", [], {}).drain();
+        session.event$({}, "hi.1").take(1).flatMapPromise(async stream => {
             stream.tap(x => {
                 console.log(yamprint(x));
             }).drain();
@@ -38,6 +41,4 @@ import {EventEmitter} from "events";
             console.log("RESULT:", z);
         }).drain();
     }).drain();
-
-
 })();

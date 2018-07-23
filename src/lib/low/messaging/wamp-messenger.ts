@@ -2,16 +2,11 @@ import {WampArray, WampMessage} from "../wamp/messages";
 import {merge, of, Stream} from "most";
 import {WebsocketTransport} from "./transport/websocket";
 import {WampusNetworkError} from "../../errors/types";
-import {createStreamSimple} from "../../most-ext/events";
+import {createStreamSimple} from "../../most-ext/most-ext";
 import {MessageRouter} from "./routing/message-router";
 import {TransportMessage} from "./transport/transport";
 import {Errs} from "../../errors/errors";
 import {MessageReader} from "../wamp/helper";
-export interface MessengerConfig {
-    realm: string;
-    timeout: number;
-    transport: Stream<WebsocketTransport>
-}
 
 /**
  * This class provides a mid-level abstraction layer between the transport and the WAMP session object.
@@ -32,17 +27,14 @@ export class WampMessenger {
     /**
      * Creates a COLD observable that will yield a WampMessenger when subscribed to. Closing the subscription will dispose of the messenger.
      * The messenger will be created with a transport, ready for messaging.
-     * @param {MessengerConfig} config
      * @returns {Stream<WampMessenger>}
      */
-    static create(config : MessengerConfig) : Stream<WampMessenger> {
-        return config.transport.flatMapPromise(async transport => {
-            let messenger = new WampMessenger(null as never);
-            messenger._transport = transport;
-            let router = messenger._router = new MessageRouter<WampMessage.Any>();
-            messenger._setupRouter();
-            return messenger;
-        });
+    static create(transport : WebsocketTransport) : WampMessenger {
+        let messenger = new WampMessenger(null as never);
+        messenger._transport = transport;
+        let router = messenger._router = new MessageRouter<WampMessage.Any>();
+        messenger._setupRouter();
+        return messenger;
     }
 
     private _setupRouter() {
@@ -87,11 +79,11 @@ export class WampMessenger {
      * @param {WampMessage.Any} msg The message to send.
      * @returns {Stream<never>} A stream that completes once the sending finishes.
      */
-    send(msg : WampMessage.Any) : Stream<any> {
+    send$(msg : WampMessage.Any) : Stream<any> {
         return of(null).flatMap(() => {
             if ("toTransportFormat" in msg) {
                 let loose = msg.toTransportFormat();
-                return this._transport.send(loose);
+                return this._transport.send$(loose);
             } else {
                 throw new WampusNetworkError("Wampus doesn't know how to serialize this kind of message.", {
                     type : msg.type
@@ -105,8 +97,8 @@ export class WampMessenger {
      * Will error if the next transport event is an error, if the WAMP session is closed, or the transport is closed.
      * @returns {Stream<WampMessage.Any>}
      */
-    expectNext() {
-        return this.expect([]).take(1);
+    expectNext$() {
+        return this.expect$([]).take(1);
     }
 
     /**
@@ -115,7 +107,7 @@ export class WampMessenger {
      * @param {WampArray} route
      * @returns {Stream<WampMessage.Any>}
      */
-    expect(route : WampArray) {
+    expect$(route : WampArray) {
         return createStreamSimple<WampMessage.Any>(sub => {
             let inv = {
                 keys : route,
@@ -138,7 +130,7 @@ export class WampMessenger {
         });
     }
 
-    expectAny<T>(...routes : WampArray[]) {
-        return merge(...routes.map(rt => this.expect(rt)));
+    expectAny$<T>(...routes : WampArray[]) {
+        return merge(...routes.map(rt => this.expect$(rt)));
     }
 }

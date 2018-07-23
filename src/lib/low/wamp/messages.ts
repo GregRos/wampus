@@ -22,6 +22,8 @@ export type WampValue = WampObject | WampPrimitive | WampArray;
 export type WampArray = any[];
 export type WampRawMessage = WampArray;
 
+
+
 export interface WampMessage {
      type : WampType;
 }
@@ -288,7 +290,5 @@ export module WampMessage {
     export type Any = Cancel | Unknown | Interrupt | Authenticate | Challenge | Hello | Welcome | Abort | Goodbye | Error | Publish | Published | Subscribe | Subscribed | Unsubscribe | Unsubscribed | Event | Call | Result | Register | Registered | Unregister | Unregistered | Invocation | Yield;
 
     export type SendableMessage = Any & {toTransportFormat() : any[]};
-
-
 }
 

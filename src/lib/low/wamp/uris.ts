@@ -19,6 +19,7 @@ export module WampUri {
         NoEligibleCallee = "wamp.error.no_eligible_callee",
         DisallowedDiscloseMe = "wamp.error.option_disallowed.disclose_me",
         NetworkFailure = "wamp.error.network_failure",
+        RuntimeError = "wamp.error.runtime_error"
     }
 
     export enum CloseReason {

@@ -1,5 +1,5 @@
 import {WampusNetworkError} from "../../../errors/types";
-import {WampMessage, WampRawMessage} from "../../wamp/messages";
+import {WampMessage, WampObject, WampRawMessage} from "../../wamp/messages";
 import most = require("most");
 import {WampusError} from "../../../errors/types";
 import {Stream} from "most";
@@ -23,15 +23,15 @@ export type TransportEvent = TransportError | TransportMessage | TransportClosed
 
 export interface Transport {
     /**
-     * Creates a COLD observable that sends the specified message object via the transport when subscribed to.
-     * The observable never results in a value, but it completes when the sending completes. Unsubscribing does nothing.
+     * Creates a COLD stream that, when subscribed to, will send the specified message to the target.
      * @param {object} msg
      * @returns {Stream<never>} A COLD observable.
      */
-    send(msg : WampMessage.Any) : Stream<any>;
+    send$(msg : WampObject) : Stream<any>;
 
     /**
-     * Exposes a HOT observable that allows access to the transport's events. Events include: Messages send to this transport, Errors, and Closing events.
+     * Exposes a COLD stream that gives access to the transport's network events.
+     * Network events include Data, Error, and Completion.
      */
     events : Stream<TransportEvent>;
 }

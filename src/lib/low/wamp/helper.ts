@@ -8,7 +8,7 @@ import {
 } from "./messages";
 import {
     HelloDetails,
-    WampCallOptions,
+    WampCallOptions, WampCancelOptions,
     WampPublishOptions,
     WampRegisterOptions,
     WampSubscribeOptions,
@@ -115,7 +115,7 @@ export class MessageBuilder {
         return new WampMessage.Yield(invocationId, options, args, kwargs);
     }
 
-    cancel(callRequestId: WampId, options: WampObject) {
+    cancel(callRequestId: WampId, options: WampCancelOptions) {
         return new WampMessage.Cancel(callRequestId, options);
     }
 

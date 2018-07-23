@@ -1,4 +1,5 @@
 import template = require("string-template");
+import {WampMessage, WampObject} from "../low/wamp/messages";
 
 export class WampusError extends Error {
     constructor(message: string, props: object) {
@@ -42,4 +43,11 @@ export class WampusInvocationError extends WampusError {
  */
 export class WampusInvocationCanceledError extends WampusError {
 
+}
+
+export class WampusIsolatedError extends WampusError {
+    constructor(message: string, props: {level : "warning" | "error"} & Record<string, any>) {
+        super(message, props);
+    }
+    level : "warn" | "error";
 }

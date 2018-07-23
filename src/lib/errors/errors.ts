@@ -1,11 +1,25 @@
 import {WampUri} from "../low/wamp/uris";
 import {WampType} from "../low/wamp/message.type";
 import {WampMessage} from "../low/wamp/messages";
-import {WampusIllegalOperationError, WampusInvocationCanceledError, WampusNetworkError} from "./types";
+import {
+    WampusIllegalOperationError,
+    WampusInvocationCanceledError,
+    WampusInvocationError, WampusIsolatedError,
+    WampusNetworkError
+} from "./types";
+import {WampError} from "../low/methods/shared";
 
 export enum ErrorLevel {
     Transport = "Transport",
     Wamp = "Wamp"
+}
+
+
+
+export module Warns {
+    export function receivedResultBeforeCancel(procedure : string) {
+        return
+    }
 }
 
 export module Errs {
@@ -88,6 +102,16 @@ export module Errs {
         }
     }
 
+    export module Leave {
+        export function networkErrorOnAbort(err : Error) {
+            return new WampusNetworkError("While trying to ABORT, received a network error. Going to terminate connection anyway.", {
+                innerError : err
+            })
+        }
+
+        export function goodbyeFailed()
+    }
+
     export module Call {
         export function noSuchProcedure(name: string) {
             return new WampusIllegalOperationError("Tried to call procedure {name}, but it did not exist.", {
@@ -96,10 +120,31 @@ export module Errs {
             });
         }
 
+        export function resultReceivedBeforeCancel(name : string, result : WampMessage.Result) {
+            return new WampusIsolatedError("While canceling operation {name}, received a RESULT instead of an ERROR. This indicates the call wasn't cancelled.", {
+                name,
+                level : "warning"
+            });
+        }
+
+        export function errorWhileCanceling(name : string, err : WampMessage.Error) {
+            return new WampusNetworkError("Received an unexpected error while trying to cancel the call to {name}.", {
+                name,
+                err
+            })
+        }
+
         export function noEligibleCallee(name: string) {
             return new WampusIllegalOperationError("This peer tried to call procedure {name} with exclusions, but no callee matching the exclusions was found.", {
                 name,
                 code: WampUri.Error.NoEligibleCallee
+            });
+        }
+
+        export function errorResult(name : string, msg : WampMessage.Error) {
+            return new WampusInvocationError("Invoked operation {name}, and it replied with an error.", {
+                name,
+                msg
             });
         }
 

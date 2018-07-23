@@ -7,9 +7,9 @@ const WebSocket = require('isomorphic-ws') as typeof ws;
 import {MyPromise} from "../../../ext-promise";
 import {Serializer} from "../serializer/serializer";
 import {WampMessage, WampRawMessage} from "../../wamp/messages";
-import {fromEvent} from "most";
+import {fromEvent, Stream} from "most";
 import {WampusError} from "../../../errors/types";
-import {createStreamSimple} from "../../../most-ext/events";
+import {createStreamSimple} from "../../../most-ext/most-ext";
 
 export interface WebsocketTransportConfig {
     url: string;
@@ -32,19 +32,18 @@ export class WebsocketTransport implements Transport{
     }
 
     /**
-     * Creates a COLD observable that will create a WS transport when subscribed to. Unsubscribing will close the transport.
-     * The transport will be open and ready for messaging.
-     * Messages MAY have been received between the opening of the transport and when it's yielded in the observable. This isn't important for our use-case and may be fixed.
+     * Creates a COLD stream that will create a [[WebsocketTransport]] when subscribed to.
+     * The [[WebsocketTransport]] will be automatically closed when the subscription ends.
      * @param {WebsocketTransportConfig} config
      * @returns {Stream<WebsocketTransport>}
      */
-    static create(config: WebsocketTransportConfig) : most.Stream<WebsocketTransport>{
+    static create$(config: WebsocketTransportConfig) : most.Stream<WebsocketTransport>{
 
-        let errorOnTimeOut = config.timeout == null ? most.never() : most.of(null).delay(config.timeout).map(() => {
+        let errorOnTimeOut = most.of(null).delay(config.timeout).map(() => {
             throw new WampusNetworkError("WebSocket connection timed out.", {
                 url: config.url
             })
-        });
+        }) as Stream<never>;
 
         let transport$ = createStreamSimple(sub => {
             let transport = new WebsocketTransport(null as never);
@@ -122,7 +121,7 @@ export class WebsocketTransport implements Transport{
                     await transport._close();
                 }
             }
-        });
+        }) as Stream<WebsocketTransport>;
 
         return most.from([errorOnTimeOut, transport$]).race();
     }
@@ -144,12 +143,8 @@ export class WebsocketTransport implements Transport{
         return this._expectingClose;
     }
 
-    close() : Promise<void> {
 
-    }
-
-
-    send(msg: object): most.Stream<any> {
+    send$(msg: object): most.Stream<any> {
         return createStreamSimple(sub => {
             try {
                 var payload = this._config.serializer.serialize(msg);
