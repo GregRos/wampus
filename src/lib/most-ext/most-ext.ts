@@ -1,5 +1,6 @@
 import most = require("most");
 import {Sink, Stream, Subscriber, Subscription, Disposable, Scheduler} from "most";
+import {Subject} from "./subject";
 
 declare module "most" {
 
@@ -25,6 +26,10 @@ declare module "most" {
         switchMap<B>(this: Stream<Stream<A>>, map: (x: A) => Stream<A>): Stream<B>
 
         subscribeSimple(next: (x: A) => void, error ?: (x: Error) => void, complete ?: () => void): Subscription<A>;
+
+        publishFree(this: Stream<A>): Stream<A>;
+
+        publishFreeReplay(this: Stream<A>, replay: number): Stream<A>;
     }
 
     interface Disposable<A> {
@@ -40,7 +45,7 @@ export function wait$<A>(time: number, value ?: A) {
     return most.of(value).delay(time);
 }
 
-export function lastly$(f : () => Promise<any> | any) {
+export function lastly$(f: () => Promise<any> | any) {
     return new Stream<any>({
         run(sink, sch) {
             return {
@@ -66,7 +71,7 @@ export function sinkToSubscriber<T>(sch: Scheduler, sink: Sink<T>): Subscriber<T
     }
 }
 
-export function createStreamSimple<T>(subscribe: (subscriber: Subscriber<T>) => Disposable<any>): Stream<T> {
+export function createStreamSimple<T>(subscribe: (subscriber: Subscriber<T>, sch: Scheduler) => Disposable<any>): Stream<T> {
     return new Stream({
         run(sink, sch) {
             let subscriber = sinkToSubscriber(sch, sink);
@@ -90,7 +95,7 @@ export function createStreamSimple<T>(subscribe: (subscriber: Subscriber<T>) => 
                         sink.error(sch.now(), err);
                     }
                 }
-            });
+            }, sch);
             return {
                 dispose() {
                     return subscription.dispose();
@@ -179,6 +184,57 @@ Object.assign(most.Stream.prototype, {
             next,
             error
         });
+    },
+    publishFree<A>(this: Stream<A>) {
+        let subject = Subject.create();
+        let sub = this.subscribeSimple(x => {
+            subject.next(x);
+        }, err => {
+            subject.error(err);
+        }, () => {
+            subject.complete();
+        });
+        return subject;
+    },
+    publishFreeReplay<A>(this: Stream<A>, replay: number) {
+        let subject = Subject.create();
+        let buffer = [];
+        let sub = this.subscribeSimple(x => {
+            if (buffer.length > replay) {
+                buffer.splice(0, 1);
+                buffer.push(x);
+            }
+            subject.next(x);
+        }, err => {
+            subject.error(err);
+        }, () => {
+            subject.complete();
+        });
+        return new Stream({
+            run(sink, sch) {
+                let mySub: Disposable<any> = null;
+                let disposed = false;
+                Promise.resolve().then(() => {
+                    if (disposed) return;
+                    try {
+                        for (let item of buffer) {
+                            sink.event(sch.now(), item);
+                        }
+                    } catch (err) {
+                        sink.error(sch.now(), err);
+                    }
+                    mySub = subject.run(sink, sch);
+                });
+                return {
+                    dispose() {
+                        if (mySub) {
+                            return mySub.dispose()
+                        }
+                        disposed = true;
+                    }
+                }
+            }
+        })
     },
     deriveDependentResource<A, B>(this: Stream<A>, dependentResourceFactory: (x: A) => Stream<B>) {
         let self = this;

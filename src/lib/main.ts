@@ -16,29 +16,36 @@ import {never, of, periodic, Stream} from "most";
         serializer: new JsonSerializer(),
         timeout: 10 * 1000
     });
-    let session = InternalSession.create$({
+    let session = await InternalSession.create$({
         transport$: transport,
         realm: "proxy",
         timeout: 10000
     }).flatMapPromise(async session => {
-        session.register$({}, "a.b").switchLatest().flatMapPromise(async x => {
-            await x.return({
+        session.register$({}, "a.b").flatMapPromise(async (x) => {
+            let z = await session.call$({}, "a.b", [], {}).drain();
+            session.event$({}, "hi.1").take(1).flatMapPromise(async stream => {
+                stream.tap(x => {
+                    console.log(yamprint(x));
+                }).drain();
+                await session.publish$({
+                    exclude_me : false
+                }, "hi.1", {
+                    kwargs : {
+                        a : 5
+                    }
+                });
+                console.log("SUBSCRIPTIONS:", (session as any)._messenger._router.count());
+                console.log("RESULT:", z);
+            }).drain();
+            return x;
+        }).switchLatest().flatMapPromise(invocation => {
+            invocation.return({
                 kwargs : {
                     a : 5
                 }
-            });
-        });
+            }, {});
+        }).subscribe({});
 
-        let z = await session.call$({}, "a.b", [], {}).drain();
-        session.event$({}, "hi.1").take(1).flatMapPromise(async stream => {
-            stream.tap(x => {
-                console.log(yamprint(x));
-            }).drain();
-            await session.publisher({
-                exclude_me : false
-            }, "hi.1")([], {a : 5});
-            console.log("SUBSCRIPTIONS:", (session as any)._messenger._router.count());
-            console.log("RESULT:", z);
-        }).drain();
+
     }).drain();
 })();

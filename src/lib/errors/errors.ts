@@ -1,6 +1,6 @@
 import {WampUri} from "../low/wamp/uris";
 import {WampType} from "../low/wamp/message.type";
-import {WampMessage} from "../low/wamp/messages";
+import {WampMessage, WampObject, WampUriString} from "../low/wamp/messages";
 import {
     WampusIllegalOperationError,
     WampusInvocationCanceledError,
@@ -8,6 +8,7 @@ import {
     WampusNetworkError
 } from "./types";
 import {WampError} from "../low/methods/shared";
+import {WampCancelOptions} from "../low/wamp/options";
 
 export enum ErrorLevel {
     Transport = "Transport",
@@ -100,6 +101,8 @@ export module Errs {
                 name
             })
         }
+
+        export function callInterrupted
     }
 
     export module Leave {
@@ -110,6 +113,17 @@ export module Errs {
         }
 
         export function goodbyeFailed()
+    }
+
+    export module Invocation {
+        export function cancelled(name : string, msg : WampMessage.Interrupt) {
+            return new WampusInvocationCanceledError("The invocation of procedure {name} was cancelled.", {
+                name,
+                msg
+            });
+        }
+
+
     }
 
     export module Call {

@@ -3,18 +3,18 @@ import {WampError} from "./shared";
 import {WampUri} from "../wamp/uris";
 import {Errs} from "../../errors/errors";
 import {WampResult} from "./shared";
-import {WampInvocationOptions} from "../wamp/options";
+import {WampInvocationOptions, WampYieldOptions} from "../wamp/options";
 import {Stream} from "most";
 import {Subject} from "../../most-ext/subject";
-
+import {MessageBuilder} from "../wamp/helper";
+import {WampType} from "../wamp/message.type";
+import {MyPromise} from "../../ext-promise";
+import most = require("most");
+import {WampusInvocationCanceledError} from "../../errors/types";
 export interface InvocationArgsCallbacks {
-    error(error: WampError, details ?: WampObject): Promise<void>;
-
-    result(result: WampResult, details ?: WampObject): Promise<void>;
-
-    progress(result: WampResult, details ?: WampObject): Promise<void>;
-
-    expectInterrupt : Stream<WampMessage.Interrupt>;
+    factory : MessageBuilder;
+    send$(msg : WampMessage.Any) : Stream<void>;
+    expectInterrupt$ : Stream<WampMessage.Interrupt>;
 }
 
 export interface InvocationArgs {
@@ -22,8 +22,6 @@ export interface InvocationArgs {
 }
 
 export class InvocationRequest implements WampResult{
-
-
     isHandled = false;
 
     get args() {
@@ -42,8 +40,10 @@ export class InvocationRequest implements WampResult{
         return this._name;
     }
 
-    constructor(private _name: string, private _msg: WampMessage.Invocation, private _args: InvocationArgsCallbacks,) {
+    private _interrupt : WampMessage.Interrupt;
 
+    constructor(private _name: string, private _msg: WampMessage.Invocation, private _args: InvocationArgsCallbacks,) {
+        this._args.expectInterrupt$ = this._args.expectInterrupt$.publishFreeReplay(1);
     }
 
     async handle(f: (args: InvocationRequest) => any | Promise<any>) {
@@ -69,24 +69,26 @@ export class InvocationRequest implements WampResult{
         }
     }
 
-    async return(result: WampResult, details ?: WampObject) {
-        if (this.isHandled) {
-            throw Errs.Register.cannotSendResultTwice("X");
+    private _send$(msg : WampMessage.Any) {
+        if (msg instanceof WampMessage.Error || msg instanceof WampMessage.Yield && !msg.options.progress) {
+            this.isHandled = true;
         }
-        this.isHandled = true;
-        await this._args.result(result, details);
+        return this._args.send$(msg);
+    }
+
+    async return(result: WampResult, options ?: WampYieldOptions) {
+        await this._send$(this._args.factory.yield(this._msg.requestId, options, result.args, result.kwargs)).drain();
     }
 
     async error(error: WampError, details ?: WampObject) {
-        if (this.isHandled) {
-            throw Errs.Register.cannotSendResultTwice("X");
-        }
-        this.isHandled = true;
-        await this._args.error(error, details);
+        await this._send$(this._args.factory.error(WampType.INVOCATION, this._msg.requestId, details, error.reason, error.args, error.kwargs));
     }
 
     async waitCancel(time = 0) {
-        if (this.isHandled) return;
-
+        return this._args.expectInterrupt$.takeUntil(most.of(0).delay(time)).flatMap(x => {
+            return this._send$(this._args.factory.error(WampType.INVOCATION, this._msg.requestId, {}, WampUri.Error.Canceled)).continueWith(() => {
+                throw Errs.Invocation.cancelled(this.name, x);
+            });
+        }).drain();
     }
 }

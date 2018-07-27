@@ -68,6 +68,7 @@ export interface EventPublisher {
 export class InternalSession {
     id: number;
     _config: SessionConfig;
+    readonly errors$ = Subject.create() as Subject<WampusError>;
     private _messenger: WampMessenger;
 
     static create$(config: SessionConfig): most.Stream<InternalSession> {
@@ -84,8 +85,6 @@ export class InternalSession {
             });
         });
     }
-
-    readonly errors$ = Subject.create() as Subject<WampusError>;
 
     register$(options: WampRegisterOptions, name: string): Stream<Stream<InvocationRequest>> {
         let msg = factory.register(options, name);
@@ -113,26 +112,20 @@ export class InternalSession {
                     .drain();
             }).map(x => x as WampMessage.Invocation).map(msg => {
                 let args = new InvocationRequest(name, msg, {
-                    result: async ({args, kwargs}, details) => {
-                        await this._messenger.send$(factory.yield(msg.requestId, details, args, kwargs)).drain();
+                    factory,
+                    send$: (msg) => {
+                        return this._messenger.send$(msg);
                     },
-                    progress: async ({args, kwargs}, details) => {
-                        await this._messenger.send$(factory.yield(msg.requestId, {
-                            progress: true,
-                            ...details
-                        }, args, kwargs)).drain()
-                    },
-                    error: async ({reason, args, kwargs}, details) => {
-                        await this._messenger.send$(factory.error(WampType.INVOCATION, msg.requestId, details, reason, args, kwargs)).drain();
-                    },
-                    expectInterrupt : this._messenger.expectAny$([WampType.INTERRUPT, msg.requestId]).map(x => x as WM.Interrupt)
+                    expectInterrupt$: this._messenger.expectAny$([WampType.INTERRUPT, msg.requestId]).map(x => x as WM.Interrupt)
                 });
                 return args;
             });
         });
     }
 
-    publish$(options: WampPublishOptions, name: string, data : WampResult): Stream<any> {
+    register(options : WampRegisterOptions, name : string, procedure )
+
+    publish$(options: WampPublishOptions, name: string, data: WampResult): Stream<any> {
         return defer$(() => {
             let msg = factory.publish(options, name, data.args, data.kwargs);
             let expectAcknowledge$: Stream<any>;
@@ -247,7 +240,7 @@ export class InternalSession {
                             throw Errs.Call.optionDisallowedDiscloseMe(msg.procedure);
                     }
                     if (x.error === WampUri.Error.RuntimeError || !x.error.startsWith(WampUri.Error.Prefix)) {
-                        throw Errs.Call.errorResult(name,  x);
+                        throw Errs.Call.errorResult(name, x);
                     }
                 }
                 if (x instanceof WampMessage.Result) {
@@ -260,7 +253,7 @@ export class InternalSession {
         });
     }
 
-    private _close$(details: WampObject, reason: WampUriString, abrupt: boolean) : Stream<any> {
+    private _close$(details: WampObject, reason: WampUriString, abrupt: boolean): Stream<any> {
         if (abrupt) {
             return this._abort$(details, reason);
         }
@@ -276,12 +269,11 @@ export class InternalSession {
     }
 
 
-
     private _abort$(details: WampObject, reason: WampUriString) {
         return this._messenger.send$(factory.abort(details, reason))
             .concat(wait$(this._config.timeout))
-            .recoverWith((err : Error) => {
-                this.errors$.next(Errs.Leave.networkErrorOnAbort(err))
+            .recoverWith((err: Error) => {
+                console.warn("Network error on ABORT.");
                 return most.empty();
             });
 
