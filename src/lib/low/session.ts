@@ -37,7 +37,7 @@ import {
     WampSubscribeOptions
 } from "./wamp/options";
 import {WampMessenger} from "./messaging/wamp-messenger";
-import {empty, Stream} from "most";
+import {empty, Stream, Subscription} from "most";
 import {wait$} from "../most-ext/most-ext";
 import {InvocationRequest} from "./methods/invocation";
 import {EventArgs} from "./methods/event";
@@ -53,10 +53,6 @@ function processErrorDuringGoodbye(myGoodbye: WM.Goodbye, error: WM.Error) {
 
 function processErrorDuringSubscribe(subscribe: WM.Subscribe, error: WM.Error) {
     return new Error("Failed!");
-}
-
-function messageDisplayType(msg: WampMessage.Any): string {
-    return WampType[msg.type];
 }
 
 let factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
@@ -77,10 +73,10 @@ export class InternalSession {
             let session = new InternalSession();
             session._config = config;
             session._messenger = messenger;
-            return session._handshake().map(welcome => {
+            return session._handshake$().map(welcome => {
                 session.id = welcome.sessionId;
                 return session;
-            }).lastly(async () => {
+            }).continueWith(() => most.never()).lastly(async () => {
                 await session._close$({}, WampUri.CloseReason.GoodbyeAndOut, false).drain();
             });
         });
@@ -103,12 +99,23 @@ export class InternalSession {
                 }
             }
             return x as WampMessage.Registered;
-        }).map((registered) => {
+        }).take(1).map((registered) => {
             let unregisteredSent = this._messenger.expectAny$(Routes.unregistered(registered.registrationId));
             return this._messenger.expectAny$(Routes.invocation(registered.registrationId)).takeUntil(unregisteredSent).lastly(async () => {
-                let sending = this._messenger.send$(factory.unregister(registered.registrationId));
-                return this._messenger.expectAny$(Routes.unregistered(registered.registrationId))
+                let unregisterMsg = (factory.unregister(registered.registrationId));
+                let sending = this._messenger.send$(unregisterMsg);
+                return this._messenger.expectAny$(Routes.unregistered(registered.registrationId), Routes.error(WampType.UNREGISTER, unregisterMsg.requestId))
                     .merge(sending)
+                    .tap(x => {
+                        if (x instanceof WampMessage.Error) {
+                            switch (x.error) {
+                                case WampUri.Error.NoSuchRegistration:
+                                    throw Errs.Unregister.registrationDoesntExist(name, x);
+                                default:
+                                    throw Errs.Unregister.other(name, x);
+                            }
+                        }
+                    })
                     .drain();
             }).map(x => x as WampMessage.Invocation).map(msg => {
                 let args = new InvocationRequest(name, msg, {
@@ -123,7 +130,33 @@ export class InternalSession {
         });
     }
 
-    register(options : WampRegisterOptions, name : string, procedure )
+    register(options : WampRegisterOptions, name : string, procedure : (req : InvocationRequest) => Promise<any> | any) : Promise<Subscription<any>> {
+        return new Promise((resolve, reject) => {
+            let sub : Subscription<any>;
+            let isResolved = true;
+            let parentSub = this.register$(options, name).subscribeSimple(stream => {
+                sub = stream.subscribeSimple(req => {
+                    req.handle(procedure).then(() => {}, () => {});
+                });
+                isResolved = true;
+                resolve({
+                    unsubscribe() {
+                        sub.unsubscribe();
+                        parentSub.unsubscribe();
+                    }
+                });
+            }, (err) => {
+                if (!isResolved) {
+                    isResolved = true;
+                    reject(err);
+                }
+            });
+        });
+    }
+
+    publish(options : WampPublishOptions, name : string, data : WampResult) {
+        return this.publish$(options, name, data).toPromise();
+    }
 
     publish$(options: WampPublishOptions, name: string, data: WampResult): Stream<any> {
         return defer$(() => {
@@ -168,6 +201,12 @@ export class InternalSession {
                 Routes.error(WampType.SUBSCRIBE, msg.requestId)
             ).merge(sending$).map(x => {
                 if (x instanceof WM.Error) {
+                    switch (x.error){
+                        case WampUri.Error.NotAuthorized:
+                            throw Errs.notAuthorized("Subscribe to {event}", {
+                                event : name
+                            });
+                    }
                     throw processErrorDuringSubscribe(msg, x);
                 }
                 return x as WM.Subscribed;
@@ -180,9 +219,12 @@ export class InternalSession {
                     Routes.error(WampType.UNSUBSCRIBE, unsub.requestId)
                 ).map(msg => {
                     if (msg instanceof WampMessage.Error) {
-                        throw new WampusIllegalOperationError("Unsubscribing failed.", {
-                            msg
-                        })
+                        switch (msg.error) {
+                            case WampUri.Error.NoSuchSubscription:
+                                throw Errs.Unsubscribe.subDoesntExist(msg, name);
+                            default:
+                                throw Errs.Unsubscribe.other(msg, name);
+                        }
                     }
                 }).merge(this._messenger.send$(unsub)).take(1).drain()
             }).map((x: WM.Event) => {
@@ -206,11 +248,16 @@ export class InternalSession {
 
         return defer$(() => {
             let msg = factory.call(options, name, args, kwargs);
+            let cancelCall = true;
+
             let expectReply$ = self._messenger.expectAny$(
                 Routes.result(msg.requestId),
                 Routes.error(WampType.CALL, msg.requestId)
-            ) as Stream<WampMessage.Any>;
+            ).tap(() => {
+                cancelCall = false;
+            }) as Stream<WampMessage.Any>;
             let sending$ = this._messenger.send$(msg).concat(most.never().lastly(async () => {
+                if (!cancelCall) return;
                 await this._messenger.send$(factory.cancel(msg.requestId, {
                     mode: options.cancelMode || CancelMode.Kill
                 })).merge(expectReply$).tap((msg: WampMessage.Any) => {
@@ -238,9 +285,14 @@ export class InternalSession {
                             throw Errs.Call.noEligibleCallee(msg.procedure);
                         case WampUri.Error.DisallowedDiscloseMe:
                             throw Errs.Call.optionDisallowedDiscloseMe(msg.procedure);
+                        case WampUri.Error.OptionNotAllowed:
+                            throw Errs.optionNotAllowed(msg, x);
                     }
                     if (x.error === WampUri.Error.RuntimeError || !x.error.startsWith(WampUri.Error.Prefix)) {
                         throw Errs.Call.errorResult(name, x);
+                    }
+                    else if (x.error.startsWith(WampUri.Error.Prefix)) {
+                        throw Errs.Call.other(name, x);
                     }
                 }
                 if (x instanceof WampMessage.Result) {
@@ -253,16 +305,18 @@ export class InternalSession {
         });
     }
 
+
+
     private _close$(details: WampObject, reason: WampUriString, abrupt: boolean): Stream<any> {
         if (abrupt) {
             return this._abort$(details, reason);
         }
 
         let timeout = defer$(() => {
-            throw new WampusNetworkError("Goodbye timed out.");
+            throw Errs.Leave.goodbyeTimedOut();
         }).delay(this._config.timeout);
 
-        return this._goodbye(details, reason).takeUntil(timeout).recoverWith(err => {
+        return this._goodbye$(details, reason).takeUntil(timeout).recoverWith(err => {
             console.warn("Error when saying GOODBYE. Going to say ABORT.", err);
             return this._abort$(details, reason);
         })
@@ -279,7 +333,7 @@ export class InternalSession {
 
     }
 
-    private _goodbye(details: WampObject, reason: WampUriString) {
+    private _goodbye$(details: WampObject, reason: WampUriString) {
         let myGoodbye = factory.goodbye(details, reason);
         let sending = this._messenger.send$(myGoodbye);
         return this._messenger.expectAny$(
@@ -287,13 +341,13 @@ export class InternalSession {
             Routes.error(WampType.GOODBYE)
         ).merge(sending).map(x => {
             if (x instanceof WampMessage.Error) {
-                throw processErrorDuringGoodbye(myGoodbye, x);
+                throw Errs.Leave.errorOnGoodbye(x);
             }
             return x as WampMessage.Goodbye;
         });
     }
 
-    private _handshake(): Stream<WM.Welcome> {
+    private _handshake$(): Stream<WM.Welcome> {
         let messenger = this._messenger;
         let config = this._config;
         let hello = factory.hello(config.realm, {

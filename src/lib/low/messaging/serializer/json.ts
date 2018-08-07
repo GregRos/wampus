@@ -3,7 +3,8 @@ declare type Blob = any;
 export class JsonSerializer implements Serializer {
     readonly id = "json";
 
-    deserialize(buffer: Buffer): object {
+    deserialize(buffer: Buffer | string | ArrayBuffer): object {
+        if (!(buffer instanceof Buffer)) return;
         let str = buffer.toString("utf8");
         return JSON.parse(str);
     }

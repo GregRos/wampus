@@ -40,17 +40,28 @@ export class InvocationRequest implements WampResult{
         return this._name;
     }
 
-    private _interrupt : WampMessage.Interrupt;
-
     constructor(private _name: string, private _msg: WampMessage.Invocation, private _args: InvocationArgsCallbacks,) {
         this._args.expectInterrupt$ = this._args.expectInterrupt$.publishFreeReplay(1);
     }
 
-    async handle(f: (args: InvocationRequest) => any | Promise<any>) {
+
+    private _send$(msg : WampMessage.Any) {
+        if (msg instanceof WampMessage.Error || msg instanceof WampMessage.Yield && !msg.options.progress) {
+            if (this.isHandled) {
+                return most.throwError(Errs.Register.cannotSendResultTwice(this.name));
+            } else {
+                this.isHandled = true;
+            }
+        }
+        return this._args.send$(msg);
+    }
+
+    async handle(handler : (inv : InvocationRequest) => Promise<any>) {
+        let invocation = this;
         try {
-            let result = await f(this);
+            let result = await handler(this);
             if (!this.isHandled) {
-                await this.return({
+                await invocation.return({
                     args: [],
                     kwargs: result
                 }, {});
@@ -58,7 +69,7 @@ export class InvocationRequest implements WampResult{
         }
         catch (err) {
             if (!this.isHandled) {
-                await this.error({
+                await invocation.error({
                     reason: WampUri.Error.RuntimeError,
                     kwargs: err,
                     args: []
@@ -69,26 +80,34 @@ export class InvocationRequest implements WampResult{
         }
     }
 
-    private _send$(msg : WampMessage.Any) {
-        if (msg instanceof WampMessage.Error || msg instanceof WampMessage.Yield && !msg.options.progress) {
-            this.isHandled = true;
-        }
-        return this._args.send$(msg);
+    return$(result: WampResult, options ?: WampYieldOptions) {
+        return this._send$(this._args.factory.yield(this._msg.requestId, options, result.args, result.kwargs));
     }
 
     async return(result: WampResult, options ?: WampYieldOptions) {
-        await this._send$(this._args.factory.yield(this._msg.requestId, options, result.args, result.kwargs)).drain();
+        await this.return$(result, options).drain();
     }
 
-    async error(error: WampError, details ?: WampObject) {
-        await this._send$(this._args.factory.error(WampType.INVOCATION, this._msg.requestId, details, error.reason, error.args, error.kwargs));
+    error$(error: WampError, details ?: WampObject) {
+        return this._send$(this._args.factory.error(WampType.INVOCATION, this._msg.requestId, details, error.reason, error.args, error.kwargs));
     }
 
-    async waitCancel(time = 0) {
+    async error(error : WampError, details ?: WampObject) {
+        return this.error$(error, details);
+    }
+
+    waitCancel$(time = 0) {
         return this._args.expectInterrupt$.takeUntil(most.of(0).delay(time)).flatMap(x => {
-            return this._send$(this._args.factory.error(WampType.INVOCATION, this._msg.requestId, {}, WampUri.Error.Canceled)).continueWith(() => {
+            return this.error$({
+                reason : WampUri.Error.Canceled
+            }, {}).continueWith(() => {
                 throw Errs.Invocation.cancelled(this.name, x);
+
             });
-        }).drain();
+        })
+    }
+
+    waitCancel(time = 0) {
+        return this.waitCancel$(time).drain();
     }
 }

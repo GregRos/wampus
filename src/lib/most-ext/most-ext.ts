@@ -25,7 +25,7 @@ declare module "most" {
 
         switchMap<B>(this: Stream<Stream<A>>, map: (x: A) => Stream<A>): Stream<B>
 
-        subscribeSimple(next: (x: A) => void, error ?: (x: Error) => void, complete ?: () => void): Subscription<A>;
+        subscribeSimple(next ?: (x: A) => void, error ?: (x: Error) => void, complete ?: () => void): Subscription<A>;
 
         publishFree(this: Stream<A>): Stream<A>;
 
@@ -134,7 +134,20 @@ Object.assign(most.Stream.prototype, {
     },
     lastly<T>(this: most.Stream<T>, f: () => Promise<void>) {
         let whenDisposed = lastly$(f);
-        return this.merge(whenDisposed) as most.Stream<T>;
+        let self = this;
+        return new Stream<T>({
+            run(sink, sch) {
+                let sub = self.source.run(sink, sch);
+                return {
+                    async dispose() {
+                        await f();
+
+                        await sub.dispose();
+                        return {} as any;
+                    }
+                }
+            }
+        })
     },
     race<T, S>(this: most.Stream<most.Stream<T>>) {
         return createStreamSimple(mySubscriber => {
@@ -178,7 +191,7 @@ Object.assign(most.Stream.prototype, {
     switchMap<T, S>(this: Stream<T>, map: (x: T) => Stream<S>) {
         return this.map(map).switchLatest();
     },
-    subscribeSimple<A>(this: Stream<A>, error ?: (err: Error) => void, next ?: (x: A) => void, complete ?: () => void) {
+    subscribeSimple<A>(this: Stream<A>, next ?: (x: A) => void, error ?: (err: Error) => void, complete ?: () => void) {
         return this.subscribe({
             complete,
             next,

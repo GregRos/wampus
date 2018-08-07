@@ -16,34 +16,40 @@ export enum ErrorLevel {
 }
 
 
-
 export module Warns {
-    export function receivedResultBeforeCancel(procedure : string) {
+    export function receivedResultBeforeCancel(procedure: string) {
         return
     }
 }
 
 export module Errs {
 
-    export function unexpectedMessage(message : WampMessage.Any) {
+    export function unexpectedMessage(message: WampMessage.Any) {
         return new WampusNetworkError("Received an unexpected message of type {msg.type}", {
-            msg : message
+            msg: message
         })
     }
 
-    export function receivedProtocolViolation(source : WampType, error : WampMessage.Error) {
+    export function receivedProtocolViolation(source: WampType, error: WampMessage.Error) {
         return new WampusNetworkError("Protocol violation.", {
             level: "WAMP",
-            error : error,
-            source : WampType[source],
+            error: error,
+            source: WampType[source],
             code: WampUri.Error.ProtoViolation
         });
     }
 
-    export function featureNotSupported(message : WampMessage.Any, feature : string) {
+    export function featureNotSupported(message: WampMessage.Any, feature: string) {
         return new WampusIllegalOperationError("Feature not supported: {feature}.", {
             feature,
             message
+        });
+    }
+
+    export function optionNotAllowed(cause: WampMessage.Any, err: WampMessage.Error,) {
+        return new WampusIllegalOperationError("The option is not allowed.", {
+            cause,
+            err
         });
     }
 
@@ -57,10 +63,10 @@ export module Errs {
             );
         }
 
-        export function unrecognizedError(error : WampMessage.Abort) {
+        export function unrecognizedError(error: WampMessage.Abort) {
             return new WampusIllegalOperationError("During handshake, received ERROR reply from the server: {error}.", {
-                error : error.reason,
-                message : error
+                error: error.reason,
+                message: error
             });
         }
 
@@ -76,54 +82,112 @@ export module Errs {
         }
     }
 
+    export module Unregister {
+        export function registrationDoesntExist(name: string, err: WampMessage.Error) {
+            return new WampusIllegalOperationError("Tried to unregister procedure {procedure}, but it didn't exist.", {
+                procedure: name,
+                err
+            });
+        }
+
+        export function other(name: string, err: WampMessage.Error) {
+            return new WampusIllegalOperationError("Tried to unregister procedure {procedure}, but received an ERROR response.", {
+                procedure: name,
+                err
+            });
+        }
+    }
+
     export module Register {
-        export function procedureAlreadyExists(name : string) {
+        export function procedureAlreadyExists(name: string) {
             return new WampusIllegalOperationError("Tried to register procedure {name}, but it's already registered.", {
                 name
             });
         }
 
-        export function error(name : string, err : WampMessage.Error) {
-            return new WampusIllegalOperationError("Failed to register procedure {name}.", {
+        export function error(name: string, err: WampMessage.Error) {
+            return new WampusIllegalOperationError("Tried to register procedure {name}, but recieved an ERROR response.", {
                 err,
                 name
             });
         }
 
-        export function cannotSendResultTwice(name : string) {
+        export function cannotSendResultTwice(name: string) {
             return new WampusIllegalOperationError("While invoking {name}, tried to send a result or error more than once.", {
                 name
             });
         }
 
-        export function doesNotSupportProgress(name : string) {
+        export function doesNotSupportProgress(name: string) {
             return new WampusIllegalOperationError("While invoking {name}, tried to send a progress report but this call does not support progress reports.", {
                 name
             })
         }
 
-        export function callInterrupted
+
+    }
+
+
+    export module Subscribe {
+        export function notAuthorized(name : string, err : WampMessage.Error) {
+            return new WampusIllegalOperationError("You are not authorized to subscribe to the event {name}.", {
+                name,
+                err
+            });
+        }
+
+        export function other(name : string, err : WampMessage.Error ){
+            return new WampusIllegalOperationError("Tried to subscribe to {name}, but received an ERROR response.", {
+                name,
+                err
+            });
+        }
+    }
+
+
+
+    export module Unsubscribe {
+        export function subDoesntExist(msg: WampMessage.Error, event: string) {
+            return new WampusIllegalOperationError("Failed to unsubscribe from event {event} because the subscription did not exist.", {
+                msg,
+                name: event
+            });
+        }
+
+        export function other(msg: WampMessage.Error, event: string) {
+            return new WampusIllegalOperationError("Tried to unsubscribe to the event {event}, but received an ERROR response.", {
+                msg,
+                event
+            })
+        }
     }
 
     export module Leave {
-        export function networkErrorOnAbort(err : Error) {
+        export function networkErrorOnAbort(err: Error) {
             return new WampusNetworkError("While trying to ABORT, received a network error. Going to terminate connection anyway.", {
-                innerError : err
+                innerError: err
             })
         }
 
-        export function goodbyeFailed()
+        export function errorOnGoodbye(msg : WampMessage.Error ){
+            return new WampusNetworkError("Tried to say GOODBYE, but received an ERROR response.", {
+                msg
+            });
+        }
+
+        export function goodbyeTimedOut() {
+            return new WampusNetworkError("Tried to say GOODBYE, but timed out before receiving GOODBYE response.");
+        }
+
     }
 
     export module Invocation {
-        export function cancelled(name : string, msg : WampMessage.Interrupt) {
+        export function cancelled(name: string, msg: WampMessage.Interrupt) {
             return new WampusInvocationCanceledError("The invocation of procedure {name} was cancelled.", {
                 name,
                 msg
             });
         }
-
-
     }
 
     export module Call {
@@ -134,18 +198,11 @@ export module Errs {
             });
         }
 
-        export function resultReceivedBeforeCancel(name : string, result : WampMessage.Result) {
+        export function resultReceivedBeforeCancel(name: string, result: WampMessage.Result) {
             return new WampusIsolatedError("While canceling operation {name}, received a RESULT instead of an ERROR. This indicates the call wasn't cancelled.", {
                 name,
-                level : "warning"
+                level: "warning"
             });
-        }
-
-        export function errorWhileCanceling(name : string, err : WampMessage.Error) {
-            return new WampusNetworkError("Received an unexpected error while trying to cancel the call to {name}.", {
-                name,
-                err
-            })
         }
 
         export function noEligibleCallee(name: string) {
@@ -155,10 +212,18 @@ export module Errs {
             });
         }
 
-        export function errorResult(name : string, msg : WampMessage.Error) {
+        export function errorResult(name: string, msg: WampMessage.Error) {
             return new WampusInvocationError("Invoked operation {name}, and it replied with an error.", {
                 name,
                 msg
+            });
+        }
+
+        export function other(name : string, msg : WampMessage.Error) {
+            return new WampusIllegalOperationError("Invoked procedure {name} and received an ERROR: {error}", {
+                name,
+                msg,
+                error : msg.error
             });
         }
 
@@ -185,6 +250,14 @@ export module Errs {
         }
 
     }
+
+    export function notAuthorized(operation: string, vars : Record<string, string>) {
+        return new WampusIllegalOperationError(`Tried to perform the operation: ${operation}, but received NOT AUTHORIZED.`, {
+            ...vars,
+            operation
+        });
+    }
+
 }
 
 export module NetworkErrors {
@@ -213,23 +286,17 @@ export module NetworkErrors {
         });
     }
 
+
     export function networkFailure(IMPLEMENT: never) {
 
     }
-
 
 
 }
 export module IllegalOperations {
 
 
-    export function notAuthorized(operation: string, realm: string) {
-        return new WampusIllegalOperationError("In realm {realm}, this session is not authorized to perform the specified operation: {operation}", {
-            operation,
-            realm,
-            code: WampUri.Error.NotAuthorized
-        });
-    }
+
 
     export function procedureAlreadyExists(name: string, realm: string) {
         return new WampusIllegalOperationError("In realm {realm}, tried to register operation {name}, but it's already registered.", {
@@ -238,7 +305,6 @@ export module IllegalOperations {
             code: WampUri.Error.ProcAlreadyExists
         });
     }
-
 
 
     export function noSuchSubscription(event: string, realm: string) {
@@ -258,7 +324,6 @@ export module IllegalOperations {
     }
 
 
-
     export function authFailed(IMPLEMENT: never) {
 
     }
@@ -272,16 +337,12 @@ export module IllegalOperations {
     }
 
 
-
     export function optionNotAllowed(realm: string) {
         return new WampusIllegalOperationError("In realm {realm}, this peer requested an interaction that was disallowed by the router.", {
             realm,
             code: WampUri.Error.OptionNotAllowed
         });
     }
-
-
-
 
 
     export function noSuchSession(session: number | string, realm: string) {
