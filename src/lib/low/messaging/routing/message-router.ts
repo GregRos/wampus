@@ -1,5 +1,5 @@
 import {WampArray, WampMessage, WampPrimitive} from "../../wamp/messages";
-import most = require("most");
+import * as most from "most";
 import {WampType} from "../../wamp/message.type";
 import {Stream} from "most";
 

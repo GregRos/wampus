@@ -2,17 +2,20 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="479a9b66-b2d3-4247-b6ef-de9bcc439169" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/wampus.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/wampus.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/__test__/test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/test.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/errors/errors.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/errors/errors.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/low/messaging/serializer/json.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/low/messaging/serializer/json.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/errors/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/errors/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/low/messaging/routing/message-router.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/low/messaging/routing/message-router.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/low/messaging/transport/transport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/low/messaging/transport/transport.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/low/messaging/transport/websocket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/low/messaging/transport/websocket.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/low/methods/invocation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/low/methods/invocation.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/low/session.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/low/session.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/main.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/most-ext/most-ext.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/most-ext/most-ext.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/helpers/most-ws.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/helpers/most-ws.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/tests/json-serializer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/tests/json-serializer.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/tests/websocket-transport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/tests/websocket-transport.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -25,33 +28,43 @@
     <session id="44038787">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="3" />
+          <entry key="project.closed" value="4" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.1" value="1" />
+          <entry key="project.open.time.10" value="1" />
           <entry key="project.open.time.11" value="2" />
           <entry key="project.open.time.12" value="1" />
-          <entry key="project.open.time.15" value="1" />
+          <entry key="project.open.time.14" value="2" />
+          <entry key="project.open.time.15" value="2" />
           <entry key="project.open.time.19" value="1" />
+          <entry key="project.open.time.21" value="1" />
           <entry key="project.open.time.23" value="1" />
-          <entry key="project.opened" value="8" />
+          <entry key="project.open.time.5" value="1" />
+          <entry key="project.open.time.8" value="1" />
+          <entry key="project.opened" value="15" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.js.language.service.starts">
         <counts>
-          <entry key="TypeScriptServerServiceImpl" value="8" />
+          <entry key="TypeScriptServerServiceImpl" value="15" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.php.composer.command.options" />
       <usages-collector id="statistics.php.new.class" />
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="ts" value="3787" />
+          <entry key="js" value="37" />
+          <entry key="json" value="110" />
+          <entry key="ts" value="7497" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="json" value="2" />
-          <entry key="ts" value="26" />
+          <entry key="cmd" value="1" />
+          <entry key="js" value="8" />
+          <entry key="json" value="7" />
+          <entry key="md" value="1" />
+          <entry key="ts" value="83" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.php.composer.actions" />
@@ -59,20 +72,38 @@
       <usages-collector id="statistics.php.new.test" />
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="JSON" value="1" />
-          <entry key="TypeScript" value="26" />
-          <entry key="tsconfig" value="1" />
+          <entry key="JSON" value="4" />
+          <entry key="JavaScript" value="8" />
+          <entry key="Markdown" value="1" />
+          <entry key="PLAIN_TEXT" value="1" />
+          <entry key="TypeScript" value="83" />
+          <entry key="tsconfig" value="3" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="TypeScript" value="3787" />
+          <entry key="JSON" value="94" />
+          <entry key="JavaScript" value="37" />
+          <entry key="TypeScript" value="7497" />
+          <entry key="tsconfig" value="16" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/helpers/most-ws.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="323">
+              <caret line="29" column="12" selection-start-line="29" selection-start-column="12" selection-end-line="29" selection-end-column="12" />
+              <folding>
+                <element signature="e#0#41#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/helpers/autobahn.ts">
           <provider selected="true" editor-type-id="text-editor">
@@ -82,62 +113,40 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/helpers/most-ws.ts">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/most-ext/most-ext.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="504">
-              <caret line="18" column="32" selection-start-line="18" selection-start-column="32" selection-end-line="18" selection-end-column="32" />
+            <state relative-caret-position="261">
+              <caret line="106" column="24" selection-start-line="106" selection-start-column="24" selection-end-line="106" selection-end-column="24" />
               <folding>
-                <element signature="e#0#41#0" expanded="true" />
+                <element signature="e#0#29#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/node_modules/most/type-definitions/most.d.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6356">
-              <caret line="227" column="16" selection-start-line="227" selection-start-column="16" selection-end-line="227" selection-end-column="16" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/node_modules/@types/ws/index.d.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4816">
-              <caret line="182" column="50" selection-start-line="182" selection-start-column="50" selection-end-line="182" selection-end-column="50" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tsconfig.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="15" column="4" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="4" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/tests/websocket-transport.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="112">
-              <caret line="8" selection-start-line="8" selection-end-line="8" />
+            <state relative-caret-position="635">
+              <caret line="35" column="18" lean-forward="true" selection-start-line="35" selection-start-column="18" selection-end-line="35" selection-end-column="18" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
             </state>
           </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/test.ts">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/tests/json-serializer.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="728">
-              <caret line="28" column="7" lean-forward="true" selection-start-line="28" selection-start-column="7" selection-end-line="28" selection-end-column="7" />
+            <state relative-caret-position="383">
+              <caret line="20" column="15" lean-forward="true" selection-start-line="20" selection-start-column="15" selection-end-line="20" selection-end-column="15" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -146,34 +155,35 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/serializer/json.ts">
+        <entry file="file://$PROJECT_DIR$/src/setup.ts">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/package.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="280">
-              <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+            <state relative-caret-position="224">
+              <caret line="8" column="19" lean-forward="true" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/transport/websocket.ts">
+        <entry file="file://$PROJECT_DIR$/src/lib/most-ext/subject.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="840">
-              <caret line="39" column="41" selection-start-line="39" selection-start-column="41" selection-end-line="39" selection-end-column="41" />
-              <folding>
-                <element signature="e#0#36#0" expanded="true" />
-                <element signature="e#315#362#0" expanded="true" />
-              </folding>
+            <state>
+              <caret column="50" selection-start-column="50" selection-end-column="50" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/low/session.ts">
+        <entry file="file://$PROJECT_DIR$/src/lib/main.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3388">
-              <caret line="158" column="5" selection-start-line="158" selection-start-column="5" selection-end-line="158" selection-end-column="5" />
+            <state relative-caret-position="336">
+              <caret line="12" selection-start-line="12" selection-end-line="12" />
               <folding>
-                <element signature="e#0#76#0" expanded="true" />
+                <element signature="e#0#18#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -190,18 +200,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>neev</find>
-      <find>mostDefer</find>
-      <find>most.of</find>
-      <find>periodic</find>
-      <find>flatMapOrderedDispose</find>
-      <find>Abort</find>
-      <find>sending</find>
-      <find>Any =</find>
-      <find>pref tim</find>
-      <find>timing</find>
-      <find>cancel</find>
-      <find>errors$</find>
       <find>console.</find>
       <find>wampusinvocation</find>
       <find>invocaiton</find>
@@ -209,7 +207,6 @@
       <find>subscribeSimple</find>
       <find>call(</find>
       <find>subscri</find>
-      <find>toPromise</find>
       <find>lastly</find>
       <find>removeroute</find>
       <find>defer$</find>
@@ -219,7 +216,20 @@
       <find>unsubscribe</find>
       <find>err</find>
       <find>authorized</find>
+      <find>fromGenericEvent$</find>
+      <find>websocket</find>
+      <find>scripts</find>
+      <find>source-map</find>
+      <find>import most = require(&quot;most&quot;);</find>
+      <find>import _ = require(&quot;lodash&quot;);</find>
       <find>ava</find>
+      <find>timeout</find>
+      <find>timeout(</find>
+      <find>from(</find>
+      <find>toPromise</find>
+      <find>from</find>
+      <find>topromise</find>
+      <find>typed</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;wamp.registration.$1</replace>
@@ -236,6 +246,8 @@
       <replace>.expectAny(</replace>
       <replace>_messenger</replace>
       <replace>, args ?: WampArray, kwargs ?: WampObject</replace>
+      <replace>import * as most from &quot;most&quot;;</replace>
+      <replace />
     </replaceStrings>
     <dirStrings>
       <dir>C:\Code\greg\imported\GitHub\wampus\node_modules\ws</dir>
@@ -247,11 +259,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/node_modules/promise-stuff/src/lib/core.ts" />
-        <option value="$PROJECT_DIR$/node_modules/promise-stuff/dist/lib/core.js" />
-        <option value="$PROJECT_DIR$/src/lib/proto/factory.ts" />
-        <option value="$PROJECT_DIR$/src/lib/serializer/json.ts" />
-        <option value="$PROJECT_DIR$/src/lib/utils/message-router.ts" />
         <option value="$PROJECT_DIR$/src/lib/routing/routing.ts" />
         <option value="$PROJECT_DIR$/src/lib/proto/message.type.ts" />
         <option value="$PROJECT_DIR$/src/lib/wamp/session.ts" />
@@ -270,8 +277,6 @@
         <option value="$PROJECT_DIR$/src/lib/low/transport/websocket.ts" />
         <option value="$PROJECT_DIR$/src/lib/low/messaging/routing/routing.ts" />
         <option value="$PROJECT_DIR$/src/lib/ext-promise.ts" />
-        <option value="$PROJECT_DIR$/src/lib/low/messaging/routing/message-router.ts" />
-        <option value="$PROJECT_DIR$/src/lib/low/messaging/transport/websocket.ts" />
         <option value="$PROJECT_DIR$/src/lib/low/messaging/transport/transport.ts" />
         <option value="$PROJECT_DIR$/src/lib/low/messaging/wamp-messenger.ts" />
         <option value="$PROJECT_DIR$/src/lib/low/wamp/uris.ts" />
@@ -284,20 +289,27 @@
         <option value="$PROJECT_DIR$/src/lib/most-ext/events.ts" />
         <option value="$PROJECT_DIR$/src/lib/low/wamp/messages.ts" />
         <option value="$PROJECT_DIR$/src/lib/most-ext/subject.ts" />
-        <option value="$PROJECT_DIR$/src/lib/errors/types.ts" />
         <option value="$PROJECT_DIR$/src/lib/errors/warnings.ts" />
-        <option value="$PROJECT_DIR$/src/lib/most-ext/most-ext.ts" />
-        <option value="$PROJECT_DIR$/src/lib/main.ts" />
-        <option value="$PROJECT_DIR$/src/lib/low/methods/invocation.ts" />
         <option value="$PROJECT_DIR$/src/lib/low/session.ts" />
         <option value="$PROJECT_DIR$/src/lib/errors/errors.ts" />
         <option value="$PROJECT_DIR$/src/test/helpers/autobahn.ts" />
         <option value="$PROJECT_DIR$/src/test/tests/connecting.ts" />
         <option value="$PROJECT_DIR$/src/lib/low/messaging/serializer/json.ts" />
-        <option value="$PROJECT_DIR$/src/test/tests/json-serializer.ts" />
-        <option value="$PROJECT_DIR$/src/test/tests/websocket-transport.ts" />
         <option value="$PROJECT_DIR$/src/test/helpers/rxjs-most-wrapper.ts" />
+        <option value="$PROJECT_DIR$/node_modules/typed-promisify/index.ts" />
+        <option value="$PROJECT_DIR$/ava.config.ts" />
+        <option value="$PROJECT_DIR$/src/lib/errors/types.ts" />
+        <option value="$PROJECT_DIR$/src/lib/low/messaging/transport/websocket.ts" />
+        <option value="$PROJECT_DIR$/src/lib/low/messaging/routing/message-router.ts" />
+        <option value="$PROJECT_DIR$/src/lib/low/methods/invocation.ts" />
+        <option value="$PROJECT_DIR$/src/lib/main.ts" />
+        <option value="$PROJECT_DIR$/src/test/tests/json-serializer.ts" />
+        <option value="$PROJECT_DIR$/ava.config.js" />
+        <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/src/test/helpers/most-ws.ts" />
+        <option value="$PROJECT_DIR$/src/test/tests/websocket-transport.ts" />
+        <option value="$PROJECT_DIR$/tsconfig.json" />
+        <option value="$PROJECT_DIR$/src/lib/most-ext/most-ext.ts" />
       </list>
     </option>
   </component>
@@ -319,10 +331,10 @@
     <servers />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="191" />
-    <option name="y" value="843" />
-    <option name="width" value="1783" />
-    <option name="height" value="186" />
+    <option name="x" value="414" />
+    <option name="y" value="-15" />
+    <option name="width" value="1805" />
+    <option name="height" value="1207" />
   </component>
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="1" id="Add" />
@@ -332,7 +344,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -356,38 +367,7 @@
               <item name="wampus" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="lib" type="462c0819:PsiDirectoryNode" />
-              <item name="errors" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wampus" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-              <item name="low" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wampus" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-              <item name="low" type="462c0819:PsiDirectoryNode" />
-              <item name="messaging" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wampus" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-              <item name="low" type="462c0819:PsiDirectoryNode" />
-              <item name="methods" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wampus" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-              <item name="low" type="462c0819:PsiDirectoryNode" />
-              <item name="wamp" type="462c0819:PsiDirectoryNode" />
+              <item name="most-ext" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
@@ -413,11 +393,12 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../../Reflectiz-open-source/node-http-mitm-proxy" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/node_modules/ava/cli.js" />
     <property name="nodejs_interpreter_path" value="C:/Program Files/nodejs/node" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="C:/Program Files/nodejs/node" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -448,10 +429,17 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Node.js.ava">
     <configuration name="Tests" type="NodeJSConfigurationType" factoryName="Node.js" path-to-js-file="dist/lib/main.js" working-dir="$PROJECT_DIR$">
       <method v="2" />
     </configuration>
+    <configuration name="ava" type="NodeJSConfigurationType" factoryName="Node.js" application-parameters="--verbose" path-to-js-file="node_modules/ava/cli.js" working-dir="$PROJECT_DIR$">
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Node.js.Tests" />
+      <item itemvalue="Node.js.ava" />
+    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -531,24 +519,31 @@
       <workItem from="1533462796724" duration="3875000" />
       <workItem from="1533484976805" duration="2412000" />
       <workItem from="1533553773908" duration="9344000" />
-      <workItem from="1533638631500" duration="599000" />
+      <workItem from="1533638631500" duration="4417000" />
+      <workItem from="1533669919653" duration="522000" />
+      <workItem from="1533720647851" duration="3086000" />
+      <workItem from="1533745437466" duration="665000" />
+      <workItem from="1533807923454" duration="1003000" />
+      <workItem from="1533809637440" duration="2966000" />
+      <workItem from="1533906684383" duration="2596000" />
+      <workItem from="1533930451012" duration="7224000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="314490000" />
+    <option name="totallyTimeSpent" value="336370000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="132" y="-8" width="1796" height="1216" extended-state="6" />
+    <frame x="68" y="-8" width="2500" height="1456" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22350231" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17704917" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4962536" weight="0.32779318" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.5363598" weight="0.28754717" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.54897016" weight="0.11773585" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.39877048" weight="0.37792894" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.5463115" visible="true" weight="0.37944067" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -556,12 +551,12 @@
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.4989579" weight="0.32981133" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="11" sideWeight="0.5037464" side_tool="true" visible="true" weight="0.23176362" />
-      <window_info anchor="bottom" id="TypeScript" order="12" sideWeight="0.4720461" weight="0.0" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.45368853" side_tool="true" visible="true" weight="0.37944067" />
+      <window_info anchor="bottom" id="TypeScript" order="12" sideWeight="0.4704918" weight="0.32955405" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="Database" order="3" />
+      <window_info active="true" anchor="right" id="Database" order="3" visible="true" weight="0.32991803" />
     </layout>
     <layout-to-restore>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20655927" />
@@ -648,27 +643,27 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/lib/most-ext/most-ext.ts</url>
-          <line>130</line>
+          <line>150</line>
           <option name="timeStamp" value="33" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/lib/most-ext/most-ext.ts</url>
-          <line>171</line>
+          <line>191</line>
           <option name="timeStamp" value="72" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/lib/main.ts</url>
-          <line>41</line>
+          <line>42</line>
           <option name="timeStamp" value="113" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/lib/most-ext/most-ext.ts</url>
-          <line>304</line>
+          <line>324</line>
           <option name="timeStamp" value="119" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/lib/most-ext/most-ext.ts</url>
-          <line>275</line>
+          <line>295</line>
           <option name="timeStamp" value="121" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
@@ -677,9 +672,34 @@
           <option name="timeStamp" value="123" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/src/lib/low/messaging/transport/websocket.ts</url>
-          <line>6</line>
-          <option name="timeStamp" value="124" />
+          <url>file://$PROJECT_DIR$/src/test/helpers/most-ws.ts</url>
+          <line>29</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="135" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/lib/most-ext/most-ext.ts</url>
+          <line>56</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="137" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/lib/most-ext/most-ext.ts</url>
+          <line>128</line>
+          <properties lambdaOrdinal="1" />
+          <option name="timeStamp" value="142" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/lib/most-ext/most-ext.ts</url>
+          <line>106</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="145" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/lib/most-ext/most-ext.ts</url>
+          <line>109</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="146" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -713,184 +733,25 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/setup.ts">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dist/lib/low/messaging/wamp-messenger.js" />
-    <entry file="file://$PROJECT_DIR$/node_modules/most/dist/most.js">
+    <entry file="file://$PROJECT_DIR$/src/lib/low/wamp/message.type.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="2428" column="21" lean-forward="true" selection-start-line="2428" selection-start-column="21" selection-end-line="2428" selection-end-column="21" />
+        <state relative-caret-position="644">
+          <caret line="23" column="4" selection-start-line="23" selection-start-column="4" selection-end-line="23" selection-end-column="4" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/ext-promise.ts">
+    <entry file="file://$PROJECT_DIR$/src/test/tests/connecting.ts" />
+    <entry file="file://$PROJECT_DIR$/node_modules/most/type-definitions/most.d.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="56">
-          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+        <state relative-caret-position="6356">
+          <caret line="227" column="38" lean-forward="true" selection-start-line="227" selection-start-column="38" selection-end-line="227" selection-end-column="38" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/transport/transport.ts">
+    <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/serializer/json.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="812">
-          <caret line="29" column="20" lean-forward="true" selection-start-line="29" selection-start-column="20" selection-end-line="29" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/typescript/lib/lib.es2015.iterable.d.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="294">
-          <caret line="37" column="4" selection-start-line="37" selection-start-column="4" selection-end-line="37" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/low/call.ts" />
-    <entry file="file://$PROJECT_DIR$/dist/lib/low/wamp/messages.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="828">
-          <caret line="283" column="28" lean-forward="true" selection-start-line="283" selection-start-column="28" selection-end-line="283" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/errors/types.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1372">
-          <caret line="49" column="30" selection-start-line="49" selection-start-column="30" selection-end-line="49" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/errors/warnings.ts" />
-    <entry file="file://$PROJECT_DIR$/dist/lib/main.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="3" column="57" selection-start-line="3" selection-start-column="57" selection-end-line="3" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/most/src/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="519" column="17" selection-start-line="519" selection-start-column="17" selection-end-line="519" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/most/lib/combinator/transform.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="681">
-          <caret line="80" column="12" selection-start-line="80" selection-start-column="12" selection-end-line="80" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/most/lib/source/core.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="45" column="7" selection-start-line="45" selection-start-column="7" selection-end-line="45" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/most/lib/combinator/mergeConcurrently.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="245">
-          <caret line="86" column="21" selection-start-line="86" selection-start-column="21" selection-end-line="86" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dist/lib/most-ext/most-ext.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="56">
-          <caret line="2" column="11" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/most/lib/fusion/Map.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="70" column="12" selection-start-line="70" selection-start-column="12" selection-end-line="70" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/most/lib/sink/IndexSink.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="429">
-          <caret line="27" column="12" selection-start-line="27" selection-start-column="12" selection-end-line="27" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/most/lib/sink/Pipe.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="320">
-          <caret line="25" column="19" selection-start-line="25" selection-start-column="19" selection-end-line="25" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/most/lib/combinator/merge.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="109" column="12" selection-start-line="109" selection-start-column="12" selection-end-line="109" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/most/lib/combinator/slice.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="573">
-          <caret line="231" column="9" selection-start-line="231" selection-start-column="9" selection-end-line="231" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/wamp-messenger.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3304">
-          <caret line="126" column="38" selection-start-line="126" selection-start-column="38" selection-end-line="126" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/low/wamp/helper.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2856">
-          <caret line="117" column="4" selection-start-line="117" selection-start-column="4" selection-end-line="117" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/most-ext/subject.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1120">
-          <caret line="40" column="1" selection-start-line="40" selection-start-column="1" selection-end-line="40" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/main.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="23" column="26" selection-start-line="23" selection-start-column="26" selection-end-line="23" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/most-ext/most-ext.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7224">
-          <caret line="260" column="39" selection-start-line="260" selection-start-column="39" selection-end-line="260" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/low/wamp/uris.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="3" column="8" selection-start-line="3" selection-start-column="8" selection-end-line="3" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/errors/errors.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="278">
-          <caret line="253" column="82" selection-start-line="253" selection-start-column="82" selection-end-line="253" selection-end-column="82" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/routing/message-router.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="803">
-          <caret line="150" column="13" lean-forward="true" selection-start-line="150" selection-start-column="13" selection-end-line="150" selection-end-column="13" />
+        <state relative-caret-position="280">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
         </state>
       </provider>
     </entry>
@@ -901,55 +762,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/serializer/serializer.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="3" column="4" selection-start-line="3" selection-start-column="4" selection-end-line="3" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/low/methods/event.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="5" selection-start-line="5" selection-end-line="7" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/low/methods/shared.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="56">
-          <caret line="2" column="17" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="15" column="8" selection-start-line="15" selection-start-column="5" selection-end-line="15" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/low/methods/call.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="112">
           <caret line="7" column="4" selection-start-line="7" selection-start-column="4" selection-end-line="7" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/test.ts">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/low/methods/invocation.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2576">
-          <caret line="92" column="5" selection-start-line="92" selection-start-column="5" selection-end-line="92" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/low/wamp/message.type.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="644">
-          <caret line="23" column="4" selection-start-line="23" selection-start-column="4" selection-end-line="23" selection-end-column="4" />
         </state>
       </provider>
     </entry>
@@ -962,71 +778,128 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/low/wamp/options.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="515">
-          <caret line="153" column="9" selection-start-line="152" selection-end-line="153" selection-end-column="9" />
+        <state relative-caret-position="123">
+          <caret line="139" column="18" lean-forward="true" selection-start-line="139" selection-start-column="18" selection-end-line="139" selection-end-column="18" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/tests/connecting.ts" />
-    <entry file="file://$PROJECT_DIR$/src/test/helpers/autobahn.ts">
+    <entry file="file://$PROJECT_DIR$/src/lib/low/methods/event.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="56">
-          <caret line="2" column="29" selection-start-line="2" selection-start-column="29" selection-end-line="2" selection-end-column="29" />
+        <state relative-caret-position="84">
+          <caret line="5" selection-start-line="5" selection-end-line="7" selection-end-column="5" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/most/type-definitions/most.d.ts">
+    <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/serializer/serializer.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6356">
-          <caret line="227" column="16" selection-start-line="227" selection-start-column="16" selection-end-line="227" selection-end-column="16" />
+        <state relative-caret-position="84">
+          <caret line="3" column="4" selection-start-line="3" selection-start-column="4" selection-end-line="3" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/wamp-messenger.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="866">
+          <caret line="126" column="38" selection-start-line="126" selection-start-column="38" selection-end-line="126" selection-end-column="38" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/node_modules/@types/ws/index.d.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4816">
-          <caret line="182" column="50" selection-start-line="182" selection-start-column="50" selection-end-line="182" selection-end-column="50" />
+        <state relative-caret-position="291">
+          <caret line="182" column="8" selection-start-line="182" selection-start-column="8" selection-end-line="182" selection-end-column="8" />
+          <folding>
+            <element signature="e#478#511#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tsconfig.json">
+    <entry file="file://$PROJECT_DIR$/node_modules/.bin/ava.cmd">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LICENSE.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dist/test/tests/json-serializer.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/errors/types.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="15" column="4" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="4" />
+        <state>
+          <caret column="44" selection-start-column="44" selection-end-column="44" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/tests/websocket-transport.ts">
+    <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/routing/message-router.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="56">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/low/methods/invocation.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="308">
+          <caret line="11" selection-start-line="11" selection-end-line="11" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/transport/transport.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="112">
-          <caret line="8" selection-start-line="8" selection-end-line="8" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
+          <caret line="4" column="21" selection-start-line="4" selection-start-column="21" selection-end-line="4" selection-end-column="21" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/tests/json-serializer.ts">
+    <entry file="file://$PROJECT_DIR$/dist/test/tests/websocket-transport.d.ts">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dist/test/tests/websocket-transport.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ava.config.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="728">
-          <caret line="28" column="7" lean-forward="true" selection-start-line="28" selection-start-column="7" selection-end-line="28" selection-end-column="7" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="56">
+          <caret line="2" column="16" selection-start-line="2" selection-start-column="16" selection-end-line="5" selection-end-column="9" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/serializer/json.ts">
+    <entry file="file://$PROJECT_DIR$/dist/test/tests/connecting.js">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/ext-promise.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+        <state relative-caret-position="56">
+          <caret line="2" column="13" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/promise-stuff/src/lib/operators.ts">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/promise-stuff/dist/lib/static-operators.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="439">
+          <caret line="49" column="47" selection-start-line="49" selection-start-column="47" selection-end-line="49" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/promise-stuff/dist/lib/static-operators.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="259">
+          <caret line="70" column="15" selection-start-line="70" selection-start-column="15" selection-end-line="70" selection-end-column="15" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/low/messaging/transport/websocket.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="840">
-          <caret line="39" column="41" selection-start-line="39" selection-start-column="41" selection-end-line="39" selection-end-column="41" />
+        <state relative-caret-position="747">
+          <caret line="108" selection-start-line="107" selection-end-line="108" />
           <folding>
             <element signature="e#0#36#0" expanded="true" />
             <element signature="e#315#362#0" expanded="true" />
@@ -1034,22 +907,161 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/promise-stuff/src/__test__/basics/tests.spec.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="112">
+          <caret line="11" column="29" selection-start-line="11" selection-start-column="29" selection-end-line="11" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/promise-stuff/src/lib/core.ts">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/promise-stuff/src/lib/index.ts">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/most/lib/combinator/accumulate.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="397">
+          <caret line="102" column="15" selection-start-line="102" selection-start-column="15" selection-end-line="102" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/most/lib/combinator/slice.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="267">
+          <caret line="119" column="12" selection-start-line="119" selection-start-column="12" selection-end-line="119" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/promise-stuff/src/lib/static-operators.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="446">
+          <caret line="93" selection-start-line="93" selection-end-line="93" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/promise-stuff/dist/lib/operators.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="275">
+          <caret line="80" column="30" selection-start-line="80" selection-start-column="30" selection-end-line="80" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/promise-stuff/src/lib/definitions.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="267">
+          <caret line="183" column="4" selection-start-line="183" selection-start-column="4" selection-end-line="183" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/low/session.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3388">
-          <caret line="158" column="5" selection-start-line="158" selection-start-column="5" selection-end-line="158" selection-end-column="5" />
+        <state relative-caret-position="770">
+          <caret line="157" column="50" selection-start-line="157" selection-start-column="50" selection-end-line="157" selection-end-column="50" />
           <folding>
             <element signature="e#0#76#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/typescript/lib/lib.es2015.core.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="20" column="13" selection-start-line="20" selection-start-column="13" selection-end-line="20" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/typescript/lib/lib.es5.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="269">
+          <caret line="104" column="13" selection-start-line="104" selection-start-column="13" selection-end-line="104" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tsconfig.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="336">
+          <caret line="12" column="24" selection-start-line="12" selection-start-column="24" selection-end-line="12" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/typed-promisify/index.ts">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/test.ts">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/main.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="336">
+          <caret line="12" selection-start-line="12" selection-end-line="12" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/most-ext/subject.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="50" selection-start-column="50" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="8" column="19" lean-forward="true" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/setup.ts">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/helpers/autobahn.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="56">
+          <caret line="2" column="29" selection-start-line="2" selection-start-column="29" selection-end-line="2" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/helpers/most-ws.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="504">
-          <caret line="18" column="32" selection-start-line="18" selection-start-column="32" selection-end-line="18" selection-end-column="32" />
+        <state relative-caret-position="323">
+          <caret line="29" column="12" selection-start-line="29" selection-start-column="12" selection-end-line="29" selection-end-column="12" />
           <folding>
             <element signature="e#0#41#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/most-ext/most-ext.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="261">
+          <caret line="106" column="24" selection-start-line="106" selection-start-column="24" selection-end-line="106" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/tests/json-serializer.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="383">
+          <caret line="20" column="15" lean-forward="true" selection-start-line="20" selection-start-column="15" selection-end-line="20" selection-end-column="15" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/tests/websocket-transport.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="635">
+          <caret line="35" column="18" lean-forward="true" selection-start-line="35" selection-start-column="18" selection-end-line="35" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>

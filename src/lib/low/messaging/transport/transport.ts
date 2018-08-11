@@ -1,6 +1,6 @@
 import {WampusNetworkError} from "../../../errors/types";
 import {WampMessage, WampObject, WampRawMessage} from "../../wamp/messages";
-import most = require("most");
+import * as most from "most";
 import {WampusError} from "../../../errors/types";
 import {Stream} from "most";
 

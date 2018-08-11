@@ -9,7 +9,7 @@ import {Subject} from "../../most-ext/subject";
 import {MessageBuilder} from "../wamp/helper";
 import {WampType} from "../wamp/message.type";
 import {MyPromise} from "../../ext-promise";
-import most = require("most");
+import * as most from "most";
 import {WampusInvocationCanceledError} from "../../errors/types";
 export interface InvocationArgsCallbacks {
     factory : MessageBuilder;

@@ -1,22 +1,38 @@
 import test from "ava";
+
 import {describe} from 'ava-spec';
 import {WebsocketTransport} from "../../lib/low/messaging/transport/websocket";
 import {JsonSerializer} from "../../lib/low/messaging/serializer/json";
-import ws = require("ws");
+import * as ws from "ws";
+import {TestWsServer} from "../helpers/most-ws";
 
 let lastMsg = null;
 
 
-let testingWs = new ws.Server({
 
-}, x => {
+function getTransport$(timeout : number) {
+    return WebsocketTransport.create$({
+        url : `http://${TestWsServer.info.host}:${TestWsServer.info.port}`,
+        serializer : new JsonSerializer(),
+        timeout : timeout
+    });
+}
 
+
+test.before(async () => {
+    await TestWsServer.init()
 });
 
 describe("connecting", () => {
-    let transport = () => WebsocketTransport.create$({
-        timeout : 0,
-        serializer : new JsonSerializer(),
-        url : ""
+
+    test("successful", async t => {
+        let transport = getTransport$(null);
+        let conn = TestWsServer.nextConnection().then((x) => {
+            console.log("HUH?");
+            return x;
+        });
+        let x = transport.drain();
+        let {req,socket} = await conn;
+        let a = 1;
     })
 });

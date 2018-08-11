@@ -1,7 +1,8 @@
 import "../setup";
 
 import {yamprint} from "yamprint";
-import _ = require("lodash");
+import * as _ from "lodash";
+
 import {WebsocketTransport} from "./low/messaging/transport/websocket";
 import {JsonSerializer} from "./low/messaging/serializer/json";
 import {WampType} from "./low/wamp/message.type";

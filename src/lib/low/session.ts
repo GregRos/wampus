@@ -4,7 +4,7 @@ import {
 } from "./wamp/messages";
 import {EventEmitter} from "events";
 import {WampType} from "./wamp/message.type";
-import most = require("most");
+import * as most from "most";
 import {defer$} from "../most-ext/most-ext";
 
 export interface SessionConfig {

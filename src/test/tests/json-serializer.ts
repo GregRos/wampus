@@ -17,7 +17,7 @@ describe("json serializer", it => {
         let testWith = (name : string, obj : any) => {
             test(name, async t => {
                 let s = serializer();
-                t.is(s.deserialize(s.serialize(obj)), obj);
+                t.deepEqual(s.deserialize(s.serialize(obj)), obj);
             });
         };
         testWith("simple json", {

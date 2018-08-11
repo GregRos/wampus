@@ -1,7 +1,8 @@
 import {EventEmitter} from "events";
 import {TransportClosed, TransportError, TransportEvent, TransportMessage, Transport} from "./transport";
 import * as ws from "ws";
-import most = require("most");
+import * as most from "most";
+
 import {WampusNetworkError} from "../../../errors/types";
 const WebSocket = require('isomorphic-ws') as typeof ws;
 import {MyPromise} from "../../../ext-promise";
@@ -14,7 +15,7 @@ import {createStreamSimple} from "../../../most-ext/most-ext";
 export interface WebsocketTransportConfig {
     url: string;
     serializer: Serializer;
-    timeout: number;
+    timeout?: number;
 }
 
 export class WebsocketTransport implements Transport{
@@ -39,7 +40,7 @@ export class WebsocketTransport implements Transport{
      */
     static create$(config: WebsocketTransportConfig) : most.Stream<WebsocketTransport>{
 
-        let errorOnTimeOut = most.of(null).delay(config.timeout).map(() => {
+        let errorOnTimeOut = config.timeout == null ? most.never() : most.of(null).delay(config.timeout).map(() => {
             throw new WampusNetworkError("WebSocket connection timed out.", {
                 url: config.url
             })

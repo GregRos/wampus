@@ -285,6 +285,13 @@ ava-init@^0.2.0:
     read-pkg-up "^2.0.0"
     write-pkg "^3.1.0"
 
+ava-spec@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/ava-spec/-/ava-spec-1.1.1.tgz#924c35619349595d3ec820cea181d69f19c40d50"
+  dependencies:
+    fn-name "^2.0.1"
+    option-chain "^0.1.0"
+
 ava@^0.25.0:
   version "0.25.0"
   resolved "https://registry.yarnpkg.com/ava/-/ava-0.25.0.tgz#8ac87780514f96a6fd42e1306eaa0752ce3a407f"
@@ -1206,7 +1213,7 @@ find-up@^2.0.0, find-up@^2.1.0:
   dependencies:
     locate-path "^2.0.0"
 
-fn-name@^2.0.0:
+fn-name@^2.0.0, fn-name@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/fn-name/-/fn-name-2.0.1.tgz#5214d7537a4d06a4a301c0cc262feb84188002e7"
 
@@ -2089,6 +2096,12 @@ optimist@^0.6.1:
     minimist "~0.0.1"
     wordwrap "~0.0.2"
 
+option-chain@^0.1.0:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/option-chain/-/option-chain-0.1.1.tgz#e9b811e006f1c0f54802f28295bfc8970f8dcfbd"
+  dependencies:
+    object-assign "^4.0.1"
+
 option-chain@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/option-chain/-/option-chain-1.0.0.tgz#938d73bd4e1783f948d34023644ada23669e30f2"
@@ -2817,6 +2830,10 @@ tsutils@^2.12.1:
 "tweetnacl@>= 0.14.3":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.0.tgz#713d8b818da42068740bf68386d0479e66fc8a7b"
+
+typed-promisify@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/typed-promisify/-/typed-promisify-0.4.0.tgz#ade1d3d32130767ba4ef5385162c720698105d0f"
 
 typedoc-default-themes@^0.5.0:
   version "0.5.0"

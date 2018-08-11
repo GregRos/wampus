@@ -1,4 +1,4 @@
-import template = require("string-template");
+import * as template from "string-template";
 import {WampMessage, WampObject} from "../low/wamp/messages";
 
 export class WampusError extends Error {

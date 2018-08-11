@@ -1,6 +1,7 @@
-import most = require("most");
+import * as most from "most";
 import {Sink, Stream, Subscriber, Subscription, Disposable, Scheduler} from "most";
 import {Subject} from "./subject";
+import {EventEmitter} from "events";
 
 declare module "most" {
 
@@ -43,6 +44,20 @@ export function defer$<A>(executor: () => Stream<A>) {
 
 export function wait$<A>(time: number, value ?: A) {
     return most.of(value).delay(time);
+}
+
+export function fromGenericEvent$<T>(eventSourceLike : EventEmitter, name : string, projection : (...args : any[]) => T) : Stream<T> {
+    return createStreamSimple(sub => {
+        let handler = (xs : any[]) => {
+            sub.next(projection(xs));
+        };
+        eventSourceLike.on(name, handler);
+        return {
+            dispose() {
+                eventSourceLike.removeListener(name, handler);
+            }
+        }
+    });
 }
 
 export function lastly$(f: () => Promise<any> | any) {
@@ -107,7 +122,12 @@ export function createStreamSimple<T>(subscribe: (subscriber: Subscriber<T>, sch
 
 Object.assign(most.Stream.prototype, {
     toPromise<T>(this: most.Stream<T>) {
-        return this.reduce((last, cur) => cur, undefined);
+        return new Promise((resolve, reject) => {
+            let x = undefined;
+            let sub = this.subscribeSimple(next => {
+                x = next
+            }, err => reject(err), () => resolve(x));
+        })
     },
     ofPrototype<T, P>(this: most.Stream<T>, ctor: { new(...args): P }) {
         return this.filter(s => s instanceof ctor)  as any as most.Stream<P>;
