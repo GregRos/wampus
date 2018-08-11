@@ -107,16 +107,19 @@ export interface WampPublishOptions {
     acknowledge?: boolean;
     exclude?: number[];
     exclude_authid?: string[];
-    excluse_authrole?: string[];
+    exclude_authrole?: string[];
     eligible?: number[];
     eligible_authid?: number[];
     eligible_authrole?: number[];
     // Defaults to true!
     exclude_me?: boolean;
+    disclose_me ?: boolean;
+
 }
 
 export interface WampSubscribeOptions {
     match?: MatchType;
+
 }
 
 export interface WampRegisterOptions {

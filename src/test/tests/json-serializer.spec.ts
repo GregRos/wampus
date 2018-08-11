@@ -1,6 +1,6 @@
 import test from "ava";
 import {describe} from 'ava-spec';
-import {JsonSerializer} from "../../lib/low/messaging/serializer/json";
+import {JsonSerializer} from "../../lib/core/messaging/serializer/json";
 
 
 /*

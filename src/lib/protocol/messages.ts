@@ -28,6 +28,26 @@ export interface WampMessage {
      type : WampType;
 }
 
+export enum WampusCompletionReason {
+    SelfGoodbye = "SelfPoliteTermination",
+    RouterGoodbye = "RouterPoliteTermination",
+    SelfAbort = "SelfAbort",
+    RouterAbort = "RouterAbort"
+}
+
+
+export class WampusRouteCompletion extends Error {
+
+    constructor(public reason : WampusCompletionReason, public msg ?: WampMessage.Any) {
+        super("Route completed");
+    }
+
+    toTransportFormat() {
+        throw new global.Error("This message is used internally and cannot be transmitted.");
+    }
+}
+
+
 function argsKwargsArray(args : any[], kwargs : any) {
     let hasKwargs = kwargs && Object.keys(kwargs).length > 0;
     let hasArgs = args && args.length > 0;
@@ -286,8 +306,7 @@ export module WampMessage {
         }
     }
 
-
-    export type Any = Cancel | Unknown | Interrupt | Authenticate | Challenge | Hello | Welcome | Abort | Goodbye | Error | Publish | Published | Subscribe | Subscribed | Unsubscribe | Unsubscribed | Event | Call | Result | Register | Registered | Unregister | Unregistered | Invocation | Yield;
+    export type Any = Cancel | Unknown  | Interrupt | Authenticate | Challenge | Hello | Welcome | Abort | Goodbye | Error | Publish | Published | Subscribe | Subscribed | Unsubscribe | Unsubscribed | Event | Call | Result | Register | Registered | Unregister | Unregistered | Invocation | Yield;
 
     export type SendableMessage = Any & {toTransportFormat() : any[]};
 }

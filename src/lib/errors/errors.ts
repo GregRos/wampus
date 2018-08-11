@@ -1,25 +1,17 @@
-import {WampUri} from "../low/wamp/uris";
-import {WampType} from "../low/wamp/message.type";
-import {WampMessage, WampObject, WampUriString} from "../low/wamp/messages";
+import {AdvProfile, WampUri} from "../protocol/uris";
+import {WampType} from "../protocol/message.type";
+import {WampMessage, WampObject, WampUriString} from "../protocol/messages";
 import {
     WampusIllegalOperationError,
     WampusInvocationCanceledError,
     WampusInvocationError, WampusIsolatedError,
     WampusNetworkError
 } from "./types";
-import {WampError} from "../low/methods/shared";
-import {WampCancelOptions} from "../low/wamp/options";
+import {WampCancelOptions} from "../protocol/options";
 
 export enum ErrorLevel {
     Transport = "Transport",
     Wamp = "Wamp"
-}
-
-
-export module Warns {
-    export function receivedResultBeforeCancel(procedure: string) {
-        return
-    }
 }
 
 export module Errs {
@@ -39,16 +31,23 @@ export module Errs {
         });
     }
 
-    export function featureNotSupported(message: WampMessage.Any, feature: string) {
+    export function featureNotSupported(feature: string, message ?: WampMessage.Any) {
         return new WampusIllegalOperationError("Feature not supported: {feature}.", {
             feature,
             message
         });
     }
 
-    export function optionNotAllowed(cause: WampMessage.Any, err: WampMessage.Error,) {
-        return new WampusIllegalOperationError("The option is not allowed.", {
-            cause,
+    export function routerDoesNotSupportFeature(feature : string, message ?: WampMessage.Any) {
+        return new WampusIllegalOperationError("The router doesn't support the feature: {feature}.", {
+            feature,
+            message
+        });
+    }
+
+    export function optionNotAllowed(operation : string, err: WampMessage.Error,) {
+        return new WampusIllegalOperationError("While doing operation {operation}, received an OptionNotAllowed response.", {
+            operation,
             err
         });
     }
@@ -118,12 +117,11 @@ export module Errs {
             });
         }
 
-        export function doesNotSupportProgress(name: string) {
+        export function doesNotSupportProgressOnSend(name: string) {
             return new WampusIllegalOperationError("While invoking {name}, tried to send a progress report but this call does not support progress reports.", {
                 name
             })
         }
-
 
     }
 
@@ -136,12 +134,13 @@ export module Errs {
             });
         }
 
-        export function other(name : string, err : WampMessage.Error ){
+        export function other(name : string, err : WampMessage.Any){
             return new WampusIllegalOperationError("Tried to subscribe to {name}, but received an ERROR response.", {
                 name,
                 err
             });
         }
+
     }
 
 
@@ -212,10 +211,7 @@ export module Errs {
         }
 
         export function errorResult(name: string, msg: WampMessage.Error) {
-            return new WampusInvocationError("Invoked operation {name}, and it replied with an error.", {
-                name,
-                msg
-            });
+            return new WampusInvocationError(name, msg);
         }
 
         export function other(name : string, msg : WampMessage.Error) {
@@ -250,13 +246,26 @@ export module Errs {
 
     }
 
-    export function notAuthorized(operation: string, vars : Record<string, string>) {
+    export function notAuthorized(operation: string, msg : WampMessage.Error) {
         return new WampusIllegalOperationError(`Tried to perform the operation: ${operation}, but received NOT AUTHORIZED.`, {
-            ...vars,
+            msg,
             operation
         });
     }
 
+    export function invalidUri(operation : string, msg : WampMessage.Error) {
+        return new WampusIllegalOperationError(`Tried to perform operation: {operation}, but the call/event URI was invalid.`, {
+            operation,
+            msg
+        })
+    }
+
+    export function networkFailure(operation : string, msg : WampMessage.Error) {
+        return new WampusIllegalOperationError("Tried to perform operation {operation}, but received a network failure response.", {
+            operation,
+            msg
+        });
+    }
 }
 
 export module NetworkErrors {

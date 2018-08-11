@@ -1,10 +1,10 @@
-import {WampArray, WampMessage} from "../wamp/messages";
+import {WampArray, WampMessage, WampusRouteCompletion} from "../../protocol/messages";
 import {WebsocketTransport} from "./transport/websocket";
 import {WampusNetworkError} from "../../errors/types";
 import {MessageRouter} from "./routing/message-router";
 import {TransportMessage} from "./transport/transport";
 import {Errs} from "../../errors/errors";
-import {MessageReader} from "../wamp/helper";
+import {MessageReader} from "../../protocol/helper";
 import {merge, Observable, of} from "rxjs";
 import {flatMap, take} from "rxjs/operators";
 
@@ -13,7 +13,7 @@ import {flatMap, take} from "rxjs/operators";
  * It's responsible for sending messages and using the message router to connect messages to their subscriptions.
  */
 export class WampMessenger {
-    private _transport : WebsocketTransport;
+    transport : WebsocketTransport;
     private _router : MessageRouter<WampMessage.Any>;
 
     /**
@@ -31,14 +31,14 @@ export class WampMessenger {
      */
     static create(transport : WebsocketTransport) : WampMessenger {
         let messenger = new WampMessenger(null as never);
-        messenger._transport = transport;
+        messenger.transport = transport;
         let router = messenger._router = new MessageRouter<WampMessage.Any>();
         messenger._setupRouter();
         return messenger;
     }
 
     private _setupRouter() {
-        this._transport.events.subscribe({
+        this.transport.events.subscribe({
             next: x => {
                 if (x.type === "error") {
                     let dflt = this._router.matchDefault()
@@ -83,7 +83,7 @@ export class WampMessenger {
         return of(null).pipe(flatMap(() => {
             if ("toTransportFormat" in msg) {
                 let loose = msg.toTransportFormat();
-                return this._transport.send$(loose);
+                return this.transport.send$(loose);
             } else {
                 throw new WampusNetworkError("Wampus doesn't know how to serialize this kind of message.", {
                     type : msg.type
@@ -128,6 +128,13 @@ export class WampMessenger {
                 }
             }
         });
+    }
+
+    invalidateAllRoutes(msg : Error) {
+        let routes = this._router.matchAll();
+        for (let route of routes){
+            route.error(msg);
+        }
     }
 
     expectAny$<T>(...routes : WampArray[]) {

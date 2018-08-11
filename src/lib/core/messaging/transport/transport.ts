@@ -1,5 +1,5 @@
 import {WampusNetworkError} from "../../../errors/types";
-import {WampMessage, WampObject, WampRawMessage} from "../../wamp/messages";
+import {WampMessage, WampObject, WampRawMessage} from "../../../protocol/messages";
 import {WampusError} from "../../../errors/types";
 import {Observable} from "rxjs";
 

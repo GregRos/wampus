@@ -1,10 +1,10 @@
 import {WampType} from "./message.type";
-import {WampusIllegalOperationError} from "../../errors/types";
+import {WampusIllegalOperationError} from "../errors/types";
 import {
     WampArray,
     WampId,
     WampMessage, WampObject,
-    WampRawMessage, WampUriString
+    WampRawMessage, WampUriString, WampusCompletionReason, WampusRouteCompletion
 } from "./messages";
 import {
     HelloDetails,
@@ -125,6 +125,10 @@ export class MessageBuilder {
 
     goodbye(details : WampObject, reason : WampUriString) {
         return new WampMessage.Goodbye(details, reason);
+    }
+
+    internalRouteCompletion(reason : WampusCompletionReason) {
+        return new WampusRouteCompletion(reason);
     }
 
 }

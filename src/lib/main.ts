@@ -3,44 +3,82 @@ import "../setup";
 import {yamprint} from "yamprint";
 import * as _ from "lodash";
 
-import {WebsocketTransport} from "./low/messaging/transport/websocket";
-import {JsonSerializer} from "./low/messaging/serializer/json";
-import {WampType} from "./low/wamp/message.type";
+import {WebsocketTransport} from "./core/messaging/transport/websocket";
+import {JsonSerializer} from "./core/messaging/serializer/json";
+import {WampType} from "./protocol/message.type";
 import {MyPromise} from "./ext-promise";
-import {InternalSession} from "./low/session";
+import {Session} from "./core/session";
 import {EventEmitter} from "events";
 import {flatMap, take, tap} from "rxjs/operators";
 import {Observable} from "rxjs";
-import {EventArgs} from "./low/methods/event";
+import {fromPromise} from "rxjs/internal-compatibility";
+import {AbstractEventArgs} from "./core/methods/methods";
+import {SessionWrapper} from "./wrappers/session-wrapper";
+
+
+function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observable<T>> & {
+    unsubscribe() : void
+} {
+    let unsub = () => {};
+    return Object.assign(new Promise<Observable<T>>((resolve, reject) => {
+        let resolved = false;
+        let sub = obs.subscribe(x => {
+            if (resolved) return;
+            resolved=  true;
+            resolve(x);
+        }, err => {
+            resolved = true
+            reject(err)
+        });
+        unsub = () => {
+            sub.unsubscribe();
+        };
+    }), {
+        unsubscribe() {
+            unsub();
+        }
+    });
+}
 
 (async () => {
-    let transport = WebsocketTransport.create$({
+    let transport = WebsocketTransport.create({
         url: "ws://127.0.0.1:9003",
         serializer: new JsonSerializer(),
         timeout: 10 * 1000
     });
-    let session = InternalSession.create$({
-        transport$: transport,
+
+
+    let session = fromPromise(Session.create({
         realm: "proxy",
         timeout: 10000
-    }).pipe(flatMap(async (session : InternalSession) => {
-        await session.register({}, "a.b", req => {
-            return {
-                a: 5
-            }
+    }, transport)).pipe(flatMap(async (lSession : Session) => {
+        let session = new SessionWrapper(lSession, {
+
         });
-        let z = await session.call$({}, "a.b", [], {}).toPromise();
-        session.event$({}, "hi.1").pipe(take(1), flatMap(async (stream : Observable<EventArgs>) => {
+        let x = await firstAndKeepSub(session.register$({
+            procedure : "a.b"
+        }));
+
+        x.subscribe(req => {
+
+        });
+
+        let z = await session.call$({
+            name : "a.b"
+        }).toPromise();
+        session.event$({event :  "hi.1"}).pipe(take(1), flatMap(async (stream : Observable<AbstractEventArgs>) => {
             stream.pipe(tap(x => {
                 console.log(yamprint(x));
             })).toPromise();
-            await session.publish({
-                exclude_me: false
-            }, "hi.1", {
+            await session.publish$({
+                name : "hi.1",
+                options : {
+                    exclude_me: false
+                },
                 kwargs : {
                     a : 5
                 }
-            });
+            }).toPromise();
             console.log("SUBSCRIPTIONS:", (session as any)._messenger._router.count());
             console.log("RESULT:", z);
         })).toPromise();

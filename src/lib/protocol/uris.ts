@@ -22,6 +22,7 @@ export module WampUri {
         RuntimeError = "wamp.error.runtime_error"
     }
 
+
     export enum CloseReason {
         GoodbyeAndOut = "wamp.close.goodbye_and_out",
         CloseRealm = "wamp.close.close_realm"
@@ -77,5 +78,24 @@ export module WampUri {
         Last = "wamp.topic.history.last",
         Since = "wamp.topic.history.since",
         After = "wamp.topic.history.after"
+    }
+}
+
+export module AdvProfile {
+    export module Call {
+        export const ProgressReports = "ProgressiveCallResults";
+        export const CallTimeouts = "CallTimeout";
+        export const CallCancelling = "CallCancelling";
+        export const CallerIdentification = "CallerIdentification";
+        export const CallTrustLevels = "CallTrustLevels";
+        export const PatternRegistration = "PatternBasedRegistration";
+        export const SharedRegistration = "SharedRegistration";
+    }
+
+    export module Subscribe {
+        export const SubscriberBlackWhiteListing = "SubscriberBlackWhiteListing";
+        export const PublisherIdentification = "PublisherIdentification";
+        export const PublisherExclusion = "PublisherExclusion";
+        export const PatternBasedSubscription = "PatternBasedSubscription";
     }
 }

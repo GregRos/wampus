@@ -1,4 +1,5 @@
-import {WampType} from "../../wamp/message.type";
+import {WampType} from "../../../protocol/message.type";
+
 
 export module Routes {
 

@@ -6,10 +6,10 @@ import {WampusNetworkError} from "../../../errors/types";
 const WebSocket = require('isomorphic-ws') as typeof ws;
 import {MyPromise} from "../../../ext-promise";
 import {Serializer} from "../serializer/serializer";
-import {WampMessage, WampRawMessage} from "../../wamp/messages";
+import {WampMessage, WampRawMessage} from "../../../protocol/messages";
 import {WampusError} from "../../../errors/types";
-import {from, fromEvent, merge, NEVER, Observable, of, race} from "rxjs";
-import {map, startWith, switchAll, delay} from "rxjs/operators";
+import {from, fromEvent, merge, NEVER, Observable, of, race, throwError} from "rxjs";
+import {map, startWith, switchAll, delay, take} from "rxjs/operators";
 
 export interface WebsocketTransportConfig {
     url: string;
@@ -37,13 +37,23 @@ export class WebsocketTransport implements Transport{
      * @param {WebsocketTransportConfig} config
      * @returns {Observable<WebsocketTransport>}
      */
-    static create$(config: WebsocketTransportConfig) : Observable<WebsocketTransport>{
+    static create(config: WebsocketTransportConfig) : Promise<WebsocketTransport>{
 
-        let errorOnTimeOut = config.timeout == null ? NEVER : of(null).pipe(delay(config.timeout), map(() => {
+        if (config.timeout != null && typeof config.timeout !== "number") {
+            return throwError(new WampusError("Timeout value {timeout} is invalid.", {
+                timeout : config.timeout
+            })).toPromise();
+        }
+        if (!config.serializer || typeof config.serializer !== "object"  || !["serialize", "deserialize", "id"].every(x => x in config.serializer)) {
+            return throwError(new WampusError("Serializer is not valid.", {
+                obj : config.serializer
+            })).toPromise();
+        }
+        let errorOnTimeOut$ = config.timeout == null ? NEVER : of(null).pipe(delay(config.timeout), map(() => {
             throw new WampusNetworkError("WebSocket connection timed out.", {
                 url: config.url
             })
-        })) as Observable<never>;
+        }))as Observable<never>;
 
         let transport$ = Observable.create(sub => {
             let transport = new WebsocketTransport(null as never);
@@ -54,9 +64,10 @@ export class WebsocketTransport implements Transport{
                 });
             }
             catch (err) {
-                new WampusNetworkError("The WebSocket client could not be created.", {
-                    err : err
-                })
+                throw(new WampusNetworkError("The WebSocket client could not be created. Reason: {reason}", {
+                    err : err,
+                    reason : err.message
+                }));
             }
             transport._ws = ws;
             let closeEvent$ = fromEvent(ws, "close").pipe(map(x => {
@@ -116,17 +127,12 @@ export class WebsocketTransport implements Transport{
                     error: event.error
                 }));
             };
-            return {
-                async dispose() {
-                    await transport._close();
-                }
-            }
         }) as Observable<WebsocketTransport>;
 
-        return race(errorOnTimeOut, transport$);
+        return race(errorOnTimeOut$, transport$).pipe(take(1)).toPromise();
     }
 
-    private _close(code ?: number, data ?: any): Promise<void> {
+    close(code ?: number, data ?: any): Promise<void> {
         if (this._expectingClose) {
             return this._expectingClose;
         }
@@ -143,7 +149,6 @@ export class WebsocketTransport implements Transport{
         return this._expectingClose;
     }
 
-
     send$(msg: object): Observable<any> {
         return Observable.create(sub => {
             try {
@@ -158,7 +163,9 @@ export class WebsocketTransport implements Transport{
 
             }, err => {
                 if (err) {
-                    sub.error(err);
+                    sub.error(new WampusNetworkError("Failed to send message via the web socket transport.", {
+                        err
+                    }));
                 } else {
                     sub.complete();
                 }

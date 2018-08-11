@@ -1,5 +1,5 @@
 import * as template from "string-template";
-import {WampMessage, WampObject} from "../low/wamp/messages";
+import {WampMessage, WampObject} from "../protocol/messages";
 
 export class WampusError extends Error {
     constructor(message: string, props: object) {
@@ -35,6 +35,14 @@ export class WampusIllegalOperationError extends WampusError {
  * Thrown when a WAMP operation succeeds with an error state, such as if the target of an RPC call threw an exception.
  */
 export class WampusInvocationError extends WampusError {
+    name : string;
+    msg : WampMessage.Error;
+    constructor(name : string, msg : WampMessage.Error) {
+        super("Invoked operation {name}, and it replied with an error.", {
+            name,
+            msg
+        });
+    }
 
 }
 

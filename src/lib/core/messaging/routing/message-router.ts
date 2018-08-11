@@ -1,5 +1,5 @@
-import {WampArray, WampMessage, WampPrimitive} from "../../wamp/messages";
-import {WampType} from "../../wamp/message.type";
+import {WampArray, WampMessage, WampPrimitive} from "../../../protocol/messages";
+import {WampType} from "../../../protocol/message.type";
 
 
 /*
@@ -21,8 +21,6 @@ import {WampType} from "../../wamp/message.type";
  *
  * This structure is abstracted over well using Observables. When some code expects a message to arrive, it will use the `.expect` method with the expected message's keys. It receives a Stream
  * which, when subscribed, will fire every time a message matching the criteria arrives. When the caller closes a subscription, the handler embedded in the router will be removed.
- *
- * The Stream exposed by the router is very elegantly composable into other streams.
  */
 
 /**
