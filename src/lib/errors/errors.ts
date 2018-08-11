@@ -182,10 +182,9 @@ export module Errs {
     }
 
     export module Invocation {
-        export function cancelled(name: string, msg: WampMessage.Interrupt) {
+        export function cancelled() {
             return new WampusInvocationCanceledError("The invocation of procedure {name} was cancelled.", {
-                name,
-                msg
+
             });
         }
     }

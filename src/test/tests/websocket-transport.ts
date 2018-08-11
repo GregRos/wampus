@@ -31,7 +31,7 @@ describe("connecting", () => {
             console.log("HUH?");
             return x;
         });
-        let x = transport.drain();
+        let x = transport.toPromise();
         let {req,socket} = await conn;
         let a = 1;
     })

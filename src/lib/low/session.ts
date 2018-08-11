@@ -4,13 +4,11 @@ import {
 } from "./wamp/messages";
 import {EventEmitter} from "events";
 import {WampType} from "./wamp/message.type";
-import * as most from "most";
-import {defer$} from "../most-ext/most-ext";
 
 export interface SessionConfig {
     realm: string;
     timeout: number;
-    transport$: most.Stream<WebsocketTransport>
+    transport$: Observable<WebsocketTransport>
 }
 
 import WM = WampMessage;
@@ -37,13 +35,38 @@ import {
     WampSubscribeOptions
 } from "./wamp/options";
 import {WampMessenger} from "./messaging/wamp-messenger";
-import {empty, Stream, Subscription} from "most";
-import {wait$} from "../most-ext/most-ext";
 import {InvocationRequest} from "./methods/invocation";
 import {EventArgs} from "./methods/event";
 import {CallResult} from "./methods/call";
 import {WampResult} from "./methods/shared";
-import {Subject} from "../most-ext/subject";
+import {
+    concat,
+    NEVER,
+    Observable,
+    Subject,
+    empty,
+    EMPTY,
+    merge,
+    Subscription,
+    defer,
+    timer,
+    throwError,
+    of
+} from "rxjs";
+import {
+    map,
+    finalize,
+    flatMap,
+    takeUntil,
+    take,
+    mapTo,
+    mergeMapTo,
+    tap,
+    delay,
+    timeoutWith,
+    catchError, switchMap, startWith, takeWhile,
+} from "rxjs/operators";
+import {SubscriptionLike} from "rxjs/src/internal/types";
 
 function processErrorDuringGoodbye(myGoodbye: WM.Goodbye, error: WM.Error) {
     return new WampusNetworkError("Error during goodbye.", {
@@ -58,7 +81,7 @@ function processErrorDuringSubscribe(subscribe: WM.Subscribe, error: WM.Error) {
 let factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
 
 export interface EventPublisher {
-    publish$(options: WampPublishOptions, data: WampResult): Stream<any>;
+    publish$(options: WampPublishOptions, data: WampResult): Observable<any>;
 }
 
 export class InternalSession {
@@ -67,29 +90,37 @@ export class InternalSession {
     readonly errors$ = Subject.create() as Subject<WampusError>;
     private _messenger: WampMessenger;
 
-    static create$(config: SessionConfig): most.Stream<InternalSession> {
-        return config.transport$.deriveDependentResource(transport => {
+    static create$(config: SessionConfig): Observable<InternalSession> {
+        // 1. Receive transport
+        // 2. Handshake
+        // 3. Wait until session closed:
+        //      On close: Initiate goodbye sequence.
+        return config.transport$.pipe(flatMap(transport => {
             let messenger = WampMessenger.create(transport);
             let session = new InternalSession();
             session._config = config;
             session._messenger = messenger;
-            return session._handshake$().map(welcome => {
+            let getSessionFromShake$ = session._handshake$().pipe(map(welcome => {
                 session.id = welcome.sessionId;
-                return session;
-            }).continueWith(() => most.never()).lastly(async () => {
-                await session._close$({}, WampUri.CloseReason.GoodbyeAndOut, false).drain();
-            });
-        });
+            }));
+            let sessionLiveUntilClose$ = NEVER.pipe(finalize(async () => {
+                await session._close$({}, WampUri.CloseReason.GoodbyeAndOut, false).toPromise();
+            }));
+
+            return concat(getSessionFromShake$, sessionLiveUntilClose$).pipe(mapTo(session));
+        }));
     }
 
-    register$(options: WampRegisterOptions, name: string): Stream<Stream<InvocationRequest>> {
+    register$(options: WampRegisterOptions, name: string): Observable<Observable<InvocationRequest>> {
         let msg = factory.register(options, name);
-        let sending = this._messenger.send$(msg).flatMap(() => most.empty());
+        let sending$ = this._messenger.send$(msg).pipe(mergeMapTo(EMPTY));
 
-        return this._messenger.expectAny$(
+        let expectRegisteredOrError$ = this._messenger.expectAny$(
             Routes.registered(msg.requestId),
             Routes.error(WampType.REGISTER, msg.requestId)
-        ).merge(sending).map(x => {
+        );
+
+        let failOnError = map((x: WampMessage) => {
             if (x instanceof WampMessage.Error) {
                 switch (x.error) {
                     case WampUri.Error.ProcAlreadyExists:
@@ -99,50 +130,64 @@ export class InternalSession {
                 }
             }
             return x as WampMessage.Registered;
-        }).take(1).map((registered) => {
-            let unregisteredSent = this._messenger.expectAny$(Routes.unregistered(registered.registrationId));
-            return this._messenger.expectAny$(Routes.invocation(registered.registrationId)).takeUntil(unregisteredSent).lastly(async () => {
-                let unregisterMsg = (factory.unregister(registered.registrationId));
-                let sending = this._messenger.send$(unregisterMsg);
-                return this._messenger.expectAny$(Routes.unregistered(registered.registrationId), Routes.error(WampType.UNREGISTER, unregisterMsg.requestId))
-                    .merge(sending)
-                    .tap(x => {
-                        if (x instanceof WampMessage.Error) {
-                            switch (x.error) {
-                                case WampUri.Error.NoSuchRegistration:
-                                    throw Errs.Unregister.registrationDoesntExist(name, x);
-                                default:
-                                    throw Errs.Unregister.other(name, x);
-                            }
+        });
+
+        let whenRegisteredReceived = map((registered: WM.Registered) => {
+            let expectInvocation$ = this._messenger.expectAny$(Routes.invocation(registered.registrationId));
+            let whenRegistrationClosedFinalize = finalize(async () => {
+                let unregisterMsg = factory.unregister(registered.registrationId);
+                let sendingUnregister$ = this._messenger.send$(unregisterMsg);
+                let receivedUnregistered$ = this._messenger.expectAny$(Routes.unregistered(registered.registrationId), Routes.error(WampType.UNREGISTER, unregisterMsg.requestId));
+                let failOnUnregisterError = map((x: WM.Any) => {
+                    if (x instanceof WampMessage.Error) {
+                        switch (x.error) {
+                            case WampUri.Error.NoSuchRegistration:
+                                throw Errs.Unregister.registrationDoesntExist(name, x);
+                            default:
+                                throw Errs.Unregister.other(name, x);
                         }
-                    })
-                    .drain();
-            }).map(x => x as WampMessage.Invocation).map(msg => {
+                    }
+                    return x as WM.Unregistered;
+                });
+
+
+                return merge(sendingUnregister$, receivedUnregistered$).pipe(failOnUnregisterError, take(1)).toPromise();
+            });
+            let whenInvocationReceived = map((msg: WM.Invocation) => {
+                let expectInterrupt$ = this._messenger.expectAny$([WampType.INTERRUPT, msg.requestId]).pipe(map(x => x as WM.Interrupt));
                 let args = new InvocationRequest(name, msg, {
                     factory,
                     send$: (msg) => {
                         return this._messenger.send$(msg);
                     },
-                    expectInterrupt$: this._messenger.expectAny$([WampType.INTERRUPT, msg.requestId]).map(x => x as WM.Interrupt)
+                    expectInterrupt$: expectInterrupt$
                 });
                 return args;
             });
+            return expectInvocation$.pipe(whenRegistrationClosedFinalize, whenInvocationReceived);
         });
+
+        let result = merge(sending$, expectRegisteredOrError$).pipe(failOnError, take(1)).pipe(whenRegisteredReceived);
+        return result;
     }
 
-    register(options : WampRegisterOptions, name : string, procedure : (req : InvocationRequest) => Promise<any> | any) : Promise<Subscription<any>> {
+    register(options: WampRegisterOptions, name: string, procedure: (req: InvocationRequest) => Promise<any> | any): Promise<SubscriptionLike> {
         return new Promise((resolve, reject) => {
-            let sub : Subscription<any>;
             let isResolved = true;
-            let parentSub = this.register$(options, name).subscribeSimple(stream => {
-                sub = stream.subscribeSimple(req => {
-                    req.handle(procedure).then(() => {}, () => {});
+            let parentSub = this.register$(options, name).subscribe(innerRx => {
+                let sub = innerRx.subscribe(invocation => {
+                    invocation.handle(procedure).then(() => {
+                    }, () => {
+                    });
                 });
                 isResolved = true;
                 resolve({
                     unsubscribe() {
                         sub.unsubscribe();
                         parentSub.unsubscribe();
+                    },
+                    get closed() {
+                        return parentSub.closed;
                     }
                 });
             }, (err) => {
@@ -154,32 +199,35 @@ export class InternalSession {
         });
     }
 
-    publish(options : WampPublishOptions, name : string, data : WampResult) {
+    publish(options: WampPublishOptions, name: string, data: WampResult) {
         return this.publish$(options, name, data).toPromise();
     }
 
-    publish$(options: WampPublishOptions, name: string, data: WampResult): Stream<any> {
-        return defer$(() => {
+    publish$(options: WampPublishOptions, name: string, data: WampResult): Observable<void> {
+        return defer(() => {
             let msg = factory.publish(options, name, data.args, data.kwargs);
-            let expectAcknowledge$: Stream<any>;
+            let expectAcknowledge$: Observable<any>;
             if (options.acknowledge) {
-                expectAcknowledge$ = this._messenger.expectAny$(
+                let expectPublishedOrError$ = this._messenger.expectAny$(
                     Routes.published(msg.requestId),
                     Routes.error(WampType.PUBLISH, msg.requestId)
-                ).flatMap(msg => {
-                    if (msg instanceof WM.Error) {
-                        throw new WampusIllegalOperationError("Failed to publish.", {
-                            msg
-                        });
+                );
+                let failOnError = map((msg: WM.Any) => {
+                        if (msg instanceof WM.Error) {
+                            throw new WampusIllegalOperationError("Failed to publish.", {
+                                msg
+                            });
+                        }
+                        return msg;
                     }
-                    return empty();
-                });
+                );
+                expectAcknowledge$ = expectPublishedOrError$.pipe(failOnError, mergeMapTo(EMPTY));
             } else {
-                expectAcknowledge$ = empty();
+                expectAcknowledge$ = EMPTY;
             }
-            return this._messenger.send$(msg).merge(expectAcknowledge$);
+            let sendingPublish = this._messenger.send$(msg);
+            return merge(sendingPublish, expectAcknowledge$);
         })
-
     }
 
     /**
@@ -192,32 +240,39 @@ export class InternalSession {
      * @param {string} name
      * @returns {Stream<Stream<EventArgs>>}
      */
-    event$(options: WampSubscribeOptions, name: string): Stream<Stream<EventArgs>> {
-        return defer$(() => {
+    event$(options: WampSubscribeOptions, name: string): Observable<Observable<EventArgs>> {
+        let expectSubscribedOrError = defer(() => {
             let msg = factory.subscribe(options, name);
             let sending$ = this._messenger.send$(msg);
-            return this._messenger.expectAny$(
+            let expectSubscribedOrError$ = this._messenger.expectAny$(
                 Routes.subscribed(msg.requestId),
                 Routes.error(WampType.SUBSCRIBE, msg.requestId)
-            ).merge(sending$).map(x => {
+            );
+            let failOnErrorOrCastToSubscribed = map((x : WM.Any) => {
                 if (x instanceof WM.Error) {
-                    switch (x.error){
+                    switch (x.error) {
                         case WampUri.Error.NotAuthorized:
                             throw Errs.notAuthorized("Subscribe to {event}", {
-                                event : name
+                                event: name
                             });
                     }
                     throw processErrorDuringSubscribe(msg, x);
                 }
                 return x as WM.Subscribed;
             });
-        }).map(subscribed => {
+            return merge(sending$, expectSubscribedOrError$).pipe(failOnErrorOrCastToSubscribed);
+        });
+
+        let whenSubscribedStreamEvents = map((subscribed : WM.Subscribed) => {
             let unsub = factory.unsubscribe(subscribed.subscriptionId);
-            return this._messenger.expectAny$(Routes.event(subscribed.subscriptionId)).lastly(async () => {
-                return this._messenger.expectAny$(
+            let expectEvents$ = this._messenger.expectAny$(Routes.event(subscribed.subscriptionId));
+            let finalizeOnClose = finalize(async () => {
+                let expectUnsubscribedOrError$ = this._messenger.expectAny$(
                     Routes.unsubscribed(subscribed.subscriptionId),
                     Routes.error(WampType.UNSUBSCRIBE, unsub.requestId)
-                ).map(msg => {
+                );
+
+                let failOnUnsubscribedError = map((msg : WM.Any) => {
                     if (msg instanceof WampMessage.Error) {
                         switch (msg.error) {
                             case WampUri.Error.NoSuchSubscription:
@@ -226,15 +281,26 @@ export class InternalSession {
                                 throw Errs.Unsubscribe.other(msg, name);
                         }
                     }
-                }).merge(this._messenger.send$(unsub)).take(1).drain()
-            }).map((x: WM.Event) => {
+                    return msg as WM.Unsubscribed;
+                });
+
+                let sendUnsub$ = this._messenger.send$(unsub);
+
+                let total = merge(sendUnsub$, expectUnsubscribedOrError$).pipe(failOnUnsubscribedError, take(1));
+                return total.toPromise();
+            });
+
+            let mapToLibraryEvent = map((x : WM.Event) => {
                 let a = new EventArgs(name, x);
                 return a;
             });
+            return expectEvents$.pipe(finalizeOnClose, mapToLibraryEvent);
         });
+
+        return expectSubscribedOrError.pipe(take(1), whenSubscribedStreamEvents)
     }
 
-    call$(options: WampCallOptions, name: string, args: any[], kwargs: any): Stream<CallResult> {
+    call$(options: WampCallOptions, name: string, args: any[], kwargs: any): Observable<CallResult> {
         let self = this;
         /*
         TODO: Implement advanced features
@@ -246,21 +312,34 @@ export class InternalSession {
         6. Sharded registration (N/A)
          */
 
-        return defer$(() => {
+        return defer(() => {
             let msg = factory.call(options, name, args, kwargs);
-            let cancelCall = true;
+            let isRunning = true;
 
-            let expectReply$ = self._messenger.expectAny$(
+
+            let unmarkRunningIfResultReceived = tap((x : WM.Any) => {
+                if (x instanceof WM.Error) isRunning = false;
+                if (x instanceof WM.Result) {
+                    if (!x.details.progress) {
+                        isRunning = false;
+                    }
+                }
+            });
+            let expectResultOrError$ = self._messenger.expectAny$(
                 Routes.result(msg.requestId),
                 Routes.error(WampType.CALL, msg.requestId)
-            ).tap(() => {
-                cancelCall = false;
-            }) as Stream<WampMessage.Any>;
-            let sending$ = this._messenger.send$(msg).concat(most.never().lastly(async () => {
-                if (!cancelCall) return;
-                await this._messenger.send$(factory.cancel(msg.requestId, {
+            );
+
+            let finalizeOnCancel = finalize(async () => {
+                // If a result is already received, do not try to cancel the call.
+                if (!isRunning) return;
+
+                let cancel = factory.cancel(msg.requestId, {
                     mode: options.cancelMode || CancelMode.Kill
-                })).merge(expectReply$).tap((msg: WampMessage.Any) => {
+                });
+                let sendCancel$ = this._messenger.send$(cancel);
+
+                let handleOnCancelResponse = tap((msg : WM.Any) => {
                     if (msg instanceof WampMessage.Error) {
                         if (msg.error === WampUri.Error.Canceled) {
                             return;
@@ -273,10 +352,15 @@ export class InternalSession {
                     if (msg instanceof WampMessage.Result) {
                         console.log("Cancelling didn't seem to work. Received result instead.")
                     }
-                }).take(1).drain();
-            }));
+                });
 
-            return expectReply$.map(x => {
+                return merge(sendCancel$, expectResultOrError$).pipe(handleOnCancelResponse, take(1)).toPromise();
+            });
+
+            let cancellableStage$ = NEVER.pipe(finalizeOnCancel);
+
+
+            let failOnError = map((x : WM.Any) => {
                 if (x instanceof WampMessage.Error) {
                     switch (x.error) {
                         case WampUri.Error.NoSuchProcedure:
@@ -291,63 +375,79 @@ export class InternalSession {
                     if (x.error === WampUri.Error.RuntimeError || !x.error.startsWith(WampUri.Error.Prefix)) {
                         throw Errs.Call.errorResult(name, x);
                     }
-                    else if (x.error.startsWith(WampUri.Error.Prefix)) {
-                        throw Errs.Call.other(name, x);
-                    }
+                    throw Errs.Call.other(name, x);
                 }
+                return x as WM.Result;
+            });
+
+            let toLibraryResult = map((x : WM.Any) => {
                 if (x instanceof WampMessage.Result) {
                     return new CallResult(name, x);
                 }
                 throw new Error("Unknown message.");
-            }).merge(sending$).skipAfter(cr => {
-                return !cr.isProgress;
-            });
+            }) ;
+
+            let sending$ = this._messenger.send$(msg);
+
+            let exp = merge(concat(sending$, cancellableStage$), expectResultOrError$.pipe(unmarkRunningIfResultReceived)).pipe(failOnError).pipe(toLibraryResult) as Observable<CallResult>;
+            let exp2 = exp.pipe(switchMap((msg : WM.Result) => {
+                if (msg.details.progress) {
+                    return of(msg);
+                } else {
+                    return of(msg, null)
+                }
+            })).pipe(takeWhile(m => !!m)) as Observable<CallResult>;
+            return exp2;
         });
     }
 
 
-
-    private _close$(details: WampObject, reason: WampUriString, abrupt: boolean): Stream<any> {
+    private _close$(details: WampObject, reason: WampUriString, abrupt: boolean): Observable<any> {
         if (abrupt) {
             return this._abort$(details, reason);
         }
 
-        let timeout = defer$(() => {
+        let timeout = timer(this._config.timeout).pipe(flatMap(() => {
             throw Errs.Leave.goodbyeTimedOut();
-        }).delay(this._config.timeout);
+        }));
 
-        return this._goodbye$(details, reason).takeUntil(timeout).recoverWith(err => {
+        let expectGoodbyeOrTimeout = merge(this._goodbye$(details, reason), timeout).pipe(catchError(err => {
             console.warn("Error when saying GOODBYE. Going to say ABORT.", err);
             return this._abort$(details, reason);
-        })
+        }));
+
+        return expectGoodbyeOrTimeout;
     }
 
 
     private _abort$(details: WampObject, reason: WampUriString) {
-        return this._messenger.send$(factory.abort(details, reason))
-            .concat(wait$(this._config.timeout))
-            .recoverWith((err: Error) => {
-                console.warn("Network error on ABORT.");
-                return most.empty();
-            });
-
+        let errorOnTimeout = timeoutWith(this._config.timeout, throwError(Errs.Leave.networkErrorOnAbort(new Error("Timed Out"))));
+        let sending$ = this._messenger.send$(factory.abort(details, reason))
+        return sending$.pipe(errorOnTimeout, catchError(() => {
+            console.warn("Network error on ABORT.");
+            return EMPTY;
+        }));
     }
 
     private _goodbye$(details: WampObject, reason: WampUriString) {
         let myGoodbye = factory.goodbye(details, reason);
-        let sending = this._messenger.send$(myGoodbye);
-        return this._messenger.expectAny$(
+        let sending$ = this._messenger.send$(myGoodbye);
+        let expectingByeOrError$ = this._messenger.expectAny$(
             Routes.goodbye,
             Routes.error(WampType.GOODBYE)
-        ).merge(sending).map(x => {
+        );
+
+        let failOnError = map((x : WM.Any) => {
             if (x instanceof WampMessage.Error) {
                 throw Errs.Leave.errorOnGoodbye(x);
             }
             return x as WampMessage.Goodbye;
         });
+
+        return merge(sending$, expectingByeOrError$).pipe(failOnError);
     }
 
-    private _handshake$(): Stream<WM.Welcome> {
+    private _handshake$(): Observable<WM.Welcome> {
         let messenger = this._messenger;
         let config = this._config;
         let hello = factory.hello(config.realm, {
@@ -359,7 +459,7 @@ export class InternalSession {
             }
         });
 
-        let welcomeMessage = messenger.expectNext$().map(msg => {
+        let handleMessage = map((msg : WM.Any) => {
             if (msg instanceof WM.Abort) {
                 switch (msg.reason) {
                     case WampUri.Error.NoSuchRealm:
@@ -377,13 +477,17 @@ export class InternalSession {
                 throw Errs.Handshake.unexpectedMessage(msg);
             }
             return msg as WM.Welcome;
-        }).merge(messenger.send$(hello)).take(1);
-        return welcomeMessage;
+        });
+
+        let sendHello$ = messenger.send$(hello);
+
+        let welcomeMessage$ = merge(sendHello$, messenger.expectNext$()).pipe(handleMessage, take(1))
+        return welcomeMessage$;
     }
 
     private _registerRoutes() {
-        let serverAborted = this._messenger.expectAny$([WampType.ABORT]).take(1);
-        let serverGoodbye = this._messenger.expectAny$([WampType.GOODBYE]).take(1);
+        let serverAborted = this._messenger.expectAny$([WampType.ABORT]).pipe(take(1));
+        let serverGoodbye = this._messenger.expectAny$([WampType.GOODBYE]).pipe(take(1));
         let serverSentInvalidMessage = this._messenger.expectAny$(
             [WampType.WELCOME],
             [WampType.CHALLENGE]

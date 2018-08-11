@@ -1,8 +1,7 @@
 import {WampusNetworkError} from "../../../errors/types";
 import {WampMessage, WampObject, WampRawMessage} from "../../wamp/messages";
-import * as most from "most";
 import {WampusError} from "../../../errors/types";
-import {Stream} from "most";
+import {Observable} from "rxjs";
 
 export interface TransportClosed {
     type : "closed";
@@ -25,14 +24,14 @@ export interface Transport {
     /**
      * Creates a COLD stream that, when subscribed to, will send the specified message to the target.
      * @param {object} msg
-     * @returns {Stream<never>} A COLD observable.
+     * @returns {Observable<never>} A COLD observable.
      */
-    send$(msg : WampObject) : Stream<any>;
+    send$(msg : WampObject) : Observable<any>;
 
     /**
      * Exposes a COLD stream that gives access to the transport's network events.
      * Network events include Data, Error, and Completion.
      */
-    events : Stream<TransportEvent>;
+    events : Observable<TransportEvent>;
 }
 

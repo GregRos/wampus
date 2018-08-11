@@ -9,7 +9,9 @@ import {WampType} from "./low/wamp/message.type";
 import {MyPromise} from "./ext-promise";
 import {InternalSession} from "./low/session";
 import {EventEmitter} from "events";
-import {never, of, periodic, Stream} from "most";
+import {flatMap, take, tap} from "rxjs/operators";
+import {Observable} from "rxjs";
+import {EventArgs} from "./low/methods/event";
 
 (async () => {
     let transport = WebsocketTransport.create$({
@@ -21,17 +23,17 @@ import {never, of, periodic, Stream} from "most";
         transport$: transport,
         realm: "proxy",
         timeout: 10000
-    }).flatMapPromise(async session => {
+    }).pipe(flatMap(async (session : InternalSession) => {
         await session.register({}, "a.b", req => {
             return {
                 a: 5
             }
         });
         let z = await session.call$({}, "a.b", [], {}).toPromise();
-        session.event$({}, "hi.1").take(1).flatMapPromise(async stream => {
-            stream.tap(x => {
+        session.event$({}, "hi.1").pipe(take(1), flatMap(async (stream : Observable<EventArgs>) => {
+            stream.pipe(tap(x => {
                 console.log(yamprint(x));
-            }).drain();
+            })).toPromise();
             await session.publish({
                 exclude_me: false
             }, "hi.1", {
@@ -41,6 +43,6 @@ import {never, of, periodic, Stream} from "most";
             });
             console.log("SUBSCRIPTIONS:", (session as any)._messenger._router.count());
             console.log("RESULT:", z);
-        }).drain();
-    }).drain();
+        })).toPromise();
+    })).toPromise();
 })();

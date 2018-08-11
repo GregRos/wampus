@@ -1,12 +1,12 @@
 import {WampArray, WampMessage} from "../wamp/messages";
-import {merge, of, Stream} from "most";
 import {WebsocketTransport} from "./transport/websocket";
 import {WampusNetworkError} from "../../errors/types";
-import {createStreamSimple} from "../../most-ext/most-ext";
 import {MessageRouter} from "./routing/message-router";
 import {TransportMessage} from "./transport/transport";
 import {Errs} from "../../errors/errors";
 import {MessageReader} from "../wamp/helper";
+import {merge, Observable, of} from "rxjs";
+import {flatMap, take} from "rxjs/operators";
 
 /**
  * This class provides a mid-level abstraction layer between the transport and the WAMP session object.
@@ -27,7 +27,7 @@ export class WampMessenger {
     /**
      * Creates a COLD observable that will yield a WampMessenger when subscribed to. Closing the subscription will dispose of the messenger.
      * The messenger will be created with a transport, ready for messaging.
-     * @returns {Stream<WampMessenger>}
+     * @returns {Observable<WampMessenger>}
      */
     static create(transport : WebsocketTransport) : WampMessenger {
         let messenger = new WampMessenger(null as never);
@@ -77,10 +77,10 @@ export class WampMessenger {
      * Creates a COLD observable that will send a WAMP message to the router via the transport, once subscribed to. Unsubscribing will do nothing.
      * The observable will complete once the message has been sent.
      * @param {WampMessage.Any} msg The message to send.
-     * @returns {Stream<never>} A stream that completes once the sending finishes.
+     * @returns {Observable<never>} A stream that completes once the sending finishes.
      */
-    send$(msg : WampMessage.Any) : Stream<any> {
-        return of(null).flatMap(() => {
+    send$(msg : WampMessage.Any) : Observable<any> {
+        return of(null).pipe(flatMap(() => {
             if ("toTransportFormat" in msg) {
                 let loose = msg.toTransportFormat();
                 return this._transport.send$(loose);
@@ -89,26 +89,26 @@ export class WampMessenger {
                     type : msg.type
                 });
             }
-        });
+        }));
     }
 
     /**
      * Creates an observable that will yield the next transoirt event.
      * Will error if the next transport event is an error, if the WAMP session is closed, or the transport is closed.
-     * @returns {Stream<WampMessage.Any>}
+     * @returns {Observable<WampMessage.Any>}
      */
     expectNext$() {
-        return this.expect$([]).take(1);
+        return this.expect$([]).pipe(take(1))
     }
 
     /**
      * Creates a COLD observable that, when subscribed to, will wait for the next message receives by this messenger that matches the given route.
      * The route will be active until the subscription is closed, at which point it will be cleared.
      * @param {WampArray} route
-     * @returns {Stream<WampMessage.Any>}
+     * @returns {Observable<WampMessage.Any>}
      */
-    expect$(route : WampArray) {
-        return createStreamSimple<WampMessage.Any>(sub => {
+    expect$(route : WampArray) : Observable<WampMessage.Any> {
+        return Observable.create(sub => {
             let inv = {
                 keys : route,
                 next(x) {
@@ -123,7 +123,7 @@ export class WampMessenger {
             };
             this._router.insertRoute(inv);
             return {
-                 dispose : async () => {
+                 unsubscribe : async () => {
                     this._router.removeRoute(inv);
                 }
             }

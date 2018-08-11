@@ -1,16 +1,15 @@
 import {EventEmitter} from "events";
 import {TransportClosed, TransportError, TransportEvent, TransportMessage, Transport} from "./transport";
 import * as ws from "ws";
-import * as most from "most";
 
 import {WampusNetworkError} from "../../../errors/types";
 const WebSocket = require('isomorphic-ws') as typeof ws;
 import {MyPromise} from "../../../ext-promise";
 import {Serializer} from "../serializer/serializer";
 import {WampMessage, WampRawMessage} from "../../wamp/messages";
-import {fromEvent, Stream} from "most";
 import {WampusError} from "../../../errors/types";
-import {createStreamSimple} from "../../../most-ext/most-ext";
+import {from, fromEvent, merge, NEVER, Observable, of, race} from "rxjs";
+import {map, startWith, switchAll, delay} from "rxjs/operators";
 
 export interface WebsocketTransportConfig {
     url: string;
@@ -22,7 +21,7 @@ export class WebsocketTransport implements Transport{
     private _config : WebsocketTransportConfig;
     private _ws : ws;
     private _expectingClose : Promise<void>;
-    events : most.Stream<TransportEvent>;
+    events : Observable<TransportEvent>;
 
     /**
      * Use `WebsocketTransport.create` instead.
@@ -36,17 +35,17 @@ export class WebsocketTransport implements Transport{
      * Creates a COLD stream that will create a [[WebsocketTransport]] when subscribed to.
      * The [[WebsocketTransport]] will be automatically closed when the subscription ends.
      * @param {WebsocketTransportConfig} config
-     * @returns {Stream<WebsocketTransport>}
+     * @returns {Observable<WebsocketTransport>}
      */
-    static create$(config: WebsocketTransportConfig) : most.Stream<WebsocketTransport>{
+    static create$(config: WebsocketTransportConfig) : Observable<WebsocketTransport>{
 
-        let errorOnTimeOut = config.timeout == null ? most.never() : most.of(null).delay(config.timeout).map(() => {
+        let errorOnTimeOut = config.timeout == null ? NEVER : of(null).pipe(delay(config.timeout), map(() => {
             throw new WampusNetworkError("WebSocket connection timed out.", {
                 url: config.url
             })
-        }) as Stream<never>;
+        })) as Observable<never>;
 
-        let transport$ = createStreamSimple(sub => {
+        let transport$ = Observable.create(sub => {
             let transport = new WebsocketTransport(null as never);
             transport._config = config;
             try {
@@ -60,14 +59,14 @@ export class WebsocketTransport implements Transport{
                 })
             }
             transport._ws = ws;
-            let closeEvent = fromEvent("close", ws).map(x => {
+            let closeEvent$ = fromEvent(ws, "close").pipe(map(x => {
                 return {
                     type : "closed",
                     data : x
                 } as TransportClosed;
-            });
+            }));
 
-            let msgEvent : most.Stream<TransportEvent> = fromEvent("message", ws).map((msg : any) => {
+            let msgEvent$ : Observable<TransportEvent> = fromEvent(ws, "message").pipe(map((msg : any) => {
                 try {
                     var result = transport._config.serializer.deserialize(msg.data);
                 }
@@ -83,23 +82,23 @@ export class WebsocketTransport implements Transport{
                     type : "message",
                     data : result
                 } as TransportMessage;
-            });
-            let errorEvent : most.Stream<TransportEvent>= fromEvent("error", ws).map(x => {
+            }));
+            let errorEvent$ : Observable<TransportEvent>= fromEvent(ws, "error").pipe(map(x => {
                 return {
                     type : "error",
                     data : new WampusNetworkError("The WebSocket client emitted an error.", {
                         err : x
                     })
                 } as TransportError
-            });
+            }));
 
-            let messages: most.Stream<TransportEvent> = msgEvent.merge(closeEvent, errorEvent).map(x => {
+            let messages: Observable<TransportEvent> = merge(closeEvent$, errorEvent$, msgEvent$).pipe(map((x : TransportEvent) => {
                 if (x.type === "closed") {
-                    return most.of(x);
+                    return of(x);
                 } else {
-                    return messages.startWith(x);
+                    return messages.pipe(startWith(x));
                 }
-            }).switchLatest().multicast();
+            })).pipe(switchAll());
             transport.events = messages;
             if (ws.readyState === ws.OPEN) {
                 sub.next(transport);
@@ -122,9 +121,9 @@ export class WebsocketTransport implements Transport{
                     await transport._close();
                 }
             }
-        }) as Stream<WebsocketTransport>;
+        }) as Observable<WebsocketTransport>;
 
-        return most.from([errorOnTimeOut, transport$]).race();
+        return race(errorOnTimeOut, transport$);
     }
 
     private _close(code ?: number, data ?: any): Promise<void> {
@@ -145,8 +144,8 @@ export class WebsocketTransport implements Transport{
     }
 
 
-    send$(msg: object): most.Stream<any> {
-        return createStreamSimple(sub => {
+    send$(msg: object): Observable<any> {
+        return Observable.create(sub => {
             try {
                 var payload = this._config.serializer.serialize(msg);
             }
@@ -165,7 +164,7 @@ export class WebsocketTransport implements Transport{
                 }
             });
             return {
-                dispose() {
+                unsubscribe() {
 
                 }
             }

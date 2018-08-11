@@ -4,8 +4,14 @@ export class JsonSerializer implements Serializer {
     readonly id = "json";
 
     deserialize(buffer: Buffer | string | ArrayBuffer): object {
-        if (!(buffer instanceof Buffer)) return;
-        let str = buffer.toString("utf8");
+        let str : string;
+        if (typeof buffer === "string") {
+            str = buffer;
+        } else if (buffer instanceof Buffer) {
+            str = buffer.toString("utf8");
+        } else {
+            throw new Error("Unsupported message data format.");
+        }
         return JSON.parse(str);
     }
 

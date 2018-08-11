@@ -28,8 +28,8 @@
   },
   "dependencies": {
     "isomorphic-ws": "^4.0.1",
-    "most": "^1.7.3",
     "promise-stuff": "^0.3.5",
+    "rxjs": "^6.2.2",
     "string-template": "^1.0.0",
     "ws": "^5.2.1"
   },
