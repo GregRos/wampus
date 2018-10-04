@@ -55,32 +55,35 @@ function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observabl
         let session = new SessionWrapper(lSession, {
 
         });
-        let x = await firstAndKeepSub(session.register$({
+        let proc_ab = await session.register({
             procedure : "a.b"
-        }));
-
-        x.subscribe(req => {
-
         });
 
-        let z = await session.call$({
-            name : "a.b"
-        }).toPromise();
-        session.event$({event :  "hi.1"}).pipe(take(1), flatMap(async (stream : Observable<AbstractEventArgs>) => {
-            stream.pipe(tap(x => {
-                console.log(yamprint(x));
-            })).toPromise();
-            await session.publish$({
-                name : "hi.1",
-                options : {
-                    exclude_me: false
-                },
+        proc_ab.handle(req => {
+            return {
                 kwargs : {
                     a : 5
                 }
-            }).toPromise();
-            console.log("SUBSCRIPTIONS:", (session as any)._messenger._router.count());
-            console.log("RESULT:", z);
-        })).toPromise();
+            }
+        });
+
+        let z = await session.call({
+            name : "a.b"
+        }).result;
+        let ev = await session.event({event : "hi.1"});
+        ev.events.subscribe(x=> {
+            console.log(yamprint(x));
+        });
+        await session.publish({
+            name : "hi.1",
+            options : {
+                exclude_me: false
+            },
+            kwargs : {
+                a : 5
+            }
+        });
+        console.log("SUBSCRIPTIONS:", (session as any)._session._messenger._router.count());
+        console.log("RESULT:", z);
     })).toPromise();
 })();

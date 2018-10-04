@@ -84,15 +84,15 @@ export class MessageBuilder {
     }
 
     call(options: WampCallOptions, procedure: WampUriString, args ?: WampArray, kwargs ?: any) {
-        return new WampMessage.Call(this._requestIdProvider(), options, procedure, args, kwargs);
+        return new WampMessage.Call(this._requestIdProvider(), options || {}, procedure, args || [], kwargs || {});
     }
 
     publish(options: WampPublishOptions, topic: WampUriString, args ?: WampArray, kwargs ?: WampObject) {
-        return new WampMessage.Publish(this._requestIdProvider(), options, topic, args, kwargs);
+        return new WampMessage.Publish(this._requestIdProvider(), options || {}, topic, args || [], kwargs || {});
     }
 
     subscribe(options: WampSubscribeOptions, topic: WampUriString) {
-        return new WampMessage.Subscribe(this._requestIdProvider(), options, topic);
+        return new WampMessage.Subscribe(this._requestIdProvider(), options || {}, topic);
     }
 
     unsubscribe(subscription: WampId) {
@@ -100,11 +100,11 @@ export class MessageBuilder {
     }
 
     register(options: WampRegisterOptions, procedure: WampUriString) {
-        return new WampMessage.Register(this._requestIdProvider(), options, procedure);
+        return new WampMessage.Register(this._requestIdProvider(), options || {}, procedure);
     }
 
     error(sourceType : WampType, requestId : WampId, details : WampObject, reason : WampUriString, args ?: WampArray, kwargs ?: WampObject) {
-        return new WampMessage.Error(sourceType, requestId, details, reason, args, kwargs);
+        return new WampMessage.Error(sourceType, requestId, details || {}, reason, args || [], kwargs || {});
     }
 
     unregister(registration: WampId) {
@@ -112,19 +112,19 @@ export class MessageBuilder {
     }
 
     yield(invocationId: WampId, options: WampYieldOptions, args ?: WampArray, kwargs ?: WampObject) {
-        return new WampMessage.Yield(invocationId, options, args, kwargs);
+        return new WampMessage.Yield(invocationId, options || {}, args || [], kwargs || {});
     }
 
     cancel(callRequestId: WampId, options: WampCancelOptions) {
-        return new WampMessage.Cancel(callRequestId, options);
+        return new WampMessage.Cancel(callRequestId, options || {});
     }
 
     authenticate(signature: string, options: object) {
-        return new WampMessage.Authenticate(signature, options);
+        return new WampMessage.Authenticate(signature, options || {});
     }
 
     goodbye(details : WampObject, reason : WampUriString) {
-        return new WampMessage.Goodbye(details, reason);
+        return new WampMessage.Goodbye(details || {}, reason);
     }
 
     internalRouteCompletion(reason : WampusCompletionReason) {

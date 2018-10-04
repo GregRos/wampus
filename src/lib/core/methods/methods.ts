@@ -43,9 +43,9 @@ export interface AbstractInvocationRequest {
 
     readonly name: string;
 
-    return$(args: WampusSendResultArguments): Observable<never> | Observable<void>;
+    return(args: WampusSendResultArguments): Promise<void>;
 
-    error$({args, options, kwargs, reason}: WampusSendErrorArguments): Observable<never> | Observable<void>;
+    error({args, options, kwargs, reason}: WampusSendErrorArguments): Promise<void>;
 
-    waitCancel$(time: number): Observable<any>;
+    waitCancel(time: number): Promise<void>;
 }

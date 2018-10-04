@@ -7,9 +7,6 @@ import {take, timeout} from "rxjs/operators";
 import {WebsocketTransport} from "../../lib/core/messaging/transport/websocket";
 import {JsonSerializer} from "../../lib/core/messaging/serializer/json";
 
-declare module "typed-promisify" {
-    export function promisify(f: (cb: (err: any) => void) => void, thisContext?: any): () => Promise<any>;
-}
 
 export module QuickTest {
     export let testTimeout = Infinity;

@@ -66,7 +66,6 @@ export module WampMessage {
     export class Call implements WampMessage{
         type = WampType.CALL;
         constructor(public requestId : WampId, public options : WampCallOptions, public procedure : WampUriString, public args ?: WampArray, public kwargs ?: WampObject) {
-
         }
 
         toTransportFormat() {

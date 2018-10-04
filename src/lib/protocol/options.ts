@@ -152,10 +152,7 @@ export interface WampCancelOptions {
 export interface WampCallOptions {
     receive_progress?: boolean;
     disclose_me?: boolean;
-    timeout?: number;
-
-    cancelMode ?: CancelMode;
-}
+    timeout?: number;}
 
 export interface WampResultOptions {
     progress?: boolean;

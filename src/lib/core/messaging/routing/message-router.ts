@@ -1,5 +1,6 @@
 import {WampArray, WampMessage, WampPrimitive} from "../../../protocol/messages";
 import {WampType} from "../../../protocol/message.type";
+import _ = require("lodash");
 
 
 /*
@@ -39,15 +40,12 @@ interface RouteIndex<T> {
 }
 
 function setDefaults(target : MessageRoute<any>) {
-    if (!target.error) {
-        target.error = () => {};
-    }
-    if (!target.next) {
-        target.next = () => {};
-    }
-    if (!target.complete) {
-        target.complete = () => {};
-    }
+    _.defaults(target, {
+        error() {},
+        next() {},
+        complete() {}
+    });
+
 }
 
 /**
@@ -149,5 +147,4 @@ export class MessageRouter<T> {
         };
         this._root = rec(this._root, 0);
     }
-
 }

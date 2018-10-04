@@ -40,20 +40,20 @@ export class WebsocketTransport implements Transport{
     static create(config: WebsocketTransportConfig) : Promise<WebsocketTransport>{
 
         if (config.timeout != null && typeof config.timeout !== "number") {
-            return throwError(new WampusError("Timeout value {timeout} is invalid.", {
+            throw new WampusError("Timeout value {timeout} is invalid.", {
                 timeout : config.timeout
-            })).toPromise();
+            });
         }
         if (!config.serializer || typeof config.serializer !== "object"  || !["serialize", "deserialize", "id"].every(x => x in config.serializer)) {
-            return throwError(new WampusError("Serializer is not valid.", {
+            throw new WampusError("Serializer is not valid.", {
                 obj : config.serializer
-            })).toPromise();
+            });
         }
         let errorOnTimeOut$ = config.timeout == null ? NEVER : of(null).pipe(delay(config.timeout), map(() => {
             throw new WampusNetworkError("WebSocket connection timed out.", {
                 url: config.url
             })
-        }))as Observable<never>;
+        }));
 
         let transport$ = Observable.create(sub => {
             let transport = new WebsocketTransport(null as never);
