@@ -23,7 +23,7 @@ import {
     NEVER,
     Observable,
     of,
-    OperatorFunction,
+    OperatorFunction, race,
     ReplaySubject,
     Subject,
     throwError,
@@ -63,6 +63,7 @@ export interface SessionConfig {
 
 import WM = WampMessage;
 import CallSite = NodeJS.CallSite;
+import {endianness} from "os";
 
 let factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
 
@@ -81,9 +82,13 @@ export class Session {
     private readonly _errors = Subject.create() as Subject<ReportedErrorDuringFinalize>;
     private _welcomeDetails: WelcomeDetails;
     public _messenger: WampMessenger;
+
     private _disconnecting = Subject.create();
     private _isClosing = false;
 
+    constructor(never : never) {
+
+    }
     get errors() {
         return this._errors;
     }
@@ -101,15 +106,15 @@ export class Session {
         // 3. Wait until session closed:
         //      On close: Initiate goodbye sequence.
         let transport = await pTransport;
+
         let messenger = WampMessenger.create(transport);
-        let session = new Session();
+        let session = new Session(null as never);
         session.config = config;
         session._messenger = messenger;
         let getSessionFromShake$ = session._handshake$().pipe(map(welcome => {
             session.id = welcome.sessionId;
             session._welcomeDetails = welcome.details;
             session._registerRoutes().subscribe();
-
         }));
         return concat(getSessionFromShake$).pipe(mapTo(session), take(1)).toPromise();
     }
@@ -578,7 +583,7 @@ export class Session {
             throw Errs.Leave.goodbyeTimedOut();
         }));
 
-        let expectGoodbyeOrTimeout = merge(this._goodbye$(details, reason), timeout).pipe(catchError(err => {
+        let expectGoodbyeOrTimeout = race(this._goodbye$(details, reason), timeout).pipe(catchError(err => {
             if (err instanceof WampusNetworkError) {
                 return EMPTY;
             }
@@ -586,7 +591,9 @@ export class Session {
             return this._abort$(details, reason);
         }));
 
-        return concat(this._closeRoutes(new WampusRouteCompletion(WampusCompletionReason.SelfGoodbye)), expectGoodbyeOrTimeout);
+        return concat(this._closeRoutes(new WampusRouteCompletion(WampusCompletionReason.SelfGoodbye)), expectGoodbyeOrTimeout, defer(async () => {
+            return this._messenger.transport.close();
+        }));
     }
 
     private _abortDueToProtoViolation(message: string) {
@@ -607,7 +614,7 @@ export class Session {
     }
 
     private _handleClose$(msg: WampMessage.Goodbye | WampMessage.Abort) {
-        if (this._isClosing) return;
+        if (this._isClosing) return EMPTY;
         this._isClosing = true;
         let reason: WampusRouteCompletion;
         if (msg instanceof WampMessage.Abort) {

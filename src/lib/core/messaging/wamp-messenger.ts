@@ -48,6 +48,7 @@ export class WampMessenger {
                     this._router.match(x.data).forEach(route => route.next(msg));
                 } else if (x.type === "closed") {
                     this._router.matchAll().forEach(route => {
+                        if (route.keys.length === 0) return;
                         route.error(new WampusNetworkError("The connection abruptly closed.", {
                             reason : x.data
                         }));
@@ -133,6 +134,7 @@ export class WampMessenger {
     invalidateAllRoutes(msg : Error) {
         let routes = this._router.matchAll();
         for (let route of routes){
+            if (route.keys.length === 0) continue;
             route.error(msg);
         }
     }

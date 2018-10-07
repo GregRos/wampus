@@ -14,7 +14,7 @@ import {Observable} from "rxjs";
 import {fromPromise} from "rxjs/internal-compatibility";
 import {AbstractEventArgs} from "./core/methods/methods";
 import {SessionWrapper} from "./wrappers/session-wrapper";
-
+require("longjohn");
 
 function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observable<T>> & {
     unsubscribe() : void
@@ -85,5 +85,6 @@ function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observabl
         });
         console.log("SUBSCRIPTIONS:", (session as any)._session._messenger._router.count());
         console.log("RESULT:", z);
+        await session.close();
     })).toPromise();
 })();
