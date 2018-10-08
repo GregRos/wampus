@@ -1,3 +1,5 @@
+
+//https://wamp-proto.org/static/rfc/draft-oberstet-hybi-crossbar-wamp.html#message-codes-and-direction
 export enum WampType {
     HELLO = 1,
     WELCOME = 2,

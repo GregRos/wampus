@@ -1,5 +1,5 @@
 import test from "ava";
-import {getTransportAndServerConn, receiveObjects$, sendVia} from "../../../helpers/rxjs-ws-server";
+import {getTransportAndServerConn, receiveObjects$, sendVia} from "../../../helpers/ws-server";
 import {bufferCount, filter, first, flatMap, map, take} from "rxjs/operators";
 import {range} from "rxjs";
 import _ = require("lodash");

@@ -48,9 +48,6 @@ export class SessionWrapper {
         this._config.transforms = _.defaults(this._config.transforms, defaultTransformSet);
         this._config.stackTraceService = _.defaults(this._config.stackTraceService, defaultStackService);
     }
-    get errors() {
-        return this._session.errors;
-    }
 
     get realm() {
         return this._session.realm;

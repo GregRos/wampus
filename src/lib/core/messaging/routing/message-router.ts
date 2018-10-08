@@ -28,6 +28,7 @@ import _ = require("lodash");
  * A function that returns true if the route is considered "handled" and should be removed.
  */
 export type MessageRoute<T> = {
+    special ?: string;
     keys : WampArray;
     next?(x: T): void;
     complete?() : void;

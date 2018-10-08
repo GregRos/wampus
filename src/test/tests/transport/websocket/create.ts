@@ -1,8 +1,8 @@
 import {WebsocketTransport} from "../../../../lib/core/messaging/transport/websocket";
 import {JsonSerializer} from "../../../../lib/core/messaging/serializer/json";
-import {rxjsWsServer} from "../../../helpers/rxjs-ws-server";
+import {rxjsWsServer} from "../../../helpers/ws-server";
 import {WampusError} from "../../../../lib/errors/types";
-import {isWampusNetErr} from "../../../helpers/rxjs-ws";
+import {isWampusNetErr} from "../../../helpers/misc";
 import test from "ava";
 
 let getTransport = (url, timeout?, serializer?) => {
@@ -14,17 +14,17 @@ let getTransport = (url, timeout?, serializer?) => {
 };
 test("url non-existent", async t => {
     let conn = getTransport("http://www.aaaaaaaaaa123124.com");
-    await t.throws(conn, x => isWampusNetErr(x, "ENOTFOUND"));
+    await t.throws(conn, isWampusNetErr("ENOTFOUND"));
 });
 
 test("url malformed", async t => {
     let conn = getTransport("ff44");
-    await t.throws(conn, x => isWampusNetErr(x, "Invalid URL"));
+    await t.throws(conn, isWampusNetErr("Invalid URL"));
 });
 
 test("connection refused", async t => {
     let conn = getTransport("http://localhost:19413");
-    await t.throws(conn, x => isWampusNetErr(x, "REFUSED"));
+    await t.throws(conn, isWampusNetErr("REFUSED"));
 });
 
 test("invalid timeout", async t=> {

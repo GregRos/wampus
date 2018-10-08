@@ -33,5 +33,7 @@ export interface Transport {
      * Network events include Data, Error, and Completion.
      */
     events : Observable<TransportEvent>;
+
+    close(obj ?: object) : Promise<void>;
 }
 

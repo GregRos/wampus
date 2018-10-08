@@ -1,8 +1,8 @@
 import {WampArray, WampMessage, WampusRouteCompletion} from "../../protocol/messages";
 import {WebsocketTransport} from "./transport/websocket";
 import {WampusNetworkError} from "../../errors/types";
-import {MessageRouter} from "./routing/message-router";
-import {TransportMessage} from "./transport/transport";
+import {MessageRoute, MessageRouter} from "./routing/message-router";
+import {Transport, TransportMessage} from "./transport/transport";
 import {Errs} from "../../errors/errors";
 import {MessageReader} from "../../protocol/helper";
 import {merge, Observable, of} from "rxjs";
@@ -13,7 +13,7 @@ import {flatMap, take} from "rxjs/operators";
  * It's responsible for sending messages and using the message router to connect messages to their subscriptions.
  */
 export class WampMessenger {
-    transport : WebsocketTransport;
+    transport : Transport;
     private _router : MessageRouter<WampMessage.Any>;
 
     /**
@@ -29,7 +29,7 @@ export class WampMessenger {
      * The messenger will be created with a transport, ready for messaging.
      * @returns {Observable<WampMessenger>}
      */
-    static create(transport : WebsocketTransport) : WampMessenger {
+    static create(transport : Transport) : WampMessenger {
         let messenger = new WampMessenger(null as never);
         messenger.transport = transport;
         let router = messenger._router = new MessageRouter<WampMessage.Any>();
@@ -37,18 +37,32 @@ export class WampMessenger {
         return messenger;
     }
 
+    private _defaultRoute : MessageRoute<any> = {
+        keys : [],
+        error(err) {
+            console.error(err);
+        }
+    };
+
     private _setupRouter() {
         this.transport.events.subscribe({
             next: x => {
                 if (x.type === "error") {
-                    let dflt = this._router.matchDefault()
-                    dflt.forEach(route => route.error(x.data));
+                    let all = this._router.matchAll();
+                    if (all.length === 0) {
+                        this._defaultRoute.error(x.data);
+                    } else {
+                        all.forEach(route => route.error(x.data));
+                    }
                 } else if (x.type === "message") {
                     let msg = MessageReader.read(x.data);
-                    this._router.match(x.data).forEach(route => route.next(msg));
+                    let routes = this._router.match(x.data);
+                    routes.forEach(route => route.next(msg));
+                    if (routes.length === 0) {
+                        this._defaultRoute.next(msg);
+                    }
                 } else if (x.type === "closed") {
                     this._router.matchAll().forEach(route => {
-                        if (route.keys.length === 0) return;
                         route.error(new WampusNetworkError("The connection abruptly closed.", {
                             reason : x.data
                         }));
@@ -64,14 +78,6 @@ export class WampMessenger {
                 })
             }
         });
-
-        this._router.insertRoute({
-            keys : [],
-            error(err) {
-                // error catch-all
-                console.error(err);
-            }
-        })
     }
 
     /**
@@ -134,7 +140,6 @@ export class WampMessenger {
     invalidateAllRoutes(msg : Error) {
         let routes = this._router.matchAll();
         for (let route of routes){
-            if (route.keys.length === 0) continue;
             route.error(msg);
         }
     }

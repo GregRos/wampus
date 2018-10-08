@@ -50,8 +50,9 @@ function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observabl
 
     let session = fromPromise(Session.create({
         realm: "proxy",
-        timeout: 10000
-    }, transport)).pipe(flatMap(async (lSession : Session) => {
+        timeout: 10000,
+        transport : transport
+    })).pipe(flatMap(async (lSession : Session) => {
         let session = new SessionWrapper(lSession, {
 
         });

@@ -31,17 +31,17 @@ export module Errs {
         });
     }
 
-    export function featureNotSupported(feature: string, message ?: WampMessage.Any) {
+    export function featureNotSupported(feature: string, msg ?: WampMessage.Any) {
         return new WampusIllegalOperationError("Feature not supported: {feature}.", {
             feature,
-            message
+            msg
         });
     }
 
-    export function routerDoesNotSupportFeature(feature : string, message ?: WampMessage.Any) {
+    export function routerDoesNotSupportFeature(feature : string, msg ?: WampMessage.Any) {
         return new WampusIllegalOperationError("The router doesn't support the feature: {feature}.", {
             feature,
-            message
+            msg
         });
     }
 
@@ -63,9 +63,9 @@ export module Errs {
         }
 
         export function unrecognizedError(error: WampMessage.Abort) {
-            return new WampusIllegalOperationError("During handshake, received ERROR reply from the server: {error}.", {
+            return new WampusIllegalOperationError("During handshake, received ABORT reply from the server: {error}.", {
                 error: error.reason,
-                message: error
+                msg: error
             });
         }
 

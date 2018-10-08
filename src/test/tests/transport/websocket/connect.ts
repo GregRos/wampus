@@ -3,7 +3,7 @@ import test from "ava";
 import {WebsocketTransport} from "../../../../lib/core/messaging/transport/websocket";
 import {JsonSerializer} from "../../../../lib/core/messaging/serializer/json";
 import * as ws from "ws";
-import {isWampusNetErr} from "../../../helpers/rxjs-ws";
+import {isWampusNetErr} from "../../../helpers/misc";
 import {concat, defer, fromEvent, merge, NEVER, Observable, range, timer, zip} from "rxjs";
 import {
     buffer,
@@ -26,7 +26,7 @@ import WebSocket = require("ws");
 import {WampusError, WampusNetworkError} from "../../../../lib/errors/types";
 import {TransportEvent} from "../../../../lib/core/messaging/transport/transport";
 import {fromPromise} from "rxjs/internal-compatibility";
-import {getTransportAndServerConn, receiveObjects$, rxjsWsServer, sendVia} from "../../../helpers/rxjs-ws-server";
+import {getTransportAndServerConn, receiveObjects$, rxjsWsServer, sendVia} from "../../../helpers/ws-server";
 import {MyPromise} from "../../../../lib/ext-promise";
 import _ = require("lodash");
 import {choose} from "../../../../lib/utils/rxjs";
@@ -47,7 +47,7 @@ test("stays open", async t => {
 test("closes from client-side", async t => {
     let {servConn, clientConn} = await getTransportAndServerConn();
     await MyPromise.wait(1000);
-    await clientConn.close(1000);
+    await clientConn.close();
     t.true([WebSocket.CLOSED, WebSocket.CLOSING].includes(servConn.readyState));
     t.false(clientConn.isActive);
 });
@@ -56,7 +56,7 @@ test("sync closes from client side", async t => {
     let {servConn, clientConn} = await getTransportAndServerConn();
     let p = clientConn.close();
     t.false(clientConn.isActive);
-    await t.throws(clientConn.send$({}).toPromise(), x => isWampusNetErr(x, "closed"));
+    await t.throws(clientConn.send$({}).toPromise(), isWampusNetErr("closed"));
 });
 
 test("closes from server-side", async t => {

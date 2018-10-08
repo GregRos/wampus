@@ -64,6 +64,8 @@ export interface SessionConfig {
 import WM = WampMessage;
 import CallSite = NodeJS.CallSite;
 import {endianness} from "os";
+import {Transport} from "./messaging/transport/transport";
+import {wampusHelloDetails} from "./hello-details";
 
 let factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
 
@@ -79,7 +81,6 @@ export type AsyncCloseableObservable<T> = Observable<T> & {
 export class Session {
     id: number;
     config: SessionConfig;
-    private readonly _errors = Subject.create() as Subject<ReportedErrorDuringFinalize>;
     private _welcomeDetails: WelcomeDetails;
     public _messenger: WampMessenger;
 
@@ -89,9 +90,6 @@ export class Session {
     constructor(never : never) {
 
     }
-    get errors() {
-        return this._errors;
-    }
 
     get realm() {
         return this.config.realm;
@@ -100,12 +98,17 @@ export class Session {
     get isActive() {
         return !this._isClosing;
     }
-    static async create(config: SessionConfig, pTransport: Promise<WebsocketTransport>): Promise<Session> {
+
+    get details() {
+        return this._welcomeDetails;
+    }
+
+    static async create(config: SessionConfig & {transport : Promise<Transport> | Transport}): Promise<Session> {
         // 1. Receive transport
         // 2. Handshake
         // 3. Wait until session closed:
         //      On close: Initiate goodbye sequence.
-        let transport = await pTransport;
+        let transport = await config.transport;
 
         let messenger = WampMessenger.create(transport);
         let session = new Session(null as never);
@@ -663,12 +666,7 @@ export class Session {
         let messenger = this._messenger;
         let config = this.config;
         let hello = factory.hello(config.realm, {
-            roles: {
-                callee: {},
-                caller: {},
-                publisher: {},
-                subscriber: {}
-            }
+            ...wampusHelloDetails
         });
 
         let handleMessage = map((msg: WM.Any) => {
