@@ -10,11 +10,13 @@ import {WampMessage, WampRawMessage} from "../../../protocol/messages";
 import {WampusError} from "../../../errors/types";
 import {from, fromEvent, merge, NEVER, Observable, of, race, throwError} from "rxjs";
 import {map, startWith, switchAll, delay, take} from "rxjs/operators";
+import {skipAfter} from "../../../utils/rxjs";
 
 export interface WebsocketTransportConfig {
     url: string;
     serializer: Serializer;
     timeout?: number;
+    forceProtocol ?: string;
 }
 
 export class WebsocketTransport implements Transport{
@@ -37,7 +39,7 @@ export class WebsocketTransport implements Transport{
      * @param {WebsocketTransportConfig} config
      * @returns {Observable<WebsocketTransport>}
      */
-    static create(config: WebsocketTransportConfig) : Promise<WebsocketTransport>{
+    static async create(config: WebsocketTransportConfig) : Promise<WebsocketTransport>{
 
         if (config.timeout != null && typeof config.timeout !== "number") {
             throw new WampusError("Timeout value {timeout} is invalid.", {
@@ -59,7 +61,7 @@ export class WebsocketTransport implements Transport{
             let transport = new WebsocketTransport(null as never);
             transport._config = config;
             try {
-                var ws = new WebSocket(config.url, `wamp.2.${config.serializer.id}`, {
+                var ws = new WebSocket(config.url, config.forceProtocol || `wamp.2.${config.serializer.id}`, {
 
                 });
             }
@@ -103,13 +105,9 @@ export class WebsocketTransport implements Transport{
                 } as TransportError
             }));
 
-            let messages: Observable<TransportEvent> = merge(closeEvent$, errorEvent$, msgEvent$).pipe(map((x : TransportEvent) => {
-                if (x.type === "closed") {
-                    return of(x);
-                } else {
-                    return messages.pipe(startWith(x));
-                }
-            })).pipe(switchAll());
+            let messages: Observable<TransportEvent> = merge(closeEvent$, errorEvent$, msgEvent$).pipe(skipAfter((x : TransportEvent) => {
+                return x.type === "closed";
+            }));
             transport.events = messages;
             if (ws.readyState === ws.OPEN) {
                 sub.next(transport);
@@ -132,6 +130,10 @@ export class WebsocketTransport implements Transport{
         return race(errorOnTimeOut$, transport$).pipe(take(1)).toPromise();
     }
 
+    get isActive() {
+        return  !this._expectingClose && ![WebSocket.CLOSED, WebSocket.CLOSING].includes(this._ws.readyState);
+    }
+
     close(code ?: number, data ?: any): Promise<void> {
         if (this._expectingClose) {
             return this._expectingClose;
@@ -150,6 +152,9 @@ export class WebsocketTransport implements Transport{
     }
 
     send$(msg: object): Observable<any> {
+        if (this._expectingClose) {
+            return throwError(new WampusNetworkError("This transport is closing or has already closed."));
+        }
         return Observable.create(sub => {
             try {
                 var payload = this._config.serializer.serialize(msg);

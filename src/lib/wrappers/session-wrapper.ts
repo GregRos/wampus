@@ -94,7 +94,6 @@ export class SessionWrapper {
                 return progress.pipe(first(x => !x.isProgress)).toPromise()
             }
         };
-        makeNonEnumerable(partial, "close", "result", "progress");
         return partial;
     };
 
@@ -126,8 +125,7 @@ export class SessionWrapper {
                         catch (err) {
                             let errResponse = self._config.transforms.errorToErrorResponse(err);
                             if (!this.isHandled) {
-                                await
-                                    invocation.error(errResponse);
+                                await invocation.error(errResponse);
                             } else {
                                 throw err;
                             }

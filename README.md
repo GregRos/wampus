@@ -1,6 +1,6 @@
 # Wampus.js
 
-Currently under early development.
+Currently under development.
 
 Wampus.js will be a JavaScript client for the WAMP protocol. The WAMP protocol is a protocol that allows peer-to-peer RPC and PubSub-type communication between different nodes connected to the same server.
 
@@ -8,22 +8,27 @@ The goal of Wampus is to provide a full client library for the WAMP protocol, as
 
 ## Wampus feature list
 
-Note that this is basically a wish list. It doesn't work yet.
+Most of these are implemented, but the library hasn't been tested (read - *don't use this yet*)
 
-1. Accurate implementation of the WAMP protocol, including responding to protocol violations, to make sure the connection is reliable.
+1. Accurate implementation of the WAMP protocol.
 
-2. Support for all/most alpha+ advanced profile features.
+1. Observable- and Promise- based API, using `rxjs`.
 
-3. High performance.
+1. Primary high-level invocation-based API (e.g. `session.call("name")`).
 
-4. Platform-agonstic (runs on Node.js and browser)
+1. Secondary low-level message-passing API (e.g. `session.protocol.send(craftedMessage)`) with varying levels of abstraction.
 
-5. Observable-based API, but with promise- and event- based APIs for compatibility with existing code/mindsets, and in some cases conciseness. Observable implementation will be `must.js` for now, but this might change.
+1. Support for all/most alpha+ advanced profile features.
 
-7. Access to both a higher-level invocation-based API (e.g. `session.call("name")`) and a lower-level message-passing API (e.g. `session.proto.send(craftedMessage)`) with varying levels of abstraction.
+1. Human-readable error messages.
 
-5. User-readable error messages for possible issues, protocol violations, connection errors, etc.
+1. Intelligent stack trace collection and debugging.
 
-6. Support for serializing/deserializing data into desired formats. E.g. receive a JSON-encoded object graph, turn into JS complex nested object.
+1. Respond to protocol violations per spec (i.e. ABORT connection)
 
-7. Lower-level access to a message sending API for integration with custom protocol implementations and using experimental features.
+1. High performance.
+
+1. Platform-agonstic (Node.js and browser)
+
+7. Support for reviving simple JSON into complex objects and vice versa.
+
