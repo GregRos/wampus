@@ -1,25 +1,9 @@
 import test from "ava";
-import {Session} from "../../../lib/core/session";
-import {dummyTransport} from "../../helpers/dummy-transport";
-import {first, map} from "rxjs/operators";
-import {choose} from "../../../lib/utils/rxjs";
-import {MessageBuilder} from "../../../lib/protocol/helper";
+import {first} from "rxjs/operators";
 import {wampusHelloDetails} from "../../../lib/core/hello-details";
 import {isWampusIllegalOperationError, isWampusNetErr} from "../../helpers/misc";
 import {WampusNetworkError} from "../../../lib/errors/types";
-
-function createSession(realm : string) {
-    let {client,server} = dummyTransport();
-    let session = Session.create({
-        realm : realm,
-        timeout : 1000,
-        transport : client
-    });
-    return {
-        session,
-        server
-    };
-}
+import {createSession} from "../../helpers/wamp";
 
 test("send HELLO", async t => {
     let {server,session} = createSession("a");

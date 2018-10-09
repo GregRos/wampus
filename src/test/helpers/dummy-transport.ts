@@ -2,6 +2,7 @@ import {Transport, TransportEvent} from "../../lib/core/messaging/transport/tran
 import {defer, EMPTY, Observable, Subject} from "rxjs";
 import {WampObject} from "../../lib/protocol/messages";
 import {choose} from "../../lib/utils/rxjs";
+import {MyPromise} from "../../lib/ext-promise";
 
 export function dummyTransport() {
     let intoClient = new Subject<TransportEvent>();
@@ -27,21 +28,27 @@ export function dummyTransport() {
         } as Transport,
         server: {
             error(x) {
-                intoClient.next({
-                    type : "error",
-                    data : x
+                MyPromise.soon(() => {
+                    intoClient.next({
+                        type : "error",
+                        data : x
+                    })
                 })
             },
             send(x) {
-                intoClient.next({
-                    type : "message",
-                    data : x
+                MyPromise.soon(() => {
+                    intoClient.next({
+                        type : "message",
+                        data : x
+                    });
                 });
             },
             close() {
-                intoClient.next({
-                    type : "closed",
-                    data : {}
+                MyPromise.soon(() => {
+                    intoClient.next({
+                        type : "closed",
+                        data : {}
+                    })
                 })
             },
             events: intoServer,

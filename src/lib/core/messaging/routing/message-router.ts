@@ -87,7 +87,11 @@ export class MessageRouter<T> {
             for (let target of cur.match) {
                 routes.push(target);
             }
-            if (index >= keys.length) return;
+            if (index >= keys.length) {
+                if (!cur.next) return;
+                [...cur.next.values()].forEach(x => rec(x, index));
+                return;
+            }
             let next = cur.next.get(keys[index]);
             if (!next) return cur;
             rec(next, index + 1);

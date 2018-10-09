@@ -199,6 +199,7 @@ export class SessionWrapper {
     }
 
     private _embedStack(err: Error, callSites: CallSite[]) {
+        return;
         if (!callSites) return;
         err.stack = this._config.stackTraceService.format(callSites);
     }

@@ -50,11 +50,11 @@ export interface WampusReceiveErrorArguments {
 
 export interface WampusSubcribeArguments {
     options?: WampSubscribeOptions;
-    event: string;
+    name: string;
 }
 
 export interface WampusRegisterArguments {
     options?: WampRegisterOptions;
-    procedure: string;
+    name: string;
 }
 

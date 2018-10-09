@@ -81,13 +81,12 @@ export type AsyncCloseableObservable<T> = Observable<T> & {
 export class Session {
     id: number;
     config: SessionConfig;
-    private _welcomeDetails: WelcomeDetails;
     public _messenger: WampMessenger;
-
+    private _welcomeDetails: WelcomeDetails;
     private _disconnecting = Subject.create();
     private _isClosing = false;
 
-    constructor(never : never) {
+    constructor(never: never) {
 
     }
 
@@ -103,7 +102,7 @@ export class Session {
         return this._welcomeDetails;
     }
 
-    static async create(config: SessionConfig & {transport : Promise<Transport> | Transport}): Promise<Session> {
+    static async create(config: SessionConfig & { transport: Promise<Transport> | Transport }): Promise<Session> {
         // 1. Receive transport
         // 2. Handshake
         // 3. Wait until session closed:
@@ -122,7 +121,7 @@ export class Session {
         return concat(getSessionFromShake$).pipe(mapTo(session), take(1)).toPromise();
     }
 
-    async register({options, procedure}: WampusRegisterArguments): Promise<Registration> {
+    async register({options, name}: WampusRegisterArguments): Promise<Registration> {
         /*
             Returns a cold observable yielding a hot observable.
             When the cold outer observable is subscribed to, Wampus will register the specified operation.
@@ -139,9 +138,10 @@ export class Session {
 
                 * Send a REGISTER message
          */
+        if (!this.isActive) throw Errs.sessionClosed("call procedure");
 
         options = options || {};
-        let msg = factory.register(options, procedure);
+        let msg = factory.register(options, name);
 
         let {_welcomeDetails} = this;
         let features = _welcomeDetails.roles.dealer.features;
@@ -202,9 +202,9 @@ export class Session {
                         this._throwCommonError(unregisterMsg, x);
                         switch (x.error) {
                             case WampUri.Error.NoSuchRegistration:
-                                throw Errs.Unregister.registrationDoesntExist(procedure, x);
+                                throw Errs.Unregister.registrationDoesntExist(name, x);
                             default:
-                                throw Errs.Unregister.other(procedure, x);
+                                throw Errs.Unregister.other(name, x);
                         }
                     }
                     return x as WM.Unregistered;
@@ -229,7 +229,7 @@ export class Session {
                 let send$ = (msg: WampMessage.Any) => {
                     if (msg instanceof WampMessage.Error || msg instanceof WampMessage.Yield && !msg.options.progress) {
                         if (isHandled) {
-                            return throwError(Errs.Register.cannotSendResultTwice(procedure));
+                            return throwError(Errs.Register.cannotSendResultTwice(name));
                         } else {
                             isHandled = true;
                         }
@@ -252,12 +252,13 @@ export class Session {
                             }), throwCancel$);
                         });
 
-                        return expectInterrupt$.pipe(waitForTime).pipe(handleInterrupt).toPromise().then(() => {});
+                        return expectInterrupt$.pipe(waitForTime).pipe(handleInterrupt).toPromise().then(() => {
+                        });
                     },
                     args: msg.args,
                     kwargs: msg.kwargs,
                     options: msg.options,
-                    name: procedure
+                    name: name
                 };
                 return req;
             });
@@ -287,6 +288,8 @@ export class Session {
     }
 
     async publish({options, args, kwargs, name}: WampusPublishArguments): Promise<void> {
+        if (!this.isActive) throw Errs.sessionClosed("publish");
+
         options = options || {};
         let features = this._welcomeDetails.roles.broker.features;
         if ((options.eligible || options.eligible_authid || options.eligible_authrole
@@ -340,7 +343,9 @@ export class Session {
      * @param {string} name
      * @returns {Stream<Stream<EventArgs>>}
      */
-    async event({options, event}: WampusSubcribeArguments): Promise<EventSubscription> {
+    async event({options, name}: WampusSubcribeArguments): Promise<EventSubscription> {
+        if (!this.isActive) throw Errs.sessionClosed("event unsubscribe");
+
         options = options || {};
         let features = this._welcomeDetails.roles.broker.features;
         if (options.match && !features.pattern_based_subscription) {
@@ -348,7 +353,7 @@ export class Session {
         }
 
         let expectSubscribedOrError = defer(() => {
-            let msg = factory.subscribe(options, event);
+            let msg = factory.subscribe(options, name);
             let sending$ = this._messenger.send$(msg);
             let expectSubscribedOrError$ = this._messenger.expectAny$(
                 Routes.subscribed(msg.requestId),
@@ -357,7 +362,7 @@ export class Session {
             let failOnErrorOrCastToSubscribed = map((x: WM.Any) => {
                 if (x instanceof WM.Error) {
                     this._throwCommonError(msg, x);
-                    throw Errs.Subscribe.other(event, msg);
+                    throw Errs.Subscribe.other(name, msg);
                 }
                 return x as WM.Subscribed;
             });
@@ -379,9 +384,9 @@ export class Session {
                         this._throwCommonError(unsub, msg);
                         switch (msg.error) {
                             case WampUri.Error.NoSuchSubscription:
-                                throw Errs.Unsubscribe.subDoesntExist(msg, event);
+                                throw Errs.Unsubscribe.subDoesntExist(msg, name);
                             default:
-                                throw Errs.Unsubscribe.other(msg, event);
+                                throw Errs.Unsubscribe.other(msg, name);
                         }
                     }
                     return msg as WM.Unsubscribed;
@@ -403,7 +408,7 @@ export class Session {
                     args: x.args,
                     details: x.details,
                     kwargs: x.kwargs,
-                    name: event
+                    name: name
                 };
                 return a;
             });
@@ -425,135 +430,146 @@ export class Session {
     }
 
     call({options, name, args, kwargs}: WampusCallArguments): CallProgress {
-        options = options || {};
-        let self = this;
-        let features = this._welcomeDetails.roles.dealer.features;
+        try {
+            if (!this.isActive) throw Errs.sessionClosed("call procedure");
+            options = options || {};
+            let self = this;
+            let features = this._welcomeDetails.roles.dealer.features;
 
-        // Check call options are compatible with the deaqler's features.
-        if (options.disclose_me && !features.caller_identification) {
-            throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallerIdentification);
-        }
-        if (options.receive_progress && !features.progressive_call_results) {
-            throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.ProgressReports);
-        }
-        if (options.timeout && !features.call_timeout) {
-            throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallTimeouts);
-        }
+            // Check call options are compatible with the deaqler's features.
+            if (options.disclose_me && !features.caller_identification) {
+                throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallerIdentification);
+            }
+            if (options.receive_progress && !features.progressive_call_results) {
+                throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.ProgressReports);
+            }
+            if (options.timeout && !features.call_timeout) {
+                throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallTimeouts);
+            }
 
-        /*
-            Goes like this:
-            * Send a CALL message
-            * Await a RESULT or ERROR response.
-            - If received a RESULT.PROGRESS = false response, complete the progress stream.
+            /*
+                Goes like this:
+                * Send a CALL message
+                * Await a RESULT or ERROR response.
+                - If received a RESULT.PROGRESS = false response, complete the progress stream.
 
-            On CANCEL:
-            1. Wait until CALL message is delivered
-            2. Force complete progress stream
-            3. Send a CANCEL message
-            4. Wait for a RESULT or ERROR response
-            5.
-         */
-        let cantCancel = false;
-        let msg = factory.call(options, name, args, kwargs);
+                On CANCEL:
+                1. Wait until CALL message is delivered
+                2. Force complete progress stream
+                3. Send a CANCEL message
+                4. Wait for a RESULT or ERROR response
+                5.
+             */
+            let cantCancel = false;
+            let msg = factory.call(options, name, args, kwargs);
 
-        let failOnError = map((x: WM.Any) => {
-            cantCancel = true;
-            if (x instanceof WampMessage.Error) {
-                this._throwCommonError(msg, x);
-                switch (x.error) {
-                    case WampUri.Error.NoSuchProcedure:
-                        throw Errs.Call.noSuchProcedure(msg.procedure);
-                    case WampUri.Error.NoEligibleCallee:
-                        throw Errs.Call.noEligibleCallee(msg.procedure);
-                    case WampUri.Error.DisallowedDiscloseMe:
-                        throw Errs.Call.optionDisallowedDiscloseMe(msg.procedure);
-                    case WampUri.Error.Canceled:
-                        throw Errs.Call.canceled(name);
+            let failOnError = map((x: WM.Any) => {
+                cantCancel = true;
+                if (x instanceof WampMessage.Error) {
+                    this._throwCommonError(msg, x);
+                    switch (x.error) {
+                        case WampUri.Error.NoSuchProcedure:
+                            throw Errs.Call.noSuchProcedure(msg.procedure);
+                        case WampUri.Error.NoEligibleCallee:
+                            throw Errs.Call.noEligibleCallee(msg.procedure);
+                        case WampUri.Error.DisallowedDiscloseMe:
+                            throw Errs.Call.optionDisallowedDiscloseMe(msg.procedure);
+                        case WampUri.Error.Canceled:
+                            throw Errs.Call.canceled(name);
+                    }
+                    if (x.error === WampUri.Error.RuntimeError || !x.error.startsWith(WampUri.Error.Prefix)) {
+                        throw Errs.Call.errorResult(name, x);
+                    }
+                    throw Errs.Call.other(name, x);
                 }
-                if (x.error === WampUri.Error.RuntimeError || !x.error.startsWith(WampUri.Error.Prefix)) {
-                    throw Errs.Call.errorResult(name, x);
-                }
-                throw Errs.Call.other(name, x);
-            }
-            return x as WM.Result;
-        });
-        let toLibraryResult = map((x: WM.Any) => {
-            if (x instanceof WampMessage.Result) {
-                return {
-                    args: x.args,
-                    kwargs: x.kwargs,
-                    isProgress: x.details.progress || false,
-                    details: x.details,
-                    name: name
-                } as AbstractCallResult;
-            }
-            throw new Error("Unknown message.");
-        });
-        let expectResultOrError = self._messenger.expectAny$(
-            Routes.result(msg.requestId),
-            Routes.error(WampType.CALL, msg.requestId)
-        ).pipe(failOnError, catchError(err => {
-            if (err instanceof WampusRouteCompletion) {
-                throw new WampusNetworkError("Invocation cancelled because session is closing.", {});
-            }
-            throw err;
-        }), toLibraryResult, publishAutoConnect());
-
-        let sending = this._messenger.send$(msg).pipe(publishAutoConnect());
-
-        let allStream =
-            merge(expectResultOrError, this._messenger.send$(msg))
-                .pipe(skipAfter((x: AbstractCallResult) => !x.isProgress));
-
-        let startCancelling = mode => defer(async () => {
-            // If a result is already received, do not try to cancel the call.
-            if (!features.call_cancelling) {
-                throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallCancelling);
-            }
-            if (this._isClosing) return;
-            let cancel = factory.cancel(msg.requestId, {
-                mode: mode
+                return x as WM.Result;
             });
-            let sendCancel$ = this._messenger.send$(cancel);
-
-            return merge(sendCancel$, self._messenger.expectAny$(
+            let toLibraryResult = map((x: WM.Any) => {
+                if (x instanceof WampMessage.Result) {
+                    return {
+                        args: x.args,
+                        kwargs: x.kwargs,
+                        isProgress: x.details.progress || false,
+                        details: x.details,
+                        name: name
+                    } as AbstractCallResult;
+                }
+                throw new Error("Unknown message.");
+            });
+            let expectResultOrError = self._messenger.expectAny$(
                 Routes.result(msg.requestId),
                 Routes.error(WampType.CALL, msg.requestId)
-            ).pipe(catchError(err => {
+            ).pipe(failOnError, catchError(err => {
                 if (err instanceof WampusRouteCompletion) {
-                    return EMPTY;
+                    throw new WampusNetworkError("Invocation cancelled because session is closing.", {});
                 }
                 throw err;
-            }), map(msg => {
-                if (msg instanceof WM.Result) {
-                    //TODO: Remove this log
-                    console.log("Tried to cancel, but received RESULT.")
-                } else if (msg instanceof WM.Error) {
-                    this._throwCommonError(cancel, msg);
-                    if (msg.error !== WampUri.Error.Canceled) {
-                        throw new WampusIllegalOperationError("While cancelling, received error.", {
-                            msg
-                        })
-                    }
-                    return;
-                }
-                else {
-                    throw Error("Unexpected!");
-                }
-            })).toPromise());
-        });
+            }), toLibraryResult, publishAutoConnect());
 
-        let prog: CallProgress = {
-            progress: allStream.pipe(publishAutoConnect()),
-            close(mode ?: CancelMode) {
-                cantCancel = true;
-                let stopWhenReceived = expectResultOrError.pipe(endWith(null), completeOnError());
-                return concat(sending, startCancelling(mode || CancelMode.Kill)).pipe(takeUntil(stopWhenReceived)).toPromise().then(() => {
+            let sending = this._messenger.send$(msg).pipe(publishAutoConnect());
+
+            let allStream =
+                merge(expectResultOrError, this._messenger.send$(msg))
+                    .pipe(skipAfter((x: AbstractCallResult) => !x.isProgress));
+
+            let startCancelling = mode => defer(async () => {
+                // If a result is already received, do not try to cancel the call.
+                if (!features.call_cancelling) {
+                    throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallCancelling);
+                }
+                if (this._isClosing) return;
+                let cancel = factory.cancel(msg.requestId, {
+                    mode: mode
                 });
-            }
-        };
+                let sendCancel$ = this._messenger.send$(cancel);
 
-        return prog;
+                return merge(sendCancel$, self._messenger.expectAny$(
+                    Routes.result(msg.requestId),
+                    Routes.error(WampType.CALL, msg.requestId)
+                ).pipe(catchError(err => {
+                    if (err instanceof WampusRouteCompletion) {
+                        return EMPTY;
+                    }
+                    throw err;
+                }), map(msg => {
+                    if (msg instanceof WM.Result) {
+                        //TODO: Remove this log
+                        console.log("Tried to cancel, but received RESULT.")
+                    } else if (msg instanceof WM.Error) {
+                        this._throwCommonError(cancel, msg);
+                        if (msg.error !== WampUri.Error.Canceled) {
+                            throw new WampusIllegalOperationError("While cancelling, received error.", {
+                                msg
+                            })
+                        }
+                        return;
+                    }
+                    else {
+                        throw Error("Unexpected!");
+                    }
+                })).toPromise());
+            });
+
+            let prog: CallProgress = {
+                progress: allStream.pipe(publishAutoConnect()),
+                close(mode ?: CancelMode) {
+                    cantCancel = true;
+                    let stopWhenReceived = expectResultOrError.pipe(endWith(null), completeOnError());
+                    return concat(sending, startCancelling(mode || CancelMode.Kill)).pipe(takeUntil(stopWhenReceived)).toPromise().then(() => {
+                    });
+                }
+            };
+
+            return prog;
+        }
+        catch (err) {
+            return {
+                async close() {
+
+                },
+                progress: throwError(err)
+            } as CallProgress;
+        }
     }
 
     async close(): Promise<void> {
@@ -592,7 +608,7 @@ export class Session {
             }
             console.warn("Error when saying GOODBYE. Going to say ABORT.", err);
             return this._abort$(details, reason);
-        }));
+        }), take(1));
 
         return concat(this._closeRoutes(new WampusRouteCompletion(WampusCompletionReason.SelfGoodbye)), expectGoodbyeOrTimeout, defer(async () => {
             return this._messenger.transport.close();
@@ -647,16 +663,17 @@ export class Session {
     private _goodbye$(details: WampObject, reason: WampUriString) {
         let myGoodbye = factory.goodbye(details, reason);
         let sending$ = this._messenger.send$(myGoodbye);
-        let expectingByeOrError$ = this._messenger.expectAny$(
-            Routes.goodbye,
-            Routes.error(WampType.GOODBYE)
-        );
+        let expectingByeOrError$ = this._messenger.expectNext$();
 
         let failOnError = map((x: WM.Any) => {
             if (x instanceof WampMessage.Error) {
                 throw Errs.Leave.errorOnGoodbye(x);
             }
-            return x as WampMessage.Goodbye;
+            else if (x instanceof WampMessage.Goodbye) {
+                return x as WampMessage.Goodbye;
+            }
+            throw Errs.Leave.unexpectedMessageOnGoodbye(x);
+
         });
 
         return merge(sending$, concat(expectingByeOrError$).pipe(failOnError));
@@ -696,16 +713,20 @@ export class Session {
     }
 
     private _registerRoutes() {
+        let catchCompletionError = catchError(err => {
+            if (err instanceof WampusRouteCompletion) return EMPTY;
+            throw err;
+        });
         let serverInitiatedClose$ = this._messenger.expectAny$([WampType.ABORT], [WampType.GOODBYE]).pipe(take(1), flatMap((x: WM.Abort) => {
             return this._handleClose$(x);
-        }));
+        }), catchCompletionError);
 
         let serverSentInvalidMessage$ = this._messenger.expectAny$(
             [WampType.WELCOME],
             [WampType.CHALLENGE]
         ).pipe(flatMap(x => {
             return this._abortDueToProtoViolation(`Received unexpected message of type ${WampType[x.type]}.`);
-        }));
+        }), catchCompletionError);
 
         let serverSentRouterMessage$ = this._messenger.expectAny$(
             [WampType.AUTHENTICATE],
@@ -720,7 +741,7 @@ export class Session {
             [WampType.CANCEL]
         ).pipe(flatMap(x => {
             return this._abortDueToProtoViolation(`Received message of type ${WampType[x.type]}, which is meant for routers not peers.`);
-        }));
+        }), catchCompletionError);
 
         return merge(serverSentInvalidMessage$, serverSentRouterMessage$, serverInitiatedClose$);
     }

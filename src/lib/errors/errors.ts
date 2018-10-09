@@ -174,6 +174,12 @@ export module Errs {
             });
         }
 
+        export function unexpectedMessageOnGoodbye(msg : WampMessage.Any) {
+            return new WampusNetworkError("Unexpected on goodbye.", {
+                msg
+            });
+        }
+
         export function goodbyeTimedOut() {
             return new WampusNetworkError("Tried to say GOODBYE, but timed out before receiving GOODBYE response.");
         }
@@ -265,6 +271,10 @@ export module Errs {
             operation,
             msg
         });
+    }
+
+    export function sessionClosed(operation : string) {
+        return new WampusNetworkError("Tried to perform {operation}, but the session was closed.");
     }
 }
 
