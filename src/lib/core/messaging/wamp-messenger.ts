@@ -5,8 +5,9 @@ import {MessageRoute, MessageRouter} from "./routing/message-router";
 import {Transport, TransportMessage} from "./transport/transport";
 import {Errs} from "../../errors/errors";
 import {MessageReader} from "../../protocol/helper";
-import {merge, Observable, of} from "rxjs";
-import {flatMap, take} from "rxjs/operators";
+import {merge, Observable, of, Subject} from "rxjs";
+import {flatMap, take, tap} from "rxjs/operators";
+import {MyPromise} from "../../ext-promise";
 
 /**
  * This class provides a mid-level abstraction layer between the transport and the WAMP session object.
@@ -14,6 +15,7 @@ import {flatMap, take} from "rxjs/operators";
  */
 export class WampMessenger {
     transport : Transport;
+    private _onClosed = new Subject<object>();
     private _router : MessageRouter<WampMessage.Any>;
 
     /**
@@ -44,6 +46,11 @@ export class WampMessenger {
         }
     };
 
+    public get onClosed() {
+        return this._onClosed.asObservable();
+    }
+
+
     private _setupRouter() {
         this.transport.events.subscribe({
             next: x => {
@@ -62,20 +69,14 @@ export class WampMessenger {
                         this._defaultRoute.next(msg);
                     }
                 } else if (x.type === "closed") {
-                    this._router.matchAll().forEach(route => {
-                        route.error(new WampusNetworkError("The connection abruptly closed.", {
-                            reason : x.data
-                        }));
-                    })
+                    this._onClosed.next(x.data);
                 }
             },
             complete: () => {
 
             },
             error: (err) => {
-                this._router.matchDefault().forEach(route => {
-                    route.error(err);
-                })
+                //TODO: Report errors here
             }
         });
     }
@@ -105,7 +106,10 @@ export class WampMessenger {
      * @returns {Observable<WampMessage.Any>}
      */
     expectNext$() {
-        return this.expect$([]).pipe(take(1))
+        return merge(this.expect$([]), this.onClosed.pipe(tap(x => {
+            //TODO: Better handling of abrupt disconnect by server
+            throw new WampusNetworkError("Connection abruptly closed.");
+        }))).pipe(take(1))
     }
 
     /**
@@ -138,10 +142,17 @@ export class WampMessenger {
     }
 
     invalidateAllRoutes(msg : Error) {
-        let routes = this._router.matchAll();
-        for (let route of routes){
-            route.error(msg);
-        }
+        // The timer(0) thing is needed to prevent a bug in rxjs where it seems that
+        // causing a source observable to error while in a flatMap will hang the observable
+        // TODO: Report bug
+        MyPromise.wait(0).then(() => {
+            this._onClosed.complete();
+            let routes = this._router.matchAll();
+            for (let route of routes){
+                route.error(msg);
+            }
+        });
+
     }
 
     expectAny$<T>(...routes : WampArray[]) {

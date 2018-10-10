@@ -56,22 +56,33 @@ export class MessageRouter<T> {
     private _root: RouteIndex<T> = null;
 
     count() {
+        if (!this._root) return 0;
         let rec = (x : RouteIndex<T>) => {
             return x.match.length + Array.from(x.next.values()).reduce((tot, cur) => tot + rec(cur), 0);
         };
         return rec(this._root);
     }
 
-    matchDefault() {
-        if (this._root) {
-            return this._root.match;
-        } else {
-            return [];
-        }
+    matchAll() {
+        return this.prefixMatch([]);
     }
 
-    matchAll() {
-        return this.match([]);
+    prefixMatch(keys : WampPrimitive[]) {
+        let routes = [];
+        function rec(cur : RouteIndex<T>, index : number) {
+            if (!cur) return;
+            if (index >= keys.length) {
+                routes.push(...cur.match);
+                [...cur.next.values()].forEach(next => rec(next, index + 1));
+            } else {
+                let next = cur.next.get(keys[index]);
+                if (next) {
+                    rec(next, index + 1);
+                }
+            }
+        }
+        rec(this._root, 0);
+        return routes;
     }
 
     match(keys: WampPrimitive[]) {
@@ -88,8 +99,7 @@ export class MessageRouter<T> {
                 routes.push(target);
             }
             if (index >= keys.length) {
-                if (!cur.next) return;
-                [...cur.next.values()].forEach(x => rec(x, index));
+
                 return;
             }
             let next = cur.next.get(keys[index]);

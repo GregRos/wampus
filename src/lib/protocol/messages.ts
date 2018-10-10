@@ -32,7 +32,8 @@ export enum WampusCompletionReason {
     SelfGoodbye = "SelfPoliteTermination",
     RouterGoodbye = "RouterPoliteTermination",
     SelfAbort = "SelfAbort",
-    RouterAbort = "RouterAbort"
+    RouterAbort = "RouterAbort",
+    RouterDisconnect = "RouterDisconnect"
 }
 
 

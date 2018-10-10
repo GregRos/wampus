@@ -41,15 +41,15 @@ export const rxjsWsServer = RxjsWsServer.create(9000 + Math.floor(Math.random() 
 export async function getTransportAndServerConn() {
     let srv = await rxjsWsServer;
     let rnd = (Math.random() * 100000).toString(36);
-    let clientConn = await WebsocketTransport.create({
+    let client = await WebsocketTransport.create({
         url: srv.url,
         serializer: new JsonSerializer(),
         forceProtocol : rnd
     });
-    let servConn = srv.getConnectionFromServerSide(rnd);
+    let server = srv.getConnectionFromServerSide(rnd);
     return {
-        clientConn,
-        servConn
+        client: client,
+        server: server
     }
 }
 

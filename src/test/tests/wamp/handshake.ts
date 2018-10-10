@@ -3,59 +3,59 @@ import {first} from "rxjs/operators";
 import {wampusHelloDetails} from "../../../lib/core/hello-details";
 import {isWampusIllegalOperationError, isWampusNetErr} from "../../helpers/misc";
 import {WampusNetworkError} from "../../../lib/errors/types";
-import {createSession} from "../../helpers/wamp";
+import {Shorthand} from "../../helpers/wamp";
 
-test("send HELLO", async t => {
-    let {server,session} = createSession("a");
+test("HELLO is okay", async t => {
+    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
     let hello =  await server.messages.pipe(first()).toPromise();
     t.deepEqual(await hello, [1, "a", wampusHelloDetails]);
 });
 
-test("receive ABORT(No such realm)", async t => {
-    let {server,session} = createSession("a");
+test("send HELLO, when received ABORT(No such realm), throw error", async t => {
+    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
     await server.messages.pipe(first()).toPromise();
     server.send([3, {}, "wamp.error.no_such_realm"]);
     await t.throws(session, isWampusIllegalOperationError("Tried to join realm"))
 });
 
-test("receive ABORT (Proto violation)", async t => {
-    let {server,session} = createSession("a");
+test("sned HELLO, when received ABORT (Proto violation), throw error", async t => {
+    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
     await server.messages.pipe(first()).toPromise();
     server.send([3, {}, "wamp.error.protocol_violation"]);
     await t.throws(session, isWampusNetErr("Protocol violation"))
 });
 
-test("receive ABORT (other)", async t => {
-    let {server,session} = createSession("a");
+test("send HELLO, when received ABORT (other), throw error", async t => {
+    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
     await server.messages.pipe(first()).toPromise();
     server.send([3, {}, "wamp.error.abc"]);
     await t.throws(session, isWampusIllegalOperationError("wamp.error.abc", "ABORT", "handshake"))
 });
 
-test("receive NON-HANDSHAKE", async t => {
-    let {server,session} = createSession("a");
+test("send HELLO, when received non-handshake message, throw error", async t => {
+    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
     await server.messages.pipe(first()).toPromise();
     server.send([1, {}, "hi"]);
     await t.throws(session, isWampusNetErr("Protocol violation", "During handshake", "HELLO"));
 });
 
-test("receive {DISCONNECT}", async t => {
-    let {server,session} = createSession("a");
+test("send hello, when received abrupt disconnect, throw error", async t => {
+    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
     await server.messages.pipe(first()).toPromise();
     server.close();
     await t.throws(session, isWampusNetErr("connection abruptly closed"));
 });
 
-test("receive {ERROR}", async t => {
-    let {server,session} = createSession("a");
+test("send hello, when received connection error, throw error", async t => {
+    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
     await server.messages.pipe(first()).toPromise();
     let err = new WampusNetworkError("ERROR! abcd")
     server.error(err);
     await t.throws(session, "ERROR! abcd");
 });
 
-test("receive WELCOME", async t => {
-    let {server, session} = createSession("a");
+test("send HELLO, when receive WELCOME, session should have received data", async t => {
+    let {server, session} = Shorthand.getSessionNoHandshakeYet("a");
     await server.messages.pipe(first()).toPromise();
     let wDetails = {
         roles: {
@@ -71,8 +71,8 @@ test("receive WELCOME", async t => {
     t.deepEqual(s.details, wDetails);
 });
 
-test("receive CHALLENGE; not supported", async t => {
-    let {server, session} = createSession("a");
+test("send HELLO, when received CHALLENGE, throw error (not supported)", async t => {
+    let {server, session} = Shorthand.getSessionNoHandshakeYet("a");
     await server.messages.pipe(first()).toPromise();
     server.send([4, "blah", {}]);
     await t.throws(session, isWampusIllegalOperationError("Doesn't support", "feature", "CHALLENGE"))

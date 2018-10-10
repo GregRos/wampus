@@ -10,37 +10,21 @@ import {Errs} from "../errors/errors";
 import {AdvProfile, WampUri} from "../protocol/uris";
 import {MessageBuilder} from "../protocol/helper";
 import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "../errors/types";
-import {WebsocketTransport} from "./messaging/transport/websocket";
 import {Routes} from "./messaging/routing/route-helpers";
 import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
 import {WampMessenger} from "./messaging/wamp-messenger";
 import {AbstractCallResult, AbstractEventArgs, AbstractInvocationRequest} from "./methods/methods";
+import {concat, defer, EMPTY, merge, Observable, race, throwError, timer} from "rxjs";
 import {
-    concat,
-    defer,
-    EMPTY,
-    merge,
-    NEVER,
-    Observable,
-    of,
-    OperatorFunction, race,
-    ReplaySubject,
-    Subject,
-    throwError,
-    timer
-} from "rxjs";
-import {
-    catchError, endWith,
-    finalize,
+    catchError,
+    endWith,
     flatMap,
     map,
     mapTo,
     mergeMapTo,
-    publish,
     take,
     takeUntil,
     takeWhile,
-    tap,
     timeoutWith,
 } from "rxjs/operators";
 import {
@@ -52,9 +36,10 @@ import {
     WampusSubcribeArguments
 } from "./api-parameters";
 import {MyPromise} from "../ext-promise";
-import {fromPromise} from "rxjs/internal-compatibility";
 import {CallProgress, EventSubscription, Registration} from "./api-types";
 import {completeOnError, publishAutoConnect, skipAfter} from "../utils/rxjs";
+import {Transport} from "./messaging/transport/transport";
+import {wampusHelloDetails} from "./hello-details";
 
 export interface SessionConfig {
     realm: string;
@@ -63,9 +48,6 @@ export interface SessionConfig {
 
 import WM = WampMessage;
 import CallSite = NodeJS.CallSite;
-import {endianness} from "os";
-import {Transport} from "./messaging/transport/transport";
-import {wampusHelloDetails} from "./hello-details";
 
 let factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
 
@@ -83,7 +65,6 @@ export class Session {
     config: SessionConfig;
     public _messenger: WampMessenger;
     private _welcomeDetails: WelcomeDetails;
-    private _disconnecting = Subject.create();
     private _isClosing = false;
 
     constructor(never: never) {
@@ -595,7 +576,7 @@ export class Session {
         if (this._isClosing) return EMPTY;
         this._isClosing = true;
         if (abrupt) {
-            return concat(this._closeRoutes(new WampusRouteCompletion(WampusCompletionReason.SelfAbort)), this._abort$(details, reason));
+            return concat(this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.SelfAbort)), this._abort$(details, reason));
         }
 
         let timeout = timer(this.config.timeout).pipe(flatMap(() => {
@@ -610,7 +591,7 @@ export class Session {
             return this._abort$(details, reason);
         }), take(1));
 
-        return concat(this._closeRoutes(new WampusRouteCompletion(WampusCompletionReason.SelfGoodbye)), expectGoodbyeOrTimeout, defer(async () => {
+        return concat(this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.SelfGoodbye)), expectGoodbyeOrTimeout, defer(async () => {
             return this._messenger.transport.close();
         }));
     }
@@ -621,30 +602,35 @@ export class Session {
         }, WampUri.Error.ProtoViolation, true);
     }
 
-    private _closeRoutes(err: WampusRouteCompletion) {
+    private _closeRoutes$(err: WampusRouteCompletion) {
         return defer(async () => {
             this._messenger.invalidateAllRoutes(err);
             await MyPromise.wait(0);
-            this._disconnecting.next(err);
-            await MyPromise.wait(0);
-        }).pipe(flatMap(() => {
-            return EMPTY;
+            return 5;
+        }).pipe(take(1), map(x => {
+            let a = 5;
         }));
     }
+
+    private _handle
 
     private _handleClose$(msg: WampMessage.Goodbye | WampMessage.Abort) {
         if (this._isClosing) return EMPTY;
         this._isClosing = true;
         let reason: WampusRouteCompletion;
         if (msg instanceof WampMessage.Abort) {
-            return this._closeRoutes(new WampusRouteCompletion(WampusCompletionReason.RouterAbort, msg));
+            return concat(this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.RouterAbort, msg)), defer(async () => {
+                await this._messenger.transport.close();
+            }));
         }
         else {
             let echo$ = this._messenger.send$(factory.goodbye({
                 message: "Goodbye received"
             }, WampUri.CloseReason.GoodbyeAndOut));
 
-            let x = concat(echo$, this._closeRoutes(new WampusRouteCompletion(WampusCompletionReason.RouterGoodbye, msg)));
+            let x = concat(echo$, this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.RouterGoodbye, msg)), defer(async () => {
+                await this._messenger.transport.close();
+            }));
             return x;
         }
     }
@@ -718,8 +704,17 @@ export class Session {
             throw err;
         });
         let serverInitiatedClose$ = this._messenger.expectAny$([WampType.ABORT], [WampType.GOODBYE]).pipe(take(1), flatMap((x: WM.Abort) => {
-            return this._handleClose$(x);
+            return concat(this._handleClose$(x));
         }), catchCompletionError);
+
+        let serverDroppedConnection$ = this._messenger.onClosed.pipe(flatMap(x => {
+            return concat(timer(0), defer(() => {
+                this._messenger.invalidateAllRoutes(new WampusRouteCompletion(WampusCompletionReason.RouterDisconnect));
+                this._isClosing = true;
+                return;
+            }))
+        }));
+
 
         let serverSentInvalidMessage$ = this._messenger.expectAny$(
             [WampType.WELCOME],
@@ -743,7 +738,7 @@ export class Session {
             return this._abortDueToProtoViolation(`Received message of type ${WampType[x.type]}, which is meant for routers not peers.`);
         }), catchCompletionError);
 
-        return merge(serverSentInvalidMessage$, serverSentRouterMessage$, serverInitiatedClose$);
+        return merge(serverSentInvalidMessage$, serverSentRouterMessage$, serverInitiatedClose$, serverDroppedConnection$);
     }
 
 

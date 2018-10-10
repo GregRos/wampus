@@ -35,5 +35,7 @@ export interface Transport {
     events : Observable<TransportEvent>;
 
     close(obj ?: object) : Promise<void>;
+
+    isActive : boolean;
 }
 

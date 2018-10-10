@@ -1,10 +1,10 @@
 import test, {GenericTest, GenericTestContext} from "ava";
-import {postHandshake, stepByStep} from "../../../helpers/wamp";
 import {first} from "rxjs/operators";
 import {MyPromise} from "../../../../lib/ext-promise";
 import {Session} from "../../../../lib/core/session";
 import {isWampusNetErr} from "../../../helpers/misc";
 import {WampusNetworkError} from "../../../../lib/errors/types";
+import {Shorthand} from "../../../helpers/wamp";
 
 
 async function isSessionClosed<T>(t : GenericTestContext<T>, session : Session) {
@@ -18,9 +18,9 @@ async function isSessionClosed<T>(t : GenericTestContext<T>, session : Session) 
     await t.notThrows(session.close());
 }
 
-test("goodbye goodbye", async t => {
-    let {session,server} = await postHandshake();
-    let sbs = stepByStep(server.events);
+test("when goodbye received, should disconnect and close", async t => {
+    let {session,server} = await Shorthand.getSessionPostHandshake("a");
+    let sbs = Shorthand.stepListenObservable(server.events);
     let pGoodbye = session.close();
     let nextMessage = await sbs.next();
     t.deepEqual(nextMessage.data, [6, {}, "wamp.close.goodbye_and_out"]);
@@ -30,10 +30,10 @@ test("goodbye goodbye", async t => {
     t.is(next.type, "closed");
 });
 
-test("goodbye abort", async t => {
+test("when abort received, should disconnect and close", async t => {
     //TODO: Do something when goodbye violates protocol
-    let {session,server} = await postHandshake();
-    let sbs = stepByStep(server.events);
+    let {session,server} = await Shorthand.getSessionPostHandshake("a");
+    let sbs = Shorthand.stepListenObservable(server.events);
     let pGoodbye = session.close();
     await sbs.next();
     server.send([3, {}, "waaa"]);
@@ -42,20 +42,20 @@ test("goodbye abort", async t => {
     t.is(next.type, "closed");
 });
 
-test("goodbye timed out", async t => {
+test("when nothing received after timeout, should disconnect and close", async t => {
     //TODO: Do something when goodbye violates protocol
-    let {session,server} = await postHandshake();
-    let sbs = stepByStep(server.events);
+    let {session,server} = await Shorthand.getSessionPostHandshake("a");
+    let sbs = Shorthand.stepListenObservable(server.events);
     session.close();
     let goodbye = await sbs.next();
     await MyPromise.wait(1500);
     t.is((await sbs.next()).type, "closed");
 });
 
-test("goodbye close", async t => {
+test("when server disconnects abruptly, should close", async t => {
     //TODO: Do something when goodbye violates protocol
-    let {session,server} = await postHandshake();
-    let sbs = stepByStep(server.events);
+    let {session,server} = await Shorthand.getSessionPostHandshake("a");
+    let sbs = Shorthand.stepListenObservable(server.events);
     let p = session.close();
     let goodbye = await sbs.next();
     server.close();
@@ -63,9 +63,9 @@ test("goodbye close", async t => {
     t.pass();
 });
 
-test("goodbye error", async t => {
-    let {session,server} = await postHandshake();
-    let sbs = stepByStep(server.events);
+test("when server errors, should close", async t => {
+    let {session,server} = await Shorthand.getSessionPostHandshake("a");
+    let sbs = Shorthand.stepListenObservable(server.events);
     let closing = session.close();
     let goodbye = await sbs.next();
     //TODO: Do something with an error in closing process

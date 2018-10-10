@@ -3,10 +3,15 @@ import {defer, EMPTY, Observable, Subject} from "rxjs";
 import {WampObject} from "../../lib/protocol/messages";
 import {choose} from "../../lib/utils/rxjs";
 import {MyPromise} from "../../lib/ext-promise";
+import {domainToASCII} from "url";
 
 export function dummyTransport() {
     let intoClient = new Subject<TransportEvent>();
     let intoServer = new Subject<TransportEvent>();
+    let isActive = true;
+    function done() {
+        isActive = false;
+    }
     return {
         client: {
             async close() {
@@ -14,6 +19,7 @@ export function dummyTransport() {
                     type : "closed",
                     data : {}
                 });
+                done();
             },
             events: intoClient,
             send$(x) {
@@ -24,6 +30,9 @@ export function dummyTransport() {
                     });
                     return EMPTY;
                 });
+            },
+            get isActive() {
+                return isActive;
             }
         } as Transport,
         server: {
@@ -48,7 +57,8 @@ export function dummyTransport() {
                     intoClient.next({
                         type : "closed",
                         data : {}
-                    })
+                    });
+                    done();
                 })
             },
             events: intoServer,
