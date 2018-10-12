@@ -153,26 +153,3 @@ test.skip("session closing impact on CALL", async t => {
 
 });
 
-test("disclose me fails when feature is not declared", async t => {
-    let {session,server} = await SessionStages.handshaken("a");
-
-    let prog = session.call({
-        name : "a",
-        options : {
-            disclose_me : true
-        }
-    });
-    await t.throws(prog.progress.toPromise(), MatchError.illegalOperation("CallerIdentification"));
-});
-
-test("timeout fails when feature not declared", async t => {
-    let {session,server} = await SessionStages.handshaken("a");
-
-    let prog = session.call({
-        name : "a",
-        options : {
-            timeout : 5000
-        }
-    });
-    await t.throws(prog.progress.toPromise(), MatchError.illegalOperation("CallTimeout"));
-});

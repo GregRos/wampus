@@ -280,7 +280,7 @@ export class Session {
         if (options.disclose_me && !features.publisher_identification) {
             throw Errs.routerDoesNotSupportFeature(AdvProfile.Subscribe.PublisherIdentification);
         }
-        if (!options.exclude_me && !features.publisher_exclusion) {
+        if (options.exclude_me === false && !features.publisher_exclusion) {
             throw Errs.routerDoesNotSupportFeature(AdvProfile.Subscribe.PublisherExclusion);
         }
         return defer(() => {
@@ -290,7 +290,7 @@ export class Session {
                 let expectPublishedOrError$ = this._messenger.expectAny$(
                     Routes.published(msg.requestId),
                     Routes.error(WampType.PUBLISH, msg.requestId)
-                ).pipe(catchError(err => {
+                ).pipe(take(1), catchError(err => {
                     if (err instanceof WampusRouteCompletion) {
                         throw new WampusNetworkError("Cannot receive publish acknowledgement because session is closing.");
                     }
