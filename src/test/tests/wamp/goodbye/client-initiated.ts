@@ -10,7 +10,7 @@ import {Rxjs} from "../../../helpers/rxjs";
 
 async function isSessionClosed<T>(t : GenericTestContext<T>, session : Session) {
     t.is(session.isActive, false);
-    await t.throws(session.call({name : "ab"}).progress().toPromise(), MatchError.network("closed"));
+    await t.throws(session.call({name : "ab"}).progress.toPromise(), MatchError.network("closed"));
     await t.throws(session.register({name : "ab"}), MatchError.network("closed"));
     await t.throws(session.event({name : "ab"}), MatchError.network("closed"));
     await t.throws(session.publish({name : "ab"}), MatchError.network("closed"));

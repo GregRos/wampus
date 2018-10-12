@@ -64,7 +64,7 @@ export class SessionWrapper {
     call(args: WampusCallArguments): FullCallProgress {
         let stack = this._captureTrace();
         let callProgress = this._session.call(args);
-        let progress = () => callProgress.progress().pipe(map(prog => {
+        let progress = () => callProgress.progress.pipe(map(prog => {
             let newResult = {
                 details: prog.details,
                 args: this._config.transforms.objectToJson(prog.args),

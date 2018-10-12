@@ -4,7 +4,7 @@ import {WampType} from "../../../../lib/protocol/message.type";
 import _ = require("lodash");
 import {choose} from "../../../../lib/utils/rxjs";
 import {WampCallOptions} from "../../../../lib/protocol/options";
-import {take, toArray} from "rxjs/operators";
+import {map, share, shareReplay, take, toArray} from "rxjs/operators";
 import all = When.all;
 import {CallProgress} from "../../../../lib/core/api-types";
 import {Observable} from "rxjs";
@@ -31,6 +31,7 @@ test("call sends CALL message", async t => {
         4 : [1],
         5 : {a : 5}
     }));
+    t.falsy(await sbs.nextWithin(10), "an exact message was sent?");
 });
 
 function arrify<T>(rx : Observable<T>) {
@@ -49,7 +50,7 @@ test("send CALL, receive final RESULT, report result to caller, verify progress 
     });
     await sbs.next();
     server.send([WampType.RESULT, cp.requestId, {}, ["a"], {a : 5}]);
-    let allProgress = await cp.progress().pipe(toArray()).toPromise();
+    let allProgress = await cp.progress.pipe(toArray()).toPromise();
     t.true(_.isMatch(allProgress, [{
         isProgress : false,
         kwargs : {a : 5},
@@ -68,12 +69,14 @@ test("send 2 identical calls, receive RESULTs, verify progress streams", async t
         name : "a"
     });
     await sbs.nextK(2);
+    let pr1 = cp1.progress.pipe(map(x => x.kwargs), toArray()).toPromise();
+    let pr2 = cp2.progress.pipe(map(x => x.kwargs), toArray()).toPromise();
     server.send([WampType.RESULT, cp1.requestId, {}, null, {a : 1}]);
     server.send([WampType.RESULT, cp2.requestId, {}, null, {a : 2}]);
-    let pr1 = await arrify(cp1.progress());
-    let pr2 = await arrify(cp2.progress());
-    t.deepEqual(pr1.map(x => x.kwargs), [{a : 1}])
-    t.deepEqual(pr2.map(x => x.kwargs), [{a : 2}])
+
+
+    t.deepEqual(await pr1, [{a: 1}]);
+    t.deepEqual(await pr2, [{a: 2}]);
 });
 
 test("make 2 different calls, receive RESULTs, verify progress streams", async t => {
@@ -86,12 +89,13 @@ test("make 2 different calls, receive RESULTs, verify progress streams", async t
         name : "b"
     });
     await sbs.nextK(2);
+    let pr1 = cp1.progress.pipe(map(x => x.kwargs), toArray()).toPromise();
+    let pr2 = cp2.progress.pipe(map(x => x.kwargs), toArray()).toPromise();
     server.send([WampType.RESULT, cp1.requestId, {}, null, {a : 1}]);
     server.send([WampType.RESULT, cp2.requestId, {}, null, {a : 2}]);
-    let pr1 = await arrify(cp1.progress());
-    let pr2 = await arrify(cp2.progress());
-    t.deepEqual(pr1.map(x => x.kwargs), [{a : 1}]);
-    t.deepEqual(pr2.map(x => x.kwargs), [{a : 2}]);
+
+    t.deepEqual(await pr1, [{a : 1}]);
+    t.deepEqual(await pr2, [{a : 2}]);
 });
 
 test("send CALL, receive ERROR(procedure doesn't exist), throw", async t => {
@@ -102,7 +106,7 @@ test("send CALL, receive ERROR(procedure doesn't exist), throw", async t => {
     });
     await sbs.next();
     server.send([WampType.ERROR, WampType.CALL, cp1.requestId, {}, "wamp.error.no_such_procedure", ["a"], {a : 1}]);
-    await t.throws(cp1.progress().toPromise(), MatchError.illegalOperation("Procedure", "exist"));
+    await t.throws(cp1.progress.toPromise(), MatchError.illegalOperation("Procedure", "exist"));
 });
 
 test("send CALL, receive ERROR(No eligible callee), throw", async t => {
@@ -113,7 +117,7 @@ test("send CALL, receive ERROR(No eligible callee), throw", async t => {
     });
     await sbs.next();
     server.send([WampType.ERROR, WampType.CALL, cp1.requestId, {}, "wamp.error.no_eligible_callee", ["a"], {a : 1}]);
-    await t.throws(cp1.progress().toPromise(), MatchError.illegalOperation("Exclusions", "callee"));
+    await t.throws(cp1.progress.toPromise(), MatchError.illegalOperation("Exclusions", "callee"));
 });
 
 test("send CALL, receive ERROR(runtime error), throw", async t => {
@@ -124,7 +128,7 @@ test("send CALL, receive ERROR(runtime error), throw", async t => {
     });
     await sbs.next();
     server.send([WampType.ERROR, WampType.CALL, cp1.requestId, {}, "wamp.error.runtime_error", ["a"], {a : 1}]);
-    await t.throws(cp1.progress().toPromise(), err => err instanceof WampusInvocationError && _.isMatch(err.msg, {
+    await t.throws(cp1.progress.toPromise(), err => err instanceof WampusInvocationError && _.isMatch(err.msg, {
         args : ["a"],
         kwargs : {a : 1}
     }));
@@ -138,7 +142,7 @@ test("send CALL, receive ERROR(custom), throw", async t => {
     });
     await sbs.next();
     server.send([WampType.ERROR, WampType.CALL, cp1.requestId, {}, "custom.error", ["a"], {a : 1}]);
-    await t.throws(cp1.progress().toPromise(), err => err instanceof WampusInvocationError && _.isMatch(err.msg, {
+    await t.throws(cp1.progress.toPromise(), err => err instanceof WampusInvocationError && _.isMatch(err.msg, {
         args : ["a"],
         kwargs : {a : 1},
         error : "custom.error"
@@ -155,4 +159,28 @@ test.skip("send CALL, session closes in the middle (abort)", async t => {
 
 test.skip("send CALL, session closes in the middle (transport)", async t => {
 
+});
+
+test("disclose me fails when feature is not declared", async t => {
+    let {session,server} = await SessionStages.handshaken("a");
+
+    let prog = session.call({
+        name : "a",
+        options : {
+            disclose_me : true
+        }
+    });
+    await t.throws(prog.progress.toPromise(), MatchError.illegalOperation("CallerIdentification"));
+});
+
+test("timeout fails when feature not declared", async t => {
+    let {session,server} = await SessionStages.handshaken("a");
+
+    let prog = session.call({
+        name : "a",
+        options : {
+            timeout : 5000
+        }
+    });
+    await t.throws(prog.progress.toPromise(), MatchError.illegalOperation("CallTimeout"));
 });

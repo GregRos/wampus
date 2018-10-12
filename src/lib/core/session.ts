@@ -14,7 +14,7 @@ import {Routes} from "./messaging/routing/route-helpers";
 import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
 import {WampMessenger} from "./messaging/wamp-messenger";
 import {AbstractCallResult, AbstractEventArgs, AbstractInvocationRequest} from "./methods/methods";
-import {concat, defer, EMPTY, merge, Observable, race, throwError, timer} from "rxjs";
+import {concat, defer, EMPTY, merge, Observable, race, Subject, throwError, timer} from "rxjs";
 import {
     catchError,
     endWith,
@@ -416,6 +416,7 @@ export class Session {
             options = options || {};
             let self = this;
             let features = this._welcomeDetails.roles.dealer.features;
+            let canceling : Promise<any>;
 
             // Check call options are compatible with the deaqler's features.
             if (options.disclose_me && !features.caller_identification) {
@@ -441,11 +442,10 @@ export class Session {
                 4. Wait for a RESULT or ERROR response
                 5.
              */
-            let cantCancel = false;
             let msg = factory.call(options, name, args, kwargs);
 
             let failOnError = map((x: WM.Any) => {
-                cantCancel = true;
+                canceling = Promise.resolve();
                 if (x instanceof WampMessage.Error) {
                     this._throwCommonError(msg, x);
                     switch (x.error) {
@@ -485,19 +485,15 @@ export class Session {
                     throw new WampusNetworkError("Invocation cancelled because session is closing.", {});
                 }
                 throw err;
-            }), toLibraryResult, publishReplayAutoConnect());
+            }), toLibraryResult).pipe(publishAutoConnect())
 
-            let sending = this._messenger.send$(msg).pipe(publishReplayAutoConnect());
+            let sending = this._messenger.send$(msg).pipe(publishAutoConnect());
 
             let allStream =
-                merge(expectResultOrError, this._messenger.send$(msg))
+                merge(expectResultOrError, sending)
                     .pipe(skipAfter((x: AbstractCallResult) => !x.isProgress));
 
             let startCancelling = mode => defer(async () => {
-                // If a result is already received, do not try to cancel the call.
-                if (!features.call_cancelling) {
-                    throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallCancelling);
-                }
                 if (this._isClosing) return;
                 let cancel = factory.cancel(msg.requestId, {
                     mode: mode
@@ -507,7 +503,9 @@ export class Session {
                 return merge(sendCancel$, self._messenger.expectAny$(
                     Routes.result(msg.requestId),
                     Routes.error(WampType.CALL, msg.requestId)
-                ).pipe(catchError(err => {
+                ).pipe(skipAfter(x => {
+                    return x instanceof WM.Result && !x.details.progress || x instanceof WM.Error;
+                }), catchError(err => {
                     if (err instanceof WampusRouteCompletion) {
                         return EMPTY;
                     }
@@ -515,7 +513,7 @@ export class Session {
                 }), map(msg => {
                     if (msg instanceof WM.Result) {
                         //TODO: Remove this log
-                        console.log("Tried to cancel, but received RESULT.")
+                        console.warn("Tried to cancel, but received RESULT.")
                     } else if (msg instanceof WM.Error) {
                         this._throwCommonError(cancel, msg);
                         if (msg.error !== WampUri.Error.Canceled) {
@@ -528,16 +526,18 @@ export class Session {
                     else {
                         throw Error("Unexpected!");
                     }
-                })).toPromise());
+                }))).toPromise();
             });
-            let progressStream = allStream.pipe(publishReplayAutoConnect());
+            let progressStream = allStream.pipe(publishAutoConnect());
             let prog: CallProgress = {
                 requestId : msg.requestId,
-                progress: () => progressStream.pipe(share()),
+                progress: progressStream,
                 close(mode ?: CancelMode) {
-                    cantCancel = true;
-                    let stopWhenReceived = expectResultOrError.pipe(endWith(null), completeOnError());
-                    return concat(sending, startCancelling(mode || CancelMode.Kill)).pipe(takeUntil(stopWhenReceived)).toPromise().then(() => {
+                    if (!features.call_cancelling) {
+                        return Promise.reject(Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallCancelling));
+                    }
+                    if (canceling) return canceling;
+                    return canceling = concat(sending, startCancelling(mode || CancelMode.Kill)).toPromise().then(() => {
                     });
                 }
             };
@@ -550,7 +550,7 @@ export class Session {
                 async close() {
 
                 },
-                progress: () => throwError(err)
+                progress: throwError(err)
             } as CallProgress;
         }
     }

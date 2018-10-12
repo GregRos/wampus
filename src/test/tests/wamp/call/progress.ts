@@ -27,7 +27,7 @@ test("make call, receive RESULT(progress) message, call doesn't finish", async t
     let {server, session} = await getProgressSession();
     let serverMonitor = Rxjs.monitor(server.messages);
     let cp1 = await makeProgressiveCall(session, "a");
-    let progressMonitor = Rxjs.monitor(cp1.progress());
+    let progressMonitor = Rxjs.monitor(cp1.progress);
     await serverMonitor.nextK(1);
     server.send([WampType.RESULT, cp1.requestId, {progress : true}, [], {a : 1}]);
     let first = await progressMonitor.next();
@@ -40,7 +40,7 @@ test("make call, receive several RESULT(progress) messages, call doesn't finish"
     let {server, session} = await getProgressSession();
     let serverMonitor = Rxjs.monitor(server.messages);
     let cp1 = await makeProgressiveCall(session, "a");
-    let progressMonitor = Rxjs.monitor(cp1.progress());
+    let progressMonitor = Rxjs.monitor(cp1.progress);
     await serverMonitor.nextK(1);
     server.send([WampType.RESULT, cp1.requestId, {progress : true}, [], {a : 1}]);
     await MyPromise.wait(1000);
@@ -58,7 +58,7 @@ test("make call, receive RESULT(progress) message, and then RESULT(final), call 
     let {server, session} = await getProgressSession();
     let serverMonitor = Rxjs.monitor(server.messages);
     let cp1 = await makeProgressiveCall(session, "a");
-    let progressMonitor = Rxjs.monitor(cp1.progress());
+    let progressMonitor = Rxjs.monitor(cp1.progress);
     await serverMonitor.nextK(1);
     server.send([WampType.RESULT, cp1.requestId, {progress : true}, [], {a : 1}]);
     let first = await progressMonitor.next();
@@ -68,4 +68,6 @@ test("make call, receive RESULT(progress) message, and then RESULT(final), call 
     t.deepEqual(last.kwargs, {a : 2});
     t.true(progressMonitor.isComplete);
 });
+
+
 

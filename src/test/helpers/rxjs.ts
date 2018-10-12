@@ -52,13 +52,13 @@ export class ObservableMonitor<T> {
             action(obj);
         };
         this._registrations.push(callback);
-        for (let item of this._unclaimed) {
+        for (let item of this._unclaimed.slice()) {
             if (!registered) break;
+            this._unclaimed.shift();
             callback(item);
             if ("EC".includes(item.kind)) {
                 break;
             }
-            this._unclaimed.shift();
         }
         return unregister;
     }
@@ -68,7 +68,8 @@ export class ObservableMonitor<T> {
             let i = 0;
             let unreg = this._register(({data, unregister}) => {
                 sub.next(data);
-                if (++i >= count) {
+                i++;
+                if (i >= count) {
                     unregister();
                 }
             });
@@ -94,6 +95,10 @@ export class ObservableMonitor<T> {
 
     async rest() {
         return await this.next$(1000).pipe(toArray()).toPromise();
+    }
+
+    clear() {
+        this._unclaimed = [];
     }
 
     close() {
