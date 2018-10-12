@@ -1,4 +1,4 @@
-import test from "ava";
+import test, {GenericTestContext} from "ava";
 import {SessionStages} from "../../../helpers/wamp";
 import {WampType} from "../../../../lib/protocol/message.type";
 import _ = require("lodash");
@@ -98,56 +98,49 @@ test("make 2 different calls, receive RESULTs, verify progress streams", async t
     t.deepEqual(await pr2, [{a : 2}]);
 });
 
-test("send CALL, receive ERROR(procedure doesn't exist), throw", async t => {
-    let {server, session} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.messages);
-    let cp1 = session.call({
-        name: "a"
+function sendCallReceiveErrorMacro(o : {title : string, errId : string, errMatch : (x : any) => boolean}) {
+    test(o.title, async (t : GenericTestContext<any>) => {
+        let {server, session} = await SessionStages.handshaken("a");
+        let sbs = Rxjs.monitor(server.messages);
+        let cp1 = session.call({
+            name: "a"
+        });
+        await sbs.next();
+        server.send([WampType.ERROR, WampType.CALL, cp1.requestId, {}, o.errId, ["a"], {a : 1}]);
+        await t.throws(cp1.progress.toPromise(), o.errMatch);
     });
-    await sbs.next();
-    server.send([WampType.ERROR, WampType.CALL, cp1.requestId, {}, "wamp.error.no_such_procedure", ["a"], {a : 1}]);
-    await t.throws(cp1.progress.toPromise(), MatchError.illegalOperation("Procedure", "exist"));
+}
+sendCallReceiveErrorMacro({
+    errMatch : MatchError.illegalOperation("Procedure", "exist"),
+    errId : "wamp.error.no_such_procedure",
+    title : "send CALL, receive ERROR(procedure doesn't exist), throw"
 });
 
-test("send CALL, receive ERROR(No eligible callee), throw", async t => {
-    let {server, session} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.messages);
-    let cp1 = session.call({
-        name: "a"
-    });
-    await sbs.next();
-    server.send([WampType.ERROR, WampType.CALL, cp1.requestId, {}, "wamp.error.no_eligible_callee", ["a"], {a : 1}]);
-    await t.throws(cp1.progress.toPromise(), MatchError.illegalOperation("Exclusions", "callee"));
+sendCallReceiveErrorMacro({
+    errMatch : MatchError.illegalOperation("Exclusions", "callee"),
+    errId : "wamp.error.no_eligible_callee",
+    title : "send CALL, receive ERROR(No eligible callee), throw"
 });
 
-test("send CALL, receive ERROR(runtime error), throw", async t => {
-    let {server, session} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.messages);
-    let cp1 = session.call({
-        name: "a"
-    });
-    await sbs.next();
-    server.send([WampType.ERROR, WampType.CALL, cp1.requestId, {}, "wamp.error.runtime_error", ["a"], {a : 1}]);
-    await t.throws(cp1.progress.toPromise(), err => err instanceof WampusInvocationError && _.isMatch(err.msg, {
+sendCallReceiveErrorMacro({
+    errMatch : err => err instanceof WampusInvocationError && _.isMatch(err.msg, {
         args : ["a"],
         kwargs : {a : 1}
-    }));
+    }),
+    errId : "wamp.error.runtime_error",
+    title : "send CALL, receive ERROR(runtime error), throw"
 });
 
-test("send CALL, receive ERROR(custom), throw", async t => {
-    let {server, session} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.messages);
-    let cp1 = session.call({
-        name: "a"
-    });
-    await sbs.next();
-    server.send([WampType.ERROR, WampType.CALL, cp1.requestId, {}, "custom.error", ["a"], {a : 1}]);
-    await t.throws(cp1.progress.toPromise(), err => err instanceof WampusInvocationError && _.isMatch(err.msg, {
+sendCallReceiveErrorMacro({
+    errMatch : err => err instanceof WampusInvocationError && _.isMatch(err.msg, {
         args : ["a"],
         kwargs : {a : 1},
         error : "custom.error"
-    }));
+    }),
+    errId : "custom.error",
+    title : "send CALL, receive ERROR(custom), throw"
 });
+
 
 test.skip("session closing impact on CALL", async t => {
 

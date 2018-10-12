@@ -32,11 +32,20 @@ test("receive PUBLISHED, resolve", async t => {
     await t.notThrows(publishing);
 });
 
-test("receive ERROR(invalid URI), throw", async t => {
-    let {session,server} = await SessionStages.handshaken("a");
-    let serverMonitor = Rxjs.monitor(server.messages);
-    let publishing = publishAck(session);
-    let publish = await serverMonitor.next();
-    server.send([8, WampType.PUBLISH, publish[1], {}, "wamp.error.invalid_uri"]);
-    await t.throws(publishing, MatchError.illegalOperation("URI"));
+
+function macroReceiveError(o : {errId : string, errMatch : (x : any) => boolean, title : string}) {
+    test(o.title, async t => {
+        let {session,server} = await SessionStages.handshaken("a");
+        let serverMonitor = Rxjs.monitor(server.messages);
+        let publishing = publishAck(session);
+        let publish = await serverMonitor.next();
+        server.send([8, WampType.PUBLISH, publish[1], {}, o.errId]);
+        await t.throws(publishing, o.errMatch);
+    });
+}
+
+macroReceiveError({
+    errMatch :  MatchError.illegalOperation("URI"),
+    errId : "wamp.error.invalid_uri",
+    title : "receive ERROR(invalid URI), throw"
 });
