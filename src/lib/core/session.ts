@@ -514,17 +514,6 @@ export class Session {
                     if (msg instanceof WM.Result) {
                         //TODO: Remove this log
                         console.warn("Tried to cancel, but received RESULT.")
-                    } else if (msg instanceof WM.Error) {
-                        this._throwCommonError(cancel, msg);
-                        if (msg.error !== WampUri.Error.Canceled) {
-                            throw new WampusIllegalOperationError("While cancelling, received error.", {
-                                msg
-                            })
-                        }
-                        return;
-                    }
-                    else {
-                        throw Error("Unexpected!");
                     }
                 }))).toPromise();
             });

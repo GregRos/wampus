@@ -149,15 +149,7 @@ test("send CALL, receive ERROR(custom), throw", async t => {
     }));
 });
 
-test.skip("send CALL, session closes in the middle (goodbye)", async t => {
-
-});
-
-test.skip("send CALL, session closes in the middle (abort)", async t => {
-
-});
-
-test.skip("send CALL, session closes in the middle (transport)", async t => {
+test.skip("session closing impact on CALL", async t => {
 
 });
 

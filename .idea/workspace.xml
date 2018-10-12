@@ -81,7 +81,7 @@
           <entry key="js" value="71" />
           <entry key="json" value="237" />
           <entry key="md" value="109" />
-          <entry key="ts" value="110939" />
+          <entry key="ts" value="111095" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -92,7 +92,7 @@
           <entry key="json" value="21" />
           <entry key="lock" value="1" />
           <entry key="md" value="5" />
-          <entry key="ts" value="751" />
+          <entry key="ts" value="753" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.php.composer.actions" />
@@ -104,7 +104,7 @@
           <entry key="JavaScript" value="51" />
           <entry key="Markdown" value="5" />
           <entry key="PLAIN_TEXT" value="2" />
-          <entry key="TypeScript" value="751" />
+          <entry key="TypeScript" value="753" />
           <entry key="tsconfig" value="8" />
           <entry key="yarn.lock" value="1" />
         </counts>
@@ -115,7 +115,7 @@
           <entry key="JavaScript" value="118" />
           <entry key="Markdown" value="109" />
           <entry key="PLAIN_TEXT" value="33" />
-          <entry key="TypeScript" value="110939" />
+          <entry key="TypeScript" value="111095" />
           <entry key="tsconfig" value="26" />
         </counts>
       </usages-collector>
@@ -139,13 +139,37 @@
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/call/simple.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="371">
+              <caret line="151" column="41" selection-start-line="151" selection-start-column="41" selection-end-line="151" selection-end-column="41" />
+              <folding>
+                <element signature="e#0#23#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/call/cancel.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="166">
-              <caret line="83" column="86" selection-start-line="83" selection-start-column="86" selection-end-line="83" selection-end-column="86" />
+            <state relative-caret-position="729">
+              <caret line="156" column="4" selection-start-line="156" selection-start-column="4" selection-end-line="156" selection-end-column="4" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/goodbye/client-initiated.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-924">
+              <caret line="12" column="55" selection-start-line="12" selection-start-column="55" selection-end-line="12" selection-end-column="55" />
+              <folding>
+                <element signature="e#0#58#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -163,8 +187,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lib/core/session.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="639">
-              <caret line="524" column="21" lean-forward="true" selection-start-line="524" selection-start-column="21" selection-end-line="524" selection-end-column="21" />
+            <state relative-caret-position="3059">
+              <caret line="516" column="21" lean-forward="true" selection-start-line="516" selection-start-column="21" selection-end-line="516" selection-end-column="21" />
               <folding>
                 <element signature="e#0#145#0" expanded="true" />
                 <element signature="n#WM#0" expanded="true" />
@@ -178,27 +202,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="414">
               <caret line="48" column="13" selection-start-line="48" selection-start-column="13" selection-end-line="48" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/utils/rxjs.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="728">
-              <caret line="37" column="13" selection-start-line="37" selection-start-column="13" selection-end-line="37" selection-end-column="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/core/messaging/wamp-messenger.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3444">
-              <caret line="132" column="24" selection-start-line="132" selection-start-column="24" selection-end-line="132" selection-end-column="24" />
-              <folding>
-                <element signature="e#0#86#0" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -224,7 +227,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/call/progress.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1764">
+            <state relative-caret-position="1596">
               <caret line="69" column="3" selection-start-line="69" selection-start-column="3" selection-end-line="69" selection-end-column="3" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
@@ -245,8 +248,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>receive {DISCONNECT}</find>
-      <find>connection abruptly closed</find>
       <find>expectNext</find>
       <find>stepByStep</find>
       <find>createSession</find>
@@ -275,6 +276,8 @@
       <find>signal</find>
       <find>Subject.create</find>
       <find>cantCancel</find>
+      <find>close(</find>
+      <find>in the middle</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;wamp.registration.$1</replace>
@@ -365,11 +368,11 @@
         <option value="$PROJECT_DIR$/src/test/tests/wamp/goodbye/client-initiated.ts" />
         <option value="$PROJECT_DIR$/src/test/tests/wamp/call/feature-not-supported.ts" />
         <option value="$PROJECT_DIR$/src/test/tests/wamp/call/progress.ts" />
-        <option value="$PROJECT_DIR$/src/test/tests/wamp/call/simple.ts" />
         <option value="$PROJECT_DIR$/src/test/helpers/errors.ts" />
         <option value="$PROJECT_DIR$/src/lib/protocol/uris.ts" />
         <option value="$PROJECT_DIR$/src/test/helpers/rxjs.ts" />
         <option value="$PROJECT_DIR$/src/lib/core/session.ts" />
+        <option value="$PROJECT_DIR$/src/test/tests/wamp/call/simple.ts" />
         <option value="$PROJECT_DIR$/src/test/tests/wamp/call/cancel.ts" />
       </list>
     </option>
@@ -680,23 +683,23 @@
       <workItem from="1539271454485" duration="601000" />
       <workItem from="1539351886201" duration="12619000" />
       <workItem from="1539369926346" duration="138000" />
-      <workItem from="1539370085088" duration="2170000" />
+      <workItem from="1539370085088" duration="2580000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="647877000" />
+    <option name="totallyTimeSpent" value="648287000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="147" y="-8" width="2421" height="1456" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49952334" visible="true" weight="0.16814908" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49952334" visible="true" weight="0.16814908" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" sideWeight="0.50047666" side_tool="true" weight="0.18538852" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4931663" weight="0.32686982" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.56670904" visible="true" weight="0.45502645" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.56670904" visible="true" weight="0.3469388" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.4599746" weight="0.42101285" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -705,7 +708,7 @@
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.4989579" weight="0.32981133" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.433291" side_tool="true" visible="true" weight="0.45502645" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.433291" side_tool="true" visible="true" weight="0.3469388" />
       <window_info anchor="bottom" id="TypeScript" order="12" sideWeight="0.3278272" weight="0.27739984" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -797,12 +800,12 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/lib/core/session.ts</url>
-          <line>738</line>
+          <line>727</line>
           <option name="timeStamp" value="259" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/lib/core/session.ts</url>
-          <line>723</line>
+          <line>712</line>
           <option name="timeStamp" value="260" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
@@ -839,12 +842,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/lib/core/session.ts</url>
-          <line>632</line>
+          <line>621</line>
           <option name="timeStamp" value="325" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/lib/core/session.ts</url>
-          <line>704</line>
+          <line>693</line>
           <option name="timeStamp" value="329" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
@@ -859,13 +862,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/dist/lib/core/session.js</url>
-          <line>441</line>
+          <line>429</line>
           <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="386" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/dist/lib/core/session.js</url>
-          <line>435</line>
+          <line>423</line>
           <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="387" />
         </line-breakpoint>
@@ -1129,16 +1132,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/goodbye/client-initiated.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="301">
-          <caret line="12" column="55" selection-start-line="12" selection-start-column="55" selection-end-line="12" selection-end-column="55" />
-          <folding>
-            <element signature="e#0#58#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/test.ts" />
     <entry file="file://$PROJECT_DIR$/src/test/helpers/wamp.ts">
       <provider selected="true" editor-type-id="text-editor">
@@ -1180,16 +1173,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/call/simple.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4760">
-          <caret line="183" column="7" selection-start-line="183" selection-start-column="7" selection-end-line="183" selection-end-column="7" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/utils/rxjs.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="728">
@@ -1218,16 +1201,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3948">
           <caret line="141" column="12" selection-start-line="141" selection-start-column="12" selection-end-line="141" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/call/progress.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1764">
-          <caret line="69" column="3" selection-start-line="69" selection-start-column="3" selection-end-line="69" selection-end-column="3" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1262,10 +1235,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/goodbye/client-initiated.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-924">
+          <caret line="12" column="55" selection-start-line="12" selection-start-column="55" selection-end-line="12" selection-end-column="55" />
+          <folding>
+            <element signature="e#0#58#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/call/progress.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1596">
+          <caret line="69" column="3" selection-start-line="69" selection-start-column="3" selection-end-line="69" selection-end-column="3" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/core/session.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="639">
-          <caret line="524" column="21" lean-forward="true" selection-start-line="524" selection-start-column="21" selection-end-line="524" selection-end-column="21" />
+        <state relative-caret-position="3059">
+          <caret line="516" column="21" lean-forward="true" selection-start-line="516" selection-start-column="21" selection-end-line="516" selection-end-column="21" />
           <folding>
             <element signature="e#0#145#0" expanded="true" />
             <element signature="n#WM#0" expanded="true" />
@@ -1273,10 +1266,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/call/simple.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="371">
+          <caret line="151" column="41" selection-start-line="151" selection-start-column="41" selection-end-line="151" selection-end-column="41" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/call/cancel.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="166">
-          <caret line="83" column="86" selection-start-line="83" selection-start-column="86" selection-end-line="83" selection-end-column="86" />
+        <state relative-caret-position="729">
+          <caret line="156" column="4" selection-start-line="156" selection-start-column="4" selection-end-line="156" selection-end-column="4" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
