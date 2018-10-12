@@ -82,7 +82,7 @@ export module WampMessage {
         }
 
         toTransportFormat() {
-            return [this.type, this.errSourceType, this.errSourceId, this.details, this.error];
+            return [this.type, this.errSourceType, this.errSourceId, this.details, this.error, this.args, this.kwargs];
         }
     }
 

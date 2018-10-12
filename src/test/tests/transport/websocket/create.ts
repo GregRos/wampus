@@ -2,7 +2,7 @@ import {WebsocketTransport} from "../../../../lib/core/messaging/transport/webso
 import {JsonSerializer} from "../../../../lib/core/messaging/serializer/json";
 import {rxjsWsServer} from "../../../helpers/ws-server";
 import {WampusError} from "../../../../lib/errors/types";
-import {isWampusNetErr} from "../../../helpers/misc";
+import {MatchError} from "../../../helpers/errors";
 import test from "ava";
 
 let getTransport = (url, timeout?, serializer?) => {
@@ -14,17 +14,17 @@ let getTransport = (url, timeout?, serializer?) => {
 };
 test("url non-existent", async t => {
     let conn = getTransport("http://www.aaaaaaaaaa123124.com");
-    await t.throws(conn, isWampusNetErr("ENOTFOUND"));
+    await t.throws(conn, MatchError.network("ENOTFOUND"));
 });
 
 test("url malformed", async t => {
     let conn = getTransport("ff44");
-    await t.throws(conn, isWampusNetErr("Invalid URL"));
+    await t.throws(conn, MatchError.network("Invalid URL"));
 });
 
 test("connection refused", async t => {
     let conn = getTransport("http://localhost:19413");
-    await t.throws(conn, isWampusNetErr("REFUSED"));
+    await t.throws(conn, MatchError.network("REFUSED"));
 });
 
 test("invalid timeout", async t=> {

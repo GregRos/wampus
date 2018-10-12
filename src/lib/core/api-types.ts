@@ -8,7 +8,8 @@ export interface AsyncSubscription {
 }
 
 export interface CallProgress extends AsyncSubscription {
-    progress : Observable<AbstractCallResult>;
+    requestId : number;
+    progress() : Observable<AbstractCallResult>;
     /**
      * Cancels the call.
      */

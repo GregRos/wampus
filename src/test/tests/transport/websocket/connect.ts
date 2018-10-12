@@ -3,7 +3,7 @@ import test from "ava";
 import {WebsocketTransport} from "../../../../lib/core/messaging/transport/websocket";
 import {JsonSerializer} from "../../../../lib/core/messaging/serializer/json";
 import * as ws from "ws";
-import {isWampusNetErr} from "../../../helpers/misc";
+import {MatchError} from "../../../helpers/errors";
 import {concat, defer, fromEvent, merge, NEVER, Observable, range, timer, zip} from "rxjs";
 import {
     buffer,
@@ -55,7 +55,7 @@ test("sync closes from client side", async t => {
     let {server, client} = await getTransportAndServerConn();
     let p = client.close();
     t.false(client.isActive);
-    await t.throws(client.send$({}).toPromise(), isWampusNetErr("closed"));
+    await t.throws(client.send$({}).toPromise(), MatchError.network("closed"));
 });
 
 test("closes from server-side", async t => {

@@ -1,4 +1,14 @@
-import {catchError, filter, flatMap, map, publish, switchMap, takeUntil, takeWhile} from "rxjs/operators";
+import {
+    catchError,
+    filter,
+    flatMap,
+    map,
+    publish,
+    publishReplay,
+    switchMap,
+    takeUntil,
+    takeWhile
+} from "rxjs/operators";
 import {EMPTY, Observable, ObservableInput, of, pipe, UnaryFunction} from "rxjs";
 
 let stopToken = {};
@@ -16,6 +26,13 @@ export const completeOnError = function<T>() {
     return catchError(() => {
         return EMPTY;
     })
+};
+
+export const publishReplayAutoConnect = function<T>() {
+    return pipe(publishReplay(), (x : any) => {
+        x.connect();
+        return x;
+    }) as UnaryFunction<Observable<T>, Observable<T>>;
 };
 
 export const publishAutoConnect = function<T>() {

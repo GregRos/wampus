@@ -22,7 +22,7 @@ import {makeNonEnumerable} from "../utils/object";
 
 export interface FullCallProgress extends AsyncSubscription {
     result: Promise<WampResult>;
-    progress: Observable<AbstractCallResult>;
+    progress(): Observable<AbstractCallResult>;
 
     close(mode ?: CancelMode): Promise<void>;
 }
@@ -64,7 +64,7 @@ export class SessionWrapper {
     call(args: WampusCallArguments): FullCallProgress {
         let stack = this._captureTrace();
         let callProgress = this._session.call(args);
-        let progress = callProgress.progress.pipe(map(prog => {
+        let progress = () => callProgress.progress().pipe(map(prog => {
             let newResult = {
                 details: prog.details,
                 args: this._config.transforms.objectToJson(prog.args),
@@ -86,9 +86,11 @@ export class SessionWrapper {
             async close(mode) {
                 await callProgress.close(mode);
             },
-            progress: progress,
+            progress() {
+                return progress();
+            },
             get result() {
-                return progress.pipe(first(x => !x.isProgress)).toPromise()
+                return progress().pipe(first(x => !x.isProgress)).toPromise()
             }
         };
         return partial;

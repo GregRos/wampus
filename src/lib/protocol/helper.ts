@@ -26,7 +26,7 @@ export module MessageReader {
             case WampType.GOODBYE:
                 return new WampMessage.Goodbye(raw[1], raw[2]);
             case WampType.ERROR:
-                return new WampMessage.Error(raw[1], raw[2], raw[3], raw[4], raw[5]);
+                return new WampMessage.Error(raw[1], raw[2], raw[3], raw[4], raw[5], raw[6]);
             case WampType.PUBLISHED:
                 return new WampMessage.Published(raw[1], raw[2]);
             case WampType.SUBSCRIBED:

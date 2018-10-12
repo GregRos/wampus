@@ -5,9 +5,10 @@ import {Observer, Subject} from "rxjs";
 import {MessageRouter} from "../../../lib/core/messaging/routing/message-router";
 import _ = require("lodash");
 
-function getRoute<T>(key : any[]) {
+function getRoute<T>(key : any[], tag ?: string) {
     return Object.assign(new Subject(), {
-        keys : key
+        keys : key,
+        tag
     });
 }
 
@@ -29,6 +30,17 @@ test("remove non-existent route is okay", t => {
         keys : []
     });
     t.is(router.count(), 0);
+});
+
+test("match two identical routes + removals", t => {
+    let router = new MessageRouter();
+    let route1 = getRoute([1, 2, 3], "a");
+    let route2 = getRoute([1, 2, 3], "b");
+    router.insertRoute(route1);
+    router.insertRoute(route2);
+    t.true(setEqual(router.match([1, 2, 3]), [route1, route2]));
+    router.removeRoute(route2);
+    t.true(setEqual(router.match([1, 2, 3]), [route1]));
 });
 
 test("match single route in various ways", t => {
@@ -99,6 +111,6 @@ test("remove route", t => {
     t.deepEqual(router.match([1, 2, 3]), []);
     router.insertRoute(route1);
     router.removeRoute(route2);
-    t.deepEqual(router.match([]))
+    t.deepEqual(router.match([1, 2, 4]), [route1, route1]);
 });
 

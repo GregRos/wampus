@@ -1,53 +1,53 @@
 import test from "ava";
 import {first} from "rxjs/operators";
 import {wampusHelloDetails} from "../../../lib/core/hello-details";
-import {isWampusIllegalOperationError, isWampusNetErr} from "../../helpers/misc";
+import {MatchError} from "../../helpers/errors";
 import {WampusNetworkError} from "../../../lib/errors/types";
-import {Shorthand} from "../../helpers/wamp";
+import {SessionStages} from "../../helpers/wamp";
 
 test("HELLO is okay", async t => {
-    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
+    let {server,session} = SessionStages.fresh("a");
     let hello =  await server.messages.pipe(first()).toPromise();
     t.deepEqual(await hello, [1, "a", wampusHelloDetails]);
 });
 
 test("send HELLO, when received ABORT(No such realm), throw error", async t => {
-    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
+    let {server,session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.send([3, {}, "wamp.error.no_such_realm"]);
-    await t.throws(session, isWampusIllegalOperationError("Tried to join realm"))
+    await t.throws(session, MatchError.illegalOperation("Tried to join realm"))
 });
 
 test("sned HELLO, when received ABORT (Proto violation), throw error", async t => {
-    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
+    let {server,session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.send([3, {}, "wamp.error.protocol_violation"]);
-    await t.throws(session, isWampusNetErr("Protocol violation"))
+    await t.throws(session, MatchError.network("Protocol violation"))
 });
 
 test("send HELLO, when received ABORT (other), throw error", async t => {
-    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
+    let {server,session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.send([3, {}, "wamp.error.abc"]);
-    await t.throws(session, isWampusIllegalOperationError("wamp.error.abc", "ABORT", "handshake"))
+    await t.throws(session, MatchError.illegalOperation("wamp.error.abc", "ABORT", "handshake"))
 });
 
 test("send HELLO, when received non-handshake message, throw error", async t => {
-    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
+    let {server,session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.send([1, {}, "hi"]);
-    await t.throws(session, isWampusNetErr("Protocol violation", "During handshake", "HELLO"));
+    await t.throws(session, MatchError.network("Protocol violation", "During handshake", "HELLO"));
 });
 
 test("send hello, when received abrupt disconnect, throw error", async t => {
-    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
+    let {server,session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.close();
-    await t.throws(session, isWampusNetErr("connection abruptly closed"));
+    await t.throws(session, MatchError.network("connection abruptly closed"));
 });
 
 test("send hello, when received connection error, throw error", async t => {
-    let {server,session} = Shorthand.getSessionNoHandshakeYet("a");
+    let {server,session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     let err = new WampusNetworkError("ERROR! abcd")
     server.error(err);
@@ -55,7 +55,7 @@ test("send hello, when received connection error, throw error", async t => {
 });
 
 test("send HELLO, when receive WELCOME, session should have received data", async t => {
-    let {server, session} = Shorthand.getSessionNoHandshakeYet("a");
+    let {server, session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     let wDetails = {
         roles: {
@@ -72,10 +72,10 @@ test("send HELLO, when receive WELCOME, session should have received data", asyn
 });
 
 test("send HELLO, when received CHALLENGE, throw error (not supported)", async t => {
-    let {server, session} = Shorthand.getSessionNoHandshakeYet("a");
+    let {server, session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.send([4, "blah", {}]);
-    await t.throws(session, isWampusIllegalOperationError("Doesn't support", "feature", "CHALLENGE"))
+    await t.throws(session, MatchError.illegalOperation("Doesn't support", "feature", "CHALLENGE"))
 });
 
 // TODO: Test -- Integration: Disconnect during/before handshake

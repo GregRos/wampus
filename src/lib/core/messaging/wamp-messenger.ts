@@ -13,11 +13,12 @@ import {MyPromise} from "../../ext-promise";
  * This class provides a mid-level abstraction layer between the transport and the WAMP session object.
  * It's responsible for sending messages and using the message router to connect messages to their subscriptions.
  */
-export class WampMessenger {
+export class WampMessenger<T> {
     transport : Transport;
     private _onClosed = new Subject<object>();
-    private _router : MessageRouter<WampMessage.Any>;
-
+    private _onUnknownMessage = new Subject<any>();
+    public _router : MessageRouter<T>;
+    private _selector : (x : WampArray) => T;
     /**
      * Use [[WampMessenger.create]].
      * @param {never} never
@@ -31,10 +32,11 @@ export class WampMessenger {
      * The messenger will be created with a transport, ready for messaging.
      * @returns {Observable<WampMessenger>}
      */
-    static create(transport : Transport) : WampMessenger {
-        let messenger = new WampMessenger(null as never);
+    static create<T>(transport : Transport, selector : (x : WampArray) => T) : WampMessenger<T> {
+        let messenger = new WampMessenger<T>(null as never);
         messenger.transport = transport;
-        let router = messenger._router = new MessageRouter<WampMessage.Any>();
+        messenger._selector = selector;
+        let router = messenger._router = new MessageRouter<T>();
         messenger._setupRouter();
         return messenger;
     }
@@ -43,6 +45,9 @@ export class WampMessenger {
         keys : [],
         error(err) {
             console.error(err);
+        },
+        next : (x) => {
+            this._onUnknownMessage.next(x);
         }
     };
 
@@ -62,7 +67,7 @@ export class WampMessenger {
                         all.forEach(route => route.error(x.data));
                     }
                 } else if (x.type === "message") {
-                    let msg = MessageReader.read(x.data);
+                    let msg = this._selector(x.data);
                     let routes = this._router.match(x.data);
                     routes.forEach(route => route.next(msg));
                     if (routes.length === 0) {
@@ -70,6 +75,8 @@ export class WampMessenger {
                     }
                 } else if (x.type === "closed") {
                     this._onClosed.next(x.data);
+                    this._onClosed.complete();
+
                 }
             },
             complete: () => {
@@ -118,7 +125,7 @@ export class WampMessenger {
      * @param {WampArray} route
      * @returns {Observable<WampMessage.Any>}
      */
-    expect$(route : WampArray) : Observable<WampMessage.Any> {
+    expect$(route : WampArray) : Observable<T> {
         return Observable.create(sub => {
             let inv = {
                 keys : route,

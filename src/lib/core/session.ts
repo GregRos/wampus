@@ -8,7 +8,7 @@ import {
 import {WampType} from "../protocol/message.type";
 import {Errs} from "../errors/errors";
 import {AdvProfile, WampUri} from "../protocol/uris";
-import {MessageBuilder} from "../protocol/helper";
+import {MessageBuilder, MessageReader} from "../protocol/helper";
 import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "../errors/types";
 import {Routes} from "./messaging/routing/route-helpers";
 import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
@@ -21,7 +21,7 @@ import {
     flatMap,
     map,
     mapTo,
-    mergeMapTo,
+    mergeMapTo, publish, publishReplay, share,
     take,
     takeUntil,
     takeWhile,
@@ -37,7 +37,7 @@ import {
 } from "./api-parameters";
 import {MyPromise} from "../ext-promise";
 import {CallProgress, EventSubscription, Registration} from "./api-types";
-import {completeOnError, publishAutoConnect, skipAfter} from "../utils/rxjs";
+import {completeOnError, publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../utils/rxjs";
 import {Transport} from "./messaging/transport/transport";
 import {wampusHelloDetails} from "./hello-details";
 
@@ -63,7 +63,7 @@ export type AsyncCloseableObservable<T> = Observable<T> & {
 export class Session {
     id: number;
     config: SessionConfig;
-    public _messenger: WampMessenger;
+    public _messenger: WampMessenger<WampMessage.Any>;
     private _welcomeDetails: WelcomeDetails;
     private _isClosing = false;
 
@@ -90,7 +90,7 @@ export class Session {
         //      On close: Initiate goodbye sequence.
         let transport = await config.transport;
 
-        let messenger = WampMessenger.create(transport);
+        let messenger = WampMessenger.create<WampMessage.Any>(transport, MessageReader.read);
         let session = new Session(null as never);
         session.config = config;
         session._messenger = messenger;
@@ -485,9 +485,9 @@ export class Session {
                     throw new WampusNetworkError("Invocation cancelled because session is closing.", {});
                 }
                 throw err;
-            }), toLibraryResult, publishAutoConnect());
+            }), toLibraryResult, publishReplayAutoConnect());
 
-            let sending = this._messenger.send$(msg).pipe(publishAutoConnect());
+            let sending = this._messenger.send$(msg).pipe(publishReplayAutoConnect());
 
             let allStream =
                 merge(expectResultOrError, this._messenger.send$(msg))
@@ -530,9 +530,10 @@ export class Session {
                     }
                 })).toPromise());
             });
-
+            let progressStream = allStream.pipe(publishReplayAutoConnect());
             let prog: CallProgress = {
-                progress: allStream.pipe(publishAutoConnect()),
+                requestId : msg.requestId,
+                progress: () => progressStream.pipe(share()),
                 close(mode ?: CancelMode) {
                     cantCancel = true;
                     let stopWhenReceived = expectResultOrError.pipe(endWith(null), completeOnError());
@@ -545,10 +546,11 @@ export class Session {
         }
         catch (err) {
             return {
+                requestId : 0,
                 async close() {
 
                 },
-                progress: throwError(err)
+                progress: () => throwError(err)
             } as CallProgress;
         }
     }
@@ -612,7 +614,6 @@ export class Session {
         }));
     }
 
-    private _handle
 
     private _handleClose$(msg: WampMessage.Goodbye | WampMessage.Abort) {
         if (this._isClosing) return EMPTY;

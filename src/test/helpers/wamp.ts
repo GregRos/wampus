@@ -1,11 +1,11 @@
 import {dummyTransport} from "./dummy-transport";
 import {Session} from "../../lib/core/session";
-import {first, take, toArray} from "rxjs/operators";
-import {Observable} from "rxjs";
+import {first} from "rxjs/operators";
+import {BrokerFeatures, DealerFeatures} from "../../lib/protocol/options";
 
-export module Shorthand {
 
-    export function getSessionNoHandshakeYet(realm: string) {
+export module SessionStages {
+    export function fresh(realm: string) {
         let {client, server} = dummyTransport();
         let session = Session.create({
             realm: realm,
@@ -18,13 +18,18 @@ export module Shorthand {
         };
     }
 
-    export async function getSessionPostHandshake(realm : string) {
-        let {server, session} = getSessionNoHandshakeYet(realm);
+    export async function handshaken(realm : string, feats ?: {dealer ?: Partial<DealerFeatures>, broker ?: Partial<BrokerFeatures>}) {
+        let {server, session} = fresh(realm);
         let hello = await server.messages.pipe(first()).toPromise();
+        feats = feats || {};
         let wDetails = {
-            roles: {
-                broker: {},
-                dealer: {}
+            roles : {
+                broker : {
+                    features : feats.broker || {}
+                },
+                dealer : {
+                    features : feats.dealer || {}
+                }
             }
         };
         server.send([2, 123, wDetails]);
@@ -33,33 +38,5 @@ export module Shorthand {
             session: await session
         };
     }
-
-    export function stepListenObservable<T>(what : Observable<T>) {
-        let list = [];
-        what.subscribe({
-            next(x) {
-                list.push(x);
-            }
-        });
-        return {
-            async next() {
-                if (list.length === 0) {
-                    let r= await what.pipe(take(1)).toPromise();
-                    list.splice(0, 1);
-                    return r;
-                } else {
-                    let r = list[0];
-                    list.splice(0, 1);
-                    return r;
-                }
-            },
-            async nextK(count = 1) {
-                let part = list.slice(0, count);
-                if (part.length === count) return part;
-                let rest = await what.pipe(take(count - part.length), toArray()).toPromise();
-                part.push(...rest);
-                return part;
-            }
-        }
-    }
 }
+
