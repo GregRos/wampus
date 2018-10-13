@@ -22,6 +22,8 @@ test("should send PUBLISH", async t => {
         4 : ["1"],
         5 : {a : 2}
     }));
+    t.falsy(await serverMonitor.nextWithin(10), "sent extra message");
+
 });
 
 test("should not want any reply (acknowledge=false)", async t => {

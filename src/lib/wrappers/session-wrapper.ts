@@ -91,6 +91,9 @@ export class SessionWrapper {
             },
             get result() {
                 return progress().pipe(first(x => !x.isProgress)).toPromise()
+            },
+            get isOpen() {
+                return callProgress.isOpen;
             }
         };
         return partial;
@@ -102,6 +105,7 @@ export class SessionWrapper {
         let reg = await this._session.register(args);
         let invocations = reg.invocations.pipe(map(req => {
             let fullReq: FullInvocationRequest = {
+                requestId : req.requestId,
                 options: req.options,
                 name: req.name,
                 args: this._config.transforms.jsonToObject(req.args),
@@ -162,6 +166,9 @@ export class SessionWrapper {
                 invocations.subscribe(x => {
                     x.handle(handler);
                 })
+            },
+            get isOpen() {
+                return reg.isOpen;
             }
         };
         return x;
@@ -180,7 +187,10 @@ export class SessionWrapper {
             }), catchError(err => {
                 this._embedStack(err, trace);
                 throw err;
-            }))
+            })),
+            get isOpen() {
+                return this.isOpen;
+            }
         };
         return newSub;
     }

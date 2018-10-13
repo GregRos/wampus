@@ -177,7 +177,7 @@ export class Session {
                 let sendingUnregister$ = this._messenger.send$(unregisterMsg);
 
                 // Wait for a UNREGISTERED or ERROR;UNREGISTER message.
-                let receivedUnregistered$ = this._messenger.expectAny$(Routes.unregistered(registered.registrationId), Routes.error(WampType.UNREGISTER, unregisterMsg.requestId));
+                let receivedUnregistered$ = this._messenger.expectAny$(Routes.unregistered(unregisterMsg.requestId), Routes.error(WampType.UNREGISTER, unregisterMsg.requestId));
                 let failOnUnregisterError = map((x: WM.Any) => {
                     if (x instanceof WampMessage.Error) {
                         this._throwCommonError(unregisterMsg, x);
@@ -205,7 +205,6 @@ export class Session {
                 // Expect INTERRUPT message for cancellation
                 let expectInterrupt$ = this._messenger.expectAny$([WampType.INTERRUPT, msg.requestId]).pipe(map(x => x as WM.Interrupt));
                 let isHandled = false;
-
                 // Send message
                 let send$ = (msg: WampMessage.Any) => {
                     if (msg instanceof WampMessage.Error || msg instanceof WampMessage.Yield && !msg.options.progress) {
@@ -225,6 +224,9 @@ export class Session {
                         return send$(factory.yield(msg.requestId, options, args, kwargs)).toPromise();
                     },
                     waitCancel(time = 0) {
+                        if (isHandled) {
+                            return Promise.reject(Errs.Register.cannotSendResultTwice(name));
+                        }
                         let waitForTime = takeUntil(timer(time));
                         let throwCancel$ = throwError(Errs.Invocation.cancelled())
                         let handleInterrupt = flatMap((x: WampMessage.Any) => {
@@ -239,16 +241,21 @@ export class Session {
                     args: msg.args,
                     kwargs: msg.kwargs,
                     options: msg.options,
-                    name: name
+                    name: name,
+                    requestId : msg.requestId
                 };
                 return req;
             });
 
-            let invocations = expectInvocation$.pipe(whenInvocationReceived);
+            let invocations$ = expectInvocation$.pipe(whenInvocationReceived);
             let reg: Registration = {
-                invocations: invocations.pipe(publishAutoConnect()),
+                invocations: invocations$.pipe(publishAutoConnect()),
                 async close() {
                     await close()
+                },
+                registrationId : registered.registrationId,
+                get isOpen() {
+                    return !registrationClosing;
                 }
             };
             return reg;
@@ -528,6 +535,9 @@ export class Session {
                     if (canceling) return canceling;
                     return canceling = concat(sending, startCancelling(mode || CancelMode.Kill)).toPromise().then(() => {
                     });
+                },
+                get isOpen() {
+                    return !!canceling;
                 }
             };
 
@@ -539,7 +549,10 @@ export class Session {
                 async close() {
 
                 },
-                progress: throwError(err)
+                progress: throwError(err),
+                get isOpen() {
+                    return false;
+                }
             } as CallProgress;
         }
     }

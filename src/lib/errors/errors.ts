@@ -105,7 +105,7 @@ export module Errs {
         }
 
         export function error(name: string, err: WampMessage.Error) {
-            return new WampusIllegalOperationError("Tried to register procedure {name}, but recieved an ERROR response.", {
+            return new WampusIllegalOperationError(`Tried to register procedure {name}, but recieved an ERROR response: ${err.error}`, {
                 err,
                 name
             });
@@ -113,6 +113,13 @@ export module Errs {
 
         export function cannotSendResultTwice(name: string) {
             return new WampusIllegalOperationError("While invoking {name}, tried to send a result or error more than once.", {
+                name
+            });
+        }
+
+
+        export function cannotWaitForCancelAfterResult(name: string) {
+            return new WampusIllegalOperationError("While invoking {name}, tried to wait for cancellation, but cannot do this after a result has been sent.", {
                 name
             });
         }

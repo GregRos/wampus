@@ -31,8 +31,8 @@ export module Routes {
         return [WampType.REGISTERED, registerReqId];
     }
 
-    export function unregistered(registrationId: number) {
-        return [WampType.UNREGISTERED, registrationId];
+    export function unregistered(unregisterReqId: number) {
+        return [WampType.UNREGISTERED, unregisterReqId];
     }
 
     export function invocation(registrationId: number) {

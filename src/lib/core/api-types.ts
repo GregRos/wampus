@@ -5,6 +5,7 @@ import {FullInvocationRequest} from "../wrappers/methods/invocation";
 
 export interface AsyncSubscription {
     close() : Promise<void>;
+    isOpen : boolean;
 }
 
 export interface CallProgress extends AsyncSubscription {
@@ -18,6 +19,7 @@ export interface CallProgress extends AsyncSubscription {
 
 export interface Registration extends AsyncSubscription {
     invocations : Observable<AbstractInvocationRequest>;
+    registrationId : number;
 }
 
 export interface EventSubscription extends AsyncSubscription {

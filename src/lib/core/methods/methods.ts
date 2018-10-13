@@ -43,6 +43,8 @@ export interface AbstractInvocationRequest {
 
     readonly name: string;
 
+    readonly requestId : number;
+
     return(args: WampusSendResultArguments): Promise<void>;
 
     error({args, options, kwargs, reason}: WampusSendErrorArguments): Promise<void>;
