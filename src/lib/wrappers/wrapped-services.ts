@@ -1,5 +1,5 @@
 import {WampMessage, WampObject} from "../core/protocol/messages";
-import {WampusSendErrorArguments} from "../core/message-arguments";
+import {WampusSendErrorArguments} from "../core/session/message-arguments";
 import CallSite = NodeJS.CallSite;
 import {WampusInvocationError} from "../core/errors/types";
 import {WampUri} from "../core/protocol/uris";

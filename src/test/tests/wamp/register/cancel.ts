@@ -1,7 +1,7 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/wamp";
 import {Rxjs} from "../../../helpers/rxjs";
-import {WampusCoreSession} from "../../../../lib/core/core-session";
+import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {MyPromise} from "../../../../lib/ext-promise";
 import _ = require("lodash");
 async function getRegistration({session,server} : {session : WampusCoreSession, server : any}) {

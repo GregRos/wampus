@@ -1,4 +1,4 @@
-import {WampArray, WampObject, WampUriString} from "./protocol/messages";
+import {WampArray, WampObject, WampUriString} from "../protocol/messages";
 import {
     WampCallOptions,
     WampPublishOptions,
@@ -6,7 +6,7 @@ import {
     WampResultOptions,
     WampSubscribeOptions,
     WampYieldOptions
-} from "./protocol/options";
+} from "../protocol/options";
 
 export interface WampusCallArguments {
     name: string;

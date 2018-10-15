@@ -1,42 +1,24 @@
-import {EMPTY, Observable, of, Subject, Subscription, SubscriptionLike} from "rxjs";
-import {EventSubscriptionTicket, WampResult} from "../core/ticket";
-import {CancelMode, WampEventOptions} from "../core/protocol/options";
+import {CallResultData, EventSubscriptionTicket} from "../core/session/ticket";
 import {
     WampusCallArguments,
     WampusPublishArguments,
     WampusRegisterArguments,
-    WampusSendErrorArguments,
     WampusSubcribeArguments
-} from "../core/message-arguments";
-import {WampusCoreSession} from "../core/core-session";
-import {catchError, finalize, first, flatMap, map, takeUntil, tap} from "rxjs/operators";
-import {ExtendedInvocationTicket, ProcedureHandler} from "./ticket";
+} from "../core/session/message-arguments";
+import {WampusCoreSession} from "../core/session/core-session";
+import {catchError, first, map} from "rxjs/operators";
+import {
+    ExtendedCallTicket,
+    ExtendedInvocationTicket,
+    ExtendedProcedureRegistrationTicket,
+    ProcedureHandler
+} from "./ticket";
 import {WampusInvocationError} from "../core/errors/types";
-import {WampUri} from "../core/protocol/uris";
-import CallSite = NodeJS.CallSite;
 import {defaultStackService, defaultTransformSet, StackTraceService, TransformSet} from "./wrapped-services";
 import _ = require("lodash");
-import {call} from "when/node";
-import {Ticket} from "../core/ticket";
-import {makeNonEnumerable} from "../utils/object";
-import {CallResultData, EventInvocationData, ProcedureInvocationTicket} from "../core/ticket";
+import CallSite = NodeJS.CallSite;
 
-export interface FullCallProgress extends Ticket {
-    result: Promise<WampResult>;
-    progress(): Observable<CallResultData>;
-
-    close(mode ?: CancelMode): Promise<void>;
-}
-
-export interface WrappedRegistration extends Ticket {
-    invocations: Observable<ExtendedInvocationTicket>;
-
-    close(): Promise<void>;
-
-    handle(handler: ProcedureHandler): void;
-}
-
-export interface SessionWrapperConfig {
+export interface ExtendedSessionConfig {
     transforms?: TransformSet;
     stackTraceService?: StackTraceService;
 }
@@ -44,7 +26,7 @@ export interface SessionWrapperConfig {
 export class WampusSession {
 
     //TODO: Change
-    constructor(public _session: WampusCoreSession, private _config: SessionWrapperConfig) {
+    constructor(public _session: WampusCoreSession, private _config: ExtendedSessionConfig) {
         this._config = _config = _config || {};
         this._config.transforms = _.defaults(this._config.transforms, defaultTransformSet);
         this._config.stackTraceService = _.defaults(this._config.stackTraceService, defaultStackService);
@@ -62,7 +44,7 @@ export class WampusSession {
         return this._session.close();
     }
 
-    call(args: WampusCallArguments): FullCallProgress {
+    call(args: WampusCallArguments): ExtendedCallTicket {
         let stack = this._captureTrace();
         let callProgress = this._session.call(args);
         let progress = () => callProgress.progress.pipe(map(prog => {
@@ -83,7 +65,7 @@ export class WampusSession {
             throw err;
         }));
 
-        let partial: FullCallProgress = {
+        let partial: ExtendedCallTicket = {
             async close(mode) {
                 await callProgress.close(mode);
             },
@@ -100,7 +82,7 @@ export class WampusSession {
         return partial;
     };
 
-    async register(args ?: WampusRegisterArguments): Promise<WrappedRegistration> {
+    async register(args ?: WampusRegisterArguments): Promise<ExtendedProcedureRegistrationTicket> {
         let trace = this._captureTrace();
         let self = this;
         let reg = await this._session.register(args);
@@ -165,7 +147,7 @@ export class WampusSession {
             throw err;
         }));
 
-        let x : WrappedRegistration = {
+        let x : ExtendedProcedureRegistrationTicket = {
             invocations : invocations,
             async close() {
                 await reg.close();

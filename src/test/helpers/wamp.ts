@@ -1,5 +1,5 @@
 import {dummyTransport} from "./dummy-transport";
-import {WampusCoreSession} from "../../lib/core/core-session";
+import {WampusCoreSession} from "../../lib/core/session/core-session";
 import {first} from "rxjs/operators";
 import {BrokerFeatures, DealerFeatures} from "../../lib/core/protocol/options";
 

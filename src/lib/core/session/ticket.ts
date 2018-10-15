@@ -1,5 +1,5 @@
-import {WampArray, WampObject} from "./protocol/messages";
-import {CancelMode, WampEventOptions, WampInvocationOptions, WampResultOptions} from "./protocol/options";
+import {WampArray, WampObject} from "../protocol/messages";
+import {CancelMode, WampEventOptions, WampInvocationOptions, WampResultOptions} from "../protocol/options";
 import {
     WampusCallArguments,
     WampusRegisterArguments,
@@ -74,7 +74,7 @@ export interface EventInvocationData extends WampResult {
     readonly details: WampEventOptions;
 }
 
-export interface InterruptData {
+export interface InterruptTicket {
     readonly source: ProcedureInvocationTicket;
 
     readonly received: Date;
@@ -103,5 +103,5 @@ export interface ProcedureInvocationTicket extends WampResult {
 
     error({args, options, kwargs, error}: WampusSendErrorArguments): Promise<void>;
 
-    readonly interruptSignal: Observable<InterruptData>;
+    readonly interruptSignal: Observable<InterruptTicket>;
 }

@@ -4,15 +4,15 @@ import {
     WampUriString,
     WampusCompletionReason,
     WampusRouteCompletion
-} from "./protocol/messages";
-import {WampType} from "./protocol/message.type";
-import {Errs} from "./errors/errors";
-import {AdvProfile, WampUri} from "./protocol/uris";
-import {MessageBuilder} from "./protocol/builder";
-import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "./errors/types";
-import {Routes} from "./protocol/route-helpers";
-import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "./protocol/options";
-import {WampProtocolClient} from "./protocol/wamp-protocol-client";
+} from "../protocol/messages";
+import {WampType} from "../protocol/message.type";
+import {Errs} from "../errors/errors";
+import {AdvProfile, WampUri} from "../protocol/uris";
+import {MessageBuilder} from "../protocol/builder";
+import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "../errors/types";
+import {Routes} from "../protocol/route-helpers";
+import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
+import {WampProtocolClient} from "../protocol/wamp-protocol-client";
 import {CallResultData, EventSubscriptionTicket, ProcededureRegistrationTicket} from "./ticket";
 import {concat, defer, EMPTY, merge, Observable, race, Subject, throwError, timer} from "rxjs";
 import {
@@ -35,11 +35,11 @@ import {
     WampusSendResultArguments,
     WampusSubcribeArguments
 } from "./message-arguments";
-import {MyPromise} from "../ext-promise";
+import {MyPromise} from "../../ext-promise";
 import {CallTicket} from "./ticket";
-import {completeOnError, publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../utils/rxjs";
-import {Transport} from "./transport/transport";
-import {wampusHelloDetails} from "./hello-details";
+import {completeOnError, publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../../utils/rxjs";
+import {Transport} from "../transport/transport";
+import {wampusHelloDetails} from "../hello-details";
 
 export interface SessionConfig {
     realm: string;
@@ -47,8 +47,8 @@ export interface SessionConfig {
 }
 
 import WM = WampMessage;
-import {MessageReader} from "./protocol/reader";
-import {EventInvocationData, InterruptData, ProcedureInvocationTicket} from "./ticket";
+import {MessageReader} from "../protocol/reader";
+import {EventInvocationData, InterruptTicket, ProcedureInvocationTicket} from "./ticket";
 
 let factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
 
@@ -204,7 +204,7 @@ export class WampusCoreSession {
                                 received : new Date(),
                                 options : x.options,
                                 source : procInvocationTicket
-                            } as InterruptData;
+                            } as InterruptTicket;
                         }), take(1), takeUntil(completeInterrupt), publishReplayAutoConnect());
                 let isHandled = false;
                 // Send message

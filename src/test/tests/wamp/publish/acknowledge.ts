@@ -3,7 +3,7 @@ import {SessionStages} from "../../../helpers/wamp";
 import {Rxjs} from "../../../helpers/rxjs";
 import _ = require("lodash");
 import {WampType} from "../../../../lib/core/protocol/message.type";
-import {WampusCoreSession} from "../../../../lib/core/core-session";
+import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {Operators} from "promise-stuff";
 import {MatchError} from "../../../helpers/errors";
 
