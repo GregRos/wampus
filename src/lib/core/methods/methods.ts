@@ -1,7 +1,8 @@
-import {WampArray, WampObject} from "../../protocol/messages";
+import {WampArray, WampMessage, WampObject} from "../../protocol/messages";
 import {WampEventOptions, WampInvocationOptions, WampResultOptions} from "../../protocol/options";
 import {WampusSendErrorArguments, WampusSendResultArguments} from "../api-parameters";
 import {Observable} from "rxjs";
+import {WampMessenger} from "../messaging/wamp-messenger";
 
 export interface WampResult {
     args: WampArray;
@@ -33,6 +34,12 @@ export interface AbstractEventArgs {
     name: string;
 }
 
+export interface InterruptRequest {
+    received : Date;
+    options : any;
+    message : WampMessage.Interrupt;
+}
+
 export interface AbstractInvocationRequest {
 
     readonly args: WampArray;
@@ -45,9 +52,13 @@ export interface AbstractInvocationRequest {
 
     readonly requestId : number;
 
+    readonly isHandled : boolean;
+
     return(args: WampusSendResultArguments): Promise<void>;
 
-    error({args, options, kwargs, reason}: WampusSendErrorArguments): Promise<void>;
+    progress(args : WampusSendResultArguments) : Promise<void>;
 
-    waitCancel(time: number): Promise<void>;
+    error({args, options, kwargs, error}: WampusSendErrorArguments): Promise<void>;
+
+    interruptSignal : Observable<InterruptRequest>;
 }

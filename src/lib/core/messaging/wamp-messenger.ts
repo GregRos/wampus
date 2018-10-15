@@ -4,7 +4,7 @@ import {WampusNetworkError} from "../../errors/types";
 import {MessageRoute, MessageRouter} from "./routing/message-router";
 import {Transport, TransportMessage} from "./transport/transport";
 import {Errs} from "../../errors/errors";
-import {MessageReader} from "../../protocol/helper";
+import {MessageReader} from "../../protocol/reader";
 import {merge, Observable, of, Subject} from "rxjs";
 import {flatMap, take, tap} from "rxjs/operators";
 import {MyPromise} from "../../ext-promise";

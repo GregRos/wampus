@@ -24,4 +24,5 @@ export interface Registration extends AsyncSubscription {
 
 export interface EventSubscription extends AsyncSubscription {
     events : Observable<AbstractEventArgs>;
+    subscriptionId : number;
 }

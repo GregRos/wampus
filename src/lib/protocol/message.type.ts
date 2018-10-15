@@ -24,7 +24,6 @@ export enum WampType {
     CANCEL = 49,
     CHALLENGE = 4,
     AUTHENTICATE = 5,
-    INTERRUPT = 6,
-    _Unknown = -1,
-    _Internal = -10
+    INTERRUPT = 69,
+    _Unknown = -1
 }

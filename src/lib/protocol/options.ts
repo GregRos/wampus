@@ -77,7 +77,6 @@ export interface DealerFeatures {
 }
 
 export interface BrokerFeatures {
-    pattern_based_registration: boolean;
     shareded_subscriptions: boolean;
     event_history: boolean;
     session_meta_api: boolean;

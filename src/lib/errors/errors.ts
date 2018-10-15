@@ -16,25 +16,12 @@ export enum ErrorLevel {
 
 export module Errs {
 
-    export function unexpectedMessage(message: WampMessage.Any) {
-        return new WampusNetworkError("Received an unexpected message of type {msg.type}", {
-            msg: message
-        })
-    }
-
     export function receivedProtocolViolation(source: WampType, error: WampMessage.Error) {
         return new WampusNetworkError("Protocol violation.", {
             level: "WAMP",
             error: error,
             source: WampType[source],
             code: WampUri.Error.ProtoViolation
-        });
-    }
-
-    export function featureNotSupported(feature: string, msg ?: WampMessage.Any) {
-        return new WampusIllegalOperationError("Feature not supported: {feature}.", {
-            feature,
-            msg
         });
     }
 
@@ -118,13 +105,8 @@ export module Errs {
         }
 
 
-        export function cannotWaitForCancelAfterResult(name: string) {
-            return new WampusIllegalOperationError("While invoking {name}, tried to wait for cancellation, but cannot do this after a result has been sent.", {
-                name
-            });
-        }
 
-        export function doesNotSupportProgressOnSend(name: string) {
+        export function doesNotSupportProgressReports(name: string) {
             return new WampusIllegalOperationError("While invoking {name}, tried to send a progress report but this call does not support progress reports.", {
                 name
             })
@@ -134,13 +116,6 @@ export module Errs {
 
 
     export module Subscribe {
-        export function notAuthorized(name : string, err : WampMessage.Error) {
-            return new WampusIllegalOperationError("You are not authorized to subscribe to the event {name}.", {
-                name,
-                err
-            });
-        }
-
         export function other(name : string, err : WampMessage.Any){
             return new WampusIllegalOperationError("Tried to subscribe to {name}, but received an ERROR response.", {
                 name,
@@ -193,26 +168,11 @@ export module Errs {
 
     }
 
-    export module Invocation {
-        export function cancelled() {
-            return new WampusInvocationCanceledError("The invocation of procedure {name} was cancelled.", {
-
-            });
-        }
-    }
-
     export module Call {
         export function noSuchProcedure(name: string) {
             return new WampusIllegalOperationError("Tried to call procedure {name}, but it did not exist.", {
                 name,
                 code: WampUri.Error.NoSuchProcedure
-            });
-        }
-
-        export function resultReceivedBeforeCancel(name: string, result: WampMessage.Result) {
-            return new WampusIsolatedError("While canceling operation {name}, received a RESULT instead of an ERROR. This indicates the call wasn't cancelled.", {
-                name,
-                level: "warning"
             });
         }
 
@@ -235,11 +195,10 @@ export module Errs {
             });
         }
 
-        export function invalidArgument(name: string, realm: string, message: string) {
-            return new WampusIllegalOperationError("In realm {realm}, called procedure {name}, but the given arguments failed validation. This error may be thrown by the router or callee.", {
+        export function invalidArgument(name: string, msg : WampMessage.Any) {
+            return new WampusIllegalOperationError("In realm {realm}, called procedure {name}, but responded with an invalid_arguments error.", {
                 name,
-                realm,
-                code: WampUri.Error.InvalidArgument
+                msg,
             });
         }
 
@@ -282,99 +241,5 @@ export module Errs {
 
     export function sessionClosed(operation : string) {
         return new WampusNetworkError("Tried to perform {operation}, but the session was closed.");
-    }
-}
-
-export module NetworkErrors {
-
-    export module Handshake {
-        export function unexpectedMessage(message: WampMessage.Any) {
-            return new WampusNetworkError(
-                `Protocol violation. During handshake, expected WELCOME or ERROR, but received: {type}`, {
-                    type: WampType[message.type]
-                }
-            );
-        }
-
-
-        export function closed() {
-            return new WampusNetworkError("Transport closed during handshake.", {});
-        }
-    }
-
-    export function wampViolation(info: string, context: Record<string, any>) {
-        return new WampusNetworkError("A WAMP protocol violation error occurred. More info: {info}.", {
-            level: "WAMP",
-            info,
-            ...context,
-            code: WampUri.Error.ProtoViolation
-        });
-    }
-
-
-    export function networkFailure(IMPLEMENT: never) {
-
-    }
-
-
-}
-export module IllegalOperations {
-
-
-
-
-    export function procedureAlreadyExists(name: string, realm: string) {
-        return new WampusIllegalOperationError("In realm {realm}, tried to register operation {name}, but it's already registered.", {
-            name,
-            realm,
-            code: WampUri.Error.ProcAlreadyExists
-        });
-    }
-
-
-    export function noSuchSubscription(event: string, realm: string) {
-        return new WampusIllegalOperationError("In realm {realm}, tried to unsubscribe from event {event}, but the subscription did not exist. It may have already been closed.", {
-            event,
-            realm,
-            code: WampUri.Error.NoSuchSubscription
-        });
-    }
-
-    export function noSuchRegistration(name: string, realm: string) {
-        return new WampusIllegalOperationError("In realm {realm}, tried to unregister procedure {name}, but it wasn't registrered to this session.", {
-            name,
-            realm,
-            code: WampUri.Error.NoSuchRegistration
-        });
-    }
-
-
-    export function authFailed(IMPLEMENT: never) {
-
-    }
-
-    export function noSuchRole(role: string, realm: string) {
-        return new WampusIllegalOperationError("In realm {realm}, tried to authenticate under role {role}, but the role did not exist. This may indicate a problem in the router.", {
-            role,
-            realm,
-            code: WampUri.Error.NoSuchRole
-        });
-    }
-
-
-    export function optionNotAllowed(realm: string) {
-        return new WampusIllegalOperationError("In realm {realm}, this peer requested an interaction that was disallowed by the router.", {
-            realm,
-            code: WampUri.Error.OptionNotAllowed
-        });
-    }
-
-
-    export function noSuchSession(session: number | string, realm: string) {
-        return new WampusIllegalOperationError("In realm {realm}, tried to get information about session {session}, but it did not exist.", {
-            session,
-            realm,
-            code: WampUri.Error.ProtoViolation
-        })
     }
 }

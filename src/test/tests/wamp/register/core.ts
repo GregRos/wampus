@@ -144,7 +144,7 @@ test("after INVOCATION, error sends ERROR, no need for reply", async t => {
         kwargs : {
             a : 1
         },
-        reason : "custom.error"
+        error : "custom.error"
     });
     let ret = await serverMonitor.next();
     t.true(_.isMatch(ret, {
@@ -167,21 +167,7 @@ test("after INVOCATION, after error(), cannot call result() or error().", async 
     server.send([68, 1, registration.registrationId, {}, ["a"], {a : 1}]);
     let next = await invocationMonitor.next();
     next.error({
-        reason : "custom.error"
-    });
-    await t.throws(next.return({}), MatchError.illegalOperation("result or error more than once"));
-    await t.throws(next.error({}), MatchError.illegalOperation("result or error more than once"))
-});
-
-test("after INVOCATION, after return(final), cannot call result() or error().", async t => {
-    let {session,server} = await SessionStages.handshaken("a");
-    let registration = await getRegistration({session,server});
-    let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
-    server.send([68, 1, registration.registrationId, {}, ["a"], {a : 1}]);
-    let next = await invocationMonitor.next();
-    next.return({
-
+        error : "custom.error"
     });
     await t.throws(next.return({}), MatchError.illegalOperation("result or error more than once"));
     await t.throws(next.error({}), MatchError.illegalOperation("result or error more than once"))
@@ -214,7 +200,7 @@ test("registration.close() sends UNREGISTER, expects reply", async t => {
     await t.throws(Operators.timeout(unregistering, 10))
 });
 
-test("while closing, receives UNREGISTERED, closing promise finishes, invocations observable completes, isOpen becomes false", async t => {
+test("while closing, receive UNREGISTERED, closing promise finishes, invocations observable completes, isOpen becomes false", async t => {
     let {session,server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session,server});
     let serverMonitor = Rxjs.monitor(server.messages);
@@ -224,4 +210,42 @@ test("while closing, receives UNREGISTERED, closing promise finishes, invocation
     await t.notThrows(unregistering);
     t.false(registration.isOpen);
     await t.notThrows(registration.invocations.toPromise());
+});
+
+test("closing 2nd time returns the same promise", async t => {
+    let {session,server} = await SessionStages.handshaken("a");
+    let registration = await getRegistration({session,server});
+    let serverMonitor = Rxjs.monitor(server.messages);
+    let unregistering1 = registration.close();
+    let unregistering2 = registration.close();
+    t.is(unregistering1, unregistering2);
+});
+
+test("after UNREGISTERED, handle pending invocations", async t => {
+    let {session,server} = await SessionStages.handshaken("a");
+    let registration = await getRegistration({session,server});
+    let serverMonitor = Rxjs.monitor(server.messages);
+    let invocationMonitor = Rxjs.monitor(registration.invocations);
+    server.send([68, 1, registration.registrationId, {}]);
+    server.send([68, 1, registration.registrationId, {}]);
+    let unregistering = registration.close();
+    let unregisterMsg = await serverMonitor.next();
+    server.send([67, unregisterMsg[1]]);
+    await t.notThrows(unregistering);
+    let invocation1 = await invocationMonitor.next();
+    let invocation2 = await invocationMonitor.next();
+    serverMonitor.clear();
+    await invocation1.return({kwargs : {a : 1}});
+    await invocation2.error({error : "hi"});
+    let retMsg = await serverMonitor.next();
+    t.true(_.isMatch(retMsg, {
+        0 : WampType.YIELD,
+        4 : {a : 1}
+    }));
+    let errMsg = await serverMonitor.next();
+    t.true(_.isMatch(errMsg, {
+        0 : WampType.ERROR,
+        1 : WampType.INVOCATION,
+        4 : "hi"
+    }));
 });

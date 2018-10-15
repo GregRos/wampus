@@ -3,7 +3,6 @@ import {SessionStages} from "../../../helpers/wamp";
 import {Rxjs} from "../../../helpers/rxjs";
 import {WampType} from "../../../../lib/protocol/message.type";
 import {Session} from "../../../../lib/core/session";
-import progress = Mocha.reporters.progress;
 import {MyPromise} from "../../../../lib/ext-promise";
 
 async function getProgressSession() {
@@ -68,6 +67,3 @@ test("make call, receive RESULT(progress) message, and then RESULT(final), call 
     t.deepEqual(last.kwargs, {a : 2});
     t.true(progressMonitor.isComplete);
 });
-
-
-

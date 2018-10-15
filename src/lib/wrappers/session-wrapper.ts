@@ -108,6 +108,9 @@ export class SessionWrapper {
                 requestId : req.requestId,
                 options: req.options,
                 name: req.name,
+                get isHandled() {
+                    return req.isHandled;
+                },
                 args: this._config.transforms.jsonToObject(req.args),
                 kwargs: this._config.transforms.jsonToObject(req.kwargs),
                 handle(handler: ProcedureHandler) {
@@ -135,6 +138,11 @@ export class SessionWrapper {
                         }
                     })();
                 },
+                progress(args) {
+                    args.options = args.options || {};
+                    args.options.progress = true;
+                    return this.return(args);
+                },
                 return(args) {
                     args = _.cloneDeep(args);
                     args.args = self._config.transforms.objectToJson(args.args);
@@ -147,9 +155,7 @@ export class SessionWrapper {
                     args.kwargs = self._config.transforms.objectToJson(args.kwargs);
                     return req.error(args);
                 },
-                waitCancel(time) {
-                    return req.waitCancel(time);
-                }
+                interruptSignal : req.interruptSignal
             };
             return fullReq;
         }), catchError(err => {
@@ -190,7 +196,8 @@ export class SessionWrapper {
             })),
             get isOpen() {
                 return this.isOpen;
-            }
+            },
+            subscriptionId : evs.subscriptionId
         };
         return newSub;
     }

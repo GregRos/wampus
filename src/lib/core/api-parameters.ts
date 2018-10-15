@@ -37,7 +37,7 @@ export interface WampusReceiveResultArguments {
 export interface WampusSendErrorArguments {
     args?: WampArray;
     kwargs?: WampObject;
-    reason?: WampUriString;
+    error?: WampUriString;
     options?: WampObject;
 }
 
