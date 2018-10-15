@@ -4,14 +4,14 @@ import {
     WampUriString,
     WampusCompletionReason,
     WampusRouteCompletion
-} from "../protocol/messages";
-import {WampType} from "../protocol/message.type";
-import {Errs} from "../errors/errors";
-import {AdvProfile, WampUri} from "../protocol/uris";
-import {MessageBuilder} from "../protocol/builder";
-import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "../errors/types";
-import {Routes} from "../protocol/route-helpers";
-import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
+} from "./protocol/messages";
+import {WampType} from "./protocol/message.type";
+import {Errs} from "./errors/errors";
+import {AdvProfile, WampUri} from "./protocol/uris";
+import {MessageBuilder} from "./protocol/builder";
+import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "./errors/types";
+import {Routes} from "./protocol/route-helpers";
+import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "./protocol/options";
 import {WampMessenger} from "./messaging/wamp-messenger";
 import {CallResultData, EventSubscriptionTicket, ProcededureRegistrationTicket} from "./ticket";
 import {concat, defer, EMPTY, merge, Observable, race, Subject, throwError, timer} from "rxjs";
@@ -48,8 +48,8 @@ export interface SessionConfig {
 
 import WM = WampMessage;
 import CallSite = NodeJS.CallSite;
-import {MessageReader} from "../protocol/reader";
-import {EventInvocationData, InterruptRequest, ProcedureInvocationTicket} from "./ticket";
+import {MessageReader} from "./protocol/reader";
+import {EventInvocationData, InterruptData, ProcedureInvocationTicket} from "./ticket";
 
 let factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
 
@@ -62,7 +62,7 @@ export type AsyncCloseableObservable<T> = Observable<T> & {
     close(): Promise<void>;
 }
 
-export class Session {
+export class WampusSession {
     id: number;
     config: SessionConfig;
     public _messenger: WampMessenger<WampMessage.Any>;
@@ -85,7 +85,7 @@ export class Session {
         return this._welcomeDetails;
     }
 
-    static async create(config: SessionConfig & { transport: Promise<Transport> | Transport }): Promise<Session> {
+    static async create(config: SessionConfig & { transport: Promise<Transport> | Transport }): Promise<WampusSession> {
         // 1. Receive transport
         // 2. Handshake
         // 3. Wait until session closed:
@@ -93,7 +93,7 @@ export class Session {
         let transport = await config.transport;
 
         let messenger = WampMessenger.create<WampMessage.Any>(transport, MessageReader.read);
-        let session = new Session(null as never);
+        let session = new WampusSession(null as never);
         session.config = config;
         session._messenger = messenger;
         let getSessionFromShake$ = session._handshake$().pipe(map(welcome => {
@@ -214,7 +214,7 @@ export class Session {
                                 received : new Date(),
                                 options : x.options,
                                 source : procInvocationTicket
-                            } as InterruptRequest;
+                            } as InterruptData;
                         }), take(1), takeUntil(completeInterrupt), publishReplayAutoConnect());
                 let isHandled = false;
                 // Send message

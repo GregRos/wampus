@@ -23,7 +23,7 @@ import {ServerOptions} from "ws";
 import {Server} from "ws";
 import {IncomingMessage} from "http";
 import WebSocket = require("ws");
-import {WampusError, WampusNetworkError} from "../../../../lib/errors/types";
+import {WampusError, WampusNetworkError} from "../../../../lib/core/errors/types";
 import {TransportEvent} from "../../../../lib/core/transport/transport";
 import {fromPromise} from "rxjs/internal-compatibility";
 import {getTransportAndServerConn, receiveObjects$, rxjsWsServer, sendVia} from "../../../helpers/ws-server";
@@ -62,7 +62,7 @@ test("closes from server-side", async t => {
     let {server, client} = await getTransportAndServerConn();
     t.true(client.isActive);
     t.is(server.readyState, WebSocket.OPEN);
-    let closeEvent = client.events.pipe(choose(x => x.type === "closed" ? x : undefined), take(1)).toPromise();
+    let closeEvent = client.events$.pipe(choose(x => x.type === "closed" ? x : undefined), take(1)).toPromise();
     server.close();
     let ev = await closeEvent;
     t.is(ev.type, "closed");

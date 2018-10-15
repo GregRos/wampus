@@ -1,9 +1,9 @@
 import test, {GenericTestContext} from "ava";
 import {SessionStages} from "../../../helpers/wamp";
-import {WampType} from "../../../../lib/protocol/message.type";
+import {WampType} from "../../../../lib/core/protocol/message.type";
 import _ = require("lodash");
 import {choose} from "../../../../lib/utils/rxjs";
-import {WampCallOptions} from "../../../../lib/protocol/options";
+import {WampCallOptions} from "../../../../lib/core/protocol/options";
 import {map, share, shareReplay, take, toArray} from "rxjs/operators";
 import all = When.all;
 import {CallTicket} from "../../../../lib/core/ticket";
@@ -11,7 +11,7 @@ import {Observable} from "rxjs";
 import {WampResult} from "../../../../lib/core/ticket";
 import {Rxjs} from "../../../helpers/rxjs";
 import {MatchError} from "../../../helpers/errors";
-import {WampusIllegalOperationError, WampusInvocationError} from "../../../../lib/errors/types";
+import {WampusIllegalOperationError, WampusInvocationError} from "../../../../lib/core/errors/types";
 
 test("call sends CALL message", async t => {
     let {server, session} = await SessionStages.handshaken("a");

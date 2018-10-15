@@ -8,8 +8,8 @@ import {
     PublisherFeatures,
     WampPublishOptions,
     WampRegisterOptions
-} from "../../../../lib/protocol/options";
-import {AdvProfile} from "../../../../lib/protocol/uris";
+} from "../../../../lib/core/protocol/options";
+import {AdvProfile} from "../../../../lib/core/protocol/uris";
 
 
 function testUsingUnsupportedPublishOption(option : keyof WampRegisterOptions, feature : keyof DealerFeatures, featureName : string, value = true) {

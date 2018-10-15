@@ -2,12 +2,12 @@ import test from "ava";
 import {SessionStages} from "../../../helpers/wamp";
 import {Rxjs} from "../../../helpers/rxjs";
 import _ = require("lodash");
-import {WampType} from "../../../../lib/protocol/message.type";
-import {Session} from "../../../../lib/core/session";
+import {WampType} from "../../../../lib/core/protocol/message.type";
+import {WampusSession} from "../../../../lib/core/session";
 import {Operators} from "promise-stuff";
 import {MatchError} from "../../../helpers/errors";
 
-async function publishAck(s : Session) {
+async function publishAck(s : WampusSession) {
     return s.publish({
         name : "a",
         options : {

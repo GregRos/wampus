@@ -1,4 +1,4 @@
-import {HelloDetails} from "../protocol/options";
+import {HelloDetails} from "./protocol/options";
 
 export const wampusHelloDetails : HelloDetails = {
     roles: {

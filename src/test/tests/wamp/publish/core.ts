@@ -2,7 +2,7 @@ import test from "ava";
 import {SessionStages} from "../../../helpers/wamp";
 import {Rxjs} from "../../../helpers/rxjs";
 import _ = require("lodash");
-import {WampType} from "../../../../lib/protocol/message.type";
+import {WampType} from "../../../../lib/core/protocol/message.type";
 
 test("should send PUBLISH", async t => {
     let {server,session} = await SessionStages.handshaken("a");

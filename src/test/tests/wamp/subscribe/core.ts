@@ -2,9 +2,9 @@ import test from "ava";
 import {SessionStages} from "../../../helpers/wamp";
 import {Rxjs} from "../../../helpers/rxjs";
 import _ = require("lodash");
-import {WampType} from "../../../../lib/protocol/message.type";
+import {WampType} from "../../../../lib/core/protocol/message.type";
 import {MatchError} from "../../../helpers/errors";
-import {Session} from "../../../../lib/core/session";
+import {WampusSession} from "../../../../lib/core/session";
 import {Operators} from "promise-stuff";
 import {take} from "rxjs/operators";
 

@@ -1,5 +1,5 @@
-import {WampArray, WampMessage, WampPrimitive} from "../../protocol/messages";
-import {WampType} from "../../protocol/message.type";
+import {WampArray, WampMessage, WampPrimitive} from "../protocol/messages";
+import {WampType} from "../protocol/message.type";
 import _ = require("lodash");
 
 

@@ -1,7 +1,7 @@
 import {WebsocketTransport} from "../../../../lib/core/transport/websocket";
 import {JsonSerializer} from "../../../../lib/core/serializer/json";
 import {rxjsWsServer} from "../../../helpers/ws-server";
-import {WampusError} from "../../../../lib/errors/types";
+import {WampusError} from "../../../../lib/core/errors/types";
 import {MatchError} from "../../../helpers/errors";
 import test from "ava";
 

@@ -4,12 +4,12 @@ import {dummyTransport} from "../../helpers/dummy-transport";
 import {WampMessenger} from "../../../lib/core/messaging/wamp-messenger";
 import {take} from "rxjs/operators";
 import _ = require("lodash");
-import {WampType} from "../../../lib/protocol/message.type";
-import {WampArray, WampMessage} from "../../../lib/protocol/messages";
+import {WampType} from "../../../lib/core/protocol/message.type";
+import {WampArray, WampMessage} from "../../../lib/core/protocol/messages";
 
 import WM = WampMessage;
 import {MyPromise} from "../../../lib/ext-promise";
-import {WampusNetworkError} from "../../../lib/errors/types";
+import {WampusNetworkError} from "../../../lib/core/errors/types";
 import {MatchError} from "../../helpers/errors";
 import {Operators} from "promise-stuff";
 import {Rxjs} from "../../helpers/rxjs";

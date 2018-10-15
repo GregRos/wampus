@@ -2,9 +2,9 @@ import test from "ava";
 import {SessionStages} from "../../../helpers/wamp";
 import {Rxjs} from "../../../helpers/rxjs";
 import _ = require("lodash");
-import {WampType} from "../../../../lib/protocol/message.type";
+import {WampType} from "../../../../lib/core/protocol/message.type";
 import {MatchError} from "../../../helpers/errors";
-import {Session} from "../../../../lib/core/session";
+import {WampusSession} from "../../../../lib/core/session";
 import {Operators} from "promise-stuff";
 import {take} from "rxjs/operators";
 import {
@@ -12,8 +12,8 @@ import {
     DealerFeatures,
     WampRegisterOptions,
     WampSubscribeOptions
-} from "../../../../lib/protocol/options";
-import {AdvProfile} from "../../../../lib/protocol/uris";
+} from "../../../../lib/core/protocol/options";
+import {AdvProfile} from "../../../../lib/core/protocol/uris";
 
 function testUsingUnsupportedSubscribeOption(option : keyof WampSubscribeOptions, feature : keyof BrokerFeatures, featureName : string, value = true) {
     test(`using subscribe option ${option} when unsupported throws error about ${featureName}`, async t => {

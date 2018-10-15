@@ -1,14 +1,14 @@
 import test, {GenericTest, GenericTestContext} from "ava";
 import {first} from "rxjs/operators";
 import {MyPromise} from "../../../../lib/ext-promise";
-import {Session} from "../../../../lib/core/session";
+import {WampusSession} from "../../../../lib/core/session";
 import {MatchError} from "../../../helpers/errors";
-import {WampusNetworkError} from "../../../../lib/errors/types";
+import {WampusNetworkError} from "../../../../lib/core/errors/types";
 import {SessionStages} from "../../../helpers/wamp";
 import {Rxjs} from "../../../helpers/rxjs";
 
 
-async function isSessionClosed<T>(t : GenericTestContext<T>, session : Session) {
+async function isSessionClosed<T>(t : GenericTestContext<T>, session : WampusSession) {
     t.is(session.isActive, false);
     await t.throws(session.call({name : "ab"}).progress.toPromise(), MatchError.network("closed"));
     await t.throws(session.register({name : "ab"}), MatchError.network("closed"));

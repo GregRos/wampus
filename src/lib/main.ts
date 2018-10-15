@@ -5,9 +5,9 @@ import * as _ from "lodash";
 
 import {WebsocketTransport} from "./core/transport/websocket";
 import {JsonSerializer} from "./core/serializer/json";
-import {WampType} from "./protocol/message.type";
+import {WampType} from "./core/protocol/message.type";
 import {MyPromise} from "./ext-promise";
-import {Session} from "./core/session";
+import {WampusSession} from "./core/session";
 import {EventEmitter} from "events";
 import {flatMap, take, tap} from "rxjs/operators";
 import {Observable} from "rxjs";
@@ -48,11 +48,11 @@ function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observabl
     });
 
 
-    let session = fromPromise(Session.create({
+    let session = fromPromise(WampusSession.create({
         realm: "proxy",
         timeout: 10000,
         transport : transport
-    })).pipe(flatMap(async (lSession : Session) => {
+    })).pipe(flatMap(async (lSession : WampusSession) => {
         let session = new SessionWrapper(lSession, {
 
         });

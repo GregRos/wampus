@@ -1,7 +1,7 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/wamp";
 import {MatchError} from "../../../helpers/errors";
-import {AdvProfile} from "../../../../lib/protocol/uris";
+import {AdvProfile} from "../../../../lib/core/protocol/uris";
 
 test("disclose me fails when feature is not declared", async t => {
     let {session,server} = await SessionStages.handshaken("a");

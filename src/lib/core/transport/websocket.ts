@@ -2,12 +2,12 @@ import {EventEmitter} from "events";
 import {TransportClosed, TransportError, TransportEvent, TransportMessage, Transport} from "./transport";
 import * as ws from "ws";
 
-import {WampusNetworkError} from "../../errors/types";
+import {WampusNetworkError} from "../errors/types";
 const WebSocket = require('isomorphic-ws') as typeof ws;
 import {MyPromise} from "../../ext-promise";
 import {Serializer} from "../serializer/serializer";
-import {WampMessage, WampRawMessage} from "../../protocol/messages";
-import {WampusError} from "../../errors/types";
+import {WampMessage, WampRawMessage} from "../protocol/messages";
+import {WampusError} from "../errors/types";
 import {from, fromEvent, merge, NEVER, Observable, of, race, throwError} from "rxjs";
 import {map, startWith, switchAll, delay, take} from "rxjs/operators";
 import {skipAfter} from "../../utils/rxjs";
@@ -23,7 +23,7 @@ export class WebsocketTransport implements Transport{
     private _config : WebsocketTransportConfig;
     private _ws : ws;
     private _expectingClose : Promise<void>;
-    events : Observable<TransportEvent>;
+    events$ : Observable<TransportEvent>;
 
     /**
      * Use `WebsocketTransport.create` instead.
@@ -108,7 +108,7 @@ export class WebsocketTransport implements Transport{
             let messages: Observable<TransportEvent> = merge(closeEvent$, errorEvent$, msgEvent$).pipe(skipAfter((x : TransportEvent) => {
                 return x.type === "closed";
             }));
-            transport.events = messages;
+            transport.events$ = messages;
             if (ws.readyState === ws.OPEN) {
                 sub.next(transport);
             }

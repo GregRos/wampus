@@ -1,13 +1,13 @@
 import {dummyTransport} from "./dummy-transport";
-import {Session} from "../../lib/core/session";
+import {WampusSession} from "../../lib/core/session";
 import {first} from "rxjs/operators";
-import {BrokerFeatures, DealerFeatures} from "../../lib/protocol/options";
+import {BrokerFeatures, DealerFeatures} from "../../lib/core/protocol/options";
 
 
 export module SessionStages {
     export function fresh(realm: string) {
         let {client, server} = dummyTransport();
-        let session = Session.create({
+        let session = WampusSession.create({
             realm: realm,
             timeout: 1000,
             transport: client

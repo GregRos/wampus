@@ -2,7 +2,7 @@ import test from "ava";
 import {first} from "rxjs/operators";
 import {wampusHelloDetails} from "../../../lib/core/hello-details";
 import {MatchError} from "../../helpers/errors";
-import {WampusNetworkError} from "../../../lib/errors/types";
+import {WampusNetworkError} from "../../../lib/core/errors/types";
 import {SessionStages} from "../../helpers/wamp";
 
 test("HELLO is okay", async t => {

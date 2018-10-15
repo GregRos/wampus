@@ -17,12 +17,9 @@ export type WampUriString = string;
 export type WampPrimitive = string | number | boolean | WampId | WampUriString;
 
 export type WampObject = any;
-export type WampValue = WampObject | WampPrimitive | WampArray;
 
 export type WampArray = any[];
 export type WampRawMessage = WampArray;
-
-
 
 export interface WampMessage {
      type : WampType;

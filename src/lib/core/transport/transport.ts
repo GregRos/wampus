@@ -1,6 +1,6 @@
-import {WampusNetworkError} from "../../errors/types";
-import {WampMessage, WampObject, WampRawMessage} from "../../protocol/messages";
-import {WampusError} from "../../errors/types";
+import {WampusNetworkError} from "../errors/types";
+import {WampMessage, WampObject, WampRawMessage} from "../protocol/messages";
+import {WampusError} from "../errors/types";
 import {Observable} from "rxjs";
 
 export interface TransportClosed {
@@ -32,7 +32,7 @@ export interface Transport {
      * Exposes a COLD stream that gives access to the transport's network events.
      * Network events include Data, Error, and Completion.
      */
-    events : Observable<TransportEvent>;
+    events$ : Observable<TransportEvent>;
 
     close(obj ?: object) : Promise<void>;
 

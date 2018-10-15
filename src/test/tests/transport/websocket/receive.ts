@@ -9,7 +9,7 @@ test("just one", async t => {
     let o = {
         a : 5
     };
-    let receive = client.events.pipe(filter(x => x.type === "message"), take(1)).toPromise();
+    let receive = client.events$.pipe(filter(x => x.type === "message"), take(1)).toPromise();
     await sendVia(server, o);
     let ro = await receive;
     t.deepEqual(ro.data, o);
@@ -19,7 +19,7 @@ test("many", async t => {
     let {server,client} = await getTransportAndServerConn();
     let sent = _.range(0, 10).map(i => ({a : i}));
 
-    let receive10 = client.events.pipe(
+    let receive10 = client.events$.pipe(
         filter(x => x.type === "message"),
         take(10),
         map(x => x.data),

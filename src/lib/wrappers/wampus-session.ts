@@ -1,6 +1,6 @@
 import {EMPTY, Observable, of, Subject, Subscription, SubscriptionLike} from "rxjs";
 import {EventSubscriptionTicket, WampResult} from "../core/ticket";
-import {CancelMode, WampEventOptions} from "../protocol/options";
+import {CancelMode, WampEventOptions} from "../core/protocol/options";
 import {
     WampusCallArguments,
     WampusPublishArguments,
@@ -8,11 +8,11 @@ import {
     WampusSendErrorArguments,
     WampusSubcribeArguments
 } from "../core/message-arguments";
-import {Session} from "../core/session";
+import {WampusSession} from "../core/session";
 import {catchError, finalize, first, flatMap, map, takeUntil, tap} from "rxjs/operators";
-import {FullInvocationRequest, ProcedureHandler} from "./methods/invocation";
-import {WampusInvocationError} from "../errors/types";
-import {WampUri} from "../protocol/uris";
+import {ExtendedInvocationTicket, ProcedureHandler} from "./ticket";
+import {WampusInvocationError} from "../core/errors/types";
+import {WampUri} from "../core/protocol/uris";
 import CallSite = NodeJS.CallSite;
 import {defaultStackService, defaultTransformSet, StackTraceService, TransformSet} from "./wrapped-services";
 import _ = require("lodash");
@@ -29,7 +29,7 @@ export interface FullCallProgress extends Ticket {
 }
 
 export interface WrappedRegistration extends Ticket {
-    invocations: Observable<FullInvocationRequest>;
+    invocations: Observable<ExtendedInvocationTicket>;
 
     close(): Promise<void>;
 
@@ -44,7 +44,7 @@ export interface SessionWrapperConfig {
 export class SessionWrapper {
 
     //TODO: Change
-    constructor(public _session: Session, private _config: SessionWrapperConfig) {
+    constructor(public _session: WampusSession, private _config: SessionWrapperConfig) {
         this._config = _config = _config || {};
         this._config.transforms = _.defaults(this._config.transforms, defaultTransformSet);
         this._config.stackTraceService = _.defaults(this._config.stackTraceService, defaultStackService);
@@ -105,7 +105,7 @@ export class SessionWrapper {
         let self = this;
         let reg = await this._session.register(args);
         let invocations = reg.invocations.pipe(map(req => {
-            let fullReq: FullInvocationRequest = {
+            let fullReq: ExtendedInvocationTicket = {
                 invocationId : req.invocationId,
                 options: req.options,
                 name: req.name,

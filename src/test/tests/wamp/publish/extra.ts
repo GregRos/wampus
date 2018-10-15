@@ -3,7 +3,7 @@ import {SessionStages} from "../../../helpers/wamp";
 import {Rxjs} from "../../../helpers/rxjs";
 import {Operators} from "promise-stuff";
 import {MatchError} from "../../../helpers/errors";
-import {BrokerFeatures, PublisherFeatures, WampPublishOptions} from "../../../../lib/protocol/options";
+import {BrokerFeatures, PublisherFeatures, WampPublishOptions} from "../../../../lib/core/protocol/options";
 
 
 function testUsingUnsupportedPublishOption(option : keyof WampPublishOptions, feature : keyof BrokerFeatures, featureName : string, value = true) {

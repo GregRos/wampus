@@ -1,8 +1,8 @@
-import {WampMessage, WampObject} from "../protocol/messages";
+import {WampMessage, WampObject} from "../core/protocol/messages";
 import {WampusSendErrorArguments} from "../core/message-arguments";
 import CallSite = NodeJS.CallSite;
-import {WampusInvocationError} from "../errors/types";
-import {WampUri} from "../protocol/uris";
+import {WampusInvocationError} from "../core/errors/types";
+import {WampUri} from "../core/protocol/uris";
 import _ = require("lodash");
 export interface TransformSet {
     objectToJson?: RuntimeObjectToJson;

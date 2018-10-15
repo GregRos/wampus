@@ -1,4 +1,4 @@
-import {WampusIllegalOperationError, WampusInvocationCanceledError, WampusNetworkError} from "../../lib/errors/types";
+import {WampusIllegalOperationError, WampusInvocationCanceledError, WampusNetworkError} from "../../lib/core/errors/types";
 function partialMatchText(haystack, needles : string[]) {
     return needles.every(s => haystack.toLowerCase().includes(s.toLowerCase()))
 }
