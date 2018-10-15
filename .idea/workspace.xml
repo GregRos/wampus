@@ -70,7 +70,7 @@
           <entry key="json" value="465" />
           <entry key="md" value="109" />
           <entry key="ts" value="127531" />
-          <entry key="yml" value="135" />
+          <entry key="yml" value="147" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -107,7 +107,7 @@
           <entry key="Markdown" value="109" />
           <entry key="PLAIN_TEXT" value="33" />
           <entry key="TypeScript" value="127531" />
-          <entry key="YAML" value="135" />
+          <entry key="YAML" value="147" />
           <entry key="tsconfig" value="32" />
         </counts>
       </usages-collector>
@@ -191,8 +191,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.travis.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="392">
-              <caret line="14" column="9" lean-forward="true" selection-start-line="14" selection-start-column="9" selection-end-line="14" selection-end-column="9" />
+            <state relative-caret-position="140">
+              <caret line="5" column="12" selection-start-line="5" selection-start-column="12" selection-end-line="5" selection-end-column="12" />
             </state>
           </provider>
         </entry>
@@ -374,7 +374,7 @@
   <component name="PhpServers">
     <servers />
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="146" />
     <option name="y" value="-8" />
     <option name="width" value="1782" />
@@ -719,7 +719,7 @@
       <workItem from="1539431679380" duration="972000" />
       <workItem from="1539513973188" duration="13283000" />
       <workItem from="1539540676645" duration="479000" />
-      <workItem from="1539594320908" duration="8550000" />
+      <workItem from="1539594320908" duration="8741000" />
     </task>
     <servers />
   </component>
@@ -732,7 +732,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="686869000" />
+    <option name="totallyTimeSpent" value="687060000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="146" y="-8" width="1782" height="1216" extended-state="6" />
@@ -1360,8 +1360,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.travis.yml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="392">
-          <caret line="14" column="9" lean-forward="true" selection-start-line="14" selection-start-column="9" selection-end-line="14" selection-end-column="9" />
+        <state relative-caret-position="140">
+          <caret line="5" column="12" selection-start-line="5" selection-start-column="12" selection-end-line="5" selection-end-column="12" />
         </state>
       </provider>
     </entry>
