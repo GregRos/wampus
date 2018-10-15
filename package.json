@@ -1,20 +1,41 @@
 {
   "name": "wampus",
-  "version": "0.1.0-pre",
+  "version": "0.1.0-beta",
   "description": "WAMP client for JavaScript",
   "main": "dist/index.js",
   "repository": "https://github.com/GregRos/wampus",
   "author": "GregRos",
   "license": "MIT",
+  "directories": {
+    "test": "dist/test",
+    "lib": "dist/lib",
+    "example": "src/examples"
+  },
+  "keywords": [
+    "wamp",
+    "client",
+    "websocket",
+    "rpc",
+    "async",
+    "await",
+    "esnext",
+    "typescript",
+    "rxjs",
+    "observable",
+    "pubsub"
+  ],
+  "files": [
+    "dist/",
+    "src/"
+  ],
   "private": false,
   "scripts": {
-    "test": "ava",
+    "test": "nyc node_modules/ava/cli.js --files='dist/test/tests'",
     "build": "rm -rf dist/ && tsc"
   },
   "devDependencies": {
     "@types/autobahn": "^0.9.39",
     "@types/callsites": "^2.0.0",
-    "@types/chai-as-promised": "^7.1.0",
     "@types/lodash": "^4.14.116",
     "@types/node": "^10.11.3",
     "@types/string-template": "^1.0.2",
