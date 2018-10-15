@@ -33,7 +33,7 @@ test("event() waits for SUBSCRIBED, EventSubscription basic tests", async t => {
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let subscription = await pendingSub;
-    t.is(subscription.subscriptionId, 101);
+    t.is(subscription.info.subscriptionId, 101);
     t.true(subscription.isOpen);
     let eventMonitor = Rxjs.monitor(subscription.events);
     t.falsy(await eventMonitor.nextWithin(20));
@@ -49,13 +49,12 @@ test("send EVENT, verify EventArgs properties", async t => {
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
     let eventMonitor = Rxjs.monitor(sub.events);
-    server.send([36, sub.subscriptionId, 201, {}, ["a"], {a : 1}]);
+    server.send([36, sub.info.subscriptionId, 201, {}, ["a"], {a : 1}]);
     let event = await eventMonitor.next();
     t.true(_.isMatch(event, {
         kwargs : {a : 1},
         args : ["a"],
-        details : {},
-        name : "hi"
+        details : {}
     }));
     t.true(!eventMonitor.isComplete);
 });
@@ -68,8 +67,8 @@ test("send EVENT twice, observable emits two EventArgs", async t => {
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
     let eventMonitor = Rxjs.monitor(sub.events);
-    server.send([36, sub.subscriptionId, 201, {}, ["a"], {a : 1}]);
-    server.send([36, sub.subscriptionId, 201, {}, ["a"], {a : 2}]);
+    server.send([36, sub.info.subscriptionId, 201, {}, ["a"], {a : 1}]);
+    server.send([36, sub.info.subscriptionId, 201, {}, ["a"], {a : 2}]);
     let event = await eventMonitor.next();
     t.deepEqual(event.kwargs, { a : 1});
     t.deepEqual((await eventMonitor.next()).kwargs, {a : 2});
@@ -115,7 +114,7 @@ test("close() sends UNSUBSCRIBE, expects reply", async t => {
     let unsubMsg = await serverMonitor.next();
     t.true(_.isMatch(unsubMsg, {
         0 : 34,
-        2 : sub.subscriptionId
+        2 : sub.info.subscriptionId
     }));
     await t.throws(Operators.timeout(unsubbing, 20));
 });

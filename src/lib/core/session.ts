@@ -13,7 +13,7 @@ import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "../e
 import {Routes} from "../protocol/route-helpers";
 import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
 import {WampMessenger} from "./messaging/wamp-messenger";
-import {AbstractCallResult, AbstractEventArgs, AbstractInvocationRequest, InterruptRequest} from "./methods/methods";
+import {CallResultData, EventSubscriptionTicket, ProcededureRegistrationTicket} from "./ticket";
 import {concat, defer, EMPTY, merge, Observable, race, Subject, throwError, timer} from "rxjs";
 import {
     catchError,
@@ -34,9 +34,9 @@ import {
     WampusSendErrorArguments,
     WampusSendResultArguments,
     WampusSubcribeArguments
-} from "./api-parameters";
+} from "./message-arguments";
 import {MyPromise} from "../ext-promise";
-import {CallProgress, EventSubscription, Registration} from "./api-types";
+import {CallTicket} from "./ticket";
 import {completeOnError, publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../utils/rxjs";
 import {Transport} from "./transport/transport";
 import {wampusHelloDetails} from "./hello-details";
@@ -49,6 +49,7 @@ export interface SessionConfig {
 import WM = WampMessage;
 import CallSite = NodeJS.CallSite;
 import {MessageReader} from "../protocol/reader";
+import {EventInvocationData, InterruptRequest, ProcedureInvocationTicket} from "./ticket";
 
 let factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
 
@@ -103,7 +104,8 @@ export class Session {
         return concat(getSessionFromShake$).pipe(mapTo(session), take(1)).toPromise();
     }
 
-    async register({options, name}: WampusRegisterArguments): Promise<Registration> {
+    async register(full: WampusRegisterArguments): Promise<ProcededureRegistrationTicket> {
+        let {options, name} = full;
         /*
             Returns a cold observable yielding a hot observable.
             When the cold outer observable is subscribed to, Wampus will register the specified operation.
@@ -211,7 +213,7 @@ export class Session {
                             return {
                                 received : new Date(),
                                 options : x.options,
-                                message : x
+                                source : procInvocationTicket
                             } as InterruptRequest;
                         }), take(1), takeUntil(completeInterrupt), publishReplayAutoConnect());
                 let isHandled = false;
@@ -231,7 +233,8 @@ export class Session {
                     }
                     return this._messenger.send$(msg);
                 };
-                let req: AbstractInvocationRequest = {
+                let procInvocationTicket: ProcedureInvocationTicket = {
+                    source : procRegistrationTicket,
                     error({args, error, kwargs, options}: WampusSendErrorArguments) {
                         return send$(factory.error(WampType.INVOCATION, invocationMsg.requestId, options, error, args, kwargs)).toPromise();
                     },
@@ -253,25 +256,28 @@ export class Session {
                     kwargs: invocationMsg.kwargs,
                     options: invocationMsg.options,
                     name: name,
-                    requestId : invocationMsg.requestId
+                    invocationId : invocationMsg.requestId
                 };
-                return req;
+                return procInvocationTicket;
             });
 
             let invocations$ = expectInvocation$.pipe(whenInvocationReceived);
-            let reg: Registration = {
+            let procRegistrationTicket: ProcededureRegistrationTicket = {
                 invocations: invocations$.pipe(publishAutoConnect()),
                 close() {
                     if (closing) return closing;
                     closing = close();
                     return closing;
                 },
-                registrationId : registered.registrationId,
+                info : {
+                    ...full,
+                    registrationId : registered.registrationId
+                },
                 get isOpen() {
                     return !closing;
                 }
             };
-            return reg;
+            return procRegistrationTicket;
         });
 
         let result =
@@ -288,7 +294,8 @@ export class Session {
         return result.toPromise();
     }
 
-    async publish({options, args, kwargs, name}: WampusPublishArguments): Promise<void> {
+    async publish(full: WampusPublishArguments): Promise<void> {
+        let {options, args, kwargs, name} = full;
         if (!this.isActive) throw Errs.sessionClosed("publish");
 
         options = options || {};
@@ -344,7 +351,8 @@ export class Session {
      * @param {string} name
      * @returns {Stream<Stream<EventArgs>>}
      */
-    async event({options, name}: WampusSubcribeArguments): Promise<EventSubscription> {
+    async event(full: WampusSubcribeArguments): Promise<EventSubscriptionTicket> {
+        let {options, name} = full;
         if (!this.isActive) throw Errs.sessionClosed("event unsubscribe");
 
         options = options || {};
@@ -408,16 +416,16 @@ export class Session {
             };
 
             let mapToLibraryEvent = map((x: WM.Event) => {
-                let a: AbstractEventArgs = {
+                let a: EventInvocationData = {
                     args: x.args,
                     details: x.details,
                     kwargs: x.kwargs,
-                    name: name
+                    source : eventSubscriptionTicket
                 };
                 return a;
             });
 
-            return {
+            let eventSubscriptionTicket =  {
                 close() {
                     if (closing) return closing;
                     closing = close();
@@ -429,18 +437,24 @@ export class Session {
                     }
                     throw err;
                 }), takeUntil(closeSignal), publishAutoConnect()),
-                subscriptionId : subscribed.subscriptionId,
+                info : {
+                    subscriptionId : subscribed.subscriptionId,
+                    name : name,
+                    options : options
+                },
                 get isOpen() {
                     return !closing;
                 }
-            } as EventSubscription
+            } as EventSubscriptionTicket;
+            return eventSubscriptionTicket;
         });
 
         return expectSubscribedOrError.pipe(take(1), whenSubscribedStreamEvents).toPromise();
     }
 
-    call({options, name, args, kwargs}: WampusCallArguments): CallProgress {
+    call(full: WampusCallArguments): CallTicket {
         try {
+            let {options, name, args, kwargs} = full;
             if (!this.isActive) throw Errs.sessionClosed("call procedure");
             options = options || {};
             let self = this;
@@ -503,8 +517,9 @@ export class Session {
                         kwargs: x.kwargs,
                         isProgress: x.details.progress || false,
                         details: x.details,
-                        name: name
-                    } as AbstractCallResult;
+                        name: name,
+                        source : callTicket
+                    } as CallResultData;
                 }
                 throw new Error("Unknown message.");
             });
@@ -522,7 +537,7 @@ export class Session {
 
             let allStream =
                 merge(expectResultOrError, sending)
-                    .pipe(skipAfter((x: AbstractCallResult) => !x.isProgress));
+                    .pipe(skipAfter((x: CallResultData) => !x.isProgress));
 
             let startCancelling = mode => defer(async () => {
                 if (this._isClosing) return;
@@ -549,8 +564,7 @@ export class Session {
                 }))).toPromise();
             });
             let progressStream = allStream.pipe(publishAutoConnect());
-            let prog: CallProgress = {
-                requestId : msg.requestId,
+            let callTicket: CallTicket = {
                 progress: progressStream,
                 close(mode ?: CancelMode) {
                     if (!features.call_cancelling) {
@@ -562,22 +576,30 @@ export class Session {
                 },
                 get isOpen() {
                     return !!canceling;
+                },
+                info : {
+                    ...full,
+                    callId : msg.requestId
                 }
             };
 
-            return prog;
+            return callTicket;
         }
         catch (err) {
+            //TODO: Error handling for CALL should be improved before release!
             return {
-                requestId : 0,
                 async close() {
 
                 },
                 progress: throwError(err),
                 get isOpen() {
                     return false;
+                },
+                info : {
+                    ...full,
+                    callId : 0
                 }
-            } as CallProgress;
+            } as CallTicket;
         }
     }
 

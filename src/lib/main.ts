@@ -12,7 +12,7 @@ import {EventEmitter} from "events";
 import {flatMap, take, tap} from "rxjs/operators";
 import {Observable} from "rxjs";
 import {fromPromise} from "rxjs/internal-compatibility";
-import {AbstractEventArgs} from "./core/methods/methods";
+import {EventInvocationData} from "./core/ticket";
 import {SessionWrapper} from "./wrappers/session-wrapper";
 require("longjohn");
 

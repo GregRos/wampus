@@ -1,5 +1,5 @@
 import {EMPTY, Observable, of, Subject, Subscription, SubscriptionLike} from "rxjs";
-import {AbstractCallResult, AbstractEventArgs, AbstractInvocationRequest, WampResult} from "../core/methods/methods";
+import {EventSubscriptionTicket, WampResult} from "../core/ticket";
 import {CancelMode, WampEventOptions} from "../protocol/options";
 import {
     WampusCallArguments,
@@ -7,7 +7,7 @@ import {
     WampusRegisterArguments,
     WampusSendErrorArguments,
     WampusSubcribeArguments
-} from "../core/api-parameters";
+} from "../core/message-arguments";
 import {Session} from "../core/session";
 import {catchError, finalize, first, flatMap, map, takeUntil, tap} from "rxjs/operators";
 import {FullInvocationRequest, ProcedureHandler} from "./methods/invocation";
@@ -17,17 +17,18 @@ import CallSite = NodeJS.CallSite;
 import {defaultStackService, defaultTransformSet, StackTraceService, TransformSet} from "./wrapped-services";
 import _ = require("lodash");
 import {call} from "when/node";
-import {AsyncSubscription, EventSubscription} from "../core/api-types";
+import {Ticket} from "../core/ticket";
 import {makeNonEnumerable} from "../utils/object";
+import {CallResultData, EventInvocationData, ProcedureInvocationTicket} from "../core/ticket";
 
-export interface FullCallProgress extends AsyncSubscription {
+export interface FullCallProgress extends Ticket {
     result: Promise<WampResult>;
-    progress(): Observable<AbstractCallResult>;
+    progress(): Observable<CallResultData>;
 
     close(mode ?: CancelMode): Promise<void>;
 }
 
-export interface WrappedRegistration extends AsyncSubscription {
+export interface WrappedRegistration extends Ticket {
     invocations: Observable<FullInvocationRequest>;
 
     close(): Promise<void>;
@@ -69,9 +70,9 @@ export class SessionWrapper {
                 details: prog.details,
                 args: this._config.transforms.objectToJson(prog.args),
                 kwargs: this._config.transforms.objectToJson(prog.kwargs),
-                name: prog.name,
-                isProgress: prog.isProgress
-            } as AbstractCallResult;
+                isProgress: prog.isProgress,
+                source : prog.source
+            } as CallResultData;
             return newResult;
         }), catchError(err => {
             if (err instanceof WampusInvocationError) {
@@ -105,9 +106,10 @@ export class SessionWrapper {
         let reg = await this._session.register(args);
         let invocations = reg.invocations.pipe(map(req => {
             let fullReq: FullInvocationRequest = {
-                requestId : req.requestId,
+                invocationId : req.invocationId,
                 options: req.options,
                 name: req.name,
+                source : req.source,
                 get isHandled() {
                     return req.isHandled;
                 },
@@ -180,16 +182,20 @@ export class SessionWrapper {
         return x;
     };
 
-    async event(args: WampusSubcribeArguments): Promise<EventSubscription> {
+    async event(full: WampusSubcribeArguments): Promise<EventSubscriptionTicket> {
         let trace = this._captureTrace();
-        let evs = await this._session.event(args);
-        let newSub : EventSubscription = {
+        let evs = await this._session.event(full);
+        let newSub : EventSubscriptionTicket = {
             async close() {
                 await evs.close();
             },
-            events : evs.events.pipe(tap(e => {
-                e.kwargs = this._config.transforms.jsonToObject(e.kwargs);
-                e.args = this._config.transforms.jsonToObject(e.args);
+            events : evs.events.pipe(map(e => {
+                let x = {
+                    ...e,
+                    kwargs : this._config.transforms.jsonToObject(e.kwargs),
+                    args : this._config.transforms.jsonToObject(e.args)
+                };
+                return x;
             }), catchError(err => {
                 this._embedStack(err, trace);
                 throw err;
@@ -197,7 +203,7 @@ export class SessionWrapper {
             get isOpen() {
                 return this.isOpen;
             },
-            subscriptionId : evs.subscriptionId
+            info : evs.info
         };
         return newSub;
     }

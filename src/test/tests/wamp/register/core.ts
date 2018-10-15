@@ -65,7 +65,7 @@ test("receive REGISTERED, get registration", async t => {
     let next = await serverMonitor.next();
     server.send([65, next[1], 101]);
     let registered = await registering;
-    t.is(registered.registrationId, 101);
+    t.is(registered.info.registrationId, 101);
     t.falsy(await serverMonitor.nextWithin(10), "sent extra message");
 });
 
@@ -85,7 +85,7 @@ test("after registered, receive INVOCATION, observable fires", async t => {
     let registration = await getRegistration({session,server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
     let serverMonitor = Rxjs.monitor(server.messages);
-    server.send([68, 1, registration.registrationId, {}, ["a"], {a : 1}]);
+    server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 1}]);
     let next = await invocationMonitor.next();
     t.true(_.isMatch(next, {
         kwargs : {a : 1},
@@ -100,10 +100,10 @@ test("after registered, receive two INVOCATIONS, observable fire each time", asy
     let registration = await getRegistration({session,server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
     let serverMonitor = Rxjs.monitor(server.messages);
-    server.send([68, 1, registration.registrationId, {}, ["a"], {a : 1}]);
+    server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 1}]);
     let next = await invocationMonitor.next();
     t.deepEqual(next.kwargs, {a : 1});
-    server.send([68, 1, registration.registrationId, {}, ["a"], {a : 2}]);
+    server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 2}]);
     t.deepEqual((await invocationMonitor.next()).kwargs, {a : 2});
     t.falsy(await invocationMonitor.nextWithin(10));
 });
@@ -113,7 +113,7 @@ test("after INVOCATION, return sends YIELD(final), no need for reply", async t =
     let registration = await getRegistration({session,server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
     let serverMonitor = Rxjs.monitor(server.messages);
-    server.send([68, 1, registration.registrationId, {}, ["a"], {a : 1}]);
+    server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 1}]);
     let next = await invocationMonitor.next();
     await next.return({
         args : ["a"],
@@ -124,7 +124,7 @@ test("after INVOCATION, return sends YIELD(final), no need for reply", async t =
     let ret = await serverMonitor.next();
     t.true(_.isMatch(ret, {
         0 : 70,
-        1 : next.requestId,
+        1 : next.invocationId,
         2 : {},
         3 : ["a"],
         4 : {a : 1}
@@ -137,7 +137,7 @@ test("after INVOCATION, error sends ERROR, no need for reply", async t => {
     let registration = await getRegistration({session,server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
     let serverMonitor = Rxjs.monitor(server.messages);
-    server.send([68, 1, registration.registrationId, {}, ["a"], {a : 1}]);
+    server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 1}]);
     let next = await invocationMonitor.next();
     await next.error({
         args : ["a"],
@@ -150,7 +150,7 @@ test("after INVOCATION, error sends ERROR, no need for reply", async t => {
     t.true(_.isMatch(ret, {
         0 : 8,
         1 : WampType.INVOCATION,
-        2 : next.requestId,
+        2 : next.invocationId,
         3 : {},
         4 : "custom.error",
         5 : ["a"],
@@ -164,7 +164,7 @@ test("after INVOCATION, after error(), cannot call result() or error().", async 
     let registration = await getRegistration({session,server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
     let serverMonitor = Rxjs.monitor(server.messages);
-    server.send([68, 1, registration.registrationId, {}, ["a"], {a : 1}]);
+    server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 1}]);
     let next = await invocationMonitor.next();
     next.error({
         error : "custom.error"
@@ -178,7 +178,7 @@ test("after INVOCATION, after return(final), cannot call result() or error().", 
     let registration = await getRegistration({session,server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
     let serverMonitor = Rxjs.monitor(server.messages);
-    server.send([68, 1, registration.registrationId, {}, ["a"], {a : 1}]);
+    server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 1}]);
     let next = await invocationMonitor.next();
     next.return({
 
@@ -195,7 +195,7 @@ test("registration.close() sends UNREGISTER, expects reply", async t => {
     let unregisterMsg = await serverMonitor.next();
     t.true(_.isMatch(unregisterMsg, {
         0 : 66,
-        2 : registration.registrationId
+        2 : registration.info.registrationId
     }));
     await t.throws(Operators.timeout(unregistering, 10))
 });
@@ -226,8 +226,8 @@ test("after UNREGISTERED, handle pending invocations", async t => {
     let registration = await getRegistration({session,server});
     let serverMonitor = Rxjs.monitor(server.messages);
     let invocationMonitor = Rxjs.monitor(registration.invocations);
-    server.send([68, 1, registration.registrationId, {}]);
-    server.send([68, 1, registration.registrationId, {}]);
+    server.send([68, 1, registration.info.registrationId, {}]);
+    server.send([68, 1, registration.info.registrationId, {}]);
     let unregistering = registration.close();
     let unregisterMsg = await serverMonitor.next();
     server.send([67, unregisterMsg[1]]);

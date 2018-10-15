@@ -1,10 +1,11 @@
 import {
     WampusSendErrorArguments,
     WampusSendResultArguments
-} from "../../core/api-parameters";
-import {AbstractInvocationRequest, WampResult} from "../../core/methods/methods";
+} from "../../core/message-arguments";
+import {WampResult} from "../../core/ticket";
+import {ProcedureInvocationTicket} from "../../core/ticket";
 
-export interface FullInvocationRequest extends AbstractInvocationRequest {
+export interface FullInvocationRequest extends ProcedureInvocationTicket {
     handle(handler: ProcedureHandler): void;
 }
 

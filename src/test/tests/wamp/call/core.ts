@@ -6,9 +6,9 @@ import {choose} from "../../../../lib/utils/rxjs";
 import {WampCallOptions} from "../../../../lib/protocol/options";
 import {map, share, shareReplay, take, toArray} from "rxjs/operators";
 import all = When.all;
-import {CallProgress} from "../../../../lib/core/api-types";
+import {CallTicket} from "../../../../lib/core/ticket";
 import {Observable} from "rxjs";
-import {WampResult} from "../../../../lib/core/methods/methods";
+import {WampResult} from "../../../../lib/core/ticket";
 import {Rxjs} from "../../../helpers/rxjs";
 import {MatchError} from "../../../helpers/errors";
 import {WampusIllegalOperationError, WampusInvocationError} from "../../../../lib/errors/types";
@@ -25,7 +25,7 @@ test("call sends CALL message", async t => {
     });
     t.true(_.isMatch(await sbs.next(), {
         0: WampType.CALL,
-        1 : cr.requestId,
+        1 : cr.info.callId,
         2: {},
         3: "a",
         4 : [1],
@@ -49,13 +49,12 @@ test("send CALL, receive final RESULT, report result to caller, verify progress 
         }
     });
     await sbs.next();
-    server.send([WampType.RESULT, cp.requestId, {}, ["a"], {a : 5}]);
+    server.send([WampType.RESULT, cp.info.callId, {}, ["a"], {a : 5}]);
     let allProgress = await cp.progress.pipe(toArray()).toPromise();
     t.true(_.isMatch(allProgress, [{
         isProgress : false,
         kwargs : {a : 5},
         args : ["a"],
-        name : "a",
     }] as typeof allProgress))
 });
 
@@ -71,8 +70,8 @@ test("send 2 identical calls, receive RESULTs, verify progress streams", async t
     await sbs.nextK(2);
     let pr1 = cp1.progress.pipe(map(x => x.kwargs), toArray()).toPromise();
     let pr2 = cp2.progress.pipe(map(x => x.kwargs), toArray()).toPromise();
-    server.send([WampType.RESULT, cp1.requestId, {}, null, {a : 1}]);
-    server.send([WampType.RESULT, cp2.requestId, {}, null, {a : 2}]);
+    server.send([WampType.RESULT, cp1.info.callId, {}, null, {a : 1}]);
+    server.send([WampType.RESULT, cp2.info.callId, {}, null, {a : 2}]);
 
 
     t.deepEqual(await pr1, [{a: 1}]);
@@ -91,8 +90,8 @@ test("make 2 different calls, receive RESULTs, verify progress streams", async t
     await sbs.nextK(2);
     let pr1 = cp1.progress.pipe(map(x => x.kwargs), toArray()).toPromise();
     let pr2 = cp2.progress.pipe(map(x => x.kwargs), toArray()).toPromise();
-    server.send([WampType.RESULT, cp1.requestId, {}, null, {a : 1}]);
-    server.send([WampType.RESULT, cp2.requestId, {}, null, {a : 2}]);
+    server.send([WampType.RESULT, cp1.info.callId, {}, null, {a : 1}]);
+    server.send([WampType.RESULT, cp2.info.callId, {}, null, {a : 2}]);
 
     t.deepEqual(await pr1, [{a : 1}]);
     t.deepEqual(await pr2, [{a : 2}]);
@@ -106,7 +105,7 @@ function sendCallReceiveErrorMacro(o : {title : string, errId : string, errMatch
             name: "a"
         });
         await sbs.next();
-        server.send([WampType.ERROR, WampType.CALL, cp1.requestId, {}, o.errId, ["a"], {a : 1}]);
+        server.send([WampType.ERROR, WampType.CALL, cp1.info.callId, {}, o.errId, ["a"], {a : 1}]);
         await t.throws(cp1.progress.toPromise(), o.errMatch);
     });
 }

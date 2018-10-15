@@ -24,7 +24,7 @@ test("when cancel unsupported, throw error", async t => {
     });
     await t.throws(prog.close(), MatchError.illegalOperation("CallCancelling"));
     let pending = prog.progress.toPromise();
-    server.send([WampType.RESULT, prog.requestId, {}, [], {a: 1}]);
+    server.send([WampType.RESULT, prog.info.callId, {}, [], {a: 1}]);
     t.deepEqual((await pending).kwargs, {a: 1});
 });
 
@@ -38,7 +38,7 @@ test("should send CANCEL", async t => {
     prog.close();
     let a  = await serverMonitor.next();
     let expectCancel = await serverMonitor.next();
-    t.deepEqual(expectCancel, [49, prog.requestId, {
+    t.deepEqual(expectCancel, [49, prog.info.callId, {
         mode : "kill"
     }]);
 });
@@ -54,7 +54,7 @@ test("reply with ERROR(cancel), close() should resolve and progress should error
 
     // skip CALL and CANCEL
     await serverMonitor.nextK(2);
-    server.send([WampType.ERROR, WampType.CALL, prog.requestId, {}, "wamp.error.canceled"]);
+    server.send([WampType.ERROR, WampType.CALL, prog.info.callId, {}, "wamp.error.canceled"]);
     await Promise.all([
         t.notThrows(closing),
         t.throws(progress.toPromise(), MatchError.cancelled())
@@ -72,7 +72,7 @@ test("reply with RESULT(final), close() should resolve and progress should compl
 
     // skip CALL and CANCEL
     await serverMonitor.nextK(2);
-    server.send([WampType.RESULT, prog.requestId, {}, [], {a : 1}]);
+    server.send([WampType.RESULT, prog.info.callId, {}, [], {a : 1}]);
     await t.notThrows(closing);
     t.deepEqual((await progress).kwargs, {a : 1});
     await Promise.all([
@@ -91,7 +91,7 @@ test("reply with RESULT(progress), close() should not resolve and progress shoul
     let closing = prog.close();
     // skip CALL and CANCEL
     await serverMonitor.nextK(2);
-    server.send([WampType.RESULT, prog.requestId, {progress : true}, [], {a : 1}]);
+    server.send([WampType.RESULT, prog.info.callId, {progress : true}, [], {a : 1}]);
     t.deepEqual((await progressMonitor.next()).kwargs, {a : 1});
     await t.throws(Operators.timeout(closing, 10, () => Promise.reject("error")));
 });
@@ -104,7 +104,7 @@ test("reply with ERROR(non-cancel), close() should reject", async t => {
     });
     let progress = prog.progress.toPromise();
     let closing = prog.close();
-    server.send([WampType.ERROR, WampType.CALL, prog.requestId, {}, "wamp.error.whatever"]);
+    server.send([WampType.ERROR, WampType.CALL, prog.info.callId, {}, "wamp.error.whatever"]);
     //TODO: Validate error details
     await Promise.all([t.throws(progress), t.notThrows(closing)]);
 });
@@ -116,7 +116,7 @@ test("cancel is no-op in resolved call", async t => {
         name: "a"
     });
     let progress = prog.progress.toPromise();
-    server.send([WampType.RESULT, prog.requestId, {}, [], {a : 1}]);
+    server.send([WampType.RESULT, prog.info.callId, {}, [], {a : 1}]);
     await t.notThrows(progress);
     serverMonitor.clear();
     await t.notThrows(prog.close());
@@ -132,7 +132,7 @@ test("cancel is no-op in rejected call", async t => {
     });
     let progress = prog.progress.toPromise();
 
-    server.send([WampType.ERROR, WampType.CALL, prog.requestId, {}, "wamp.error.runtime_error", [], {a : 1}]);
+    server.send([WampType.ERROR, WampType.CALL, prog.info.callId, {}, "wamp.error.runtime_error", [], {a : 1}]);
     await t.throws(progress);
     serverMonitor.clear();
     await t.notThrows(prog.close());

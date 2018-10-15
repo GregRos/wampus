@@ -28,24 +28,11 @@ export interface WampusSendResultArguments {
     options?: WampYieldOptions;
 }
 
-export interface WampusReceiveResultArguments {
-    kwargs : WampObject;
-    args : WampArray;
-    options : WampResultOptions
-}
-
 export interface WampusSendErrorArguments {
     args?: WampArray;
     kwargs?: WampObject;
     error?: WampUriString;
     options?: WampObject;
-}
-
-export interface WampusReceiveErrorArguments {
-    args : WampArray;
-    kwargs : WampObject;
-    reason : WampUriString;
-    options ?: WampObject;
 }
 
 export interface WampusSubcribeArguments {

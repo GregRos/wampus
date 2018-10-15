@@ -20,9 +20,9 @@ test("INTERRUPT sent, then call return() to make sure call is still working", as
     let registration = await getRegistration({session,server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
     let serverMonitor = Rxjs.monitor(server.messages);
-    server.send([68, 1, registration.registrationId, {}, ["a"], {a : 1}]);
+    server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 1}]);
     let invReq = await invocationMonitor.next();
-    server.send([49, invReq.requestId, {}]);
+    server.send([49, invReq.invocationId, {}]);
     await MyPromise.wait(10);
     await invReq.return({kwargs : {a : 1}});
     t.deepEqual((await serverMonitor.next())[4], {a : 1});
@@ -33,7 +33,7 @@ test("interruptSignal doesn't fire with no INTERRUPT message, and finishes once 
     let registration = await getRegistration({session,server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
     let serverMonitor = Rxjs.monitor(server.messages);
-    server.send([68, 1, registration.registrationId, {}, ["a"], {a : 1}]);
+    server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 1}]);
     let invReq = await invocationMonitor.next();
     let interruptMonitor = Rxjs.monitor(invReq.interruptSignal);
     t.falsy(await interruptMonitor.nextWithin(50));
@@ -46,9 +46,9 @@ test("interruptSignal replays past interrupt", async t => {
     let registration = await getRegistration({session,server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
     let serverMonitor = Rxjs.monitor(server.messages);
-    server.send([68, 1, registration.registrationId, {}, ["a"], {a : 1}]);
+    server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 1}]);
     let invReq = await invocationMonitor.next();
-    server.send([69, invReq.requestId, {}]);
+    server.send([69, invReq.invocationId, {}]);
     await MyPromise.wait(50);
     // TODO: Check cancel token properties
     t.truthy(await invReq.interruptSignal.toPromise());
@@ -59,10 +59,10 @@ test("interruptSignal waits for future interrupt", async t => {
     let registration = await getRegistration({session,server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
     let serverMonitor = Rxjs.monitor(server.messages);
-    server.send([68, 1, registration.registrationId, {}, ["a"], {a : 1}]);
+    server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 1}]);
     let invReq = await invocationMonitor.next();
     let interrupt = invReq.interruptSignal.toPromise();
     await MyPromise.wait(50);
-    server.send([69, invReq.requestId, {}]);
+    server.send([69, invReq.invocationId, {}]);
     t.truthy(await interrupt);
 });
