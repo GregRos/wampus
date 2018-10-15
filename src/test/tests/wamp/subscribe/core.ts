@@ -96,6 +96,13 @@ testSubscribeReceiveError({
     title : "send SUBSCRIBE, receive ERROR(invalid_uri), throw "
 });
 
+testSubscribeReceiveError({
+    errorName : "wamp.error.blah",
+    //TODO: Better error verification
+    errMatch : MatchError.illegalOperation("ERROR"),
+    title : "send SUBSCRIBE, receive ERROR(custom), throw "
+});
+
 test("close() sends UNSUBSCRIBE, expects reply", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);

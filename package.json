@@ -21,6 +21,7 @@
     "@types/ws": "^5.1.2",
     "autobahn": "^18.3.2",
     "ava": "^0.25.0",
+    "codecov": "^3.1.0",
     "lodash": "^4.17.11",
     "longjohn": "^0.2.12",
     "nyc": "^13.1.0",
@@ -49,18 +50,16 @@
       "source-map-support/register"
     ]
   },
-  "nyc" : {
-    "per-file" : true,
-    "produce-source-map" : true,
-    "include" :[
+  "nyc": {
+    "per-file": true,
+    "produce-source-map": true,
+    "include": [
       "dist/lib/**/*.js"
     ],
-    "reporter" : [
+    "reporter": [
       "lcov",
       "text-summary"
     ],
-    "sourceMap" : true
-
+    "sourceMap": true
   }
-
 }

@@ -117,9 +117,33 @@ sendCallReceiveErrorMacro({
 });
 
 sendCallReceiveErrorMacro({
+    errMatch : MatchError.illegalOperation("OptionNotAllowed "),
+    errId : "wamp.error.option_not_allowed",
+    title : "send CALL, receive ERROR(Option not allowed), throw"
+});
+
+sendCallReceiveErrorMacro({
     errMatch : MatchError.illegalOperation("Exclusions", "callee"),
     errId : "wamp.error.no_eligible_callee",
     title : "send CALL, receive ERROR(No eligible callee), throw"
+});
+
+sendCallReceiveErrorMacro({
+    errMatch : MatchError.illegalOperation("Argument"),
+    errId : "wamp.error.invalid_argument",
+    title : "send CALL, receive ERROR(Invalid argument), throw"
+});
+
+sendCallReceiveErrorMacro({
+    errMatch : MatchError.illegalOperation("disclose_me"),
+    errId : "wamp.error.option_disallowed.disclose_me",
+    title : "send CALL, receive ERROR(option disallowed - disclose me), throw"
+});
+
+sendCallReceiveErrorMacro({
+    errMatch : MatchError.illegalOperation("not authorized"),
+    errId : "wamp.error.not_authorized",
+    title : "send CALL, receive ERROR(not authorized), throw"
 });
 
 sendCallReceiveErrorMacro({

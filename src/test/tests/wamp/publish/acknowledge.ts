@@ -33,7 +33,7 @@ test("receive PUBLISHED, resolve", async t => {
 });
 
 
-function macroReceiveError(o : {errId : string, errMatch : (x : any) => boolean, title : string}) {
+function testPublishError(o : {errId : string, errMatch : (x : any) => boolean, title : string}) {
     test(o.title, async t => {
         let {session,server} = await SessionStages.handshaken("a");
         let serverMonitor = Rxjs.monitor(server.messages);
@@ -44,7 +44,7 @@ function macroReceiveError(o : {errId : string, errMatch : (x : any) => boolean,
     });
 }
 
-macroReceiveError({
+testPublishError({
     errMatch :  MatchError.illegalOperation("URI"),
     errId : "wamp.error.invalid_uri",
     title : "receive ERROR(invalid URI), throw"
