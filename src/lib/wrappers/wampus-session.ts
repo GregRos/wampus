@@ -8,7 +8,7 @@ import {
     WampusSendErrorArguments,
     WampusSubcribeArguments
 } from "../core/message-arguments";
-import {WampusSession} from "../core/session";
+import {WampusCoreSession} from "../core/core-session";
 import {catchError, finalize, first, flatMap, map, takeUntil, tap} from "rxjs/operators";
 import {ExtendedInvocationTicket, ProcedureHandler} from "./ticket";
 import {WampusInvocationError} from "../core/errors/types";
@@ -41,10 +41,10 @@ export interface SessionWrapperConfig {
     stackTraceService?: StackTraceService;
 }
 
-export class SessionWrapper {
+export class WampusSession {
 
     //TODO: Change
-    constructor(public _session: WampusSession, private _config: SessionWrapperConfig) {
+    constructor(public _session: WampusCoreSession, private _config: SessionWrapperConfig) {
         this._config = _config = _config || {};
         this._config.transforms = _.defaults(this._config.transforms, defaultTransformSet);
         this._config.stackTraceService = _.defaults(this._config.stackTraceService, defaultStackService);

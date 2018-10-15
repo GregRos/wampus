@@ -12,7 +12,7 @@ import {MessageBuilder} from "./protocol/builder";
 import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "./errors/types";
 import {Routes} from "./protocol/route-helpers";
 import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "./protocol/options";
-import {WampMessenger} from "./messaging/wamp-messenger";
+import {WampProtocolClient} from "./protocol/wamp-protocol-client";
 import {CallResultData, EventSubscriptionTicket, ProcededureRegistrationTicket} from "./ticket";
 import {concat, defer, EMPTY, merge, Observable, race, Subject, throwError, timer} from "rxjs";
 import {
@@ -47,25 +47,15 @@ export interface SessionConfig {
 }
 
 import WM = WampMessage;
-import CallSite = NodeJS.CallSite;
 import {MessageReader} from "./protocol/reader";
 import {EventInvocationData, InterruptData, ProcedureInvocationTicket} from "./ticket";
 
 let factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
 
-export interface ReportedErrorDuringFinalize {
-    error: WampusError;
-    trace: CallSite[];
-}
-
-export type AsyncCloseableObservable<T> = Observable<T> & {
-    close(): Promise<void>;
-}
-
-export class WampusSession {
+export class WampusCoreSession {
     id: number;
     config: SessionConfig;
-    public _messenger: WampMessenger<WampMessage.Any>;
+    protocol: WampProtocolClient<WampMessage.Any>;
     private _welcomeDetails: WelcomeDetails;
     private _isClosing = false;
 
@@ -85,17 +75,17 @@ export class WampusSession {
         return this._welcomeDetails;
     }
 
-    static async create(config: SessionConfig & { transport: Promise<Transport> | Transport }): Promise<WampusSession> {
+    static async create(config: SessionConfig & { transport: Promise<Transport> | Transport }): Promise<WampusCoreSession> {
         // 1. Receive transport
         // 2. Handshake
         // 3. Wait until session closed:
         //      On close: Initiate goodbye sequence.
         let transport = await config.transport;
 
-        let messenger = WampMessenger.create<WampMessage.Any>(transport, MessageReader.read);
-        let session = new WampusSession(null as never);
+        let messenger = WampProtocolClient.create<WampMessage.Any>(transport, MessageReader.read);
+        let session = new WampusCoreSession(null as never);
         session.config = config;
-        session._messenger = messenger;
+        session.protocol = messenger;
         let getSessionFromShake$ = session._handshake$().pipe(map(welcome => {
             session.id = welcome.sessionId;
             session._welcomeDetails = welcome.details;
@@ -139,10 +129,10 @@ export class WampusSession {
         if (options.invoke && options.invoke !== InvocationPolicy.Single && !features.shared_registration) {
             throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.SharedRegistration);
         }
-        let sending$ = this._messenger.send$(msg).pipe(mergeMapTo(EMPTY));
+        let sending$ = this.protocol.send$(msg).pipe(mergeMapTo(EMPTY));
 
         // Expect a [REGISTERED] or [ERROR, REGISTER] message
-        let expectRegisteredOrError$ = this._messenger.expectAny$(
+        let expectRegisteredOrError$ = this.protocol.expectAny$(
             Routes.registered(msg.requestId),
             Routes.error(WampType.REGISTER, msg.requestId)
         );
@@ -165,7 +155,7 @@ export class WampusSession {
         // Operator - When Registered message is received, start listening for invocations.
         let whenRegisteredReceived = map((registered: WM.Registered) => {
             // Expect INVOCATION message
-            let expectInvocation$ = this._messenger.expectAny$(Routes.invocation(registered.registrationId)).pipe(catchError(err => {
+            let expectInvocation$ = this.protocol.expectAny$(Routes.invocation(registered.registrationId)).pipe(catchError(err => {
                 if (err instanceof WampusRouteCompletion) {
                     return EMPTY;
                 }
@@ -176,10 +166,10 @@ export class WampusSession {
             let close = async () => {
                 if (this._isClosing) return;
                 let unregisterMsg = factory.unregister(registered.registrationId);
-                let sendingUnregister$ = this._messenger.send$(unregisterMsg);
+                let sendingUnregister$ = this.protocol.send$(unregisterMsg);
 
                 // Wait for a UNREGISTERED or ERROR;UNREGISTER message.
-                let receivedUnregistered$ = this._messenger.expectAny$(Routes.unregistered(unregisterMsg.requestId), Routes.error(WampType.UNREGISTER, unregisterMsg.requestId));
+                let receivedUnregistered$ = this.protocol.expectAny$(Routes.unregistered(unregisterMsg.requestId), Routes.error(WampType.UNREGISTER, unregisterMsg.requestId));
                 let failOnUnregisterError = map((x: WM.Any) => {
                     if (x instanceof WampMessage.Error) {
                         this._throwCommonError(unregisterMsg, x);
@@ -208,7 +198,7 @@ export class WampusSession {
                 // Expect INTERRUPT message for cancellation
                 let completeInterrupt = new Subject();
                 let expectInterrupt =
-                    this._messenger.expectAny$([WampType.INTERRUPT, invocationMsg.requestId])
+                    this.protocol.expectAny$([WampType.INTERRUPT, invocationMsg.requestId])
                         .pipe(map(x => x as WM.Interrupt), map(x => {
                             return {
                                 received : new Date(),
@@ -231,7 +221,7 @@ export class WampusSession {
                         completeInterrupt.next();
                         isHandled = true
                     }
-                    return this._messenger.send$(msg);
+                    return this.protocol.send$(msg);
                 };
                 let procInvocationTicket: ProcedureInvocationTicket = {
                     source : procRegistrationTicket,
@@ -314,7 +304,7 @@ export class WampusSession {
             let msg = factory.publish(options, name, args, kwargs);
             let expectAcknowledge$: Observable<any>;
             if (options.acknowledge) {
-                let expectPublishedOrError$ = this._messenger.expectAny$(
+                let expectPublishedOrError$ = this.protocol.expectAny$(
                     Routes.published(msg.requestId),
                     Routes.error(WampType.PUBLISH, msg.requestId)
                 ).pipe(take(1), catchError(err => {
@@ -336,7 +326,7 @@ export class WampusSession {
             } else {
                 expectAcknowledge$ = EMPTY;
             }
-            let sendingPublish = this._messenger.send$(msg);
+            let sendingPublish = this.protocol.send$(msg);
             return merge(sendingPublish, expectAcknowledge$);
         }).toPromise();
     }
@@ -363,8 +353,8 @@ export class WampusSession {
 
         let expectSubscribedOrError = defer(() => {
             let msg = factory.subscribe(options, name);
-            let sending$ = this._messenger.send$(msg);
-            let expectSubscribedOrError$ = this._messenger.expectAny$(
+            let sending$ = this.protocol.send$(msg);
+            let expectSubscribedOrError$ = this.protocol.expectAny$(
                 Routes.subscribed(msg.requestId),
                 Routes.error(WampType.SUBSCRIBE, msg.requestId)
             );
@@ -380,12 +370,12 @@ export class WampusSession {
 
         let whenSubscribedStreamEvents = map((subscribed: WM.Subscribed) => {
             let unsub = factory.unsubscribe(subscribed.subscriptionId);
-            let expectEvents$ = this._messenger.expectAny$(Routes.event(subscribed.subscriptionId));
+            let expectEvents$ = this.protocol.expectAny$(Routes.event(subscribed.subscriptionId));
             let closeSignal = new Subject();
             let closing : Promise<any>;
             let close = async () => {
                 if (this._isClosing) return;
-                let expectUnsubscribedOrError$ = this._messenger.expectAny$(
+                let expectUnsubscribedOrError$ = this.protocol.expectAny$(
                     Routes.unsubscribed(unsub.requestId),
                     Routes.error(WampType.UNSUBSCRIBE, unsub.requestId)
                 );
@@ -404,7 +394,7 @@ export class WampusSession {
                     return msg as WM.Unsubscribed;
                 });
 
-                let sendUnsub$ = this._messenger.send$(unsub);
+                let sendUnsub$ = this.protocol.send$(unsub);
 
                 let total = merge(sendUnsub$, expectUnsubscribedOrError$).pipe(failOnUnsubscribedError, take(1), catchError(err => {
                     if (err instanceof WampusRouteCompletion) {
@@ -523,7 +513,7 @@ export class WampusSession {
                 }
                 throw new Error("Unknown message.");
             });
-            let expectResultOrError = self._messenger.expectAny$(
+            let expectResultOrError = self.protocol.expectAny$(
                 Routes.result(msg.requestId),
                 Routes.error(WampType.CALL, msg.requestId)
             ).pipe(failOnError, catchError(err => {
@@ -533,7 +523,7 @@ export class WampusSession {
                 throw err;
             }), toLibraryResult).pipe(publishAutoConnect())
 
-            let sending = this._messenger.send$(msg).pipe(publishAutoConnect());
+            let sending = this.protocol.send$(msg).pipe(publishAutoConnect());
 
             let allStream =
                 merge(expectResultOrError, sending)
@@ -544,9 +534,9 @@ export class WampusSession {
                 let cancel = factory.cancel(msg.requestId, {
                     mode: mode
                 });
-                let sendCancel$ = this._messenger.send$(cancel);
+                let sendCancel$ = this.protocol.send$(cancel);
 
-                return merge(sendCancel$, self._messenger.expectAny$(
+                return merge(sendCancel$, self.protocol.expectAny$(
                     Routes.result(msg.requestId),
                     Routes.error(WampType.CALL, msg.requestId)
                 ).pipe(skipAfter(x => {
@@ -642,7 +632,7 @@ export class WampusSession {
         }), take(1));
 
         return concat(this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.SelfGoodbye)), expectGoodbyeOrTimeout, defer(async () => {
-            return this._messenger.transport.close();
+            return this.protocol.transport.close();
         }));
     }
 
@@ -654,7 +644,7 @@ export class WampusSession {
 
     private _closeRoutes$(err: WampusRouteCompletion) {
         return defer(async () => {
-            this._messenger.invalidateAllRoutes(err);
+            this.protocol.invalidateAllRoutes(err);
             await MyPromise.wait(0);
             return 5;
         }).pipe(take(1), map(x => {
@@ -669,16 +659,16 @@ export class WampusSession {
         let reason: WampusRouteCompletion;
         if (msg instanceof WampMessage.Abort) {
             return concat(this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.RouterAbort, msg)), defer(async () => {
-                await this._messenger.transport.close();
+                await this.protocol.transport.close();
             }));
         }
         else {
-            let echo$ = this._messenger.send$(factory.goodbye({
+            let echo$ = this.protocol.send$(factory.goodbye({
                 message: "Goodbye received"
             }, WampUri.CloseReason.GoodbyeAndOut));
 
             let x = concat(echo$, this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.RouterGoodbye, msg)), defer(async () => {
-                await this._messenger.transport.close();
+                await this.protocol.transport.close();
             }));
             return x;
         }
@@ -687,7 +677,7 @@ export class WampusSession {
 
     private _abort$(details: WampObject, reason: WampUriString) {
         let errorOnTimeout = timeoutWith(this.config.timeout, throwError(Errs.Leave.networkErrorOnAbort(new Error("Timed Out"))));
-        let sending$ = this._messenger.send$(factory.abort(details, reason));
+        let sending$ = this.protocol.send$(factory.abort(details, reason));
         let all$ = sending$.pipe(errorOnTimeout, catchError(() => {
             console.warn("Network error on ABORT.");
             return EMPTY;
@@ -697,8 +687,8 @@ export class WampusSession {
 
     private _goodbye$(details: WampObject, reason: WampUriString) {
         let myGoodbye = factory.goodbye(details, reason);
-        let sending$ = this._messenger.send$(myGoodbye);
-        let expectingByeOrError$ = this._messenger.expectNext$();
+        let sending$ = this.protocol.send$(myGoodbye);
+        let expectingByeOrError$ = this.protocol.expectNext$();
 
         let failOnError = map((x: WM.Any) => {
             if (x instanceof WampMessage.Error) {
@@ -715,7 +705,7 @@ export class WampusSession {
     }
 
     private _handshake$(): Observable<WM.Welcome> {
-        let messenger = this._messenger;
+        let messenger = this.protocol;
         let config = this.config;
         let hello = factory.hello(config.realm, {
             ...wampusHelloDetails
@@ -752,27 +742,27 @@ export class WampusSession {
             if (err instanceof WampusRouteCompletion) return EMPTY;
             throw err;
         });
-        let serverInitiatedClose$ = this._messenger.expectAny$([WampType.ABORT], [WampType.GOODBYE]).pipe(take(1), flatMap((x: WM.Abort) => {
+        let serverInitiatedClose$ = this.protocol.expectAny$([WampType.ABORT], [WampType.GOODBYE]).pipe(take(1), flatMap((x: WM.Abort) => {
             return concat(this._handleClose$(x));
         }), catchCompletionError);
 
-        let serverDroppedConnection$ = this._messenger.onClosed.pipe(flatMap(x => {
+        let serverDroppedConnection$ = this.protocol.onClosed.pipe(flatMap(x => {
             return concat(timer(0), defer(() => {
-                this._messenger.invalidateAllRoutes(new WampusRouteCompletion(WampusCompletionReason.RouterDisconnect));
+                this.protocol.invalidateAllRoutes(new WampusRouteCompletion(WampusCompletionReason.RouterDisconnect));
                 this._isClosing = true;
                 return;
             }))
         }));
 
 
-        let serverSentInvalidMessage$ = this._messenger.expectAny$(
+        let serverSentInvalidMessage$ = this.protocol.expectAny$(
             [WampType.WELCOME],
             [WampType.CHALLENGE]
         ).pipe(flatMap(x => {
             return this._abortDueToProtoViolation(`Received unexpected message of type ${WampType[x.type]}.`);
         }), catchCompletionError);
 
-        let serverSentRouterMessage$ = this._messenger.expectAny$(
+        let serverSentRouterMessage$ = this.protocol.expectAny$(
             [WampType.AUTHENTICATE],
             [WampType.YIELD],
             [WampType.HELLO],

@@ -52,7 +52,7 @@ function setDefaults(target : MessageRoute<any>) {
 /**
  * A component that routes WAMP protocol messages to code that expects them.
  */
-export class MessageRouter<T> {
+export class KeyedMessageRouter<T> {
     private _root: RouteIndex<T> = null;
 
     count() {

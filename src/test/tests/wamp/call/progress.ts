@@ -2,7 +2,7 @@ import test from "ava";
 import {SessionStages} from "../../../helpers/wamp";
 import {Rxjs} from "../../../helpers/rxjs";
 import {WampType} from "../../../../lib/core/protocol/message.type";
-import {WampusSession} from "../../../../lib/core/session";
+import {WampusCoreSession} from "../../../../lib/core/core-session";
 import {MyPromise} from "../../../../lib/ext-promise";
 
 async function getProgressSession() {
@@ -13,7 +13,7 @@ async function getProgressSession() {
     });
 }
 
-async function makeProgressiveCall(session : WampusSession, name : string) {
+async function makeProgressiveCall(session : WampusCoreSession, name : string) {
     return session.call({
         name: name,
         options : {

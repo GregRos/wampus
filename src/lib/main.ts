@@ -7,13 +7,13 @@ import {WebsocketTransport} from "./core/transport/websocket";
 import {JsonSerializer} from "./core/serializer/json";
 import {WampType} from "./core/protocol/message.type";
 import {MyPromise} from "./ext-promise";
-import {WampusSession} from "./core/session";
+import {WampusCoreSession} from "./core/core-session";
 import {EventEmitter} from "events";
 import {flatMap, take, tap} from "rxjs/operators";
 import {Observable} from "rxjs";
 import {fromPromise} from "rxjs/internal-compatibility";
 import {EventInvocationData} from "./core/ticket";
-import {SessionWrapper} from "./wrappers/session-wrapper";
+import {WampusSession} from "./wrappers/wampus-session";
 require("longjohn");
 
 function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observable<T>> & {
@@ -48,12 +48,12 @@ function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observabl
     });
 
 
-    let session = fromPromise(WampusSession.create({
+    let session = fromPromise(WampusCoreSession.create({
         realm: "proxy",
         timeout: 10000,
         transport : transport
-    })).pipe(flatMap(async (lSession : WampusSession) => {
-        let session = new SessionWrapper(lSession, {
+    })).pipe(flatMap(async (lSession : WampusCoreSession) => {
+        let session = new WampusSession(lSession, {
 
         });
         let proc_ab = await session.register({
@@ -84,7 +84,7 @@ function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observabl
                 a : 5
             }
         });
-        console.log("SUBSCRIPTIONS:", (session as any)._session._messenger._router.count());
+        console.log("SUBSCRIPTIONS:", (session as any)._session.protocol._router.count());
         console.log("RESULT:", z);
         await session.close();
     })).toPromise();

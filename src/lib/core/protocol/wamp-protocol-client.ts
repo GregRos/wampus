@@ -1,10 +1,10 @@
-import {WampArray, WampMessage, WampusRouteCompletion} from "../protocol/messages";
+import {WampArray, WampMessage, WampusRouteCompletion} from "./messages";
 import {WebsocketTransport} from "../transport/websocket";
 import {WampusNetworkError} from "../errors/types";
-import {MessageRoute, MessageRouter} from "../routing/message-router";
+import {MessageRoute, KeyedMessageRouter} from "../routing/keyed-message-router";
 import {Transport, TransportMessage} from "../transport/transport";
 import {Errs} from "../errors/errors";
-import {MessageReader} from "../protocol/reader";
+import {MessageReader} from "./reader";
 import {merge, Observable, of, Subject} from "rxjs";
 import {flatMap, take, tap} from "rxjs/operators";
 import {MyPromise} from "../../ext-promise";
@@ -13,14 +13,14 @@ import {MyPromise} from "../../ext-promise";
  * This class provides a mid-level abstraction layer between the transport and the WAMP session object.
  * It's responsible for sending messages and using the message router to connect messages to their subscriptions.
  */
-export class WampMessenger<T> {
+export class WampProtocolClient<T> {
     transport : Transport;
     private _onClosed = new Subject<object>();
     private _onUnknownMessage = new Subject<any>();
-    public _router : MessageRouter<T>;
+    public _router : KeyedMessageRouter<T>;
     private _selector : (x : WampArray) => T;
     /**
-     * Use [[WampMessenger.create]].
+     * Use [[WampProtocolClient.create]].
      * @param {never} never
      */
     constructor(never : never) {
@@ -28,15 +28,15 @@ export class WampMessenger<T> {
     }
 
     /**
-     * Creates a COLD observable that will yield a WampMessenger when subscribed to. Closing the subscription will dispose of the messenger.
+     * Creates a COLD observable that will yield a WampProtocolClient when subscribed to. Closing the subscription will dispose of the messenger.
      * The messenger will be created with a transport, ready for messaging.
-     * @returns {Observable<WampMessenger>}
+     * @returns {Observable<WampProtocolClient>}
      */
-    static create<T>(transport : Transport, selector : (x : WampArray) => T) : WampMessenger<T> {
-        let messenger = new WampMessenger<T>(null as never);
+    static create<T>(transport : Transport, selector : (x : WampArray) => T) : WampProtocolClient<T> {
+        let messenger = new WampProtocolClient<T>(null as never);
         messenger.transport = transport;
         messenger._selector = selector;
-        let router = messenger._router = new MessageRouter<T>();
+        let router = messenger._router = new KeyedMessageRouter<T>();
         messenger._setupRouter();
         return messenger;
     }

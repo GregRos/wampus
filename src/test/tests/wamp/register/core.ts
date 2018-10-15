@@ -4,7 +4,7 @@ import {Rxjs} from "../../../helpers/rxjs";
 import _ = require("lodash");
 import {WampType} from "../../../../lib/core/protocol/message.type";
 import {MatchError} from "../../../helpers/errors";
-import {WampusSession} from "../../../../lib/core/session";
+import {WampusCoreSession} from "../../../../lib/core/core-session";
 import {Operators} from "promise-stuff";
 
 test("sends REGISTER", async t => {
@@ -69,7 +69,7 @@ test("receive REGISTERED, get registration", async t => {
     t.falsy(await serverMonitor.nextWithin(10), "sent extra message");
 });
 
-async function getRegistration({session,server} : {session : WampusSession, server : any}) {
+async function getRegistration({session,server} : {session : WampusCoreSession, server : any}) {
     let serverMonitor = Rxjs.monitor(server.messages);
     let registering = session.register({
         name : "a"

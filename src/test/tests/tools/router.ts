@@ -1,8 +1,8 @@
 import test, {GenericTestContext} from "ava";
 import {dummyTransport} from "../../helpers/dummy-transport";
-import {WampMessenger} from "../../../lib/core/messaging/wamp-messenger";
+import {WampProtocolClient} from "../../../lib/core/protocol/wamp-protocol-client";
 import {Observer, Subject} from "rxjs";
-import {MessageRouter} from "../../../lib/core/routing/message-router";
+import {KeyedMessageRouter} from "../../../lib/core/routing/keyed-message-router";
 import _ = require("lodash");
 
 function getRoute<T>(key : any[], tag ?: string) {
@@ -18,14 +18,14 @@ function setEqual(a : any[], b : any[]) {
 }
 
 test("should fulfill empty invariants", t => {
-    let router = new MessageRouter();
+    let router = new KeyedMessageRouter();
     t.is(router.count(), 0);
     t.deepEqual(router.matchAll(), []);
     t.deepEqual(router.match([]), []);
 });
 
 test("remove non-existent route is okay", t => {
-    let router = new MessageRouter();
+    let router = new KeyedMessageRouter();
     router.removeRoute({
         keys : []
     });
@@ -33,7 +33,7 @@ test("remove non-existent route is okay", t => {
 });
 
 test("match two identical routes + removals", t => {
-    let router = new MessageRouter();
+    let router = new KeyedMessageRouter();
     let route1 = getRoute([1, 2, 3], "a");
     let route2 = getRoute([1, 2, 3], "b");
     router.insertRoute(route1);
@@ -44,7 +44,7 @@ test("match two identical routes + removals", t => {
 });
 
 test("match single route in various ways", t => {
-    let router = new MessageRouter();
+    let router = new KeyedMessageRouter();
     let route = getRoute([1, 2, 3]);
     router.insertRoute(route);
     t.is(router.count(), 1);
@@ -56,7 +56,7 @@ test("match single route in various ways", t => {
 });
 
 test("match two routes, subsequence case", t => {
-    let router = new MessageRouter();
+    let router = new KeyedMessageRouter();
     let route1 = getRoute([1, 2, 3]);
     let route2 = getRoute([1, 2, 3, 4]);
     router.insertRoute(route1);
@@ -70,7 +70,7 @@ test("match two routes, subsequence case", t => {
 });
 
 test("match two routes, shared prefix case", t => {
-    let router = new MessageRouter();
+    let router = new KeyedMessageRouter();
     let route1 = getRoute([1, 2, 4]);
     let route2 = getRoute([1, 2, 3, 4]);
     router.insertRoute(route1);
@@ -86,7 +86,7 @@ test("match two routes, shared prefix case", t => {
 });
 
 test("match two isolated routes", t => {
-    let router = new MessageRouter();
+    let router = new KeyedMessageRouter();
     let route1 = getRoute([1, 2, 3]);
     let route2 = getRoute([5, 6, 1]);
     router.insertRoute(route1);
@@ -98,7 +98,7 @@ test("match two isolated routes", t => {
 });
 
 test("remove route", t => {
-    let router = new MessageRouter();
+    let router = new KeyedMessageRouter();
     let route1 = getRoute([1, 2, 4]);
     let route2 = getRoute([1, 2, 3]);
     router.insertRoute(route1);

@@ -1,7 +1,7 @@
 import test from "ava";
 import {SessionStages} from "../../helpers/wamp";
 import {dummyTransport} from "../../helpers/dummy-transport";
-import {WampMessenger} from "../../../lib/core/messaging/wamp-messenger";
+import {WampProtocolClient} from "../../../lib/core/protocol/wamp-protocol-client";
 import {take} from "rxjs/operators";
 import _ = require("lodash");
 import {WampType} from "../../../lib/core/protocol/message.type";
@@ -15,7 +15,7 @@ import {Operators} from "promise-stuff";
 import {Rxjs} from "../../helpers/rxjs";
 function createPair() {
     let {server, client} = dummyTransport();
-    let messenger = WampMessenger.create<WampArray>(client, x => x);
+    let messenger = WampProtocolClient.create<WampArray>(client, x => x);
     return {messenger,server};
 }
 
