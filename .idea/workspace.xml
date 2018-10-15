@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="479a9b66-b2d3-4247-b6ef-de9bcc439169" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/tests/wamp/call/core.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/tests/wamp/call/core.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/tests/wamp/publish/acknowledge.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/tests/wamp/publish/acknowledge.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/tests/wamp/subscribe/core.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/tests/wamp/subscribe/core.ts" afterDir="false" />
@@ -70,7 +71,7 @@
           <entry key="json" value="465" />
           <entry key="md" value="109" />
           <entry key="ts" value="127531" />
-          <entry key="yml" value="147" />
+          <entry key="yml" value="149" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -107,7 +108,7 @@
           <entry key="Markdown" value="109" />
           <entry key="PLAIN_TEXT" value="33" />
           <entry key="TypeScript" value="127531" />
-          <entry key="YAML" value="147" />
+          <entry key="YAML" value="149" />
           <entry key="tsconfig" value="32" />
         </counts>
       </usages-collector>
@@ -191,8 +192,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.travis.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="140">
-              <caret line="5" column="12" selection-start-line="5" selection-start-column="12" selection-end-line="5" selection-end-column="12" />
+            <state relative-caret-position="336">
+              <caret line="12" column="38" selection-start-line="12" selection-start-column="38" selection-end-line="12" selection-end-column="38" />
             </state>
           </provider>
         </entry>
@@ -375,10 +376,10 @@
     <servers />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="146" />
+    <option name="x" value="55" />
     <option name="y" value="-8" />
-    <option name="width" value="1782" />
-    <option name="height" value="1216" />
+    <option name="width" value="1778" />
+    <option name="height" value="1205" />
   </component>
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="1" id="Add" />
@@ -719,7 +720,7 @@
       <workItem from="1539431679380" duration="972000" />
       <workItem from="1539513973188" duration="13283000" />
       <workItem from="1539540676645" duration="479000" />
-      <workItem from="1539594320908" duration="8741000" />
+      <workItem from="1539594320908" duration="9074000" />
     </task>
     <servers />
   </component>
@@ -732,7 +733,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="687060000" />
+    <option name="totallyTimeSpent" value="687393000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="146" y="-8" width="1782" height="1216" extended-state="6" />
@@ -1360,8 +1361,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.travis.yml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="140">
-          <caret line="5" column="12" selection-start-line="5" selection-start-column="12" selection-end-line="5" selection-end-column="12" />
+        <state relative-caret-position="336">
+          <caret line="12" column="38" selection-start-line="12" selection-start-column="38" selection-end-line="12" selection-end-column="38" />
         </state>
       </provider>
     </entry>
