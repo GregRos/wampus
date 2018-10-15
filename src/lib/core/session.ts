@@ -10,7 +10,7 @@ import {Errs} from "../errors/errors";
 import {AdvProfile, WampUri} from "../protocol/uris";
 import {MessageBuilder} from "../protocol/builder";
 import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "../errors/types";
-import {Routes} from "./messaging/routing/route-helpers";
+import {Routes} from "../protocol/route-helpers";
 import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
 import {WampMessenger} from "./messaging/wamp-messenger";
 import {AbstractCallResult, AbstractEventArgs, AbstractInvocationRequest, InterruptRequest} from "./methods/methods";
@@ -38,7 +38,7 @@ import {
 import {MyPromise} from "../ext-promise";
 import {CallProgress, EventSubscription, Registration} from "./api-types";
 import {completeOnError, publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../utils/rxjs";
-import {Transport} from "./messaging/transport/transport";
+import {Transport} from "./transport/transport";
 import {wampusHelloDetails} from "./hello-details";
 
 export interface SessionConfig {

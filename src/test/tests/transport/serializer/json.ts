@@ -1,5 +1,5 @@
 import test from "ava";
-import {JsonSerializer} from "../../../../lib/core/messaging/serializer/json";
+import {JsonSerializer} from "../../../../lib/core/serializer/json";
 let serializer = () => new JsonSerializer();
 
 let testWith = (name : string, obj : any) => {

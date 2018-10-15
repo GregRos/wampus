@@ -1,4 +1,4 @@
-import {Transport, TransportEvent} from "../../lib/core/messaging/transport/transport";
+import {Transport, TransportEvent} from "../../lib/core/transport/transport";
 import {defer, EMPTY, Observable, Subject} from "rxjs";
 import {WampObject} from "../../lib/protocol/messages";
 import {choose} from "../../lib/utils/rxjs";

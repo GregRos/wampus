@@ -1,7 +1,7 @@
 import test from "ava";
 
-import {WebsocketTransport} from "../../../../lib/core/messaging/transport/websocket";
-import {JsonSerializer} from "../../../../lib/core/messaging/serializer/json";
+import {WebsocketTransport} from "../../../../lib/core/transport/websocket";
+import {JsonSerializer} from "../../../../lib/core/serializer/json";
 import * as ws from "ws";
 import {MatchError} from "../../../helpers/errors";
 import {concat, defer, fromEvent, merge, NEVER, Observable, range, timer, zip} from "rxjs";
@@ -24,7 +24,7 @@ import {Server} from "ws";
 import {IncomingMessage} from "http";
 import WebSocket = require("ws");
 import {WampusError, WampusNetworkError} from "../../../../lib/errors/types";
-import {TransportEvent} from "../../../../lib/core/messaging/transport/transport";
+import {TransportEvent} from "../../../../lib/core/transport/transport";
 import {fromPromise} from "rxjs/internal-compatibility";
 import {getTransportAndServerConn, receiveObjects$, rxjsWsServer, sendVia} from "../../../helpers/ws-server";
 import {MyPromise} from "../../../../lib/ext-promise";

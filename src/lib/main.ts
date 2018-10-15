@@ -3,8 +3,8 @@ import "../setup";
 import {yamprint} from "yamprint";
 import * as _ from "lodash";
 
-import {WebsocketTransport} from "./core/messaging/transport/websocket";
-import {JsonSerializer} from "./core/messaging/serializer/json";
+import {WebsocketTransport} from "./core/transport/websocket";
+import {JsonSerializer} from "./core/serializer/json";
 import {WampType} from "./protocol/message.type";
 import {MyPromise} from "./ext-promise";
 import {Session} from "./core/session";

@@ -1,8 +1,8 @@
 import {WampArray, WampMessage, WampusRouteCompletion} from "../../protocol/messages";
-import {WebsocketTransport} from "./transport/websocket";
+import {WebsocketTransport} from "../transport/websocket";
 import {WampusNetworkError} from "../../errors/types";
-import {MessageRoute, MessageRouter} from "./routing/message-router";
-import {Transport, TransportMessage} from "./transport/transport";
+import {MessageRoute, MessageRouter} from "../routing/message-router";
+import {Transport, TransportMessage} from "../transport/transport";
 import {Errs} from "../../errors/errors";
 import {MessageReader} from "../../protocol/reader";
 import {merge, Observable, of, Subject} from "rxjs";

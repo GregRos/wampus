@@ -2,7 +2,7 @@ import test, {GenericTestContext} from "ava";
 import {dummyTransport} from "../../helpers/dummy-transport";
 import {WampMessenger} from "../../../lib/core/messaging/wamp-messenger";
 import {Observer, Subject} from "rxjs";
-import {MessageRouter} from "../../../lib/core/messaging/routing/message-router";
+import {MessageRouter} from "../../../lib/core/routing/message-router";
 import _ = require("lodash");
 
 function getRoute<T>(key : any[], tag ?: string) {

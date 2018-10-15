@@ -1,8 +1,8 @@
 import {fromEvent, Observable} from "rxjs";
 import WebSocket = require("ws");
 import {map, take, takeUntil} from "rxjs/operators";
-import {WebsocketTransport} from "../../lib/core/messaging/transport/websocket";
-import {JsonSerializer} from "../../lib/core/messaging/serializer/json";
+import {WebsocketTransport} from "../../lib/core/transport/websocket";
+import {JsonSerializer} from "../../lib/core/serializer/json";
 
 
 export class RxjsWsServer {

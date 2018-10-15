@@ -2,15 +2,15 @@ import {EventEmitter} from "events";
 import {TransportClosed, TransportError, TransportEvent, TransportMessage, Transport} from "./transport";
 import * as ws from "ws";
 
-import {WampusNetworkError} from "../../../errors/types";
+import {WampusNetworkError} from "../../errors/types";
 const WebSocket = require('isomorphic-ws') as typeof ws;
-import {MyPromise} from "../../../ext-promise";
+import {MyPromise} from "../../ext-promise";
 import {Serializer} from "../serializer/serializer";
-import {WampMessage, WampRawMessage} from "../../../protocol/messages";
-import {WampusError} from "../../../errors/types";
+import {WampMessage, WampRawMessage} from "../../protocol/messages";
+import {WampusError} from "../../errors/types";
 import {from, fromEvent, merge, NEVER, Observable, of, race, throwError} from "rxjs";
 import {map, startWith, switchAll, delay, take} from "rxjs/operators";
-import {skipAfter} from "../../../utils/rxjs";
+import {skipAfter} from "../../utils/rxjs";
 
 export interface WebsocketTransportConfig {
     url: string;

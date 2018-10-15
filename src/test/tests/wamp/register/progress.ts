@@ -6,7 +6,7 @@ import {WampType} from "../../../../lib/protocol/message.type";
 import {MatchError} from "../../../helpers/errors";
 import {Session} from "../../../../lib/core/session";
 import {Operators} from "promise-stuff";
-import {Routes} from "../../../../lib/core/messaging/routing/route-helpers";
+import {Routes} from "../../../../lib/protocol/route-helpers";
 import invocation = Routes.invocation;
 
 
