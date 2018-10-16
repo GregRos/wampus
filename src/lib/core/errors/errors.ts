@@ -70,14 +70,15 @@ export module Errs {
 
     export module Unregister {
         export function registrationDoesntExist(name: string, err: WampMessage.Error) {
-            return new WampusIllegalOperationError("Tried to unregister procedure {procedure}, but it didn't exist.", {
+            return new WampusIllegalOperationError("Tried to unregister procedure {procedure}, the dealer replied that it did not exist. This is probably a bug. Going to assume it has been closed.", {
                 procedure: name,
-                err
+                err,
+                special : "consider-unregistered"
             });
         }
 
         export function other(name: string, err: WampMessage.Error) {
-            return new WampusIllegalOperationError("Tried to unregister procedure {procedure}, but received an ERROR response.", {
+            return new WampusIllegalOperationError(`Tried to unregister procedure {procedure}, but received an ERROR response: ${err.error}`, {
                 procedure: name,
                 err
             });
@@ -104,8 +105,6 @@ export module Errs {
             });
         }
 
-
-
         export function doesNotSupportProgressReports(name: string) {
             return new WampusIllegalOperationError("While invoking {name}, tried to send a progress report but this call does not support progress reports.", {
                 name
@@ -116,8 +115,8 @@ export module Errs {
 
 
     export module Subscribe {
-        export function other(name : string, err : WampMessage.Any){
-            return new WampusIllegalOperationError("Tried to subscribe to {name}, but received an ERROR response.", {
+        export function other(name : string, err : WampMessage.Error){
+            return new WampusIllegalOperationError(`Tried to subscribe to {name}, but received an ERROR response: ${err.error}`, {
                 name,
                 err
             });
@@ -129,14 +128,14 @@ export module Errs {
 
     export module Unsubscribe {
         export function subDoesntExist(msg: WampMessage.Error, event: string) {
-            return new WampusIllegalOperationError("Failed to unsubscribe from event {event} because the subscription did not exist.", {
+            return new WampusIllegalOperationError("Tried to unsubscribe from {event}, but the broker reported the subscription did not exist. This is probably a bug. Going to assume the subscription is closed.", {
                 msg,
                 name: event
             });
         }
 
         export function other(msg: WampMessage.Error, event: string) {
-            return new WampusIllegalOperationError("Tried to unsubscribe to the event {event}, but received an ERROR response.", {
+            return new WampusIllegalOperationError(`Tried to unsubscribe to the event {event}, but received an ERROR response: ${msg.error}`, {
                 msg,
                 event
             })
@@ -148,12 +147,6 @@ export module Errs {
             return new WampusNetworkError("While trying to ABORT, received a network error. Going to terminate connection anyway.", {
                 innerError: err
             })
-        }
-
-        export function errorOnGoodbye(msg : WampMessage.Error ){
-            return new WampusNetworkError("Tried to say GOODBYE, but received an ERROR response.", {
-                msg
-            });
         }
 
         export function unexpectedMessageOnGoodbye(msg : WampMessage.Any) {
@@ -188,7 +181,7 @@ export module Errs {
         }
 
         export function other(name : string, msg : WampMessage.Error) {
-            return new WampusIllegalOperationError("Invoked procedure {name} and received an ERROR: {error}", {
+            return new WampusIllegalOperationError(`Invoked procedure {name} and received an ERROR: {error}`, {
                 name,
                 msg,
                 error : msg.error

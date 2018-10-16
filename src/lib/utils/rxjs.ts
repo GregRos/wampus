@@ -10,7 +10,7 @@ import {
     takeUntil,
     takeWhile
 } from "rxjs/operators";
-import {EMPTY, Observable, ObservableInput, of, pipe, UnaryFunction} from "rxjs";
+import {EMPTY, Notification, Observable, ObservableInput, of, pipe, Subject, UnaryFunction} from "rxjs";
 
 let stopToken = {};
 export const skipAfter = function <T>(predicate: (x: T) => boolean) {

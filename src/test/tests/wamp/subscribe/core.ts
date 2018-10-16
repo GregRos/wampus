@@ -7,6 +7,7 @@ import {MatchError} from "../../../helpers/errors";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {Operators} from "promise-stuff";
 import {take} from "rxjs/operators";
+import {WampUri} from "../../../../lib/core/protocol/uris";
 
 test("sends SUBSCRIBE", async t => {
     let {session, server} = await SessionStages.handshaken("a");
@@ -136,6 +137,35 @@ test("receives UNSUBSCRIBED, events complete", async t => {
     t.false(sub.isOpen);
 });
 
+function testUnsubscribeReceiveError(o : {errorName : string, errMatch : (err : Error) => boolean, title : string}) {
+    test(o.title, async t => {
+        let {session, server} = await SessionStages.handshaken("a");
+        let serverMonitor = Rxjs.monitor(server.messages);
+        let pendingSub = session.event({name : "hi"});
+        let subscribeMsg = await serverMonitor.next();
+        server.send([33, subscribeMsg[1], 101]);
+        let sub = await pendingSub;
+        let eventMonitor = Rxjs.monitor(sub.events);
+        serverMonitor.clear();
+        let unsubbing1 = sub.close();
+        let unsubMsg = await serverMonitor.next();
+        server.send([WampType.ERROR, WampType.UNSUBSCRIBE, unsubMsg[1], {}, o.errorName]);
+        await t.throws(unsubbing1, o.errMatch)
+    });
+}
+
+testUnsubscribeReceiveError({
+    title : "after UNREGISTER, receive ERROR(no_such_subscription), throw",
+    errMatch : MatchError.illegalOperation("subscription"),
+    errorName : WampUri.Error.NoSuchSubscription
+});
+
+testUnsubscribeReceiveError({
+    title : "after UNREGISTER, receive ERROR(custom), throw",
+    errMatch : MatchError.illegalOperation("error.custom"),
+    errorName : "error.custom"
+});
+
 test("calling close() a 2nd time returns the same promise", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
@@ -147,4 +177,5 @@ test("calling close() a 2nd time returns the same promise", async t => {
     let unsubbing1 = sub.close();
     let unsubbing2 = sub.close();
     t.is(unsubbing1, unsubbing2);
+
 });

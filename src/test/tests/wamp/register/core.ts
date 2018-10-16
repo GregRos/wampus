@@ -6,6 +6,7 @@ import {WampType} from "../../../../lib/core/protocol/message.type";
 import {MatchError} from "../../../helpers/errors";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {Operators} from "promise-stuff";
+import {WampUri} from "../../../../lib/core/protocol/uris";
 
 test("sends REGISTER", async t => {
     let {session,server} = await SessionStages.handshaken("a");
@@ -200,6 +201,8 @@ test("registration.close() sends UNREGISTER, expects reply", async t => {
     await t.throws(Operators.timeout(unregistering, 10))
 });
 
+
+
 test("while closing, receive UNREGISTERED, closing promise finishes, invocations observable completes, isOpen becomes false", async t => {
     let {session,server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session,server});
@@ -220,6 +223,41 @@ test("closing 2nd time returns the same promise", async t => {
     let unregistering2 = registration.close();
     t.is(unregistering1, unregistering2);
 });
+
+function testUnregisterReceiveError(o : {errorName : string, errMatch : (err : Error) => boolean, title : string}) {
+    test(o.title, async t => {
+        let {session,server} = await SessionStages.handshaken("a");
+        let registration = await getRegistration({session,server});
+        let serverMonitor = Rxjs.monitor(server.messages);
+        let unregistering1 = registration.close();
+        let unregister = await serverMonitor.next();
+        server.send([WampType.ERROR, WampType.UNREGISTER, unregister[1], {}, o.errorName]);
+        await t.throws(unregistering1, o.errMatch);
+    });
+}
+
+testUnregisterReceiveError({
+    title : "after UNREGISTER, receive ERROR(no_such_registration), throw",
+    errorName : WampUri.Error.NoSuchRegistration,
+    errMatch : MatchError.illegalOperation("exist")
+});
+
+testUnregisterReceiveError({
+    title : "after UNREGISTER, receive ERROR(custom), throw",
+    errorName : "error.custom",
+    errMatch : MatchError.illegalOperation("error.custom")
+});
+
+test("ERROR reply to UNREGISTER throws exception", async t => {
+    let {session,server} = await SessionStages.handshaken("a");
+    let registration = await getRegistration({session,server});
+    let serverMonitor = Rxjs.monitor(server.messages);
+    let unregistering1 = registration.close();
+    let unregister = await serverMonitor.next();
+    server.send([WampType.ERROR, WampType.UNREGISTER, unregister[1], {}, WampUri.Error.NoSuchRegistration]);
+    await t.throws(unregistering1, MatchError.illegalOperation("procedure", "exist"));
+});
+
 
 test("after UNREGISTERED, handle pending invocations", async t => {
     let {session,server} = await SessionStages.handshaken("a");

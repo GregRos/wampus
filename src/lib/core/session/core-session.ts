@@ -171,6 +171,8 @@ export class WampusCoreSession {
                 // Wait for a UNREGISTERED or ERROR;UNREGISTER message.
                 let receivedUnregistered$ = this.protocol.expectAny$(Routes.unregistered(unregisterMsg.requestId), Routes.error(WampType.UNREGISTER, unregisterMsg.requestId));
                 let failOnUnregisterError = map((x: WM.Any) => {
+                    signalUnregistered.next();
+
                     if (x instanceof WampMessage.Error) {
                         this._throwCommonError(unregisterMsg, x);
                         switch (x.error) {
@@ -189,7 +191,7 @@ export class WampusCoreSession {
                     if (err instanceof WampusRouteCompletion) {
                         return EMPTY;
                     }
-                    return err;
+                    throw err;
                 })).toPromise();
             };
 
@@ -361,7 +363,7 @@ export class WampusCoreSession {
             let failOnErrorOrCastToSubscribed = map((x: WM.Any) => {
                 if (x instanceof WM.Error) {
                     this._throwCommonError(msg, x);
-                    throw Errs.Subscribe.other(name, msg);
+                    throw Errs.Subscribe.other(name, x);
                 }
                 return x as WM.Subscribed;
             });
@@ -381,6 +383,7 @@ export class WampusCoreSession {
                 );
 
                 let failOnUnsubscribedError = map((msg: WM.Any) => {
+                    closeSignal.next();
                     if (msg instanceof WampMessage.Error) {
                         this._throwCommonError(unsub, msg);
                         switch (msg.error) {
@@ -390,7 +393,6 @@ export class WampusCoreSession {
                                 throw Errs.Unsubscribe.other(msg, name);
                         }
                     }
-                    closeSignal.next();
                     return msg as WM.Unsubscribed;
                 });
 
@@ -547,10 +549,7 @@ export class WampusCoreSession {
                     }
                     throw err;
                 }), map(msg => {
-                    if (msg instanceof WM.Result) {
-                        //TODO: Remove this log
-                        console.warn("Tried to cancel, but received RESULT.")
-                    }
+
                 }))).toPromise();
             });
             let progressStream = allStream.pipe(publishAutoConnect());
@@ -688,13 +687,10 @@ export class WampusCoreSession {
     private _goodbye$(details: WampObject, reason: WampUriString) {
         let myGoodbye = factory.goodbye(details, reason);
         let sending$ = this.protocol.send$(myGoodbye);
-        let expectingByeOrError$ = this.protocol.expectNext$();
+        let expectingByeOrError$ = this.protocol.expectAny$(Routes.abort, Routes.goodbye);
 
         let failOnError = map((x: WM.Any) => {
-            if (x instanceof WampMessage.Error) {
-                throw Errs.Leave.errorOnGoodbye(x);
-            }
-            else if (x instanceof WampMessage.Goodbye) {
+            if (x instanceof WampMessage.Goodbye) {
                 return x as WampMessage.Goodbye;
             }
             throw Errs.Leave.unexpectedMessageOnGoodbye(x);

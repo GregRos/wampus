@@ -6,6 +6,9 @@ import {MatchError} from "../../../helpers/errors";
 import {WampusNetworkError} from "../../../../lib/core/errors/types";
 import {SessionStages} from "../../../helpers/wamp";
 import {Rxjs} from "../../../helpers/rxjs";
+import {WampType} from "../../../../lib/core/protocol/message.type";
+import {MessageBuilder} from "../../../../lib/core/protocol/builder";
+import {Operators} from "promise-stuff";
 
 
 async function isSessionClosed<T>(t : GenericTestContext<T>, session : WampusCoreSession) {
@@ -26,6 +29,39 @@ test("when goodbye received, should disconnect and close", async t => {
     let nextMessage = await sbs.next();
     t.deepEqual(nextMessage.data, [6, {}, "wamp.close.goodbye_and_out"]);
     server.send([6, {}, "wamp.close.goodbye_and_out"]);
+    let next = await sbs.next();
+    await t.notThrows(pGoodbye);
+    t.is(next.type, "closed");
+});
+
+test("will allow abrupt disconnect during goodbye", async t => {
+    let {session,server} = await SessionStages.handshaken("a");
+    let sbs = Rxjs.monitor(server.events);
+    let pGoodbye = session.close();
+    await MyPromise.wait(100);
+    server.close();
+    await t.notThrows(pGoodbye);
+});
+
+const factory = new MessageBuilder(() => (Math.random() * 100000 + 1) | 0);
+test("random messages should be allowed during goodbye", async t => {
+    let {session,server} = await SessionStages.handshaken("a");
+    let sbs = Rxjs.monitor(server.events);
+    let pGoodbye = session.close();
+    await MyPromise.wait(20);
+    server.send(factory.error(WampType.INVOCATION, 0, {}, ""));
+    await t.throws(Operators.timeout(pGoodbye, 20));
+    server.send([3, {}, "waaa"]);
+    await t.notThrows(pGoodbye);
+});
+
+test("when abort received, should disconnect and close", async t => {
+    //TODO: Do something when goodbye violates protocol
+    let {session,server} = await SessionStages.handshaken("a");
+    let sbs = Rxjs.monitor(server.events);
+    let pGoodbye = session.close();
+    await sbs.next();
+    server.send([3, {}, "waaa"]);
     let next = await sbs.next();
     await t.notThrows(pGoodbye);
     t.is(next.type, "closed");
