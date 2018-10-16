@@ -35,7 +35,7 @@ import {
     WampusSendResultArguments,
     WampusSubcribeArguments
 } from "./message-arguments";
-import {MyPromise} from "../../ext-promise";
+import {MyPromise} from "../../utils/ext-promise";
 import {CallTicket} from "./ticket";
 import {completeOnError, publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../../utils/rxjs";
 import {Transport} from "../transport/transport";

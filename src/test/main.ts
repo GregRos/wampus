@@ -3,17 +3,17 @@ import "../setup";
 import {yamprint} from "yamprint";
 import * as _ from "lodash";
 
-import {WebsocketTransport} from "./core/transport/websocket";
-import {JsonSerializer} from "./core/serializer/json";
-import {WampType} from "./core/protocol/message.type";
-import {MyPromise} from "./ext-promise";
-import {WampusCoreSession} from "./core/session/core-session";
+import {WebsocketTransport} from "../lib/core/transport/websocket";
+import {JsonSerializer} from "../lib/core/serializer/json";
+import {WampType} from "../lib/core/protocol/message.type";
+import {MyPromise} from "../lib/utils/ext-promise";
+import {WampusCoreSession} from "../lib/core/session/core-session";
 import {EventEmitter} from "events";
 import {flatMap, take, tap} from "rxjs/operators";
 import {Observable} from "rxjs";
 import {fromPromise} from "rxjs/internal-compatibility";
-import {EventInvocationData} from "./core/session/ticket";
-import {WampusSession} from "./wrappers/wampus-session";
+import {EventInvocationData} from "../lib/core/session/ticket";
+import {WampusSession} from "../lib/wrappers/wampus-session";
 require("longjohn");
 
 function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observable<T>> & {

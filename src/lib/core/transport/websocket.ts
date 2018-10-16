@@ -4,7 +4,7 @@ import * as ws from "ws";
 
 import {WampusNetworkError} from "../errors/types";
 const WebSocket = require('isomorphic-ws') as typeof ws;
-import {MyPromise} from "../../ext-promise";
+import {MyPromise} from "../../utils/ext-promise";
 import {Serializer} from "../serializer/serializer";
 import {WampMessage, WampRawMessage} from "../protocol/messages";
 import {WampusError} from "../errors/types";

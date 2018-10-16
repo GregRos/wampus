@@ -2,7 +2,7 @@ import {Transport, TransportEvent} from "../../lib/core/transport/transport";
 import {defer, EMPTY, Observable, Subject} from "rxjs";
 import {WampObject} from "../../lib/core/protocol/messages";
 import {choose} from "../../lib/utils/rxjs";
-import {MyPromise} from "../../lib/ext-promise";
+import {MyPromise} from "../../lib/utils/ext-promise";
 import {domainToASCII} from "url";
 
 export function dummyTransport() {

@@ -2,7 +2,7 @@ import test from "ava";
 import {SessionStages} from "../../../helpers/wamp";
 import {MatchError} from "../../../helpers/errors";
 import {WampType} from "../../../../lib/core/protocol/message.type";
-import {MyPromise} from "../../../../lib/ext-promise";
+import {MyPromise} from "../../../../lib/utils/ext-promise";
 import {Rxjs} from "../../../helpers/rxjs";
 import {Operators} from "promise-stuff";
 

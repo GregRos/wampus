@@ -27,7 +27,7 @@ import {WampusError, WampusNetworkError} from "../../../../lib/core/errors/types
 import {TransportEvent} from "../../../../lib/core/transport/transport";
 import {fromPromise} from "rxjs/internal-compatibility";
 import {getTransportAndServerConn, receiveObjects$, rxjsWsServer, sendVia} from "../../../helpers/ws-server";
-import {MyPromise} from "../../../../lib/ext-promise";
+import {MyPromise} from "../../../../lib/utils/ext-promise";
 import _ = require("lodash");
 import {choose} from "../../../../lib/utils/rxjs";
 

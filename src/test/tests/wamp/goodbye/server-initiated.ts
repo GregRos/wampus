@@ -1,6 +1,6 @@
 import test, {GenericTest, GenericTestContext} from "ava";
 import {first} from "rxjs/operators";
-import {MyPromise} from "../../../../lib/ext-promise";
+import {MyPromise} from "../../../../lib/utils/ext-promise";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {MatchError} from "../../../helpers/errors";
 import {WampusNetworkError} from "../../../../lib/core/errors/types";

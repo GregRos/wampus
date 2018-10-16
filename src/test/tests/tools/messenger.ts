@@ -8,7 +8,7 @@ import {WampType} from "../../../lib/core/protocol/message.type";
 import {WampArray, WampMessage} from "../../../lib/core/protocol/messages";
 
 import WM = WampMessage;
-import {MyPromise} from "../../../lib/ext-promise";
+import {MyPromise} from "../../../lib/utils/ext-promise";
 import {WampusNetworkError} from "../../../lib/core/errors/types";
 import {MatchError} from "../../helpers/errors";
 import {Operators} from "promise-stuff";

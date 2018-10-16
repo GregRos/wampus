@@ -7,7 +7,7 @@ import {Errs} from "../errors/errors";
 import {MessageReader} from "./reader";
 import {merge, Observable, of, Subject} from "rxjs";
 import {flatMap, take, tap} from "rxjs/operators";
-import {MyPromise} from "../../ext-promise";
+import {MyPromise} from "../../utils/ext-promise";
 
 /**
  * A message-based WAMP protocol client that allows sending WAMP messages and receiving them.
