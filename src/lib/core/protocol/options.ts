@@ -113,7 +113,6 @@ export interface WampPublishOptions {
     // Defaults to true!
     exclude_me?: boolean;
     disclose_me ?: boolean;
-
 }
 
 export interface WampSubscribeOptions {

@@ -4,10 +4,23 @@
     <list default="true" id="479a9b66-b2d3-4247-b6ef-de9bcc439169" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/core/errors/errors.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/errors/errors.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/core/protocol/builder.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/protocol/factory.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/core/protocol/message.type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/protocol/message.type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/core/protocol/messages.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/protocol/messages.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/core/protocol/options.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/protocol/options.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/core/protocol/reader.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/protocol/reader.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/core/protocol/route-helpers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/protocol/routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/core/protocol/uris.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/protocol/uris.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/core/protocol/wamp-protocol-client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/protocol/wamp-protocol-client.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/core/routing/keyed-message-router.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/routing/prefix-router.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/core/session/core-session.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/session/core-session.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/core/session/message-arguments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/session/message-arguments.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib/utils/rxjs.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/utils/rxjs.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/wrappers/wrapped-services.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/wrappers/wrapped-services.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/tests/tools/router.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/tests/tools/router.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/tests/wamp/goodbye/client-initiated.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/tests/wamp/goodbye/client-initiated.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/tests/wamp/register/core.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/tests/wamp/register/core.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/tests/wamp/register/progress.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/tests/wamp/register/progress.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/tests/wamp/subscribe/core.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/tests/wamp/subscribe/core.ts" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -72,7 +85,7 @@
           <entry key="js" value="71" />
           <entry key="json" value="630" />
           <entry key="md" value="126" />
-          <entry key="ts" value="132792" />
+          <entry key="ts" value="137783" />
           <entry key="yml" value="154" />
         </counts>
       </usages-collector>
@@ -85,7 +98,7 @@
           <entry key="json" value="25" />
           <entry key="lock" value="1" />
           <entry key="md" value="6" />
-          <entry key="ts" value="1010" />
+          <entry key="ts" value="1060" />
           <entry key="yml" value="3" />
         </counts>
       </usages-collector>
@@ -98,7 +111,7 @@
           <entry key="JavaScript" value="54" />
           <entry key="Markdown" value="6" />
           <entry key="PLAIN_TEXT" value="5" />
-          <entry key="TypeScript" value="1010" />
+          <entry key="TypeScript" value="1060" />
           <entry key="YAML" value="3" />
           <entry key="tsconfig" value="9" />
           <entry key="yarn.lock" value="1" />
@@ -110,7 +123,7 @@
           <entry key="JavaScript" value="118" />
           <entry key="Markdown" value="126" />
           <entry key="PLAIN_TEXT" value="33" />
-          <entry key="TypeScript" value="132792" />
+          <entry key="TypeScript" value="137783" />
           <entry key="YAML" value="154" />
           <entry key="tsconfig" value="32" />
         </counts>
@@ -124,112 +137,104 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/core/session/core-session.ts">
+        <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/routes.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="278">
-              <caret line="364" column="22" selection-start-line="364" selection-start-column="22" selection-end-line="364" selection-end-column="22" />
+            <state relative-caret-position="196">
+              <caret line="7" column="17" lean-forward="true" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/uris.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="560">
+              <caret line="71" lean-forward="true" selection-start-line="71" selection-end-line="71" />
               <folding>
-                <element signature="e#0#145#0" expanded="true" />
-                <element signature="n#WM#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/utils/rxjs.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="524">
-              <caret line="48" lean-forward="true" selection-start-line="48" selection-end-line="48" />
-              <folding>
-                <element signature="n#!!doc" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/register/core.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="314">
-              <caret line="246" column="3" lean-forward="true" selection-start-line="246" selection-start-column="3" selection-end-line="246" selection-end-column="3" />
-              <folding>
-                <element signature="e#0#23#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/helpers/errors.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="364">
-              <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/subscribe/core.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="193">
-              <caret line="164" column="56" selection-start-line="164" selection-start-column="56" selection-end-line="164" selection-end-column="56" />
-              <folding>
-                <element signature="e#0#23#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/wamp-protocol-client.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="222">
-              <caret line="71" column="27" selection-start-line="71" selection-start-column="27" selection-end-line="71" selection-end-column="27" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/setup.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="140">
-              <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/register/cancel.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-714">
-              <caret line="17" column="75" selection-start-line="17" selection-start-column="6" selection-end-line="17" selection-end-column="75" />
-              <folding>
-                <element signature="e#0#23#0" expanded="true" />
+                <element signature="n#RegistrationMeta#0;n#MetaApi#0;n#WampUri#0" />
+                <element signature="n#Events#0;n#RegistrationMeta#0;n#MetaApi#0;n#WampUri#0" />
+                <element signature="n#Procedures#0;n#RegistrationMeta#0;n#MetaApi#0;n#WampUri#0" />
+                <element signature="n#SubscriptionMeta#0;n#MetaApi#0;n#WampUri#0" />
+                <element signature="n#History#0;n#MetaApi#0;n#WampUri#0" />
+                <element signature="n#SessionMeta#0;n#MetaApi#0;n#WampUri#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/lib/core/errors/errors.ts">
+        <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/wamp-protocol-client.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="219">
-              <caret line="106" column="8" selection-start-line="106" selection-start-column="8" selection-end-line="106" selection-end-column="8" />
+            <state relative-caret-position="476">
+              <caret line="26" column="5" lean-forward="true" selection-start-line="26" selection-start-column="5" selection-end-line="26" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/call/core.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="401">
+              <caret line="112" column="44" selection-start-line="112" selection-start-column="44" selection-end-line="112" selection-end-column="44" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/core/transport/transport.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="711">
+              <caret line="38" column="7" selection-start-line="38" selection-start-column="7" selection-end-line="38" selection-end-column="7" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/core/transport/websocket.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="336">
+              <caret line="39" column="48" lean-forward="true" selection-start-line="39" selection-start-column="48" selection-end-line="39" selection-end-column="48" />
               <folding>
-                <element signature="e#0#53#0" expanded="true" />
+                <element signature="e#0#36#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/register/extra.ts">
+        <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/factory.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="555">
-              <caret line="24" column="1" selection-start-line="24" selection-start-column="1" selection-end-line="24" selection-end-column="1" />
+            <state relative-caret-position="224">
+              <caret line="26" column="3" lean-forward="true" selection-start-line="26" selection-start-column="3" selection-end-line="26" selection-end-column="3" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/message.type.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="140">
+              <caret line="5" column="3" lean-forward="true" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/options.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="364">
+              <caret line="13" column="1" lean-forward="true" selection-start-line="13" selection-start-column="1" selection-end-line="13" selection-end-column="1" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/reader.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="336">
+              <caret line="13" column="7" lean-forward="true" selection-start-line="13" selection-start-column="7" selection-end-line="13" selection-end-column="7" />
               <folding>
-                <element signature="e#0#23#0" expanded="true" />
+                <element signature="n#!!doc" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -247,8 +252,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>YIELD</find>
-      <find>PublisherIdentification</find>
       <find>return(</find>
       <find>subscriptionId</find>
       <find>send$</find>
@@ -277,10 +280,10 @@
       <find>other(</find>
       <find>event(</find>
       <find>alreadyClosingRegistration</find>
+      <find>an object</find>
+      <find>_requestIdProvider</find>
     </findStrings>
     <replaceStrings>
-      <replace>&quot;wamp.reflection.$1</replace>
-      <replace>&quot;wamp.reflect.$1</replace>
       <replace>&quot;wamp.session.$1</replace>
       <replace>Codes.error</replace>
       <replace>export class $1 implements WampMessage {</replace>
@@ -309,6 +312,8 @@
       <replace>.info.registrationId</replace>
       <replace>.info.subscriptionId</replace>
       <replace>protocol</replace>
+      <replace>a class</replace>
+      <replace>config.requestId</replace>
     </replaceStrings>
     <dirStrings>
       <dir>C:\Code\greg\imported\GitHub\wampus\node_modules\ws</dir>
@@ -330,17 +335,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/lib/protocol/options.ts" />
-        <option value="$PROJECT_DIR$/src/test/tests/wamp/call/extra.ts" />
-        <option value="$PROJECT_DIR$/src/test/tests/wamp/register/extra.ts" />
-        <option value="$PROJECT_DIR$/src/test/tests/wamp/subscribe/extra.ts" />
-        <option value="$PROJECT_DIR$/src/test/tests/wamp/call/progress.ts" />
-        <option value="$PROJECT_DIR$/src/lib/errors/errors.ts" />
-        <option value="$PROJECT_DIR$/src/lib/protocol/helper.ts" />
-        <option value="$PROJECT_DIR$/src/lib/protocol/message.type.ts" />
-        <option value="$PROJECT_DIR$/src/lib/protocol/builder.ts" />
-        <option value="$PROJECT_DIR$/src/lib/protocol/reader.ts" />
-        <option value="$PROJECT_DIR$/src/lib/utils/object.ts" />
         <option value="$PROJECT_DIR$/src/lib/ext-promise.ts" />
         <option value="$PROJECT_DIR$/src/test/tests/wamp/publish/acknowledge.ts" />
         <option value="$PROJECT_DIR$/README.md" />
@@ -363,8 +357,6 @@
         <option value="$PROJECT_DIR$/src/lib/core/session.ts" />
         <option value="$PROJECT_DIR$/src/lib/wrappers/session-wrapper.ts" />
         <option value="$PROJECT_DIR$/src/lib/core/routing/message-router.ts" />
-        <option value="$PROJECT_DIR$/src/lib/core/routing/keyed-message-router.ts" />
-        <option value="$PROJECT_DIR$/src/lib/core/protocol/wamp-protocol-client.ts" />
         <option value="$PROJECT_DIR$/src/lib/transport.ts" />
         <option value="$PROJECT_DIR$/src/lib/index.ts" />
         <option value="$PROJECT_DIR$/src/lib/core.ts" />
@@ -372,15 +364,28 @@
         <option value="$PROJECT_DIR$/src/lib/core/core-session.ts" />
         <option value="$PROJECT_DIR$/src/lib/wrappers/wampus-session.ts" />
         <option value="$PROJECT_DIR$/src/lib/wrappers/ticket.ts" />
-        <option value="$PROJECT_DIR$/src/lib/core/session/message-arguments.ts" />
         <option value="$PROJECT_DIR$/src/lib/core/session/ticket.ts" />
         <option value="$PROJECT_DIR$/src/test/tests/wamp/goodbye/server-initiated.ts" />
-        <option value="$PROJECT_DIR$/src/test/tests/wamp/goodbye/client-initiated.ts" />
         <option value="$PROJECT_DIR$/src/lib/utils/rxjs.ts" />
-        <option value="$PROJECT_DIR$/src/test/tests/wamp/register/core.ts" />
         <option value="$PROJECT_DIR$/src/test/tests/wamp/subscribe/core.ts" />
-        <option value="$PROJECT_DIR$/src/lib/core/session/core-session.ts" />
         <option value="$PROJECT_DIR$/src/lib/core/errors/errors.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/protocol/wamp-protocol-client.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/protocol/options.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/protocol/messages.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/protocol/builder.ts" />
+        <option value="$PROJECT_DIR$/src/test/tests/wamp/goodbye/client-initiated.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/session/default-factory.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/session/core-session.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/session/message-arguments.ts" />
+        <option value="$PROJECT_DIR$/src/lib/wrappers/wrapped-services.ts" />
+        <option value="$PROJECT_DIR$/src/test/tests/wamp/register/core.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/protocol/factory.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/protocol/reader.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/protocol/route-helpers.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/routing/keyed-message-router.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/routing/prefix-router.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/protocol/message.type.ts" />
+        <option value="$PROJECT_DIR$/src/lib/core/protocol/uris.ts" />
       </list>
     </option>
   </component>
@@ -432,47 +437,60 @@
               <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
               <item name="wampus" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wampus" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wampus" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="protocol" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wampus" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="routing" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wampus" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="serializer" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wampus" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="session" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wampus" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="core" type="462c0819:PsiDirectoryNode" />
+              <item name="transport" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
               <item name="wampus" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="462c0819:PsiDirectoryNode" />
-              <item name="helpers" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wampus" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wampus" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="wamp" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wampus" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="wamp" type="462c0819:PsiDirectoryNode" />
-              <item name="register" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
-              <item name="wampus" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-              <item name="wamp" type="462c0819:PsiDirectoryNode" />
-              <item name="subscribe" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -490,7 +508,7 @@
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="C:/Program Files/nodejs/node" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="yarn" />
-    <property name="settings.editor.selected.configurable" value="settings.nodejs" />
+    <property name="settings.editor.selected.configurable" value="settings.typescriptcompiler" />
     <property name="ts.external.directory.path" value="C:\Code\greg\imported\GitHub\wampus\node_modules\typescript\lib" />
   </component>
   <component name="RecentsManager">
@@ -686,7 +704,7 @@
       <workItem from="1539540676645" duration="479000" />
       <workItem from="1539594320908" duration="9074000" />
       <workItem from="1539609850886" duration="11461000" />
-      <workItem from="1539683794376" duration="6382000" />
+      <workItem from="1539683794376" duration="10509000" />
     </task>
     <servers />
   </component>
@@ -699,7 +717,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="705236000" />
+    <option name="totallyTimeSpent" value="709363000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
@@ -714,12 +732,12 @@
     <frame x="146" y="-8" width="1782" height="1216" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49952334" visible="true" weight="0.16898955" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49952334" visible="true" weight="0.16898955" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" sideWeight="0.50047666" side_tool="true" weight="0.18538852" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.48896632" weight="0.32686982" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.43205574" weight="0.41643584" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4883856" weight="0.32686982" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.514518" weight="0.50600183" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.713705" weight="0.22530009" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -728,8 +746,8 @@
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.4989579" weight="0.32981133" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="11" sideWeight="0.6788618" side_tool="true" visible="true" weight="0.31394276" />
-      <window_info anchor="bottom" id="TypeScript" order="12" sideWeight="0.3211382" visible="true" weight="0.31394276" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.5116144" side_tool="true" visible="true" weight="0.31394276" />
+      <window_info anchor="bottom" id="TypeScript" order="12" sideWeight="0.31939605" weight="0.31394276" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -877,9 +895,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/.travis.yml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="28">
@@ -908,6 +923,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="653">
           <caret line="81" column="3" lean-forward="true" selection-start-line="81" selection-start-column="3" selection-end-line="81" selection-end-column="3" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -925,27 +943,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret column="26" selection-start-column="26" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/wrappers/ticket.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="356">
-          <caret line="18" column="17" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/hello-details.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="10" column="42" selection-start-line="10" selection-start-column="16" selection-end-line="10" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/message.type.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="756">
-          <caret line="27" column="17" lean-forward="true" selection-start-line="27" selection-start-column="17" selection-end-line="27" selection-end-column="17" />
         </state>
       </provider>
     </entry>
@@ -987,113 +984,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/builder.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="56">
-          <caret line="20" column="13" selection-start-line="20" selection-start-column="13" selection-end-line="20" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/messages.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="271">
-          <caret line="131" column="38" selection-start-line="131" selection-start-column="34" selection-end-line="131" selection-end-column="38" />
-          <folding>
-            <element signature="e#0#40#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/reader.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="26" selection-start-column="26" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/uris.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="659">
-          <caret line="92" column="5" lean-forward="true" selection-start-line="92" selection-start-column="5" selection-end-line="92" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/serializer/json.ts">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/serializer/serializer.ts">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/transport/websocket.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="211">
-          <caret line="130" column="5" lean-forward="true" selection-start-line="130" selection-start-column="5" selection-end-line="130" selection-end-column="5" />
-          <folding>
-            <element signature="e#0#36#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/transport/transport.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-84">
-          <caret line="18" column="1" lean-forward="true" selection-start-line="18" selection-start-column="1" selection-end-line="18" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/core.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="56">
           <caret line="2" column="30" lean-forward="true" selection-start-line="2" selection-start-column="30" selection-end-line="2" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/session/ticket.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1232">
-          <caret line="86" lean-forward="true" selection-start-line="86" selection-end-line="86" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/session/message-arguments.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-168">
-          <caret line="11" column="17" lean-forward="true" selection-start-line="11" selection-start-column="17" selection-end-line="11" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/wrappers/wrapped-services.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1120">
-          <caret line="45" column="2" lean-forward="true" selection-start-line="45" selection-start-column="2" selection-end-line="45" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/routing/keyed-message-router.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="448">
-          <caret line="54" column="18" lean-forward="true" selection-start-line="54" selection-start-column="18" selection-end-line="54" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/options.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="659">
-          <caret line="127" column="1" lean-forward="true" selection-start-line="127" selection-start-column="1" selection-end-line="127" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/route-helpers.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/wrappers/wampus-session.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="27" column="6" selection-start-line="27" selection-start-column="6" selection-end-line="27" selection-end-column="6" />
         </state>
       </provider>
     </entry>
@@ -1133,13 +1027,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/goodbye/client-initiated.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="821">
-          <caret line="92" column="32" lean-forward="true" selection-start-line="92" selection-start-column="32" selection-end-line="92" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/call/cancel.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="477">
@@ -1163,19 +1050,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/call/core.ts">
+    <entry file="file://$PROJECT_DIR$/src/lib/utils/rxjs.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="401">
-          <caret line="56" column="21" selection-start-line="56" selection-start-column="21" selection-end-line="56" selection-end-column="21" />
+        <state relative-caret-position="524">
+          <caret line="48" lean-forward="true" selection-start-line="48" selection-end-line="48" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/register/cancel.ts">
+    <entry file="file://$PROJECT_DIR$/src/setup.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-714">
-          <caret line="17" column="75" selection-start-line="17" selection-start-column="6" selection-end-line="17" selection-end-column="75" />
+        <state relative-caret-position="140">
+          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/errors/errors.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1059">
+          <caret line="106" selection-start-line="106" selection-end-line="106" />
           <folding>
-            <element signature="e#0#23#0" expanded="true" />
+            <element signature="e#0#53#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1190,34 +1087,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/utils/rxjs.ts">
+    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/register/cancel.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="524">
-          <caret line="48" lean-forward="true" selection-start-line="48" selection-end-line="48" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/wamp-protocol-client.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="71" column="27" selection-start-line="71" selection-start-column="27" selection-end-line="71" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/setup.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="140">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/register/core.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="314">
-          <caret line="246" column="3" lean-forward="true" selection-start-line="246" selection-start-column="3" selection-end-line="246" selection-end-column="3" />
+        <state relative-caret-position="-714">
+          <caret line="17" column="75" selection-start-line="17" selection-start-column="6" selection-end-line="17" selection-end-column="75" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
@@ -1226,21 +1099,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/subscribe/core.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="193">
-          <caret line="164" column="56" selection-start-line="164" selection-start-column="56" selection-end-line="164" selection-end-column="56" />
+        <state relative-caret-position="392">
+          <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/session/core-session.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="278">
-          <caret line="364" column="22" selection-start-line="364" selection-start-column="22" selection-end-line="364" selection-end-column="22" />
-          <folding>
-            <element signature="e#0#145#0" expanded="true" />
-            <element signature="n#WM#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1252,13 +1114,183 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/core/errors/errors.ts">
+    <entry file="file://$PROJECT_DIR$/src/lib/wrappers/ticket.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="219">
-          <caret line="106" column="8" selection-start-line="106" selection-start-column="8" selection-end-line="106" selection-end-column="8" />
+        <state relative-caret-position="448">
+          <caret line="18" column="17" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/wrappers/wampus-session.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2100">
+          <caret line="93" column="36" selection-start-line="93" selection-start-column="36" selection-end-line="96" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/hello-details.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="280">
+          <caret line="10" column="42" selection-start-line="10" selection-start-column="16" selection-end-line="10" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/goodbye/client-initiated.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="45" column="35" selection-start-line="45" selection-start-column="35" selection-end-line="45" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/wrappers/wrapped-services.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="463">
+          <caret line="34" column="22" lean-forward="true" selection-start-line="34" selection-start-column="22" selection-end-line="34" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/register/core.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="187" column="42" selection-start-line="187" selection-start-column="42" selection-end-line="187" selection-end-column="42" />
           <folding>
-            <element signature="e#0#53#0" expanded="true" />
+            <element signature="e#0#23#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/session/default-factory.ts">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/messages.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="28">
+          <caret line="76" column="33" lean-forward="true" selection-start-line="76" selection-start-column="33" selection-end-line="76" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#40#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/serializer/json.ts">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/serializer/serializer.ts">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/routing/prefix-router.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="560">
+          <caret line="109" column="11" lean-forward="true" selection-start-line="109" selection-start-column="11" selection-end-line="109" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/session/core-session.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="28">
+          <caret line="61" lean-forward="true" selection-start-line="61" selection-end-line="61" />
+          <folding>
+            <element signature="e#0#145#0" expanded="true" />
+            <element signature="n#WM#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/session/message-arguments.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="36" lean-forward="true" selection-start-line="36" selection-end-line="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/session/ticket.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1008">
+          <caret line="54" column="23" selection-start-line="54" selection-start-column="23" selection-end-line="54" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/transport/transport.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="711">
+          <caret line="38" column="7" selection-start-line="38" selection-start-column="7" selection-end-line="38" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/transport/websocket.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="336">
+          <caret line="39" column="48" lean-forward="true" selection-start-line="39" selection-start-column="48" selection-end-line="39" selection-end-column="48" />
+          <folding>
+            <element signature="e#0#36#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/factory.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="26" column="3" lean-forward="true" selection-start-line="26" selection-start-column="3" selection-end-line="26" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/message.type.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="5" column="3" lean-forward="true" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/options.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="364">
+          <caret line="13" column="1" lean-forward="true" selection-start-line="13" selection-start-column="1" selection-end-line="13" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/reader.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="336">
+          <caret line="13" column="7" lean-forward="true" selection-start-line="13" selection-start-column="7" selection-end-line="13" selection-end-column="7" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/routes.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="7" column="17" lean-forward="true" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/tests/wamp/call/core.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="401">
+          <caret line="112" column="44" selection-start-line="112" selection-start-column="44" selection-end-line="112" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/uris.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="560">
+          <caret line="71" lean-forward="true" selection-start-line="71" selection-end-line="71" />
+          <folding>
+            <element signature="n#RegistrationMeta#0;n#MetaApi#0;n#WampUri#0" />
+            <element signature="n#Events#0;n#RegistrationMeta#0;n#MetaApi#0;n#WampUri#0" />
+            <element signature="n#Procedures#0;n#RegistrationMeta#0;n#MetaApi#0;n#WampUri#0" />
+            <element signature="n#SubscriptionMeta#0;n#MetaApi#0;n#WampUri#0" />
+            <element signature="n#History#0;n#MetaApi#0;n#WampUri#0" />
+            <element signature="n#SessionMeta#0;n#MetaApi#0;n#WampUri#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/wamp-protocol-client.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="476">
+          <caret line="26" column="5" lean-forward="true" selection-start-line="26" selection-start-column="5" selection-end-line="26" selection-end-column="5" />
         </state>
       </provider>
     </entry>

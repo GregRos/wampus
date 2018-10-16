@@ -2,8 +2,17 @@
 import {WampMessage, WampRawMessage} from "./messages";
 import {WampType} from "./message.type";
 
-export module MessageReader {
-    export function read(raw: WampRawMessage): WampMessage.Any {
+/**
+ * A class that converts a raw WAMP protocol message in the form of an array into a WAMP message object.
+ */
+export class MessageReader {
+    /**
+     * Parses a raw WAMP message in the form of an array into a message object.
+     * @param raw The raw message.
+     * @see [WAMP Basic Profile]{@link https://wamp-proto.org/static/rfc/draft-oberstet-hybi-crossbar-wamp.html#message-definitions}
+     * @see [WAMP Advanced Profile]{@link https://wamp-proto.org/static/rfc/draft-oberstet-hybi-crossbar-wamp.html#rfc.section.14.1.1}
+     */
+    parse(raw: WampRawMessage): WampMessage.Any {
         switch (raw[0]) {
             case WampType.WELCOME:
                 return new WampMessage.Welcome(raw[1], raw[2]);

@@ -60,7 +60,13 @@ function argsKwargsArray(args : any[], kwargs : any) {
     }
 }
 
+/**
+ * Namespace for all WAMP protocol message objects.
+ */
 export module WampMessage {
+    /**
+     * A class representing the CALL message.
+     */
     export class Call implements WampMessage{
         type = WampType.CALL;
         constructor(public requestId : WampId, public options : WampCallOptions, public procedure : WampUriString, public args ?: WampArray, public kwargs ?: WampObject) {
@@ -72,6 +78,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the ERROR message.
+     */
     export class Error implements WampMessage {
         type = WampType.ERROR;
         constructor(public errSourceType : WampType, public errSourceId : WampId, public details : WampObject, public error : WampUriString, public args ?: WampArray, public kwargs ?: WampObject) {
@@ -83,6 +92,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the HELLO message.
+     */
     export class Hello implements WampMessage {
         type = WampType.HELLO;
         constructor(public realm : string, public details : HelloDetails) {
@@ -94,6 +106,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the ABORT message.
+     */
     export class Abort implements WampMessage {
         type = WampType.ABORT;
         constructor(public details : WampObject, public reason : WampUriString) {
@@ -105,6 +120,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the GOODBYE message.
+     */
     export class Goodbye implements WampMessage {
         type = WampType.GOODBYE;
         constructor(public details : WampObject, public reason : WampUriString) {
@@ -116,6 +134,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the PUBLISH message.
+     */
     export class Publish implements WampMessage {
         type = WampType.PUBLISH;
         constructor(public requestId : WampId, public options : WampPublishOptions, public topic : WampUriString, public args ?: WampArray, public kwargs ?: WampObject) {
@@ -127,6 +148,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the SUBSCRIBE message.
+     */
     export class Subscribe implements WampMessage {
         type = WampType.SUBSCRIBE;
         constructor(public requestId : WampId, public options : WampSubscribeOptions, public topic : WampUriString) {
@@ -137,6 +161,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the UNSUBSCRIBE message.
+     */
     export class Unsubscribe implements WampMessage {
         type = WampType.UNSUBSCRIBE;
         constructor(public requestId : WampId, public subscription : WampId) {
@@ -147,6 +174,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the REGISTER message.
+     */
     export class Register  {
         type = WampType.REGISTER;
 
@@ -159,6 +189,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing an unknown message.
+     */
     export class Unknown {
         type = WampType._Unknown;
         constructor(public raw : WampArray) {
@@ -166,6 +199,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the UNREGISTER message.
+     */
     export class Unregister  {
         type = WampType.UNREGISTER;
 
@@ -178,6 +214,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the YIELD message.
+     */
     export class Yield implements WampMessage {
         type = WampType.YIELD;
 
@@ -190,6 +229,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the WELCOME message.
+     */
     export class Welcome implements WampMessage {
         type = WampType.WELCOME;
 
@@ -198,6 +240,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the PUBLISHED message.
+     */
     export class Published implements WampMessage {
         type = WampType.PUBLISHED;
 
@@ -206,6 +251,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the SUBSCRIBED message.
+     */
     export class Subscribed implements WampMessage {
         type = WampType.SUBSCRIBED;
 
@@ -214,6 +262,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the UNSUBSCRIBED message.
+     */
     export class Unsubscribed implements WampMessage {
         type = WampType.UNSUBSCRIBED;
 
@@ -222,6 +273,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the EVENT message.
+     */
     export class Event implements WampMessage {
         type = WampType.EVENT;
 
@@ -231,6 +285,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the RESULT message.
+     */
     export class Result implements WampMessage {
         type = WampType.RESULT;
 
@@ -239,6 +296,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the REGISTERED message.
+     */
     export class Registered implements WampMessage {
         type = WampType.REGISTERED;
 
@@ -247,6 +307,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the UNREGISTERED message.
+     */
     export class Unregistered implements WampMessage {
         type = WampType.UNREGISTERED;
 
@@ -255,6 +318,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the INVOCATION message.
+     */
     export class Invocation implements WampMessage{
         type = WampType.INVOCATION;
 
@@ -263,6 +329,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the CHALLENGE message.
+     */
     export class Challenge implements WampMessage {
         type = WampType.CHALLENGE;
 
@@ -271,6 +340,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the CANCEL message.
+     */
     export class Cancel implements WampMessage {
         type = WampType.CANCEL;
 
@@ -283,6 +355,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the INTERRUPT message.
+     */
     export class Interrupt implements WampMessage {
         type = WampType.INTERRUPT;
 
@@ -291,6 +366,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A class representing the AUTHENTICATE message.
+     */
     export class Authenticate implements WampMessage {
         type = WampType.AUTHENTICATE;
 
@@ -303,8 +381,9 @@ export module WampMessage {
         }
     }
 
+    /**
+     * A union representing any specific WAMP protocol message.
+     */
     export type Any = Cancel | Unknown  | Interrupt | Authenticate | Challenge | Hello | Welcome | Abort | Goodbye | Error | Publish | Published | Subscribe | Subscribed | Unsubscribe | Unsubscribed | Event | Call | Result | Register | Registered | Unregister | Unregistered | Invocation | Yield;
-
-    export type SendableMessage = Any & {toTransportFormat() : any[]};
 }
 

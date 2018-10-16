@@ -18,8 +18,15 @@ import {
 } from "./messages";
 import {WampType} from "./message.type";
 
-export class MessageBuilder {
-    constructor(private _requestIdProvider: () => number) {
+export interface MessageFactoryConfig {
+    requestId() : number;
+}
+
+/**
+ * A helper class for creating commonly used message objects and embedding them with request IDs.
+ */
+export class MessageFactory {
+    constructor(private _config : MessageFactoryConfig) {
 
     }
 
@@ -32,23 +39,23 @@ export class MessageBuilder {
     }
 
     call(options: WampCallOptions, procedure: WampUriString, args ?: WampArray, kwargs ?: any) {
-        return new WampMessage.Call(this._requestIdProvider(), options || {}, procedure, args || [], kwargs || {});
+        return new WampMessage.Call(this._config.requestId(), options || {}, procedure, args || [], kwargs || {});
     }
 
     publish(options: WampPublishOptions, topic: WampUriString, args ?: WampArray, kwargs ?: WampObject) {
-        return new WampMessage.Publish(this._requestIdProvider(), options || {}, topic, args || [], kwargs || {});
+        return new WampMessage.Publish(this._config.requestId(), options || {}, topic, args || [], kwargs || {});
     }
 
     subscribe(options: WampSubscribeOptions, topic: WampUriString) {
-        return new WampMessage.Subscribe(this._requestIdProvider(), options || {}, topic);
+        return new WampMessage.Subscribe(this._config.requestId(), options || {}, topic);
     }
 
     unsubscribe(subscription: WampId) {
-        return new WampMessage.Unsubscribe(this._requestIdProvider(), subscription);
+        return new WampMessage.Unsubscribe(this._config.requestId(), subscription);
     }
 
     register(options: WampRegisterOptions, procedure: WampUriString) {
-        return new WampMessage.Register(this._requestIdProvider(), options || {}, procedure);
+        return new WampMessage.Register(this._config.requestId(), options || {}, procedure);
     }
 
     error(sourceType: WampType, requestId: WampId, details: WampObject, reason: WampUriString, args ?: WampArray, kwargs ?: WampObject) {
@@ -56,7 +63,7 @@ export class MessageBuilder {
     }
 
     unregister(registration: WampId) {
-        return new WampMessage.Unregister(this._requestIdProvider(), registration);
+        return new WampMessage.Unregister(this._config.requestId(), registration);
     }
 
     yield(invocationId: WampId, options: WampYieldOptions, args ?: WampArray, kwargs ?: WampObject) {
@@ -73,10 +80,6 @@ export class MessageBuilder {
 
     goodbye(details: WampObject, reason: WampUriString) {
         return new WampMessage.Goodbye(details || {}, reason);
-    }
-
-    internalRouteCompletion(reason: WampusCompletionReason) {
-        return new WampusRouteCompletion(reason);
     }
 
 }

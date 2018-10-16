@@ -1,4 +1,10 @@
+/**
+ * Set of URIs mentioned by the WAMP protocol.
+ */
 export module WampUri {
+    /**
+     * Standard error URIs.
+     */
     export enum Error {
         Prefix = "wamp.error",
         NotAuthorized = "wamp.error.not_authorized",
@@ -22,62 +28,68 @@ export module WampUri {
         RuntimeError = "wamp.error.runtime_error"
     }
 
-
+    /**
+     * Standard reasons for closing a session.
+     */
     export enum CloseReason {
         GoodbyeAndOut = "wamp.close.goodbye_and_out",
         CloseRealm = "wamp.close.close_realm"
     }
 
-    export module MetaEvent {
-        export enum Reg {
-            OnRegister = "wamp.registration.on_register",
-            OnUnregister = "wamp.registration.on_unregister",
-            OnRegistrationDelete = "wamp.registration.on_delete",
+    export module MetaApi {
+        export module Registration {
+            export enum Event {
+                OnRegister = "wamp.registration.on_register",
+                OnUnregister = "wamp.registration.on_unregister",
+                OnRegistrationDelete = "wamp.registration.on_delete",
+            }
+
+            export enum Procedure {
+                List = "wamp.registration.list",
+                Lookup = "wamp.registration.lookup",
+                Match = "wamp.registration.match",
+                Get = "wamp.registration.get",
+                ListCallees = "wamp.registration.list_callees",
+                CountCallees = "wamp.registration.count_callees",
+            }
+        }
+        export module Subscription {
+            export enum Procedure {
+                List = "wamp.subscription.list",
+                Lookup = "wamp.subscription.lookup",
+                Match = "wamp.subscription.match",
+                Get = "wamp.subscription.get",
+                ListSubscribers = "wamp.subscription.list_subscribers",
+                CountSubscribers = "wamp.subscription.count_subscribers"
+            }
+
+            export enum Event {
+                OnSubscribe = "wamp.subscription.on_subscribe",
+                OnUnsubscribe = "wamp.subscription.on_unsubscribe",
+                OnSubscriptionDelete = "wamp.subscription.on_delete",
+            }
         }
 
-        export enum Sub {
-            OnSubscribe = "wamp.subscription.on_subscribe",
-            OnUnsubscribe = "wamp.subscription.on_unsubscribe",
-            OnSubscriptionDelete = "wamp.subscription.on_delete",
+        export module History {
+            export enum Procedures {
+                Last = "wamp.topic.history.last",
+                Since = "wamp.topic.history.since",
+                After = "wamp.topic.history.after"
+            }
         }
+        export module Session {
+            export enum Events {
+                OnJoin = "wamp.session.on_join",
+                OnLeave = "wamp.session.on_leave",
+            }
 
-        export enum Session {
-            OnJoin = "wamp.session.on_join",
-            OnLeave = "wamp.session.on_leave",
+            export enum Procedures {
+                Count = "wamp.session.count",
+                List = "wamp.session.list",
+                Get = "wamp.session.get",
+                FlushTestaments = "wamp.session.flush_testaments",
+            }
         }
-    }
-
-    export module MetaProc {
-        export enum Reg {
-            List = "wamp.registration.list",
-            Lookup = "wamp.registration.lookup",
-            Match = "wamp.registration.match",
-            Get = "wamp.registration.get",
-            ListCallees = "wamp.registration.list_callees",
-            CountCallees = "wamp.registration.count_callees",
-        }
-
-        export enum Sub {
-            List = "wamp.subscription.list",
-            Lookup = "wamp.subscription.lookup",
-            Match = "wamp.subscription.match",
-            Get = "wamp.subscription.get",
-            ListSubscribers = "wamp.subscription.list_subscribers",
-            CountSubscribers = "wamp.subscription.count_subscribers"
-        }
-
-        export enum Session {
-            Count = "wamp.session.count",
-            List = "wamp.session.list",
-            Get = "wamp.session.get",
-            FlushTestaments = "wamp.session.flush_testaments",
-        }
-    }
-
-    export enum HistoryProc {
-        Last = "wamp.topic.history.last",
-        Since = "wamp.topic.history.since",
-        After = "wamp.topic.history.after"
     }
 }
 

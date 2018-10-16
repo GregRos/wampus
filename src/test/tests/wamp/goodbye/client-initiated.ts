@@ -7,7 +7,7 @@ import {WampusNetworkError} from "../../../../lib/core/errors/types";
 import {SessionStages} from "../../../helpers/wamp";
 import {Rxjs} from "../../../helpers/rxjs";
 import {WampType} from "../../../../lib/core/protocol/message.type";
-import {MessageBuilder} from "../../../../lib/core/protocol/builder";
+import {MessageFactory} from "../../../../lib/core/protocol/factory";
 import {Operators} from "promise-stuff";
 
 
@@ -43,7 +43,11 @@ test("will allow abrupt disconnect during goodbye", async t => {
     await t.notThrows(pGoodbye);
 });
 
-const factory = new MessageBuilder(() => (Math.random() * 100000 + 1) | 0);
+const factory = new MessageFactory({
+    requestId() {
+        return (Math.random() * 10000) | 0;
+    }
+});
 test("random messages should be allowed during goodbye", async t => {
     let {session,server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);

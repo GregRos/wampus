@@ -8,9 +8,9 @@ import {
 import {WampType} from "../protocol/message.type";
 import {Errs} from "../errors/errors";
 import {AdvProfile, WampUri} from "../protocol/uris";
-import {MessageBuilder} from "../protocol/builder";
+import {MessageFactory} from "../protocol/factory";
 import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "../errors/types";
-import {Routes} from "../protocol/route-helpers";
+import {Routes} from "../protocol/routes";
 import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
 import {WampProtocolClient} from "../protocol/wamp-protocol-client";
 import {CallResultData, EventSubscriptionTicket, ProcededureRegistrationTicket} from "./ticket";
@@ -49,8 +49,9 @@ export interface SessionConfig {
 import WM = WampMessage;
 import {MessageReader} from "../protocol/reader";
 import {EventInvocationData, InterruptTicket, ProcedureInvocationTicket} from "./ticket";
+import {DefaultMessageFactory} from "./default-factory";
 
-let factory = new MessageBuilder(() => Math.floor(Math.random() * (2 << 50)));
+let factory = DefaultMessageFactory;
 
 export class WampusCoreSession {
     id: number;
@@ -81,8 +82,8 @@ export class WampusCoreSession {
         // 3. Wait until session closed:
         //      On close: Initiate goodbye sequence.
         let transport = await config.transport;
-
-        let messenger = WampProtocolClient.create<WampMessage.Any>(transport, MessageReader.read);
+        let reader = new MessageReader();
+        let messenger = WampProtocolClient.create<WampMessage.Any>(transport, x => reader.parse(x));
         let session = new WampusCoreSession(null as never);
         session.config = config;
         session.protocol = messenger;

@@ -33,7 +33,7 @@ export const defaultTransformSet : TransformSet = {
     errorToErrorResponse(err) {
         return {
             args : [],
-            reason : WampUri.Error.RuntimeError,
+            error : WampUri.Error.RuntimeError,
             options : {
                 message : err.message
             },

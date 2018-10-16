@@ -1,7 +1,7 @@
 import {WampArray, WampMessage, WampusRouteCompletion} from "./messages";
 import {WebsocketTransport} from "../transport/websocket";
 import {WampusNetworkError} from "../errors/types";
-import {MessageRoute, KeyedMessageRouter} from "../routing/keyed-message-router";
+import {PrefixRoute, PrefixRouter} from "../routing/prefix-router";
 import {Transport, TransportMessage} from "../transport/transport";
 import {Errs} from "../errors/errors";
 import {MessageReader} from "./reader";
@@ -10,14 +10,13 @@ import {flatMap, take, tap} from "rxjs/operators";
 import {MyPromise} from "../../ext-promise";
 
 /**
- * This class provides a mid-level abstraction layer between the transport and the WAMP session object.
- * It's responsible for sending messages and using the message router to connect messages to their subscriptions.
+ * A message-based WAMP protocol client that allows sending WAMP messages and receiving them.
  */
 export class WampProtocolClient<T> {
     transport : Transport;
     private _onClosed = new Subject<object>();
     private _onUnknownMessage = new Subject<any>();
-    public _router : KeyedMessageRouter<T>;
+    public _router : PrefixRouter<T>;
     private _selector : (x : WampArray) => T;
     /**
      * Use [[WampProtocolClient.create]].
@@ -28,20 +27,19 @@ export class WampProtocolClient<T> {
     }
 
     /**
-     * Creates a COLD observable that will yield a WampProtocolClient when subscribed to. Closing the subscription will dispose of the messenger.
-     * The messenger will be created with a transport, ready for messaging.
+     * Creates an instance of the WampProtocolClient
      * @returns {Observable<WampProtocolClient>}
      */
     static create<T>(transport : Transport, selector : (x : WampArray) => T) : WampProtocolClient<T> {
         let messenger = new WampProtocolClient<T>(null as never);
         messenger.transport = transport;
         messenger._selector = selector;
-        let router = messenger._router = new KeyedMessageRouter<T>();
+        let router = messenger._router = new PrefixRouter<T>();
         messenger._setupRouter();
         return messenger;
     }
 
-    private _defaultRoute : MessageRoute<any> = {
+    private _defaultRoute : PrefixRoute<any> = {
         keys : [],
         error(err) {
             console.error(err);
@@ -89,10 +87,8 @@ export class WampProtocolClient<T> {
     }
 
     /**
-     * Creates a COLD observable that will send a WAMP message to the router via the transport, once subscribed to. Unsubscribing will do nothing.
-     * The observable will complete once the message has been sent.
+     * Creates a cold observable that, when subscribed to, will send the given WAMP message via the transport and complete once the message has been sent.
      * @param {WampMessage.Any} msg The message to send.
-     * @returns {Observable<never>} A stream that completes once the sending finishes.
      */
     send$(msg : WampMessage.Any) : Observable<any> {
         return of(null).pipe(flatMap(() => {
@@ -108,8 +104,8 @@ export class WampProtocolClient<T> {
     }
 
     /**
-     * Creates an observable that will yield the next transoirt event.
-     * Will error if the next transport event is an error, if the WAMP session is closed, or the transport is closed.
+     * Creates an observable that will yield the next transport message when subscribed to.
+     * If the transport errors or closes before a message is received, the observable will error.
      * @returns {Observable<WampMessage.Any>}
      */
     expectNext$() {
@@ -120,15 +116,15 @@ export class WampProtocolClient<T> {
     }
 
     /**
-     * Creates a COLD observable that, when subscribed to, will wait for the next message receives by this messenger that matches the given route.
-     * The route will be active until the subscription is closed, at which point it will be cleared.
-     * @param {WampArray} route
+     * An observable that, when subscribed to, will create an entry in the routing table for messages with the given prefix key.
+     * The subscription will fire whenever a matching the prefix key arrives. This is used to receive messages of a certain type.
+     * @param {WampArray} prefixKey
      * @returns {Observable<WampMessage.Any>}
      */
-    expect$(route : WampArray) : Observable<T> {
+    expect$(prefixKey : WampArray) : Observable<T> {
         return Observable.create(sub => {
             let inv = {
-                keys : route,
+                keys : prefixKey,
                 next(x) {
                     sub.next(x);
                 },
@@ -148,7 +144,11 @@ export class WampProtocolClient<T> {
         });
     }
 
-    invalidateAllRoutes(msg : Error) {
+    /**
+     * When called, it will invalidate all existing routes by causing them to error with the given object.
+     * @param error
+     */
+    invalidateAllRoutes(error : Error) {
         // The timer(0) thing is needed to prevent a bug in rxjs where it seems that
         // causing a source observable to error while in a flatMap will hang the observable
         // TODO: Report bug
@@ -156,12 +156,17 @@ export class WampProtocolClient<T> {
             this._onClosed.complete();
             let routes = this._router.matchAll();
             for (let route of routes){
-                route.error(msg);
+                route.error(error);
             }
         });
 
     }
 
+    /**
+     * Like [[expect$]], except that this will create several routes at the same time.
+     * @see expect$
+     * @param routes
+     */
     expectAny$<T>(...routes : WampArray[]) {
         return merge(...routes.map(rt => this.expect$(rt)));
     }

@@ -27,7 +27,7 @@ import _ = require("lodash");
 /**
  * A function that returns true if the route is considered "handled" and should be removed.
  */
-export type MessageRoute<T> = {
+export type PrefixRoute<T> = {
     special ?: string;
     keys : WampArray;
     next?(x: T): void;
@@ -36,23 +36,14 @@ export type MessageRoute<T> = {
 }
 
 interface RouteIndex<T> {
-    match?: MessageRoute<T>[];
+    match?: PrefixRoute<T>[];
     next?: Map<any, RouteIndex<T>>;
-}
-
-function setDefaults(target : MessageRoute<any>) {
-    _.defaults(target, {
-        error() {},
-        next() {},
-        complete() {}
-    });
-
 }
 
 /**
  * A component that routes WAMP protocol messages to code that expects them.
  */
-export class KeyedMessageRouter<T> {
+export class PrefixRouter<T> {
     private _root: RouteIndex<T> = null;
 
     count() {
@@ -92,7 +83,7 @@ export class KeyedMessageRouter<T> {
             keys[2] = keys[1];
             keys[1] = a;
         }
-        let routes = [] as MessageRoute<T>[];
+        let routes = [] as PrefixRoute<T>[];
         let rec = function (cur: RouteIndex<T>, index: number) {
             if (!cur) return;
             for (let target of cur.match) {
@@ -110,9 +101,13 @@ export class KeyedMessageRouter<T> {
         return routes;
     }
 
-    insertRoute(target: MessageRoute<T>) {
+    insertRoute(target: PrefixRoute<T>) {
         let keys = target.keys;
-        setDefaults(target);
+        _.defaults(target, {
+            error() {},
+            next() {},
+            complete() {}
+        });
         let rec = (cur: RouteIndex<T>, index: number) => {
             if (!cur) {
                 cur = {
@@ -136,7 +131,7 @@ export class KeyedMessageRouter<T> {
      * Do not call this method except as part of `.expect`. If you remove a route, that will still leave some Streams expecting that route to be called dangling.
      * To properly remove a route, make sure the Stream that depends on it will complete or error.
      */
-    removeRoute(target: MessageRoute<T>) {
+    removeRoute(target: PrefixRoute<T>) {
         let keys = target.keys;
         let rec = (cur: RouteIndex<T>, index: number) => {
             if (!cur) return null;

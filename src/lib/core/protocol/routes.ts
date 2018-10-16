@@ -1,6 +1,10 @@
 import {WampType} from "./message.type";
 
-
+/**
+ * A set of prefix key routes used to identify common routes messages.
+ * @see [WAMP Basic Profile]{@link https://wamp-proto.org/static/rfc/draft-oberstet-hybi-crossbar-wamp.html#message-definitions}
+ * @see [WAMP Advanced Profile]{@link https://wamp-proto.org/static/rfc/draft-oberstet-hybi-crossbar-wamp.html#rfc.section.14.1.1}
+ */
 export module Routes {
 
     export const goodbye = [WampType.GOODBYE];

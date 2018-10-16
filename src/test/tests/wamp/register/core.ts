@@ -171,7 +171,7 @@ test("after INVOCATION, after error(), cannot call result() or error().", async 
         error : "custom.error"
     });
     await t.throws(next.return({}), MatchError.illegalOperation("result or error more than once"));
-    await t.throws(next.error({}), MatchError.illegalOperation("result or error more than once"))
+    await t.throws(next.error({error: "hi"}), MatchError.illegalOperation("result or error more than once"))
 });
 
 test("after INVOCATION, after return(final), cannot call result() or error().", async t => {
@@ -185,7 +185,7 @@ test("after INVOCATION, after return(final), cannot call result() or error().", 
 
     });
     await t.throws(next.return({}), MatchError.illegalOperation("result or error more than once"));
-    await t.throws(next.error({}), MatchError.illegalOperation("result or error more than once"))
+    await t.throws(next.error({error : "hi"}), MatchError.illegalOperation("result or error more than once"))
 });
 
 test("registration.close() sends UNREGISTER, expects reply", async t => {
