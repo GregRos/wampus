@@ -57,7 +57,7 @@ export class WampusCoreSession {
     id: number;
     config: SessionConfig;
     protocol: WampProtocolClient<WampMessage.Any>;
-    private _welcomeDetails: WelcomeDetails;
+    welcomeDetails: WelcomeDetails;
     private _isClosing = false;
 
     constructor(never: never) {
@@ -73,7 +73,7 @@ export class WampusCoreSession {
     }
 
     get details() {
-        return this._welcomeDetails;
+        return this.welcomeDetails;
     }
 
     static async create(config: SessionConfig & { transport: Promise<Transport> | Transport }): Promise<WampusCoreSession> {
@@ -89,7 +89,7 @@ export class WampusCoreSession {
         session.protocol = messenger;
         let getSessionFromShake$ = session._handshake$().pipe(map(welcome => {
             session.id = welcome.sessionId;
-            session._welcomeDetails = welcome.details;
+            session.welcomeDetails = welcome.details;
             session._registerRoutes().subscribe();
         }));
         return concat(getSessionFromShake$).pipe(mapTo(session), take(1)).toPromise();
@@ -113,13 +113,13 @@ export class WampusCoreSession {
 
                 * Send a REGISTER message
          */
-        if (!this.isActive) throw Errs.sessionClosed("call procedure");
+        if (!this.isActive) throw Errs.sessionClosed("register procedure");
 
         options = options || {};
         let msg = factory.register(options, name);
 
-        let {_welcomeDetails} = this;
-        let features = _welcomeDetails.roles.dealer.features;
+        let {welcomeDetails} = this;
+        let features = welcomeDetails.roles.dealer.features;
         // Make sure the router's WELCOME message supports all the features specified in options and throw an error otherwise.
         if (options.disclose_caller && !features.caller_identification) {
             throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallerIdentification);
@@ -136,7 +136,12 @@ export class WampusCoreSession {
         let expectRegisteredOrError$ = this.protocol.expectAny$(
             Routes.registered(msg.requestId),
             Routes.error(WampType.REGISTER, msg.requestId)
-        );
+        ).pipe(catchError(err => {
+            if (err instanceof WampusRouteCompletion) {
+                throw Errs.sessionIsClosing("register");
+            }
+            throw err;
+        }));
 
         // Operator - in case of an ERROR message, throw an exception.
         let failOnError = map((x: WampMessage) => {
@@ -158,6 +163,7 @@ export class WampusCoreSession {
             // Expect INVOCATION message
             let expectInvocation$ = this.protocol.expectAny$(Routes.invocation(registered.registrationId)).pipe(catchError(err => {
                 if (err instanceof WampusRouteCompletion) {
+                    closing = Promise.resolve();
                     return EMPTY;
                 }
                 throw err;
@@ -208,10 +214,16 @@ export class WampusCoreSession {
                                 options : x.options,
                                 source : procInvocationTicket
                             } as InterruptTicket;
-                        }), take(1), takeUntil(completeInterrupt), publishReplayAutoConnect());
+                        }), take(1), takeUntil(completeInterrupt), catchError(err => {
+                            if (err instanceof WampusRouteCompletion) {
+                                return EMPTY;
+                            }
+                            throw err;
+                        }), publishReplayAutoConnect());
                 let isHandled = false;
                 // Send message
                 let send$ = (msg: WampMessage.Any) => {
+                    if (!this.isActive) return throwError(Errs.sessionIsClosing("reply"));
                     if (msg instanceof WampMessage.Yield && msg.options.progress) {
                         if (!invocationMsg.options.receive_progress) {
                             return throwError(Errs.Register.doesNotSupportProgressReports(name));
@@ -277,13 +289,7 @@ export class WampusCoreSession {
             merge(sending$, expectRegisteredOrError$)
                 .pipe(takeWhile(x => x !== null))
                 .pipe(failOnError, take(1))
-                .pipe(whenRegisteredReceived)
-                .pipe(catchError(err => {
-                    if (err instanceof WampusRouteCompletion) {
-                        return EMPTY;
-                    }
-                    throw err;
-                }));
+                .pipe(whenRegisteredReceived);
         return result.toPromise();
     }
 
@@ -292,7 +298,7 @@ export class WampusCoreSession {
         if (!this.isActive) throw Errs.sessionClosed("publish");
 
         options = options || {};
-        let features = this._welcomeDetails.roles.broker.features;
+        let features = this.welcomeDetails.roles.broker.features;
         if ((options.eligible || options.eligible_authid || options.eligible_authrole
             || options.exclude || options.exclude_authid || options.exclude_authrole) && !features.subscriber_blackwhite_listing) {
             throw Errs.routerDoesNotSupportFeature(AdvProfile.Subscribe.SubscriberBlackWhiteListing);
@@ -312,7 +318,7 @@ export class WampusCoreSession {
                     Routes.error(WampType.PUBLISH, msg.requestId)
                 ).pipe(take(1), catchError(err => {
                     if (err instanceof WampusRouteCompletion) {
-                        throw new WampusNetworkError("Cannot receive publish acknowledgement because session is closing.");
+                        throw Errs.sessionIsClosing("publish");
                     }
                     throw err;
                 }));
@@ -329,8 +335,10 @@ export class WampusCoreSession {
             } else {
                 expectAcknowledge$ = EMPTY;
             }
-            let sendingPublish = this.protocol.send$(msg);
-            return merge(sendingPublish, expectAcknowledge$);
+            let sendingPublish$ = this.protocol.send$(msg).pipe(catchError(err => {
+                return EMPTY;
+            }));
+            return merge(sendingPublish$, expectAcknowledge$);
         }).toPromise();
     }
 
@@ -349,12 +357,12 @@ export class WampusCoreSession {
         if (!this.isActive) throw Errs.sessionClosed("event unsubscribe");
 
         options = options || {};
-        let features = this._welcomeDetails.roles.broker.features;
+        let features = this.welcomeDetails.roles.broker.features;
         if (options.match && !features.pattern_based_subscription) {
             throw Errs.routerDoesNotSupportFeature(AdvProfile.Subscribe.PatternBasedSubscription);
         }
 
-        let expectSubscribedOrError = defer(() => {
+        let expectSubscribedOrError$ = defer(() => {
             let msg = factory.subscribe(options, name);
             let sending$ = this.protocol.send$(msg);
             let expectSubscribedOrError$ = this.protocol.expectAny$(
@@ -369,11 +377,22 @@ export class WampusCoreSession {
                 return x as WM.Subscribed;
             });
             return merge(sending$, expectSubscribedOrError$).pipe(failOnErrorOrCastToSubscribed);
-        });
+        }).pipe(catchError(err => {
+            if (err instanceof WampusRouteCompletion) {
+                throw Errs.sessionIsClosing("subscribe");
+            }
+            throw err;
+        }));
 
         let whenSubscribedStreamEvents = map((subscribed: WM.Subscribed) => {
             let unsub = factory.unsubscribe(subscribed.subscriptionId);
-            let expectEvents$ = this.protocol.expectAny$(Routes.event(subscribed.subscriptionId));
+            let expectEvents$ = this.protocol.expectAny$(Routes.event(subscribed.subscriptionId)).pipe(catchError(err => {
+                if (err instanceof WampusRouteCompletion) {
+                    closing = Promise.resolve();
+                    return EMPTY;
+                }
+                throw err;
+            }));
             let closeSignal = new Subject();
             let closing : Promise<any>;
             let close = async () => {
@@ -442,7 +461,7 @@ export class WampusCoreSession {
             return eventSubscriptionTicket;
         });
 
-        return expectSubscribedOrError.pipe(take(1), whenSubscribedStreamEvents).toPromise();
+        return expectSubscribedOrError$.pipe(take(1), whenSubscribedStreamEvents).toPromise();
     }
 
     call(full: WampusCallArguments): CallTicket {
@@ -451,7 +470,7 @@ export class WampusCoreSession {
             if (!this.isActive) throw Errs.sessionClosed("call procedure");
             options = options || {};
             let self = this;
-            let features = this._welcomeDetails.roles.dealer.features;
+            let features = this.welcomeDetails.roles.dealer.features;
             let canceling : Promise<any>;
 
             // Check call options are compatible with the deaqler's features.
@@ -521,10 +540,10 @@ export class WampusCoreSession {
                 Routes.error(WampType.CALL, msg.requestId)
             ).pipe(failOnError, catchError(err => {
                 if (err instanceof WampusRouteCompletion) {
-                    throw new WampusNetworkError("Invocation cancelled because session is closing.", {});
+                    throw Errs.sessionIsClosing("call");
                 }
                 throw err;
-            }), toLibraryResult).pipe(publishAutoConnect())
+            }), toLibraryResult).pipe(publishAutoConnect());
 
             let sending = this.protocol.send$(msg).pipe(publishAutoConnect());
 
@@ -576,7 +595,6 @@ export class WampusCoreSession {
             return callTicket;
         }
         catch (err) {
-            //TODO: Error handling for CALL should be improved before release!
             return {
                 async close() {
 
@@ -587,7 +605,7 @@ export class WampusCoreSession {
                 },
                 info : {
                     ...full,
-                    callId : 0
+                    callId : undefined
                 }
             } as CallTicket;
         }

@@ -165,7 +165,27 @@ sendCallReceiveErrorMacro({
 });
 
 
-test.skip("session closing impact on CALL", async t => {
-
+test("call() on closed session", async t => {
+    let {server, session} = await SessionStages.handshaken("a");
+    let sbs = Rxjs.monitor(server.messages);
+    server.send([3, {}, "no"]);
+    await session.close();
+    let cp1 = session.call({
+        name: "a"
+    });
+    await t.throws(cp1.progress.toPromise(), MatchError.network("session", "closed"));
 });
+
+test("close connection before result received", async t => {
+    let {server, session} = await SessionStages.handshaken("a");
+    let sbs = Rxjs.monitor(server.messages);
+
+    let cp1 = session.call({
+        name: "a"
+    });
+    let finished =  cp1.progress.toPromise();
+    server.send([3, {}, "no"]);
+    await session.close();
+    await t.throws(finished, MatchError.network("session", "being closed"));
+})
 

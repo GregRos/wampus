@@ -287,3 +287,69 @@ test("after UNREGISTERED, handle pending invocations", async t => {
         4 : "hi"
     }));
 });
+
+test("register() on closed session throws", async t => {
+    let {session,server} = await SessionStages.handshaken("a");
+    server.send([3, {}, "no"]);
+    await session.close();
+    let serverMonitor = Rxjs.monitor(server.messages);
+    let registering = session.register({
+        name : "a"
+    });
+    await t.throws(registering, MatchError.network("register", "close"));
+});
+
+test("register() on closing session throws", async t => {
+    let {session,server} = await SessionStages.handshaken("a");
+
+    let serverMonitor = Rxjs.monitor(server.messages);
+    let registeringThrows =  t.throws(session.register({
+        name : "a"
+    }), MatchError.network("register", "close"));
+    server.send([3, {}, "no"]);
+    await session.close();
+    await registeringThrows;
+});
+
+test("after registration, session close causes registration to close", async t => {
+    let {session,server} = await SessionStages.handshaken("a");
+
+    let serverMonitor = Rxjs.monitor(server.messages);
+    let reg = await getRegistration({session,server});
+    t.true(reg.isOpen);
+    server.send([3, {}, "no"]);
+    await session.close();
+    t.false(reg.isOpen);
+    await t.notThrows(reg.invocations.toPromise());
+    await t.notThrows(reg.close());
+});
+
+test("receive INVOCATION, session closes, return() and error() throw", async t => {
+    let {session,server} = await SessionStages.handshaken("a");
+
+    let serverMonitor = Rxjs.monitor(server.messages);
+    let reg = await getRegistration({session,server});
+    t.true(reg.isOpen);
+    let invocationMonitor = Rxjs.monitor(reg.invocations);
+    server.send([WampType.INVOCATION, 101, reg.info.registrationId, {}, [], {a : 1}]);
+    let invocation = await invocationMonitor.next();
+    t.is(invocation.invocationId, 101);
+    t.deepEqual(invocation.kwargs, {a : 1});
+    server.send([3, {}, "no"]);
+    await session.close();
+    await t.throws(invocation.return({}), MatchError.network("operation", "reply", "close"));
+    await t.throws(invocation.error({error : "a"}), MatchError.network("operation", "reply", "close"));
+});
+
+test("while closing registration, session closes instead of UNREGISTER reply", async t => {
+    let {session,server} = await SessionStages.handshaken("a");
+    let registration = await getRegistration({session,server});
+    let serverMonitor = Rxjs.monitor(server.messages);
+    let unregistering = registration.close();
+    let unregisterMsg = await serverMonitor.next();
+    server.send([3, {}, "no"]);
+    await session.close();
+    await t.notThrows(unregistering);
+    t.false(registration.isOpen);
+    await t.notThrows(registration.invocations.toPromise());
+});

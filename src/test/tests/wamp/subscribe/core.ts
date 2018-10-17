@@ -8,6 +8,7 @@ import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {Operators} from "promise-stuff";
 import {take} from "rxjs/operators";
 import {WampUri} from "../../../../lib/core/protocol/uris";
+import {MyPromise} from "../../../../lib/utils/ext-promise";
 
 test("sends SUBSCRIBE", async t => {
     let {session, server} = await SessionStages.handshaken("a");
@@ -40,7 +41,38 @@ test("event() waits for SUBSCRIBED, EventSubscription basic tests", async t => {
     t.falsy(await eventMonitor.nextWithin(20));
 });
 
+test("event() on closed session throws", async t => {
+    let {session, server} = await SessionStages.handshaken("a");
+    server.send([3, {}, "no"]);
+    await session.close();
+    let serverMonitor = Rxjs.monitor(server.messages);
+    let pendingSub = session.event({name : "hi"});
+    await t.throws(pendingSub, MatchError.network("subscribe"));
+});
 
+test("event() on a closing session throws", async t => {
+    let {session, server} = await SessionStages.handshaken("a");
+    let throwSub =  t.throws(session.event({name : "hi"}), MatchError.network("subscribe"));
+    await MyPromise.wait(10);
+    server.send([3, {}, "no"]);
+    await session.close();
+    await throwSub;
+});
+
+test("after event(), session closing closes subscription", async t => {
+    let {session, server} = await SessionStages.handshaken("a");
+    let serverMonitor = Rxjs.monitor(server.messages);
+    let pendingSub = session.event({name : "hi"});
+    let subscribeMsg = await serverMonitor.next();
+    server.send([33, subscribeMsg[1], 101]);
+    let subscription = await pendingSub;
+    t.is(subscription.isOpen, true);
+    server.send([3, {}, "no"]);
+    await session.close();
+    t.is(subscription.isOpen, false);
+    await t.notThrows(subscription.events.toPromise());
+    await t.notThrows(subscription.close());
+});
 
 test("send EVENT, verify EventArgs properties", async t => {
     let {session, server} = await SessionStages.handshaken("a");
@@ -131,6 +163,24 @@ test("receives UNSUBSCRIBED, events complete", async t => {
     let unsubbing = sub.close();
     let unsubMsg = await serverMonitor.next();
     server.send([35,unsubMsg[1]]);
+    await t.notThrows(unsubbing);
+    t.true(eventMonitor.isComplete);
+    await t.notThrows(sub.events.toPromise());
+    t.false(sub.isOpen);
+});
+
+test("close() subscription, session closes instead of UNSUBSCRIBE, subscription still closes", async t => {
+    let {session, server} = await SessionStages.handshaken("a");
+    let serverMonitor = Rxjs.monitor(server.messages);
+    let pendingSub = session.event({name : "hi"});
+    let subscribeMsg = await serverMonitor.next();
+    server.send([33, subscribeMsg[1], 101]);
+    let sub = await pendingSub;
+    let eventMonitor = Rxjs.monitor(sub.events);
+    let unsubbing = sub.close();
+    let unsubMsg = await serverMonitor.next();
+    server.send([3, {}, "no"]);
+    await session.close();
     await t.notThrows(unsubbing);
     t.true(eventMonitor.isComplete);
     await t.notThrows(sub.events.toPromise());

@@ -153,6 +153,36 @@ test("2nd call to cancel is no-op, returns the same promise", async t => {
     t.falsy(await serverMonitor.nextWithin(10));
 });
 
-test.skip("Session closing impact on cancel", async t => {
+test("try to cancel call on a closed session should be a no-op", async t => {
+    let {server, session} = await SessionStages.handshaken("a", {
+        dealer : {
+            call_cancelling : true
+        }
+    });
+    let sbs = Rxjs.monitor(server.messages);
 
-})
+    let cp1 = session.call({
+        name: "a"
+    });
+    server.send([3, {}, "no"]);
+    await session.close();
+    await t.notThrows(cp1.close());
+});
+
+test("close session while cancelling should be a no-op", async t => {
+    let {server, session} = await SessionStages.handshaken("a", {
+        dealer : {
+            call_cancelling : true
+        }
+    });
+    let sbs = Rxjs.monitor(server.messages);
+
+    let cp1 = session.call({
+        name: "a"
+    });
+    let a = cp1.close();
+    await MyPromise.wait(100);
+    server.send([3, {}, "no"]);
+    await session.close();
+    await t.notThrows(cp1.close());
+});

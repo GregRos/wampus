@@ -39,6 +39,12 @@ export module Errs {
         });
     }
 
+    export function sessionIsClosing(operation : string) {
+        return new WampusNetworkError("The operation {operation} cannot be completed because the session is being closed.", {
+            operation
+        });
+    }
+
 
     export module Handshake {
         export function unexpectedMessage(message: WampMessage.Any) {
@@ -233,6 +239,8 @@ export module Errs {
     }
 
     export function sessionClosed(operation : string) {
-        return new WampusNetworkError("Tried to perform {operation}, but the session was closed.");
+        return new WampusNetworkError("Tried to perform {operation}, but the session was closed.", {
+            operation
+        });
     }
 }

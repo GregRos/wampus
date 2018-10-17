@@ -17,7 +17,7 @@ export class WampProtocolClient<T> {
     private _onClosed = new Subject<object>();
     private _onUnknownMessage = new Subject<any>();
     public _router : PrefixRouter<T>;
-    private _selector : (x : WampArray) => T;
+    private _parser : (x : WampArray) => T;
     /**
      * Use [[WampProtocolClient.create]].
      * @param {never} never
@@ -33,7 +33,7 @@ export class WampProtocolClient<T> {
     static create<T>(transport : Transport, selector : (x : WampArray) => T) : WampProtocolClient<T> {
         let messenger = new WampProtocolClient<T>(null as never);
         messenger.transport = transport;
-        messenger._selector = selector;
+        messenger._parser = selector;
         let router = messenger._router = new PrefixRouter<T>();
         messenger._setupRouter();
         return messenger;
@@ -65,7 +65,7 @@ export class WampProtocolClient<T> {
                         all.forEach(route => route.error(x.data));
                     }
                 } else if (x.type === "message") {
-                    let msg = this._selector(x.data);
+                    let msg = this._parser(x.data);
                     let routes = this._router.match(x.data);
                     routes.forEach(route => route.next(msg));
                     if (routes.length === 0) {
@@ -81,7 +81,7 @@ export class WampProtocolClient<T> {
 
             },
             error: (err) => {
-                //TODO: Report errors here
+                 this._defaultRoute.error(err);
             }
         });
     }
@@ -117,7 +117,8 @@ export class WampProtocolClient<T> {
 
     /**
      * An observable that, when subscribed to, will create an entry in the routing table for messages with the given prefix key.
-     * The subscription will fire whenever a matching the prefix key arrives. This is used to receive messages of a certain type.
+     * The subscription will fire whenever a matching message with the prefix key arrives. This is used to receive messages of a certain type.
+     * Unsubscribing will remove the route.
      * @param {WampArray} prefixKey
      * @returns {Observable<WampMessage.Any>}
      */
