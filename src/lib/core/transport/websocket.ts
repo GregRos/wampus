@@ -10,7 +10,7 @@ import {WampMessage, WampRawMessage} from "../protocol/messages";
 import {WampusError} from "../errors/types";
 import {from, fromEvent, merge, NEVER, Observable, of, race, throwError} from "rxjs";
 import {map, startWith, switchAll, delay, take} from "rxjs/operators";
-import {skipAfter} from "../../utils/rxjs";
+import {skipAfter} from "../../utils/rxjs-operators";
 
 export interface WebsocketTransportConfig {
     url: string;

@@ -8,20 +8,7 @@ import {
     WampusSubcribeArguments
 } from "./message-arguments";
 import {Observable} from "rxjs";
-
-export interface WampResult {
-    args ?: WampArray;
-    kwargs ?: WampObject;
-}
-
-export interface WampError extends WampResult {
-
-    readonly args?: WampArray;
-
-    readonly kwargs?: WampObject;
-
-    readonly error: string;
-}
+import {WampResult} from "../basics";
 
 export interface Ticket {
     close(): Promise<void>;
@@ -38,7 +25,7 @@ export interface CallTicket extends Ticket {
     close(cancelMode ?: CancelMode): Promise<void>;
 }
 
-export interface ProcededureRegistrationTicket extends Ticket {
+export interface ProcedureRegistrationTicket extends Ticket {
     readonly invocations: Observable<ProcedureInvocationTicket>;
     readonly info: WampusRegisterArguments & {
         readonly registrationId: number;
@@ -74,7 +61,7 @@ export interface EventInvocationData extends WampResult {
     readonly details: WampEventOptions;
 }
 
-export interface InterruptTicket {
+export interface CancellationToken {
     readonly source: ProcedureInvocationTicket;
 
     readonly received: Date;
@@ -82,8 +69,22 @@ export interface InterruptTicket {
     readonly options: WampObject;
 }
 
+export interface ProcedureInvocationData extends WampResult {
+    readonly args: WampArray;
+
+    readonly kwargs: WampObject;
+
+    readonly options: WampInvocationOptions;
+
+    readonly name: string;
+
+    readonly invocationId: number;
+
+    readonly isHandled: boolean;
+}
+
 export interface ProcedureInvocationTicket extends WampResult {
-    readonly source : ProcededureRegistrationTicket;
+    readonly source : ProcedureRegistrationTicket;
 
     readonly args: WampArray;
 
@@ -103,5 +104,5 @@ export interface ProcedureInvocationTicket extends WampResult {
 
     error({args, options, kwargs, error}: WampusSendErrorArguments): Promise<void>;
 
-    readonly interruptSignal: Observable<InterruptTicket>;
+    readonly cancellation: Observable<CancellationToken>;
 }

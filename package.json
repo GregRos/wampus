@@ -64,8 +64,7 @@
   },
   "ava": {
     "files": [
-      "dist/test/tests/**/*.js",
-      "dist/test/tests/*.js"
+      "dist/test/unit-tests/**/*.js"
     ],
     "require": [
       "source-map-support/register"

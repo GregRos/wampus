@@ -13,7 +13,7 @@ import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "../e
 import {Routes} from "../protocol/routes";
 import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
 import {WampProtocolClient} from "../protocol/wamp-protocol-client";
-import {CallResultData, EventSubscriptionTicket, ProcededureRegistrationTicket} from "./ticket";
+import {CallResultData, EventSubscriptionTicket, ProcedureRegistrationTicket} from "./ticket";
 import {concat, defer, EMPTY, merge, Observable, of, onErrorResumeNext, race, Subject, throwError, timer} from "rxjs";
 import {
     catchError,
@@ -37,7 +37,7 @@ import {
 } from "./message-arguments";
 import {MyPromise} from "../../utils/ext-promise";
 import {CallTicket} from "./ticket";
-import {publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../../utils/rxjs";
+import {publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../../utils/rxjs-operators";
 import {Transport} from "../transport/transport";
 import {wampusHelloDetails} from "../hello-details";
 
@@ -48,7 +48,7 @@ export interface SessionConfig {
 
 import WM = WampMessage;
 import {MessageReader} from "../protocol/reader";
-import {EventInvocationData, InterruptTicket, ProcedureInvocationTicket} from "./ticket";
+import {EventInvocationData, CancellationToken, ProcedureInvocationTicket} from "./ticket";
 import {DefaultMessageFactory} from "./default-factory";
 import {AuthenticationWorkflow, ChallengeEvent} from "./authentication";
 import {fromPromise} from "rxjs/internal-compatibility";
@@ -109,7 +109,7 @@ export class WampusCoreSession {
         return concat(getSessionFromShake$).pipe(mapTo(session), take(1)).toPromise();
     }
 
-    async register(full: WampusRegisterArguments): Promise<ProcededureRegistrationTicket> {
+    async register(full: WampusRegisterArguments): Promise<ProcedureRegistrationTicket> {
         let {options, name} = full;
         /*
             Returns a cold observable yielding a hot observable.
@@ -227,7 +227,7 @@ export class WampusCoreSession {
                                 received : new Date(),
                                 options : x.options,
                                 source : procInvocationTicket
-                            } as InterruptTicket;
+                            } as CancellationToken;
                         }), take(1), takeUntil(completeInterrupt), catchError(err => {
                             if (err instanceof WampusRouteCompletion) {
                                 return EMPTY;
@@ -268,7 +268,7 @@ export class WampusCoreSession {
                     get isHandled() {
                         return isHandled;
                     },
-                    get interruptSignal() {
+                    get cancellation() {
                         return expectInterrupt;
                     },
                     args: invocationMsg.args,
@@ -281,7 +281,7 @@ export class WampusCoreSession {
             });
 
             let invocations$ = expectInvocation$.pipe(whenInvocationReceived);
-            let procRegistrationTicket: ProcededureRegistrationTicket = {
+            let procRegistrationTicket: ProcedureRegistrationTicket = {
                 invocations: invocations$.pipe(publishAutoConnect()),
                 close() {
                     if (closing) return closing;

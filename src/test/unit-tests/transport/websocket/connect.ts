@@ -29,7 +29,7 @@ import {fromPromise} from "rxjs/internal-compatibility";
 import {getTransportAndServerConn, receiveObjects$, rxjsWsServer, sendVia} from "../../../helpers/ws-server";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
 import _ = require("lodash");
-import {choose} from "../../../../lib/utils/rxjs";
+import {choose} from "../../../../lib/utils/rxjs-operators";
 
 test("acuire", async t => {
     let {server,client} = await getTransportAndServerConn();

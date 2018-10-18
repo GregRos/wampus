@@ -32,10 +32,10 @@ export interface Transport {
      * Exposes a COLD stream that gives access to the transport's network events.
      * Network events include Data, Error, and Completion.
      */
-    events$ : Observable<TransportEvent>;
+    readonly events$ : Observable<TransportEvent>;
 
     close(obj ?: object) : Promise<void>;
 
-    isActive : boolean;
+    readonly isActive : boolean;
 }
 

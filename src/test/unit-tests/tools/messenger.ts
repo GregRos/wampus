@@ -75,13 +75,6 @@ test("expectNext route matches the next error", async t => {
     await t.throws(a, MatchError.network("HA!"));
 });
 
-test("expectNext route errors on next close", async t => {
-    let {messenger,server} = createPair();
-    let a = messenger.messages$.pipe(take(1)).toPromise();
-    server.close();
-    await t.throws(a, MatchError.network("Abruptly", "closed"));
-});
-
 test("two expectNext routes get called at the same time", async t => {
     let {messenger, server} = createPair();
     let a = messenger.messages$.pipe(take(1)).toPromise();

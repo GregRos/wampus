@@ -37,7 +37,7 @@ test("interruptSignal doesn't fire with no INTERRUPT message, and finishes once 
     let serverMonitor = Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 1}]);
     let invReq = await invocationMonitor.next();
-    let interruptMonitor = Rxjs.monitor(invReq.interruptSignal);
+    let interruptMonitor = Rxjs.monitor(invReq.cancellation);
     t.falsy(await interruptMonitor.nextWithin(50));
     await invReq.return({kwargs : {a : 1}});
     t.true(interruptMonitor.isComplete);
@@ -53,7 +53,7 @@ test("interruptSignal replays past interrupt", async t => {
     server.send([69, invReq.invocationId, {}]);
     await MyPromise.wait(50);
     // TODO: Check cancel token properties
-    t.truthy(await invReq.interruptSignal.toPromise());
+    t.truthy(await invReq.cancellation.toPromise());
 });
 
 test("interruptSignal waits for future interrupt", async t => {
@@ -63,7 +63,7 @@ test("interruptSignal waits for future interrupt", async t => {
     let serverMonitor = Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a : 1}]);
     let invReq = await invocationMonitor.next();
-    let interrupt = invReq.interruptSignal.toPromise();
+    let interrupt = invReq.cancellation.toPromise();
     await MyPromise.wait(50);
     server.send([69, invReq.invocationId, {}]);
     t.truthy(await interrupt);
@@ -82,5 +82,5 @@ test("receive INVOCATION, session closes, interruptSignal completes", async t =>
     t.deepEqual(invocation.kwargs, {a : 1});
     server.send([3, {}, "no"]);
     await session.close();
-    await t.notThrows(invocation.interruptSignal.toPromise());
+    await t.notThrows(invocation.cancellation.toPromise());
 });
