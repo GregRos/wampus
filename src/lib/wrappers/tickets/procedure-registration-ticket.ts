@@ -1,5 +1,14 @@
 import * as Core from "../../core/session/ticket";
 import {isObservable, Observable, timer} from "rxjs";
+import {
+    CallResultData,
+    CallTicket,
+    CancellationTicket,
+    HandledProcedureInvocationTicket,
+    ProcedureHandler,
+    ProcedureInvocationTicket,
+    ProcedureRegistrationTicket
+} from "../ticket";
 import {WampusSessionServices} from "../wampus-session";
 import {
     WampusCallArguments,
