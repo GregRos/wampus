@@ -5,7 +5,7 @@ import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {MatchError} from "../../../helpers/errors";
 import {WampusNetworkError} from "../../../../lib/core/errors/types";
 import {SessionStages} from "../../../helpers/wamp";
-import {Rxjs} from "../../../helpers/rxjs";
+import {Rxjs} from "../../../helpers/observable-monitor";
 import {WampType} from "../../../../lib/core/protocol/message.type";
 import {MessageFactory} from "../../../../lib/core/protocol/factory";
 import {Operators} from "promise-stuff";

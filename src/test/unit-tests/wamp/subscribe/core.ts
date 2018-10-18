@@ -1,6 +1,6 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/wamp";
-import {Rxjs} from "../../../helpers/rxjs";
+import {Rxjs} from "../../../helpers/observable-monitor";
 import _ = require("lodash");
 import {WampType} from "../../../../lib/core/protocol/message.type";
 import {MatchError} from "../../../helpers/errors";
@@ -196,7 +196,6 @@ function testUnsubscribeReceiveError(o : {errorName : string, errMatch : (err : 
         server.send([33, subscribeMsg[1], 101]);
         let sub = await pendingSub;
         let eventMonitor = Rxjs.monitor(sub.events);
-        serverMonitor.clear();
         let unsubbing1 = sub.close();
         let unsubMsg = await serverMonitor.next();
         server.send([WampType.ERROR, WampType.UNSUBSCRIBE, unsubMsg[1], {}, o.errorName]);

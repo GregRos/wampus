@@ -9,7 +9,7 @@ import all = When.all;
 import {CallTicket} from "../../../../lib/core/session/ticket";
 import {Observable} from "rxjs";
 import {WampResult} from "../../../../lib/core/basics";
-import {Rxjs} from "../../../helpers/rxjs";
+import {Rxjs} from "../../../helpers/observable-monitor";
 import {MatchError} from "../../../helpers/errors";
 import {WampusIllegalOperationError, WampusInvocationError} from "../../../../lib/core/errors/types";
 

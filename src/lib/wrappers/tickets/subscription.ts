@@ -6,9 +6,9 @@ import {map} from "rxjs/operators";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {embedTrace} from "./procedure-registration-ticket";
 export interface EventInvocationData extends Core.EventInvocationData {
-    readonly source : EventSubscriptionTickets;
+    readonly source : EventSubscriptionTicket;
 }
-export class EventSubscriptionTickets {
+export class EventSubscriptionTicket {
     private _base : Core.EventSubscriptionTicket;
     private _services : WampusSessionServices;
     private _adapter : RxjsEventAdapter<EventInvocationData>;
@@ -33,7 +33,7 @@ export class EventSubscriptionTickets {
             embedTrace(services.stackTraceService, err, trace);
             throw err;
         });
-        let ticket = new EventSubscriptionTickets(null as never);
+        let ticket = new EventSubscriptionTicket(null as never);
         ticket._base = coreTicket;
         ticket._services = services;
         ticket._adapter = new RxjsEventAdapter(ticket.events, x => {

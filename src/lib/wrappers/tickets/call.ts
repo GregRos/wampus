@@ -5,7 +5,7 @@ import {map} from "rxjs/operators";
 import {CancelMode} from "../../core/protocol/options";
 import CallSite = NodeJS.CallSite;
 
-export class CallTickets {
+export class CallTicket {
     private _base: Core.CallTicket;
     private _services: WampusSessionServices;
     private _adapter: RxjsEventAdapter<CallResultData>;
@@ -16,7 +16,7 @@ export class CallTickets {
     }
 
     static create(call: Core.CallTicket, services: WampusSessionServices) {
-        let ticket = new CallTickets(null as never);
+        let ticket = new CallTicket(null as never);
         ticket._createdTrace = services.stackTraceService.capture();
         ticket._base = call;
         ticket._services = services;
@@ -68,5 +68,5 @@ export class CallTickets {
 }
 
 export interface CallResultData extends Core.CallResultData {
-    readonly source: CallTickets;
+    readonly source: CallTicket;
 }

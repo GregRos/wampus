@@ -1,6 +1,6 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/wamp";
-import {Rxjs} from "../../../helpers/rxjs";
+import {Rxjs} from "../../../helpers/observable-monitor";
 import _ = require("lodash");
 import {WampType} from "../../../../lib/core/protocol/message.type";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";

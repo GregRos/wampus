@@ -12,9 +12,9 @@ import {EMPTY, isObservable, Subscription, timer} from "rxjs";
 import {RxjsEventAdapter} from "../utils/rxjs-other";
 import {MyPromise} from "../utils/ext-promise";
 import {Errs} from "../core/errors/errors";
-import {ProcedureRegistrationTickets} from "./tickets/procedure-registration-ticket";
-import {CallTickets} from "./tickets/call";
-import {EventSubscriptionTickets} from "./tickets/subscription";
+import {ProcedureRegistrationTicket} from "./tickets/procedure-registration-ticket";
+import {CallTicket} from "./tickets/call";
+import {EventSubscriptionTicket} from "./tickets/subscription";
 
 export interface WampusSessionServices {
     transforms?: TransformSet;
@@ -42,17 +42,17 @@ export class WampusSession {
         return this._session.close();
     }
 
-    call(args: WampusCallArguments): CallTickets {
-        return CallTickets.create(this._session.call(args), this._config);
+    call(args: WampusCallArguments): CallTicket {
+        return CallTicket.create(this._session.call(args), this._config);
     };
 
-    async register(args : WampusRegisterArguments): Promise<ProcedureRegistrationTickets> {
+    async register(args : WampusRegisterArguments): Promise<ProcedureRegistrationTicket> {
         let coreRegTicket = this._session.register(args);
-        return ProcedureRegistrationTickets.create(coreRegTicket, this._config);
+        return ProcedureRegistrationTicket.create(coreRegTicket, this._config);
     };
 
-    async event(full: WampusSubcribeArguments): Promise<EventSubscriptionTickets> {
-        return EventSubscriptionTickets.create(this._session.event(full), this._config);
+    async event(full: WampusSubcribeArguments): Promise<EventSubscriptionTicket> {
+        return EventSubscriptionTicket.create(this._session.event(full), this._config);
     }
 
     publish(args: WampusPublishArguments): Promise<void> {

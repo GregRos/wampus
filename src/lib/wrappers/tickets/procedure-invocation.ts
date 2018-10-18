@@ -5,11 +5,11 @@ import {WampusSendErrorArguments, WampusSendResultArguments} from "../../core/se
 import {WampusSessionServices} from "../wampus-session";
 import {catchError, endWith, flatMap, map, pairwise, takeUntil} from "rxjs/operators";
 import {Errs} from "../../core/errors/errors";
-import {ProcedureRegistrationTickets} from "./procedure-registration-ticket";
+import {ProcedureRegistrationTicket} from "./procedure-registration-ticket";
 import _ = require("lodash");
 
-export class ProcedureInvocationTickets {
-    constructor(private _base: Core.ProcedureInvocationTicket, private _services: WampusSessionServices, private _source: ProcedureRegistrationTickets) {
+export class ProcedureInvocationTicket {
+    constructor(private _base: Core.ProcedureInvocationTicket, private _services: WampusSessionServices, private _source: ProcedureRegistrationTicket) {
 
     }
 

@@ -3,7 +3,7 @@ import {SessionStages} from "../../../helpers/wamp";
 import {MatchError} from "../../../helpers/errors";
 import {WampType} from "../../../../lib/core/protocol/message.type";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
-import {Rxjs} from "../../../helpers/rxjs";
+import {Rxjs} from "../../../helpers/observable-monitor";
 import {Operators} from "promise-stuff";
 
 
@@ -104,6 +104,7 @@ test("reply with ERROR(non-cancel), close() should reject", async t => {
     });
     let progress = prog.progress.toPromise();
     let closing = prog.close();
+    await serverMonitor.next();
     server.send([WampType.ERROR, WampType.CALL, prog.info.callId, {}, "wamp.error.whatever"]);
     //TODO: Validate error details
     await Promise.all([t.throws(progress), t.notThrows(closing)]);
@@ -115,10 +116,11 @@ test("cancel is no-op in resolved call", async t => {
     let prog = session.call({
         name: "a"
     });
+    await serverMonitor.next();
     let progress = prog.progress.toPromise();
     server.send([WampType.RESULT, prog.info.callId, {}, [], {a : 1}]);
     await t.notThrows(progress);
-    serverMonitor.clear();
+    await MyPromise.wait(10);
     await t.notThrows(prog.close());
     t.falsy(await serverMonitor.nextWithin(10));
 });
@@ -130,11 +132,11 @@ test("cancel is no-op in rejected call", async t => {
     let prog = session.call({
         name: "a"
     });
+    await serverMonitor.next();
     let progress = prog.progress.toPromise();
 
     server.send([WampType.ERROR, WampType.CALL, prog.info.callId, {}, "wamp.error.runtime_error", [], {a : 1}]);
     await t.throws(progress);
-    serverMonitor.clear();
     await t.notThrows(prog.close());
     t.falsy(await serverMonitor.nextWithin(10));
 });
@@ -145,7 +147,7 @@ test("2nd call to cancel is no-op, returns the same promise", async t => {
     let prog = session.call({
         name: "a"
     });
-    serverMonitor.clear();
+    await serverMonitor.next();
     let c1 = prog.close();
     let c2 = prog.close();
     t.is(c1, c2);

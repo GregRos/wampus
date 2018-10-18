@@ -11,7 +11,7 @@ import {AdvProfile, WampUri} from "../protocol/uris";
 import {MessageFactory} from "../protocol/factory";
 import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "../errors/types";
 import {Routes} from "../protocol/routes";
-import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
+import {CancelMode, HelloDetails, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
 import {WampProtocolClient} from "../protocol/wamp-protocol-client";
 import {CallResultData, EventSubscriptionTicket, ProcedureRegistrationTicket} from "./ticket";
 import {concat, defer, EMPTY, merge, Observable, of, onErrorResumeNext, race, Subject, throwError, timer} from "rxjs";
@@ -41,9 +41,10 @@ import {publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../../uti
 import {Transport} from "../transport/transport";
 import {wampusHelloDetails} from "../hello-details";
 
-export interface SessionConfig {
+export interface CoreSessionConfig {
     realm: string;
     timeout: number;
+    helloDetails?(defaults : HelloDetails) : HelloDetails;
 }
 
 import WM = WampMessage;
@@ -61,7 +62,7 @@ export interface WampusSessionDependencies {
 }
 export class WampusCoreSession {
     id: number;
-    config: SessionConfig;
+    config: CoreSessionConfig;
     protocol: WampProtocolClient<WampMessage.Any>;
     welcomeDetails: WelcomeDetails;
     private _isClosing = false;
@@ -82,7 +83,7 @@ export class WampusCoreSession {
         return this.welcomeDetails;
     }
 
-    static async create(config: SessionConfig & WampusSessionDependencies): Promise<WampusCoreSession> {
+    static async create(config: CoreSessionConfig & WampusSessionDependencies): Promise<WampusCoreSession> {
         // 1. Receive transport
         // 2. Handshake
         // 3. Wait until session closed:
@@ -736,9 +737,11 @@ export class WampusCoreSession {
     private _handshake$(authenticator : AuthenticationWorkflow): Observable<WM.Welcome> {
         let messenger = this.protocol;
         let config = this.config;
-        let hello = factory.hello(config.realm, {
-            ...wampusHelloDetails
-        });
+        let helloDetails = wampusHelloDetails;
+        if (config.helloDetails) {
+            helloDetails = config.helloDetails(helloDetails);
+        }
+        let hello = factory.hello(config.realm, helloDetails);
 
         let handleAuthentication = flatMap( (msg : WM.Any) => {
             if (msg instanceof WM.Challenge) {
@@ -793,9 +796,6 @@ export class WampusCoreSession {
         let serverInitiatedClose$ = this.protocol.expectAny$([WampType.ABORT], [WampType.GOODBYE]).pipe(take(1), flatMap((x: WM.Abort) => {
             return concat(this._handleClose$(x));
         }), catchCompletionError);
-
-
-
 
         let serverSentInvalidMessage$ = this.protocol.expectAny$(
             [WampType.WELCOME],

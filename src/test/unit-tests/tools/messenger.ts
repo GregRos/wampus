@@ -12,7 +12,7 @@ import {MyPromise} from "../../../lib/utils/ext-promise";
 import {WampusNetworkError} from "../../../lib/core/errors/types";
 import {MatchError} from "../../helpers/errors";
 import {Operators} from "promise-stuff";
-import {Rxjs} from "../../helpers/rxjs";
+import {Rxjs} from "../../helpers/observable-monitor";
 function createPair() {
     let {server, client} = dummyTransport();
     let messenger = WampProtocolClient.create<WampArray>(client, x => x);

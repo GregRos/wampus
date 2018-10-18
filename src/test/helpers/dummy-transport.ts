@@ -1,9 +1,10 @@
 import {Transport, TransportEvent} from "../../lib/core/transport/transport";
-import {defer, EMPTY, Observable, Subject} from "rxjs";
+import {concat, defer, EMPTY, Observable, Subject, timer} from "rxjs";
 import {WampObject} from "../../lib/core/protocol/messages";
 import {choose} from "../../lib/utils/rxjs-operators";
 import {MyPromise} from "../../lib/utils/ext-promise";
 import {domainToASCII} from "url";
+import {mergeMapTo} from "rxjs/operators";
 
 export function dummyTransport() {
     let intoClient = new Subject<TransportEvent>();
@@ -23,13 +24,13 @@ export function dummyTransport() {
             },
             events$: intoClient,
             send$(x) {
-                return defer(() => {
+                return concat(timer(20), defer(() => {
                     intoServer.next({
                         type : "message",
                         data : x
                     });
                     return EMPTY;
-                });
+                })).pipe(mergeMapTo(EMPTY));
             },
             get isActive() {
                 return isActive;

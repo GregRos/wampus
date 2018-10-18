@@ -1,6 +1,7 @@
 import {HelloDetails} from "./protocol/options";
-
+import _metadata = require("../_metadata");
 export const wampusHelloDetails : HelloDetails = {
+    agent : `${_metadata.name} v${_metadata.name}`,
     roles: {
         callee: {
             features : {

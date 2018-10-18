@@ -1,6 +1,6 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/wamp";
-import {Rxjs} from "../../../helpers/rxjs";
+import {Rxjs} from "../../../helpers/observable-monitor";
 import {Operators} from "promise-stuff";
 import {MatchError} from "../../../helpers/errors";
 import {BrokerFeatures, PublisherFeatures, WampPublishOptions} from "../../../../lib/core/protocol/options";

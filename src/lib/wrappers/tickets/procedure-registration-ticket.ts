@@ -4,7 +4,7 @@ import {WampusSessionServices} from "../wampus-session";
 import {catchError, map} from "rxjs/operators";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {StackTraceService} from "../services";
-import {ProcedureInvocationTickets} from "./procedure-invocation";
+import {ProcedureInvocationTicket} from "./procedure-invocation";
 import CallSite = NodeJS.CallSite;
 
 export function embedTrace(service : StackTraceService, target : Error, trace : CallSite[]) {
@@ -12,9 +12,9 @@ export function embedTrace(service : StackTraceService, target : Error, trace : 
     target.stack = this._config.stackTraceService.format(trace);
 }
 
-export class ProcedureRegistrationTickets {
+export class ProcedureRegistrationTicket {
     private _createdTrace : CallSite[];
-    private _rxAdapter : RxjsEventAdapter<ProcedureInvocationTickets>;
+    private _rxAdapter : RxjsEventAdapter<ProcedureInvocationTicket>;
     private _base : Core.ProcedureRegistrationTicket;
     private _services : WampusSessionServices;
     constructor(never : never) {
@@ -27,7 +27,7 @@ export class ProcedureRegistrationTickets {
             throw err;
         });
 
-        let ticket = new ProcedureRegistrationTickets(null as never);
+        let ticket = new ProcedureRegistrationTicket(null as never);
         ticket._createdTrace = stack;
         ticket._base = coreTicket;
         ticket._services = services;
@@ -51,7 +51,7 @@ export class ProcedureRegistrationTickets {
     get invocations() {
         let myTrace = this._services.stackTraceService.capture();
         return this._base.invocations.pipe(map(coreTicket => {
-            let newTicket = new ProcedureInvocationTickets(coreTicket, this._services, this);
+            let newTicket = new ProcedureInvocationTicket(coreTicket, this._services, this);
             return newTicket;
         }), catchError(err => {
             embedTrace(this._services.stackTraceService, err, myTrace);
@@ -67,7 +67,7 @@ export class ProcedureRegistrationTickets {
         this._rxAdapter.off(name, handler);
     }
 
-    on(name: "called", handler: (invocation: ProcedureInvocationTickets) => void): void {
+    on(name: "called", handler: (invocation: ProcedureInvocationTicket) => void): void {
         this._rxAdapter.on(name, handler);
     }
 

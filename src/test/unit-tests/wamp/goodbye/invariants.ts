@@ -2,7 +2,7 @@ import test from "ava";
 import {count} from "rxjs/operators";
 import {MatchError} from "../../../helpers/errors";
 import {SessionStages} from "../../../helpers/wamp";
-import {Rxjs} from "../../../helpers/rxjs";
+import {Rxjs} from "../../../helpers/observable-monitor";
 
 
 async function getRegularGoodbyedSession() {

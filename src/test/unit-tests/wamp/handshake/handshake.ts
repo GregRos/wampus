@@ -71,6 +71,12 @@ test("send HELLO, when receive WELCOME, session should have received data", asyn
     t.deepEqual(s.details, wDetails);
 });
 
+// TODO: Make sure no extra messages are sent to the server
 
-// TODO: Test -- Integration: Disconnect during/before handshake
+// TODO: Make sure routes get cleared up and don't cause memory leaks
+
+// TODO: Make sure there are no leaks in general
+
+
+// TODO: Test -- Integration: Transport issues
 

@@ -1,6 +1,6 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/wamp";
-import {Rxjs} from "../../../helpers/rxjs";
+import {Rxjs} from "../../../helpers/observable-monitor";
 import _ = require("lodash");
 import {WampType} from "../../../../lib/core/protocol/message.type";
 import {MatchError} from "../../../helpers/errors";
@@ -272,7 +272,7 @@ test("after UNREGISTERED, handle pending invocations", async t => {
     await t.notThrows(unregistering);
     let invocation1 = await invocationMonitor.next();
     let invocation2 = await invocationMonitor.next();
-    serverMonitor.clear();
+
     await invocation1.return({kwargs : {a : 1}});
     await invocation2.error({error : "hi"});
     let retMsg = await serverMonitor.next();
