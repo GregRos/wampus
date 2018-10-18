@@ -23,11 +23,6 @@ export const skipAfter = function <T>(predicate: (x: T) => boolean) {
     }), takeWhile(x => x !== stopToken)) as UnaryFunction<Observable<T>, Observable<T>>
 };
 
-export const completeOnError = function<T>() {
-    return catchError(() => {
-        return EMPTY;
-    })
-};
 
 export const publishReplayAutoConnect = function<T>() {
     return pipe(publishReplay(), (x : any) => {

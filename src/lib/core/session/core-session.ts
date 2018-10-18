@@ -14,10 +14,10 @@ import {Routes} from "../protocol/routes";
 import {CancelMode, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
 import {WampProtocolClient} from "../protocol/wamp-protocol-client";
 import {CallResultData, EventSubscriptionTicket, ProcededureRegistrationTicket} from "./ticket";
-import {concat, defer, EMPTY, merge, Observable, race, Subject, throwError, timer} from "rxjs";
+import {concat, defer, EMPTY, merge, Observable, of, onErrorResumeNext, race, Subject, throwError, timer} from "rxjs";
 import {
     catchError,
-    endWith,
+    endWith, exhaustMap,
     flatMap,
     map,
     mapTo,
@@ -37,7 +37,7 @@ import {
 } from "./message-arguments";
 import {MyPromise} from "../../utils/ext-promise";
 import {CallTicket} from "./ticket";
-import {completeOnError, publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../../utils/rxjs";
+import {publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../../utils/rxjs";
 import {Transport} from "../transport/transport";
 import {wampusHelloDetails} from "../hello-details";
 
@@ -50,9 +50,15 @@ import WM = WampMessage;
 import {MessageReader} from "../protocol/reader";
 import {EventInvocationData, InterruptTicket, ProcedureInvocationTicket} from "./ticket";
 import {DefaultMessageFactory} from "./default-factory";
+import {AuthenticationWorkflow, ChallengeEvent} from "./authentication";
+import {fromPromise} from "rxjs/internal-compatibility";
 
 let factory = DefaultMessageFactory;
 
+export interface WampusSessionDependencies {
+    transport(): Promise<Transport> | Transport;
+    authenticator ?: AuthenticationWorkflow;
+}
 export class WampusCoreSession {
     id: number;
     config: SessionConfig;
@@ -76,18 +82,26 @@ export class WampusCoreSession {
         return this.welcomeDetails;
     }
 
-    static async create(config: SessionConfig & { transport: Promise<Transport> | Transport }): Promise<WampusCoreSession> {
+    static async create(config: SessionConfig & WampusSessionDependencies): Promise<WampusCoreSession> {
         // 1. Receive transport
         // 2. Handshake
         // 3. Wait until session closed:
         //      On close: Initiate goodbye sequence.
-        let transport = await config.transport;
+        let transport = await config.transport();
         let reader = new MessageReader();
         let messenger = WampProtocolClient.create<WampMessage.Any>(transport, x => reader.parse(x));
         let session = new WampusCoreSession(null as never);
         session.config = config;
         session.protocol = messenger;
-        let getSessionFromShake$ = session._handshake$().pipe(map(welcome => {
+        let serverDroppedConnection$ = onErrorResumeNext(messenger.onClosed.pipe(flatMap(x => {
+            return concat(timer(0), defer(() => {
+                messenger.invalidateAllRoutes(new WampusRouteCompletion(WampusCompletionReason.RouterDisconnect));
+                session._isClosing = true;
+                return;
+            }))
+        })), EMPTY);
+        serverDroppedConnection$.subscribe();
+        let getSessionFromShake$ = session._handshake$(config.authenticator).pipe(map(welcome => {
             session.id = welcome.sessionId;
             session.welcomeDetails = welcome.details;
             session._registerRoutes().subscribe();
@@ -719,14 +733,31 @@ export class WampusCoreSession {
         return merge(sending$, concat(expectingByeOrError$).pipe(failOnError));
     }
 
-    private _handshake$(): Observable<WM.Welcome> {
+    private _handshake$(authenticator : AuthenticationWorkflow): Observable<WM.Welcome> {
         let messenger = this.protocol;
         let config = this.config;
         let hello = factory.hello(config.realm, {
             ...wampusHelloDetails
         });
 
-        let handleMessage = map((msg: WM.Any) => {
+        let handleAuthentication = flatMap( (msg : WM.Any) => {
+            if (msg instanceof WM.Challenge) {
+                if (!authenticator) {
+                    throw Errs.Handshake.noAuthenticator(msg);
+                } else {
+                    let simplifiedEvent = {
+                        extra : msg.extra,
+                        authMethod : msg.authMethod
+                    } as ChallengeEvent;
+                    return fromPromise(Promise.resolve(authenticator(simplifiedEvent))).pipe(flatMap(response => {
+                        return this.protocol.send$(factory.authenticate(response.signature, response.extra));
+                    }))
+                }
+            }
+            return of(msg);
+        });
+
+        let handleWelcome = map((msg: WM.Any) => {
             if (msg instanceof WM.Abort) {
                 switch (msg.reason) {
                     case WampUri.Error.NoSuchRealm:
@@ -737,9 +768,6 @@ export class WampusCoreSession {
                         throw Errs.Handshake.unrecognizedError(msg);
                 }
             }
-            if (msg instanceof WM.Challenge) {
-                throw Errs.routerDoesNotSupportFeature("CHALLENGE authentication", msg);
-            }
             if (!(msg instanceof WM.Welcome)) {
                 throw Errs.Handshake.unexpectedMessage(msg);
             }
@@ -748,8 +776,13 @@ export class WampusCoreSession {
 
         let sendHello$ = messenger.send$(hello);
 
-        let welcomeMessage$ = merge(sendHello$, messenger.expectNext$()).pipe(handleMessage, take(1))
-        return welcomeMessage$;
+        let welcomeMessage$ = merge(sendHello$, messenger.messages$.pipe(handleAuthentication, handleWelcome, take(1)));
+        return welcomeMessage$.pipe(catchError(err => {
+            if (err instanceof WampusRouteCompletion) {
+                throw Errs.Handshake.closed();
+            }
+            throw err;
+        }));
     }
 
     private _registerRoutes() {
@@ -761,13 +794,7 @@ export class WampusCoreSession {
             return concat(this._handleClose$(x));
         }), catchCompletionError);
 
-        let serverDroppedConnection$ = this.protocol.onClosed.pipe(flatMap(x => {
-            return concat(timer(0), defer(() => {
-                this.protocol.invalidateAllRoutes(new WampusRouteCompletion(WampusCompletionReason.RouterDisconnect));
-                this._isClosing = true;
-                return;
-            }))
-        }));
+
 
 
         let serverSentInvalidMessage$ = this.protocol.expectAny$(
@@ -792,7 +819,7 @@ export class WampusCoreSession {
             return this._abortDueToProtoViolation(`Received message of type ${WampType[x.type]}, which is meant for routers not peers.`);
         }), catchCompletionError);
 
-        return merge(serverSentInvalidMessage$, serverSentRouterMessage$, serverInitiatedClose$, serverDroppedConnection$);
+        return merge(serverSentInvalidMessage$, serverSentRouterMessage$, serverInitiatedClose$);
     }
 
 

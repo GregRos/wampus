@@ -47,6 +47,11 @@ export module Errs {
 
 
     export module Handshake {
+
+        export function noAuthenticator(message : WampMessage.Any) {
+            return new WampusNetworkError("The router sent a CHALLENGE message, requiring authentication, but no authenticator was configured.");
+        }
+
         export function unexpectedMessage(message: WampMessage.Any) {
             return new WampusNetworkError(
                 `Protocol violation. During handshake, expected WELCOME or ERROR, but received: {type}`, {

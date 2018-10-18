@@ -41,17 +41,18 @@ function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observabl
 }
 
 (async () => {
-    let transport = WebsocketTransport.create({
-        url: "ws://127.0.0.1:9003",
-        serializer: new JsonSerializer(),
-        timeout: 10 * 1000
-    });
 
 
     let session = fromPromise(WampusCoreSession.create({
         realm: "proxy",
         timeout: 10000,
-        transport : transport
+        transport() {
+            return WebsocketTransport.create({
+                url: "ws://127.0.0.1:9003",
+                serializer: new JsonSerializer(),
+                timeout: 10 * 1000
+            })
+        }
     })).pipe(flatMap(async (lSession : WampusCoreSession) => {
         let session = new WampusSession(lSession, {
 

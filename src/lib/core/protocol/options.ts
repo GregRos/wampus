@@ -34,6 +34,11 @@ export interface CalleeFeatures {
 
 export interface HelloDetails {
     agent?: string;
+    transport ?: {
+        auth ?: any;
+    };
+    authmethods ?: string[];
+    authid ?: string;
     roles: {
         publisher?: {
             features?: Partial<PublisherFeatures>

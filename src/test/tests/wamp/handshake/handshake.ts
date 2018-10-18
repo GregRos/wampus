@@ -1,9 +1,9 @@
 import test from "ava";
 import {first} from "rxjs/operators";
-import {wampusHelloDetails} from "../../../lib/core/hello-details";
-import {MatchError} from "../../helpers/errors";
-import {WampusNetworkError} from "../../../lib/core/errors/types";
-import {SessionStages} from "../../helpers/wamp";
+import {wampusHelloDetails} from "../../../../lib/core/hello-details";
+import {MatchError} from "../../../helpers/errors";
+import {WampusNetworkError} from "../../../../lib/core/errors/types";
+import {SessionStages} from "../../../helpers/wamp";
 
 test("HELLO is okay", async t => {
     let {server,session} = SessionStages.fresh("a");
@@ -43,7 +43,7 @@ test("send hello, when received abrupt disconnect, throw error", async t => {
     let {server,session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.close();
-    await t.throws(session, MatchError.network("connection abruptly closed"));
+    await t.throws(session, MatchError.network("transport closed during handshake"));
 });
 
 test("send hello, when received connection error, throw error", async t => {
@@ -71,12 +71,6 @@ test("send HELLO, when receive WELCOME, session should have received data", asyn
     t.deepEqual(s.details, wDetails);
 });
 
-test("send HELLO, when received CHALLENGE, throw error (not supported)", async t => {
-    let {server, session} = SessionStages.fresh("a");
-    await server.messages.pipe(first()).toPromise();
-    server.send([4, "blah", {}]);
-    await t.throws(session, MatchError.illegalOperation("Doesn't support", "feature", "CHALLENGE"))
-});
 
 // TODO: Test -- Integration: Disconnect during/before handshake
 

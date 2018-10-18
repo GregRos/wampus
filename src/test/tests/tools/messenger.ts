@@ -56,7 +56,7 @@ test("close an observable to a route, check that the route was moved", async t =
 test("the expectNext route should match together with a regular route", async t => {
     let {messenger,server} = createPair();
     let routeSbs = Rxjs.monitor(messenger.expect$([1, 2, 10, 11]));
-    let nextRoute = messenger.expectNext$().toPromise();
+    let nextRoute = messenger.messages$.pipe(take(1)).toPromise();
     server.send([1, 2, 10, 11]);
     t.is(messenger._router.count(), 2);
     t.truthy(await nextRoute);
@@ -70,22 +70,22 @@ test("the expectNext route should match together with a regular route", async t 
 
 test("expectNext route matches the next error", async t => {
     let {messenger,server} = createPair();
-    let a = messenger.expectNext$().toPromise();
+    let a = messenger.messages$.pipe(take(1)).toPromise();
     server.error(new WampusNetworkError("HA!"));
     await t.throws(a, MatchError.network("HA!"));
 });
 
 test("expectNext route errors on next close", async t => {
     let {messenger,server} = createPair();
-    let a = messenger.expectNext$().toPromise();
+    let a = messenger.messages$.pipe(take(1)).toPromise();
     server.close();
     await t.throws(a, MatchError.network("Abruptly", "closed"));
 });
 
 test("two expectNext routes get called at the same time", async t => {
     let {messenger, server} = createPair();
-    let a = messenger.expectNext$().toPromise();
-    let b = messenger.expectNext$().toPromise();
+    let a = messenger.messages$.pipe(take(1)).toPromise();
+    let b = messenger.messages$.pipe(take(1)).toPromise();
     server.send([1]);
     server.send([2]);
     await t.deepEqual(await a, [1]);

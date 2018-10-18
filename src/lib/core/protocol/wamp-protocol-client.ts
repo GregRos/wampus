@@ -108,11 +108,8 @@ export class WampProtocolClient<T> {
      * If the transport errors or closes before a message is received, the observable will error.
      * @returns {Observable<WampMessage.Any>}
      */
-    expectNext$() {
-        return merge(this.expect$([]), this.onClosed.pipe(tap(x => {
-            //TODO: Better handling of abrupt disconnect by server
-            throw new WampusNetworkError("Connection abruptly closed.");
-        }))).pipe(take(1))
+    get messages$() {
+        return merge(this.expect$([]));
     }
 
     /**
