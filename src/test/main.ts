@@ -59,18 +59,13 @@ function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observabl
         });
         let proc_ab = await session.register({
             name : "a.b"
-        });
-
-        proc_ab.invocations.subscribe(x => {
-            x.handle(req => {
-                return {
-                    kwargs : {
-                        a : 5
-                    }
+        }, async req => {
+            return {
+                kwargs : {
+                    a : 5
                 }
-            });
-        })
-
+            }
+        });
         let z = await session.call({
             name : "a.b"
         }).result;

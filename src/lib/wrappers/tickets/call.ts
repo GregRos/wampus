@@ -4,12 +4,15 @@ import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {map} from "rxjs/operators";
 import {CancelMode} from "../../core/protocol/options";
 import CallSite = NodeJS.CallSite;
+import {Observable} from "rxjs";
+import {publishReplayAutoConnect} from "../../utils/rxjs-operators";
 
 export class CallTicket {
     private _base: Core.CallTicket;
     private _services: WampusSessionServices;
     private _adapter: RxjsEventAdapter<CallResultData>;
     private _createdTrace: CallSite[];
+    private _replayProgress : Observable<CallResultData>;
 
     constructor(never: never) {
 
@@ -20,6 +23,16 @@ export class CallTicket {
         ticket._createdTrace = services.stackTraceService.capture();
         ticket._base = call;
         ticket._services = services;
+        ticket._replayProgress = call.progress.pipe(map(prog => {
+            let newResult = {
+                details: prog.details,
+                args: services.transforms.objectToJson(prog.args),
+                kwargs: services.transforms.objectToJson(prog.kwargs),
+                isProgress: prog.isProgress,
+                source: ticket
+            } as CallResultData;
+            return newResult;
+        })).pipe(publishReplayAutoConnect());
         ticket._adapter = new RxjsEventAdapter(ticket.progress, x => {
             return {
                 name: "data",
@@ -38,16 +51,7 @@ export class CallTicket {
     }
 
     get progress() {
-        return this._base.progress.pipe(map(prog => {
-            let newResult = {
-                details: prog.details,
-                args: this._services.transforms.objectToJson(prog.args),
-                kwargs: this._services.transforms.objectToJson(prog.kwargs),
-                isProgress: prog.isProgress,
-                source: this
-            } as CallResultData;
-            return newResult;
-        }));
+        return this._replayProgress;
     }
 
     get result() {

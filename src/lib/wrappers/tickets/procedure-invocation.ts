@@ -1,5 +1,5 @@
 import * as Core from "../../core/session/ticket";
-import {WampResult} from "../../core/basics";
+import {WampResult, WampResult2} from "../../core/basics";
 import {isObservable, Observable, timer} from "rxjs";
 import {WampusSendErrorArguments, WampusSendResultArguments} from "../../core/session/message-arguments";
 import {WampusSessionServices} from "../wampus-session";
@@ -8,6 +8,7 @@ import {Errs} from "../../core/errors/errors";
 import {ProcedureRegistrationTicket} from "./procedure-registration-ticket";
 import _ = require("lodash");
 
+
 export class ProcedureInvocationTicket {
     constructor(private _base: Core.ProcedureInvocationTicket, private _services: WampusSessionServices, private _source: ProcedureRegistrationTicket) {
 
@@ -15,10 +16,6 @@ export class ProcedureInvocationTicket {
 
     get args() {
         return this._base.args;
-    }
-
-    get cancellation() {
-        return this._base.cancellation;
     }
 
     get invocationId() {
@@ -52,49 +49,38 @@ export class ProcedureInvocationTicket {
         return clone;
     }
 
-    async error(msg: WampusSendErrorArguments): Promise<void> {
+    private async _error(msg: WampusSendErrorArguments): Promise<void> {
         msg = this._applyTransforms(msg);
         await this._base.error(msg);
     }
 
-    handle(handler: ProcedureHandler): void {
+    waitForCancelRequest(time) {
+        return this._base.cancellation.pipe(takeUntil(timer(time)), map(token => {
+            return {
+                ...token,
+                throw() {
+                    throw Errs.Call.canceled(this.name);
+                }
+            } as CancellationTicket
+        })).toPromise();
+    }
+
+    private _handle(handler: ProcedureHandler): void {
         let ticket = this;
-        let invocation = {
-            args: ticket.args,
-            kwargs: ticket.kwargs,
-            get isHandled() {
-                return ticket.isHandled;
-            },
-            async progress(o) {
-                await ticket.progress(o);
-            },
-            name: ticket.name,
-            options: ticket.options,
-            invocationId: ticket.invocationId,
-            waitForCancelRequest(time) {
-                return ticket.cancellation.pipe(takeUntil(timer(time)), map(token => {
-                    return {
-                        ...token,
-                        throw() {
-                            throw Errs.Call.canceled(ticket.name);
-                        }
-                    } as CancellationTicket
-                })).toPromise();
-            }
-        } as HandledProcedureInvocationTicket;
+
         let handleError = async (err) => {
             let errResponse = ticket._services.transforms.errorToErrorResponse(err);
             if (!this.isHandled) {
-                await ticket.error(errResponse);
+                await ticket._error(errResponse);
             } else {
                 throw err;
             }
         };
         try {
-            let result = handler(invocation);
+            let result = handler(this);
             if (result instanceof Promise) {
                 result.then(async ret => {
-                    return ticket.return(ret)
+                    return ticket._return(ret)
                 }, err => {
                     return handleError(err);
                 });
@@ -102,7 +88,7 @@ export class ProcedureInvocationTicket {
                 result.pipe(endWith(null), pairwise(), flatMap(([lastEmission, b]) => {
                     if (!lastEmission) return;
                     if (b === null) {
-                        return ticket.return({
+                        return ticket._return({
                             ...lastEmission
                         });
                     } else {
@@ -128,12 +114,14 @@ export class ProcedureInvocationTicket {
         await this._base.progress(msg);
     }
 
-    async return(args: WampusSendResultArguments): Promise<void> {
+    private async _return(args: WampusSendResultArguments): Promise<void> {
         args = this._applyTransforms(args);
         await this._base.return(args);
     }
 
 }
+
+
 
 export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;
@@ -145,4 +133,4 @@ export interface HandledProcedureInvocationTicket extends Core.ProcedureInvocati
     waitForCancelRequest(time ?: number): Promise<CancellationTicket | null>;
 }
 
-export type ProcedureHandler = (req: HandledProcedureInvocationTicket) => (Promise<Partial<WampResult>> | Partial<WampResult> | Observable<Partial<WampResult>>)
+export type ProcedureHandler = (req: HandledProcedureInvocationTicket) => (Promise<WampResult> | Observable<WampResult> | WampResult)

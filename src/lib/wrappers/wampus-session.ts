@@ -15,6 +15,7 @@ import {Errs} from "../core/errors/errors";
 import {ProcedureRegistrationTicket} from "./tickets/procedure-registration-ticket";
 import {CallTicket} from "./tickets/call";
 import {EventSubscriptionTicket} from "./tickets/subscription";
+import {ProcedureHandler} from "./tickets/procedure-invocation";
 
 export interface WampusSessionServices {
     transforms?: TransformSet;
@@ -46,9 +47,11 @@ export class WampusSession {
         return CallTicket.create(this._session.call(args), this._config);
     };
 
-    async register(args : WampusRegisterArguments): Promise<ProcedureRegistrationTicket> {
+    async register(args : WampusRegisterArguments, handler : ProcedureHandler): Promise<ProcedureRegistrationTicket> {
         let coreRegTicket = this._session.register(args);
-        return ProcedureRegistrationTicket.create(coreRegTicket, this._config);
+        let ticket = await ProcedureRegistrationTicket.create(coreRegTicket, this._config);
+        (ticket as any)._handle(handler);
+        return ticket;
     };
 
     async event(full: WampusSubcribeArguments): Promise<EventSubscriptionTicket> {
@@ -56,15 +59,10 @@ export class WampusSession {
     }
 
     publish(args: WampusPublishArguments): Promise<void> {
-        let trace = this._captureTrace();
         return this._session.publish({
             ...args,
             kwargs: this._config.transforms.objectToJson(args.kwargs),
             args: this._config.transforms.objectToJson(args.args)
         });
     };
-
-    private _captureTrace() {
-        return this._config.stackTraceService.capture();
-    }
 }

@@ -56,8 +56,10 @@ import {fromPromise} from "rxjs/internal-compatibility";
 
 let factory = DefaultMessageFactory;
 
+export type TransportFactory = () =>( Promise<Transport> | Transport);
+
 export interface WampusSessionDependencies {
-    transport(): Promise<Transport> | Transport;
+    transport: TransportFactory;
     authenticator ?: AuthenticationWorkflow;
 }
 export class WampusCoreSession {

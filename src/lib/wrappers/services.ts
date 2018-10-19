@@ -28,7 +28,7 @@ export const defaultTransformSet : TransformSet = {
         return res;
     },
     objectToJson(obj) {
-        return Object.assign({}, obj);
+        return _.clone(obj);
     },
     errorToErrorResponse(err) {
         return {
