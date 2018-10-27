@@ -1,5 +1,5 @@
 import * as Core from "../../core/session/ticket";
-import {WampResult, WampResult2} from "../../core/basics";
+import {WampResult} from "../../core/basics";
 import {isObservable, Observable, timer} from "rxjs";
 import {WampusSendErrorArguments, WampusSendResultArguments} from "../../core/session/message-arguments";
 import {WampusSessionServices, AbstractWampusSessionServices} from "../services";
