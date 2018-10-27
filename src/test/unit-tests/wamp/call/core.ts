@@ -184,8 +184,10 @@ test("close connection before result received", async t => {
         name: "a"
     });
     let finished =  cp1.progress.toPromise();
+    finished = t.throws(finished, MatchError.network("session", "being closed"));
     server.send([3, {}, "no"]);
+
     await session.close();
-    await t.throws(finished, MatchError.network("session", "being closed"));
+    await finished;
 })
 
