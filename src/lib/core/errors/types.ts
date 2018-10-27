@@ -2,6 +2,7 @@ import * as template from "string-template";
 import {WampMessage, WampObject} from "../protocol/messages";
 
 export class WampusError extends Error {
+    name = this.constructor.name;
     constructor(message: string, props: object) {
         super(template(message, props || {}));
         Object.assign(this, props);
@@ -35,11 +36,11 @@ export class WampusIllegalOperationError extends WampusError {
  * Thrown when a WAMP operation succeeds with an error state, such as if the target of an RPC call threw an exception.
  */
 export class WampusInvocationError extends WampusError {
-    name : string;
+    procedureName : string;
     msg : WampMessage.Error;
     constructor(name : string, msg : WampMessage.Error) {
-        super("Invoked operation {name}, and it replied with an error.", {
-            name,
+        super("Invoked operation {procedureName}, and it replied with an error.", {
+            procedureName : name,
             msg
         });
     }
@@ -50,7 +51,6 @@ export class WampusInvocationError extends WampusError {
  * Thrown when a WAMP RPC call is canceled.
  */
 export class WampusInvocationCanceledError extends WampusError {
-
 }
 
 export class WampusIsolatedError extends WampusError {

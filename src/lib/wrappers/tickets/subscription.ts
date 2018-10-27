@@ -5,17 +5,23 @@ import {WampusSessionServices} from "../wampus-session";
 import {map} from "rxjs/operators";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {embedTrace} from "./procedure-registration-ticket";
+import {Ticket} from "./ticket";
+import CallSite = NodeJS.CallSite;
 export interface EventInvocationData extends Core.EventInvocationData {
     readonly source : EventSubscriptionTicket;
 }
-export class EventSubscriptionTicket {
+export class EventSubscriptionTicket extends Ticket {
+    trace = {
+        created : null as CallSite[]
+    };
     private _base : Core.EventSubscriptionTicket;
     private _services : WampusSessionServices;
     private _adapter : RxjsEventAdapter<EventInvocationData>;
 
     constructor(never : never) {
-
+        super();
     }
+
     get events() {
         return this._base.events.pipe(map(x => {
             return {
@@ -28,12 +34,13 @@ export class EventSubscriptionTicket {
     };
 
     static async create(subscribing : Promise<Core.EventSubscriptionTicket>, services : WampusSessionServices) {
-        let trace = services.stackTraceService.capture();
+        let trace =  services.stackTraceService.capture(EventSubscriptionTicket.create);
         let coreTicket = await subscribing.catch(err => {
             embedTrace(services.stackTraceService, err, trace);
             throw err;
         });
         let ticket = new EventSubscriptionTicket(null as never);
+        ticket.trace.created = trace;
         ticket._base = coreTicket;
         ticket._services = services;
         ticket._adapter = new RxjsEventAdapter(ticket.events, x => {

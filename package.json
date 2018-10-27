@@ -60,7 +60,8 @@
     "promise-stuff": "^0.3.5",
     "rxjs": "^6.3.3",
     "string-template": "^1.0.0",
-    "ws": "^5.2.1"
+    "ws": "^5.2.1",
+    "yamprint-ansi-color": "^0.5.2"
   },
   "ava": {
     "files": [

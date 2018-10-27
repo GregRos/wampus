@@ -255,6 +255,7 @@ export class WampusCoreSession {
                     }
                     return this.protocol.send$(msg);
                 };
+
                 let procInvocationTicket: ProcedureInvocationTicket = {
                     source : procRegistrationTicket,
                     error({args, error, kwargs, options}: WampusSendErrorArguments) {
@@ -277,7 +278,7 @@ export class WampusCoreSession {
                     args: invocationMsg.args,
                     kwargs: invocationMsg.kwargs,
                     options: invocationMsg.options,
-                    name: name,
+                    name: invocationMsg.options.procedure || name,
                     invocationId : invocationMsg.requestId
                 };
                 return procInvocationTicket;

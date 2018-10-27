@@ -21,7 +21,7 @@ export class MessageReader {
             case WampType.GOODBYE:
                 return new WampMessage.Goodbye(raw[1], raw[2]);
             case WampType.ERROR:
-                return new WampMessage.Error(raw[1], raw[2], raw[3], raw[4], raw[5], raw[6]);
+                return new WampMessage.Error(raw[1], raw[2], raw[3], raw[4], raw[5] || [], raw[6] || {});
             case WampType.PUBLISHED:
                 return new WampMessage.Published(raw[1], raw[2]);
             case WampType.SUBSCRIBED:
@@ -29,15 +29,15 @@ export class MessageReader {
             case WampType.UNSUBSCRIBED:
                 return new WampMessage.Unsubscribed(raw[1]);
             case WampType.EVENT:
-                return new WampMessage.Event(raw[1], raw[2], raw[3], raw[4], raw[5]);
+                return new WampMessage.Event(raw[1], raw[2], raw[3], raw[4] || [], raw[5] || {});
             case WampType.RESULT:
-                return new WampMessage.Result(raw[1], raw[2], raw[3], raw[4]);
+                return new WampMessage.Result(raw[1], raw[2], raw[3] || [], raw[4] || {});
             case WampType.REGISTERED:
                 return new WampMessage.Registered(raw[1], raw[2]);
             case WampType.UNREGISTERED:
                 return new WampMessage.Unregistered(raw[1]);
             case WampType.INVOCATION:
-                return new WampMessage.Invocation(raw[1], raw[2], raw[3], raw[4], raw[5]);
+                return new WampMessage.Invocation(raw[1], raw[2], raw[3], raw[4] || [], raw[5] || {});
             case WampType.CHALLENGE:
                 return new WampMessage.Challenge(raw[1], raw[2]);
             case WampType.INTERRUPT:
@@ -47,9 +47,9 @@ export class MessageReader {
             case WampType.UNREGISTER:
                 return new WampMessage.Unregister(raw[1], raw[2]);
             case WampType.PUBLISH:
-                return new WampMessage.Publish(raw[1], raw[2], raw[3], raw[4], raw[5]);
+                return new WampMessage.Publish(raw[1], raw[2], raw[3], raw[4] || [], raw[5] || {});
             case WampType.CALL:
-                return new WampMessage.Call(raw[1], raw[2], raw[3], raw[3], raw[5]);
+                return new WampMessage.Call(raw[1], raw[2], raw[3], raw[3] || [], raw[5] || {});
             case WampType.REGISTER:
                 return new WampMessage.Register(raw[1], raw[2], raw[3]);
             case WampType.HELLO:

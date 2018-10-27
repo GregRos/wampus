@@ -7,9 +7,10 @@ import {catchError, endWith, flatMap, map, pairwise, takeUntil} from "rxjs/opera
 import {Errs} from "../../core/errors/errors";
 import {ProcedureRegistrationTicket} from "./procedure-registration-ticket";
 import _ = require("lodash");
+import {Ticket} from "./ticket";
 
 
-export class ProcedureInvocationTicket {
+export class ProcedureInvocationTicket  {
     constructor(private _base: Core.ProcedureInvocationTicket, private _services: WampusSessionServices, private _source: ProcedureRegistrationTicket) {
 
     }
@@ -65,11 +66,17 @@ export class ProcedureInvocationTicket {
         })).toPromise();
     }
 
+    wrap(args ?: any[], kwargs ?: any) {
+        return {
+            args,
+            kwargs
+        } as WampResult;
+    }
+
     private _handle(handler: ProcedureHandler): void {
         let ticket = this;
-
         let handleError = async (err) => {
-            let errResponse = ticket._services.transforms.errorToErrorResponse(err);
+            let errResponse = ticket._services.transforms.errorToErrorResponse(this._services, this, err);
             if (!this.isHandled) {
                 await ticket._error(errResponse);
             } else {
@@ -121,16 +128,8 @@ export class ProcedureInvocationTicket {
 
 }
 
-
-
 export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;
 }
 
-export interface HandledProcedureInvocationTicket extends Core.ProcedureInvocationData {
-    progress(obj: WampusSendResultArguments): Promise<void>;
-
-    waitForCancelRequest(time ?: number): Promise<CancellationTicket | null>;
-}
-
-export type ProcedureHandler = (req: HandledProcedureInvocationTicket) => (Promise<WampResult> | Observable<WampResult> | WampResult)
+export type ProcedureHandler = (req: ProcedureInvocationTicket) => (Promise<WampResult> | Observable<WampResult> | WampResult)

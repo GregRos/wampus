@@ -98,7 +98,7 @@ export module Errs {
 
     export module Register {
         export function procedureAlreadyExists(name: string) {
-            return new WampusIllegalOperationError("Tried to register procedure {name}, but it's already registered.", {
+            return new WampusIllegalOperationError("Tried to register procedure {procedureName}, but it's already registered.", {
                 name
             });
         }
@@ -111,13 +111,13 @@ export module Errs {
         }
 
         export function cannotSendResultTwice(name: string) {
-            return new WampusIllegalOperationError("While invoking {name}, tried to send a result or error more than once.", {
+            return new WampusIllegalOperationError("While invoking {procedureName}, tried to send a result or error more than once.", {
                 name
             });
         }
 
         export function doesNotSupportProgressReports(name: string) {
-            return new WampusIllegalOperationError("While invoking {name}, tried to send a progress report but this call does not support progress reports.", {
+            return new WampusIllegalOperationError("While invoking {procedureName}, tried to send a progress report but this call does not support progress reports.", {
                 name
             })
         }
@@ -174,14 +174,14 @@ export module Errs {
 
     export module Call {
         export function noSuchProcedure(name: string) {
-            return new WampusIllegalOperationError("Tried to call procedure {name}, but it did not exist.", {
+            return new WampusIllegalOperationError("Tried to call procedure {procedureName}, but it did not exist.", {
                 name,
                 code: WampUri.Error.NoSuchProcedure
             });
         }
 
         export function noEligibleCallee(name: string) {
-            return new WampusIllegalOperationError("This peer tried to call procedure {name} with exclusions, but no callee matching the exclusions was found.", {
+            return new WampusIllegalOperationError("This peer tried to call procedure {procedureName} with exclusions, but no callee matching the exclusions was found.", {
                 name,
                 code: WampUri.Error.NoEligibleCallee
             });
@@ -200,21 +200,21 @@ export module Errs {
         }
 
         export function invalidArgument(name: string, msg : WampMessage.Any) {
-            return new WampusIllegalOperationError("In realm {realm}, called procedure {name}, but responded with an invalid_arguments error.", {
+            return new WampusIllegalOperationError("In realm {realm}, called procedure {procedureName}, but responded with an invalid_arguments error.", {
                 name,
                 msg,
             });
         }
 
         export function optionDisallowedDiscloseMe(name: string) {
-            return new WampusIllegalOperationError("The peer tried to call the procedure {name} with the disclose_me flag, but the router refused the flag.", {
+            return new WampusIllegalOperationError("The peer tried to call the procedure {procedureName} with the disclose_me flag, but the router refused the flag.", {
                 name,
                 code: WampUri.Error.DisallowedDiscloseMe
             });
         }
 
         export function canceled(name: string) {
-            return new WampusInvocationCanceledError("Called {name} successfuly, but the call was canceled before its result could be processed.", {
+            return new WampusInvocationCanceledError("Called {procedureName} successfuly, but the call was canceled before its result could be processed.", {
                 name,
                 code: WampUri.Error.Canceled
             });

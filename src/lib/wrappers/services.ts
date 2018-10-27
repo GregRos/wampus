@@ -4,6 +4,8 @@ import CallSite = NodeJS.CallSite;
 import {WampusInvocationError} from "../core/errors/types";
 import {WampUri} from "../core/protocol/uris";
 import _ = require("lodash");
+import {ProcedureInvocationTicket} from "./tickets/procedure-invocation";
+import {WampusSessionServices} from "./wampus-session";
 export interface TransformSet {
     objectToJson?: RuntimeObjectToJson;
 
@@ -15,13 +17,13 @@ export interface TransformSet {
 }
 
 export type StackTraceService = {
-    capture(): CallSite[];
-    format(callSites: CallSite[]): string;
+    capture(ctor : Function): CallSite[];
+    format(err : Error, callSites: CallSite[]): string;
 };
 export type JsonToRuntimeObject = (json: WampObject) => any;
 export type RuntimeObjectToJson = (obj: any) => WampObject;
 export type ResponseToRuntimeError = (error : WampusInvocationError) => Error;
-export type RuntimeErrorToResponse = (error: Error) => WampusSendErrorArguments;
+export type RuntimeErrorToResponse = (services : WampusSessionServices, source : ProcedureInvocationTicket,error: Error) => WampusSendErrorArguments;
 
 export const defaultTransformSet : TransformSet = {
     errorResponseToError(res) {
@@ -30,7 +32,8 @@ export const defaultTransformSet : TransformSet = {
     objectToJson(obj) {
         return _.clone(obj);
     },
-    errorToErrorResponse(err) {
+    errorToErrorResponse(services,source, err) {
+        err.stack = err.stack + "\nSOURCE" + services.stackTraceService.format("" as any, source.source.trace.created);
         return {
             args : [],
             error : WampUri.Error.RuntimeError,
@@ -46,14 +49,23 @@ export const defaultTransformSet : TransformSet = {
 };
 
 export const defaultStackService : StackTraceService = {
-    format(cs : CallSite[]) {
-        return cs.map(x => `   at ${x.getFunctionName()} (${x.getFileName()}:${x.getLineNumber()}:${x.getColumnNumber()}`).join("\n");
+    format(err,cs : CallSite[]) {
+        let formatter = Error.prepareStackTrace;
+        if (!formatter) {
+            return cs.map(x => `   at ${x.getFunctionName()} (${x.getFileName()}:${x.getLineNumber()}:${x.getColumnNumber()}`).join("\n");
+        } else {
+            return formatter.call(Error, err, cs);
+        }
     },
-    capture() {
+    capture(ctor) {
         if ("stackTraceLimit" in Error) {
-            const callsites = require("callsites");
-            let existingStackTrace = callsites();
-            return existingStackTrace;
+            const origTrace = Error.prepareStackTrace;
+            Error.prepareStackTrace = (err, stack) => ({err, stack});
+            let obj = {stack : null};
+            Error.captureStackTrace(obj, ctor);
+            let {stack,err} = obj.stack as any;
+            Error.prepareStackTrace = origTrace;
+            return stack;
         }
         return null;
     }

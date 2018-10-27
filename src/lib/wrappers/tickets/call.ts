@@ -1,26 +1,31 @@
 import * as Core from "../../core/session/ticket";
 import {WampusSessionServices} from "../wampus-session";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
-import {map} from "rxjs/operators";
+import {catchError, map} from "rxjs/operators";
 import {CancelMode} from "../../core/protocol/options";
 import CallSite = NodeJS.CallSite;
 import {Observable} from "rxjs";
 import {publishReplayAutoConnect} from "../../utils/rxjs-operators";
+import {Ticket} from "./ticket";
+import {embedTrace} from "./procedure-registration-ticket";
 
-export class CallTicket {
+export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
     private _base: Core.CallTicket;
     private _services: WampusSessionServices;
     private _adapter: RxjsEventAdapter<CallResultData>;
+    trace = {
+        created : null as CallSite[]
+    };
     private _createdTrace: CallSite[];
     private _replayProgress : Observable<CallResultData>;
 
     constructor(never: never) {
-
+        super();
     }
 
     static create(call: Core.CallTicket, services: WampusSessionServices) {
         let ticket = new CallTicket(null as never);
-        ticket._createdTrace = services.stackTraceService.capture();
+        ticket.trace.created = services.stackTraceService.capture(CallTicket.create);
         ticket._base = call;
         ticket._services = services;
         ticket._replayProgress = call.progress.pipe(map(prog => {
@@ -32,6 +37,9 @@ export class CallTicket {
                 source: ticket
             } as CallResultData;
             return newResult;
+        }), catchError(err => {
+            embedTrace(services.stackTraceService, err, ticket._createdTrace);
+            throw err;
         })).pipe(publishReplayAutoConnect());
         ticket._adapter = new RxjsEventAdapter(ticket.progress, x => {
             return {
@@ -68,6 +76,14 @@ export class CallTicket {
 
     on(name: "data", handler: (x: CallResultData) => void): void {
         this._adapter.on(name, handler);
+    }
+
+    then<TResult1 = CallResultData, TResult2 = never>(onfulfilled?: ((value: CallResultData) => (PromiseLike<TResult1> | TResult1)) | null | undefined, onrejected?: ((reason: any) => (PromiseLike<TResult2> | TResult2)) | null | undefined): PromiseLike<TResult1 | TResult2> {
+        return this.result.then(onfulfilled, onrejected);
+    }
+
+    catch(onrejected : (reason : any) => any) : Promise<any> {
+        return this.result.catch(onrejected);
     }
 }
 

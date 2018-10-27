@@ -11,8 +11,18 @@ function printResult(x : any) {
     console.log(yp(_.pick(x, ["args", "kwargs"])) + "\n");
 }
 
+function level2() {
+    throw Error("BOO");
+}
+
+function level1() {
+    level2();
+}
+
+
 async function  someBasicCalls(session : WampusSession) {
     let procedure = await session.register({name : "x2"}, async x => {
+        level1();
         return {
             args : [x.args[0] * 2],
         };
@@ -20,30 +30,10 @@ async function  someBasicCalls(session : WampusSession) {
 
     await procedure.using(async () => {
         {
-            let x = await session.call("x2", [20])
-            printResult( x);
+            let x = await session.call("x2", [20]).catch(err => err);
+            console.log(yp(x));
         }
     });
-
-    let complexObjectProc = await session.register("enrich-object", async ({kwargs}) => {
-        let ret = {
-            embedded : kwargs,
-            more : {
-                a : 1
-            }
-        };
-        return {
-            kwargs : ret
-        };
-    });
-
-    await complexObjectProc.using(async () => {
-        let x = await session.call("enrich-object", null, {
-            x : 1,
-            b : ["a", "b"]
-        });
-        printResult(x);
-    })
 }
 
 export async function main() {
