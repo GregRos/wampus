@@ -30,7 +30,7 @@
   ],
   "private": false,
   "scripts": {
-    "test": "nyc node_modules/ava/cli.js --files='dist/test/tests'",
+    "test": "nyc node_modules/ava/cli.js --files=dist/test/unit-tests/**/*.js",
     "build": "rm -rf dist/ && tsc"
   },
   "devDependencies": {
