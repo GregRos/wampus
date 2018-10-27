@@ -1,0 +1,1 @@
+export type NewObjectInitializer<T> = (x: T) => void;

@@ -2,7 +2,7 @@ import * as Core from "../../core/session/ticket";
 import {WampResult, WampResult2} from "../../core/basics";
 import {isObservable, Observable, timer} from "rxjs";
 import {WampusSendErrorArguments, WampusSendResultArguments} from "../../core/session/message-arguments";
-import {WampusSessionServices} from "../wampus-session";
+import {WampusSessionServices, AbstractWampusSessionServices} from "../services";
 import {catchError, endWith, flatMap, map, pairwise, takeUntil} from "rxjs/operators";
 import {Errs} from "../../core/errors/errors";
 import {ProcedureRegistrationTicket} from "./procedure-registration-ticket";
@@ -76,7 +76,7 @@ export class ProcedureInvocationTicket  {
     private _handle(handler: ProcedureHandler): void {
         let ticket = this;
         let handleError = async (err) => {
-            let errResponse = ticket._services.transforms.errorToErrorResponse(this._services, this, err);
+            let errResponse = ticket._services.transforms.errorToErrorResponse(this, err);
             if (!this.isHandled) {
                 await ticket._error(errResponse);
             } else {

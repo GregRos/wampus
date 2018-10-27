@@ -1,10 +1,9 @@
 import {Observable} from "rxjs";
 import {WampusSubcribeArguments} from "../../core/session/message-arguments";
 import * as Core from "../../core/session/ticket";
-import {WampusSessionServices} from "../wampus-session";
+import {WampusSessionServices, AbstractWampusSessionServices} from "../services";
 import {map} from "rxjs/operators";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
-import {embedTrace} from "./procedure-registration-ticket";
 import {Ticket} from "./ticket";
 import CallSite = NodeJS.CallSite;
 export interface EventInvocationData extends Core.EventInvocationData {
@@ -36,7 +35,7 @@ export class EventSubscriptionTicket extends Ticket {
     static async create(subscribing : Promise<Core.EventSubscriptionTicket>, services : WampusSessionServices) {
         let trace =  services.stackTraceService.capture(EventSubscriptionTicket.create);
         let coreTicket = await subscribing.catch(err => {
-            embedTrace(services.stackTraceService, err, trace);
+            services.stackTraceService.embedTrace(err, trace);
             throw err;
         });
         let ticket = new EventSubscriptionTicket(null as never);

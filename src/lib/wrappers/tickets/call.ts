@@ -1,5 +1,5 @@
 import * as Core from "../../core/session/ticket";
-import {WampusSessionServices} from "../wampus-session";
+import {WampusSessionServices, AbstractWampusSessionServices} from "../services";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {catchError, map} from "rxjs/operators";
 import {CancelMode} from "../../core/protocol/options";
@@ -7,7 +7,6 @@ import CallSite = NodeJS.CallSite;
 import {Observable} from "rxjs";
 import {publishReplayAutoConnect} from "../../utils/rxjs-operators";
 import {Ticket} from "./ticket";
-import {embedTrace} from "./procedure-registration-ticket";
 
 export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
     private _base: Core.CallTicket;
@@ -16,7 +15,6 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
     trace = {
         created : null as CallSite[]
     };
-    private _createdTrace: CallSite[];
     private _replayProgress : Observable<CallResultData>;
 
     constructor(never: never) {
@@ -38,7 +36,7 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
             } as CallResultData;
             return newResult;
         }), catchError(err => {
-            embedTrace(services.stackTraceService, err, ticket._createdTrace);
+            services.stackTraceService.embedTrace(err, ticket.trace.created);
             throw err;
         })).pipe(publishReplayAutoConnect());
         ticket._adapter = new RxjsEventAdapter(ticket.progress, x => {

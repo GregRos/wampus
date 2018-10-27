@@ -7,14 +7,17 @@ import {WampMessage} from "../core/protocol/messages";
 import Unknown = WampMessage.Unknown;
 import {WebsocketTransport} from "../core/transport/websocket";
 import {JsonSerializer} from "../core/serializer/json";
-import {StackTraceService, TransformSet} from "./services";
+import {AbstractWampusSessionServices, StackTraceService, TransformSet} from "./services";
+import {DependencyDeclarations} from "./dependency-declarations";
+import {NewObjectInitializer} from "../common";
 
 
+export type SerializerDeclaration = "json" | Serializer;
 
 export interface WebsocketTransportConfig {
     type : "websocket";
     url : string;
-    serializer : Serializer | "json";
+    serializer : SerializerDeclaration;
     timeout ?: number;
 }
 
@@ -22,39 +25,21 @@ export interface UnknownTransportConfig {
     type : "unknown";
 }
 
+
+export type TransportDeclaration = TransportFactory | WebsocketTransportConfig | UnknownTransportConfig
+
 export interface WampusConfig {
     realm : string;
     timeout ?: number;
-    helloDetails?(details : HelloDetails) : HelloDetails;
+    helloDetails?: NewObjectInitializer<HelloDetails>;
     authenticator ?: AuthenticationWorkflow;
-    transport : TransportFactory | WebsocketTransportConfig | UnknownTransportConfig;
-    stackTraceService ?: StackTraceService;
-    transforms ?: TransformSet;
+    transport : TransportDeclaration;
+    services?: NewObjectInitializer<AbstractWampusSessionServices>
 }
 
 export module Wampus {
     export async function create(config : WampusConfig) {
-        let transportFactory : TransportFactory;
-        if (typeof config.transport === "function" ){
-            transportFactory = config.transport;
-        }
-        else if (config.transport.type === "websocket") {
-            let transportData = config.transport;
-
-            let serializer : Serializer;
-            if (config.transport.serializer === "json") {
-                serializer = new JsonSerializer();
-            } else {
-                serializer = config.transport.serializer;
-            }
-            transportFactory = () => {
-                return WebsocketTransport.create({
-                    serializer : serializer,
-                    timeout : transportData.timeout,
-                    url : transportData.url,
-                });
-            }
-        }
+        let transportFactory= DependencyDeclarations.transport(config.transport);
         let coreSession = await WampusCoreSession.create({
             helloDetails : config.helloDetails,
             authenticator : config.authenticator,
@@ -62,9 +47,6 @@ export module Wampus {
             transport : transportFactory,
             realm : config.realm
         });
-        return new WampusSession(coreSession, {
-            transforms : config.transforms,
-            stackTraceService : config.stackTraceService
-        });
+        return new WampusSession(coreSession, config.services);
     }
 }

@@ -44,7 +44,7 @@ import {wampusHelloDetails} from "../hello-details";
 export interface CoreSessionConfig {
     realm: string;
     timeout: number;
-    helloDetails?(defaults : HelloDetails) : HelloDetails;
+    helloDetails?(defaults : HelloDetails) : void;
 }
 
 import WM = WampMessage;
@@ -53,6 +53,7 @@ import {EventInvocationData, CancellationToken, ProcedureInvocationTicket} from 
 import {DefaultMessageFactory} from "./default-factory";
 import {AuthenticationWorkflow, ChallengeEvent} from "./authentication";
 import {fromPromise} from "rxjs/internal-compatibility";
+import _ = require("lodash");
 
 let factory = DefaultMessageFactory;
 
@@ -740,9 +741,9 @@ export class WampusCoreSession {
     private _handshake$(authenticator : AuthenticationWorkflow): Observable<WM.Welcome> {
         let messenger = this.protocol;
         let config = this.config;
-        let helloDetails = wampusHelloDetails;
+        let helloDetails = _.cloneDeep(wampusHelloDetails);
         if (config.helloDetails) {
-            helloDetails = config.helloDetails(helloDetails);
+            config.helloDetails(helloDetails);
         }
         let hello = factory.hello(config.realm, helloDetails);
 

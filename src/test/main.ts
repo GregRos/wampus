@@ -54,9 +54,7 @@ function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observabl
             })
         }
     })).pipe(flatMap(async (lSession : WampusCoreSession) => {
-        let session = new WampusSession(lSession, {
-
-        });
+        let session = new WampusSession(lSession, x => {});
         let proc_ab = await session.register({
             name : "a.b"
         }, async req => {

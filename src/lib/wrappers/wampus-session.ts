@@ -1,38 +1,31 @@
-import * as Core from "../core";
-import {WampusCoreSession} from "../core/session/core-session";
-import {catchError, endWith, first, flatMap, map, pairwise, startWith, take, takeUntil, tap} from "rxjs/operators";
-import {WampusInvocationError} from "../core/errors/types";
-import {defaultStackService, defaultTransformSet, StackTraceService, TransformSet} from "./services";
-import _ = require("lodash");
-import CallSite = NodeJS.CallSite;
 import {WampusCallArguments, WampusPublishArguments, WampusRegisterArguments, WampusSubcribeArguments} from "../core";
-import EventEmitter = NodeJS.EventEmitter;
-import {Errors} from "./errors";
-import {EMPTY, isObservable, Subscription, timer} from "rxjs";
-import {RxjsEventAdapter} from "../utils/rxjs-other";
-import {MyPromise} from "../utils/ext-promise";
-import {Errs} from "../core/errors/errors";
+import {WampusCoreSession} from "../core/session/core-session";
+import {
+    WampusSessionServices,
+    AbstractWampusSessionServices} from "./services";
 import {ProcedureRegistrationTicket} from "./tickets/procedure-registration-ticket";
 import {CallTicket} from "./tickets/call";
 import {EventSubscriptionTicket} from "./tickets/subscription";
 import {ProcedureHandler} from "./tickets/procedure-invocation";
 import {WampArray, WampObject} from "../core/protocol/messages";
 import {WampCallOptions, WampPublishOptions, WampRegisterOptions, WampSubscribeOptions} from "../core/protocol/options";
-
-export interface WampusSessionServices {
-    transforms?: TransformSet;
-    stackTraceService?: StackTraceService;
-}
-
+import _ = require("lodash");
+import {defaultStackService} from "./services/default-stack-trace-service";
+import {defaultTransformSet} from "./services/transform-service";
+import {NewObjectInitializer} from "../common";
 
 
 export class WampusSession {
 
     //TODO: Change
-    constructor(public _session: WampusCoreSession, private _config: WampusSessionServices) {
-        this._config = _config = _config || {};
-        this._config.transforms = _.defaults(this._config.transforms, defaultTransformSet);
-        this._config.stackTraceService = _.defaults(this._config.stackTraceService, defaultStackService);
+    private _config : WampusSessionServices;
+    constructor(public _session: WampusCoreSession, initServices: NewObjectInitializer<AbstractWampusSessionServices>) {
+        let svcs = _.cloneDeep({
+            stackTraceService : defaultStackService,
+            transforms : defaultTransformSet
+        });
+        initServices && initServices(svcs);
+        this._config = new WampusSessionServices(svcs);
     }
 
     get realm() {

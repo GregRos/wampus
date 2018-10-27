@@ -1,18 +1,13 @@
 import * as Core from "../../core/session/ticket";
 
-import {WampusSession, WampusSessionServices} from "../wampus-session";
+import {WampusSession} from "../wampus-session";
 import {catchError, map} from "rxjs/operators";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
-import {StackTraceService} from "../services";
+import {WampusSessionServices, StackTraceService, AbstractWampusSessionServices} from "../services";
 import {ProcedureHandler, ProcedureInvocationTicket} from "./procedure-invocation";
 import CallSite = NodeJS.CallSite;
 import {WampResult} from "../../core";
 import {Ticket} from "./ticket";
-
-export function embedTrace(service : StackTraceService, target : Error, trace : CallSite[]) {
-    if (!trace) return;
-    target.stack = service.format(target, trace);
-}
 
 export class ProcedureRegistrationTicket extends Ticket {
     trace = {
@@ -27,7 +22,7 @@ export class ProcedureRegistrationTicket extends Ticket {
     static async create(registering : Promise<Core.ProcedureRegistrationTicket>, services : WampusSessionServices) {
         let stack = services.stackTraceService.capture(ProcedureRegistrationTicket.create);
         let coreTicket = await registering.catch(err => {
-            embedTrace(services.stackTraceService, err, stack);
+            services.stackTraceService.embedTrace(err, stack);
             throw err;
         });
 
@@ -58,7 +53,7 @@ export class ProcedureRegistrationTicket extends Ticket {
             let newTicket = new ProcedureInvocationTicket(coreTicket, this._services, this);
             return newTicket;
         }), catchError(err => {
-            embedTrace(this._services.stackTraceService, err, myTrace);
+            this._services.stackTraceService.embedTrace(err, myTrace);
             throw err;
         }));
     }
