@@ -1,6 +1,7 @@
 # Wampus.js
 [![Build Status](https://travis-ci.org/GregRos/wampus.svg?branch=master)](https://travis-ci.org/GregRos/wampus)
 [![codecov](https://codecov.io/gh/GregRos/wampus/branch/master/graph/badge.svg)](https://codecov.io/gh/GregRos/wampus)
+[![npm version](https://badge.fury.io/js/wampus.svg)](https://badge.fury.io/js/wampus)
 
 Currently under development.
 
