@@ -57,10 +57,12 @@
   "dependencies": {
     "isomorphic-ws": "^4.0.1",
     "promise-stuff": "^0.3.5",
-    "rxjs": "^6.3.3",
     "string-template": "^1.0.0",
     "ws": "^5.2.1",
     "lodash": "^4.17.11"
+  },
+  "peerDependencies": {
+    "rxjs": "^6.3.3"
   },
   "ava": {
     "files": [

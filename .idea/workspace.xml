@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="479a9b66-b2d3-4247-b6ef-de9bcc439169" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/core/session/core-session.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/session/core-session.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -66,7 +64,7 @@
           <entry key="JavaScript Console" value="52" />
           <entry key="dummy" value="33" />
           <entry key="js" value="174" />
-          <entry key="json" value="739" />
+          <entry key="json" value="745" />
           <entry key="md" value="126" />
           <entry key="ts" value="170898" />
           <entry key="yml" value="154" />
@@ -78,10 +76,10 @@
           <entry key="gitattributes" value="2" />
           <entry key="gitignore" value="2" />
           <entry key="js" value="64" />
-          <entry key="json" value="29" />
+          <entry key="json" value="30" />
           <entry key="lock" value="1" />
           <entry key="md" value="6" />
-          <entry key="ts" value="1341" />
+          <entry key="ts" value="1344" />
           <entry key="yml" value="5" />
         </counts>
       </usages-collector>
@@ -90,11 +88,11 @@
       <usages-collector id="statistics.php.new.test" />
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="JSON" value="20" />
+          <entry key="JSON" value="21" />
           <entry key="JavaScript" value="64" />
           <entry key="Markdown" value="6" />
           <entry key="PLAIN_TEXT" value="5" />
-          <entry key="TypeScript" value="1341" />
+          <entry key="TypeScript" value="1344" />
           <entry key="YAML" value="5" />
           <entry key="tsconfig" value="9" />
           <entry key="yarn.lock" value="1" />
@@ -102,7 +100,7 @@
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="JSON" value="707" />
+          <entry key="JSON" value="713" />
           <entry key="JavaScript" value="226" />
           <entry key="Markdown" value="126" />
           <entry key="PLAIN_TEXT" value="33" />
@@ -132,11 +130,43 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lib/core/session/message-arguments.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="430">
-              <caret line="28" column="1" selection-start-line="28" selection-start-column="1" selection-end-line="28" selection-end-column="1" />
+            <state relative-caret-position="178">
+              <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/protocol.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="112">
+              <caret line="4" column="37" selection-start-line="4" selection-start-column="37" selection-end-line="4" selection-end-column="37" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/serializer.ts">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/lib/tickets.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="112">
+              <caret line="4" column="40" selection-start-line="4" selection-start-column="40" selection-end-line="4" selection-end-column="40" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/package.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="601">
+              <caret line="64" column="20" selection-start-line="64" selection-start-column="20" selection-end-line="64" selection-end-column="20" />
             </state>
           </provider>
         </entry>
@@ -156,48 +186,6 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/lib/core/session/default-factory.ts">
           <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/unit-tests/wamp/call/progress.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="56">
-              <caret line="7" column="15" selection-start-line="7" selection-start-column="15" selection-end-line="7" selection-end-column="15" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/wrappers/tickets/subscription.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="980">
-              <caret line="42" column="34" lean-forward="true" selection-start-line="42" selection-start-column="34" selection-end-line="42" selection-end-column="34" />
-              <folding>
-                <element signature="e#0#32#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/wrappers/tickets/procedure-registration-ticket.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="280">
-              <caret line="19" column="5" lean-forward="true" selection-start-line="19" selection-start-column="5" selection-end-line="19" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/wrappers/tickets/procedure-invocation.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1148">
-              <caret line="50" column="5" lean-forward="true" selection-start-line="50" selection-start-column="5" selection-end-line="50" selection-end-column="5" />
-              <folding>
-                <element signature="e#0#50#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -236,8 +224,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>create(</find>
-      <find>errors on n</find>
       <find>eventemitterli</find>
       <find>callresultdata</find>
       <find>_.</find>
@@ -266,6 +252,8 @@
       <find>call</find>
       <find>Node detected an unhandled rejection</find>
       <find>make call, receive RESULT(progress) message, call doesn't finish</find>
+      <find>rxjs</find>
+      <find>peer</find>
     </findStrings>
     <replaceStrings>
       <replace>Codes.error</replace>
@@ -366,11 +354,11 @@
         <option value="$PROJECT_DIR$/src/lib/core/basics.ts" />
         <option value="$PROJECT_DIR$/src/lib/index.ts" />
         <option value="$PROJECT_DIR$/src/lib/transport.ts" />
-        <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/src/test/unit-tests/wamp/call/progress.ts" />
         <option value="$PROJECT_DIR$/src/test/unit-tests/wamp/call/core.ts" />
         <option value="$PROJECT_DIR$/src/lib/core/session/core-session.ts" />
         <option value="$PROJECT_DIR$/src/lib/core/session/message-arguments.ts" />
+        <option value="$PROJECT_DIR$/package.json" />
       </list>
     </option>
   </component>
@@ -720,7 +708,7 @@
       <workItem from="1540543974875" duration="651000" />
       <workItem from="1540553683436" duration="493000" />
       <workItem from="1540637364178" duration="16351000" />
-      <workItem from="1540721692977" duration="2635000" />
+      <workItem from="1540721692977" duration="3406000" />
     </task>
     <servers />
   </component>
@@ -733,7 +721,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="779566000" />
+    <option name="totallyTimeSpent" value="780337000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
@@ -762,7 +750,7 @@
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.49874792" weight="0.32955405" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.4202838" side_tool="true" visible="true" weight="0.1680517" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.4202838" side_tool="true" visible="true" weight="0.2345337" />
       <window_info anchor="bottom" id="TypeScript" order="12" sideWeight="0.30884808" weight="0.2388511" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -1054,13 +1042,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/protocol.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="4" column="37" selection-start-line="4" selection-start-column="37" selection-end-line="4" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/messages.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="560">
@@ -1084,16 +1065,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret column="12" selection-start-column="12" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/serializer.ts">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/tickets.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="4" column="40" selection-start-line="4" selection-start-column="40" selection-end-line="4" selection-end-column="40" />
         </state>
       </provider>
     </entry>
@@ -1194,13 +1165,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="288">
           <caret line="49" column="64" selection-start-line="49" selection-start-column="64" selection-end-line="49" selection-end-column="64" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="557">
-          <caret line="57" column="30" lean-forward="true" selection-start-line="57" selection-start-column="30" selection-end-line="57" selection-end-column="30" />
         </state>
       </provider>
     </entry>
@@ -1308,8 +1272,32 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/core/session/message-arguments.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="430">
-          <caret line="28" column="1" selection-start-line="28" selection-start-column="1" selection-end-line="28" selection-end-column="1" />
+        <state relative-caret-position="178">
+          <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/protocol.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="112">
+          <caret line="4" column="37" selection-start-line="4" selection-start-column="37" selection-end-line="4" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/serializer.ts">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/tickets.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="112">
+          <caret line="4" column="40" selection-start-line="4" selection-start-column="40" selection-end-line="4" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="601">
+          <caret line="64" column="20" selection-start-line="64" selection-start-column="20" selection-end-line="64" selection-end-column="20" />
         </state>
       </provider>
     </entry>
