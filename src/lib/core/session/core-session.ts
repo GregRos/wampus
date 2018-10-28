@@ -44,7 +44,8 @@ import {wampusHelloDetails} from "../hello-details";
 export interface CoreSessionConfig {
     realm: string;
     timeout: number;
-    helloDetails?(defaults : HelloDetails) : void;
+
+    helloDetails?(defaults: HelloDetails): void;
 }
 
 import WM = WampMessage;
@@ -57,12 +58,13 @@ import _ = require("lodash");
 
 let factory = DefaultMessageFactory;
 
-export type TransportFactory = () =>( Promise<Transport> | Transport);
+export type TransportFactory = () => (Promise<Transport> | Transport);
 
 export interface WampusSessionDependencies {
     transport: TransportFactory;
-    authenticator ?: AuthenticationWorkflow;
+    authenticator?: AuthenticationWorkflow;
 }
+
 export class WampusCoreSession {
     id: number;
     config: CoreSessionConfig;
@@ -186,7 +188,7 @@ export class WampusCoreSession {
                 }
                 throw err;
             }), takeUntil(signalUnregistered));
-            let closing : Promise<any>;
+            let closing: Promise<any>;
             // Finalize by closing the REGISTRATION when the outer observable is abandoned.
             let close = async () => {
                 if (this._isClosing) return;
@@ -228,9 +230,9 @@ export class WampusCoreSession {
                     this.protocol.expectAny$([WampType.INTERRUPT, invocationMsg.requestId])
                         .pipe(map(x => x as WM.Interrupt), map(x => {
                             return {
-                                received : new Date(),
-                                options : x.options,
-                                source : procInvocationTicket
+                                received: new Date(),
+                                options: x.options,
+                                source: procInvocationTicket
                             } as CancellationToken;
                         }), take(1), takeUntil(completeInterrupt), catchError(err => {
                             if (err instanceof WampusRouteCompletion) {
@@ -247,7 +249,7 @@ export class WampusCoreSession {
                             return throwError(Errs.Register.doesNotSupportProgressReports(name));
                         }
                     }
-                    if (isHandled){
+                    if (isHandled) {
                         return throwError(Errs.Register.cannotSendResultTwice(name));
                     }
                     if (msg instanceof WampMessage.Error || msg instanceof WampMessage.Yield && !msg.options.progress) {
@@ -258,7 +260,7 @@ export class WampusCoreSession {
                 };
 
                 let procInvocationTicket: ProcedureInvocationTicket = {
-                    source : procRegistrationTicket,
+                    source: procRegistrationTicket,
                     error({args, error, kwargs, options}: WampusSendErrorArguments) {
                         return send$(factory.error(WampType.INVOCATION, invocationMsg.requestId, options, error, args, kwargs)).toPromise();
                     },
@@ -280,7 +282,7 @@ export class WampusCoreSession {
                     kwargs: invocationMsg.kwargs,
                     options: invocationMsg.options,
                     name: invocationMsg.options.procedure || name,
-                    invocationId : invocationMsg.requestId
+                    invocationId: invocationMsg.requestId
                 };
                 return procInvocationTicket;
             });
@@ -293,9 +295,9 @@ export class WampusCoreSession {
                     closing = close();
                     return closing;
                 },
-                info : {
+                info: {
                     ...full,
-                    registrationId : registered.registrationId
+                    registrationId: registered.registrationId
                 },
                 get isOpen() {
                     return !closing;
@@ -413,7 +415,7 @@ export class WampusCoreSession {
                 throw err;
             }));
             let closeSignal = new Subject();
-            let closing : Promise<any>;
+            let closing: Promise<any>;
             let close = async () => {
                 if (this._isClosing) return;
                 let expectUnsubscribedOrError$ = this.protocol.expectAny$(
@@ -451,12 +453,12 @@ export class WampusCoreSession {
                     args: x.args,
                     details: x.details,
                     kwargs: x.kwargs,
-                    source : eventSubscriptionTicket
+                    source: eventSubscriptionTicket
                 };
                 return a;
             });
 
-            let eventSubscriptionTicket =  {
+            let eventSubscriptionTicket = {
                 close() {
                     if (closing) return closing;
                     closing = close();
@@ -468,10 +470,10 @@ export class WampusCoreSession {
                     }
                     throw err;
                 }), takeUntil(closeSignal), publishAutoConnect()),
-                info : {
-                    subscriptionId : subscribed.subscriptionId,
-                    name : name,
-                    options : options
+                info: {
+                    subscriptionId: subscribed.subscriptionId,
+                    name: name,
+                    options: options
                 },
                 get isOpen() {
                     return !closing;
@@ -490,7 +492,7 @@ export class WampusCoreSession {
             options = options || {};
             let self = this;
             let features = this.welcomeDetails.roles.dealer.features;
-            let canceling : Promise<any>;
+            let canceling: Promise<any>;
 
             // Check call options are compatible with the deaqler's features.
             if (options.disclose_me && !features.caller_identification) {
@@ -549,7 +551,7 @@ export class WampusCoreSession {
                         isProgress: x.details.progress || false,
                         details: x.details,
                         name: name,
-                        source : callTicket
+                        source: callTicket
                     } as CallResultData;
                 }
                 throw new Error("Unknown message.");
@@ -605,9 +607,9 @@ export class WampusCoreSession {
                 get isOpen() {
                     return !!canceling;
                 },
-                info : {
+                info: {
                     ...full,
-                    callId : msg.requestId
+                    callId: msg.requestId
                 }
             };
 
@@ -622,9 +624,9 @@ export class WampusCoreSession {
                 get isOpen() {
                     return false;
                 },
-                info : {
+                info: {
                     ...full,
-                    callId : undefined
+                    callId: undefined
                 }
             } as CallTicket;
         }
@@ -738,7 +740,7 @@ export class WampusCoreSession {
         return merge(sending$, concat(expectingByeOrError$).pipe(failOnError));
     }
 
-    private _handshake$(authenticator : AuthenticationWorkflow): Observable<WM.Welcome> {
+    private _handshake$(authenticator: AuthenticationWorkflow): Observable<WM.Welcome> {
         let messenger = this.protocol;
         let config = this.config;
         let helloDetails = _.cloneDeep(wampusHelloDetails);
@@ -747,14 +749,14 @@ export class WampusCoreSession {
         }
         let hello = factory.hello(config.realm, helloDetails);
 
-        let handleAuthentication = flatMap( (msg : WM.Any) => {
+        let handleAuthentication = flatMap((msg: WM.Any) => {
             if (msg instanceof WM.Challenge) {
                 if (!authenticator) {
                     throw Errs.Handshake.noAuthenticator(msg);
                 } else {
                     let simplifiedEvent = {
-                        extra : msg.extra,
-                        authMethod : msg.authMethod
+                        extra: msg.extra,
+                        authMethod: msg.authMethod
                     } as ChallengeEvent;
                     return fromPromise(Promise.resolve(authenticator(simplifiedEvent))).pipe(flatMap(response => {
                         return this.protocol.send$(factory.authenticate(response.signature, response.extra));
