@@ -9,7 +9,7 @@ import {WebsocketTransport} from "../core/transport/websocket";
 import {JsonSerializer} from "../core/serializer/json";
 import {AbstractWampusSessionServices, StackTraceService, TransformSet} from "./services";
 import {DependencyDeclarations} from "./dependency-declarations";
-import {NewObjectInitializer} from "../common";
+import {NewObjectInitializer} from "../common/common";
 
 
 export type SerializerDeclaration = "json" | Serializer;

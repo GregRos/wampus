@@ -12,7 +12,7 @@ import {WampCallOptions, WampPublishOptions, WampRegisterOptions, WampSubscribeO
 import _ = require("lodash");
 import {defaultStackService} from "./services/default-stack-trace-service";
 import {defaultTransformSet} from "./services/transform-service";
-import {NewObjectInitializer} from "../common";
+import {NewObjectInitializer} from "../common/common";
 
 
 export class WampusSession {
