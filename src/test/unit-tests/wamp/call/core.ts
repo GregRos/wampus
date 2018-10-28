@@ -5,7 +5,6 @@ import _ = require("lodash");
 import {choose} from "../../../../lib/utils/rxjs-operators";
 import {WampCallOptions} from "../../../../lib/core/protocol/options";
 import {map, share, shareReplay, take, toArray} from "rxjs/operators";
-import all = When.all;
 import {CallTicket} from "../../../../lib/core/session/ticket";
 import {Observable} from "rxjs";
 import {WampResult} from "../../../../lib/core/basics";

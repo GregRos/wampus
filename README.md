@@ -9,29 +9,34 @@ Wampus.js will be a JavaScript client for the WAMP protocol. The WAMP protocol i
 
 The goal of Wampus is to provide a full client library for the WAMP protocol, as well as to better integrate WAMP communication into the language and the environment, using modern ES6+ features such as async functions, built-in Promises, Observables, etc. without sacrificing the cross-platform and language-agnostic nature of the WAMP protocol.
 
-## Wampus feature list
+## Current feature list
 
-Most of these are implemented, but the library hasn't been tested (read - *don't use this yet*)
+### Implemented
+✓ Accurate implementation of the WAMP protocol.
 
-1. Accurate implementation of the WAMP protocol.
+✓ Observable- and Promise- based API, using `rxjs`.
 
-1. Observable- and Promise- based API, using `rxjs`.
+✓ Secondary callback-based API for callers unused to observables.
 
-1. Primary high-level invocation-based API (e.g. `session.call("name")`).
+✓ Primary high-level invocation-based API (e.g. `session.call("name")`).
 
-1. Secondary low-level message-passing API (e.g. `session.protocol.send(craftedMessage)`) with varying levels of abstraction.
+✓ Secondary low-level message-passing API (e.g. `session.protocol.send(craftedMessage)`) with varying levels of abstraction.
 
-1. Support for all/most alpha+ advanced profile features.
+✓  Support for all/most alpha+ advanced profile features.
 
-1. Human-readable error messages.
+## Partially implemented
 
-1. Intelligent stack trace collection and debugging.
+❓ Human-readable error messages.
 
-1. Respond to protocol violations per spec (i.e. ABORT connection)
+❓  Intelligent stack trace collection.
 
-1. High performance.
+❓  Respond to protocol violations per spec (i.e. ABORT connection)
 
-1. Platform-agonstic (Node.js and browser)
+❓  Support for reviving simple JSON into complex objects and vice versa.
 
-7. Support for reviving simple JSON into complex objects and vice versa.
+## Not implemented
+
+* High performance.
+
+* Platform-agonstic (Node.js and browser)
 

@@ -68,8 +68,8 @@
           <entry key="dummy" value="33" />
           <entry key="gitignore" value="4" />
           <entry key="js" value="174" />
-          <entry key="json" value="964" />
-          <entry key="md" value="127" />
+          <entry key="json" value="965" />
+          <entry key="md" value="355" />
           <entry key="sh" value="340" />
           <entry key="ts" value="170927" />
           <entry key="yml" value="170" />
@@ -87,7 +87,7 @@
           <entry key="md" value="8" />
           <entry key="npmignore" value="1" />
           <entry key="sh" value="2" />
-          <entry key="ts" value="1356" />
+          <entry key="ts" value="1357" />
           <entry key="yml" value="7" />
         </counts>
       </usages-collector>
@@ -102,7 +102,7 @@
           <entry key="Markdown" value="8" />
           <entry key="PLAIN_TEXT" value="7" />
           <entry key="SourceMap" value="3" />
-          <entry key="TypeScript" value="1356" />
+          <entry key="TypeScript" value="1357" />
           <entry key="YAML" value="7" />
           <entry key="tsconfig" value="11" />
           <entry key="yarn.lock" value="1" />
@@ -111,9 +111,9 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Bash" value="340" />
-          <entry key="JSON" value="835" />
+          <entry key="JSON" value="836" />
           <entry key="JavaScript" value="226" />
-          <entry key="Markdown" value="127" />
+          <entry key="Markdown" value="355" />
           <entry key="PLAIN_TEXT" value="37" />
           <entry key="TypeScript" value="170927" />
           <entry key="YAML" value="170" />
@@ -152,14 +152,23 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="112">
-                <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
+              <first_editor relative-caret-position="280">
+                <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
               </first_editor>
               <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/unit-tests/wamp/call/core.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="196">
+              <caret line="7" selection-start-line="7" selection-end-line="7" />
             </state>
           </provider>
         </entry>
@@ -178,8 +187,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/package.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="229">
-              <caret line="40" column="24" selection-start-line="40" selection-start-column="16" selection-end-line="40" selection-end-column="24" />
+            <state relative-caret-position="56">
+              <caret line="2" column="20" selection-start-line="2" selection-start-column="20" selection-end-line="2" selection-end-column="20" />
             </state>
           </provider>
         </entry>
@@ -203,11 +212,6 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/.tmp/publish/protocol.js">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/.travis.yml">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="448">
@@ -228,7 +232,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>call(</find>
       <find>==</find>
       <find>receive RESULT(progress) message, call doesn't finish</find>
       <find>publishautoconnect</find>
@@ -258,6 +261,7 @@
       <find>callsites</find>
       <find>auto</find>
       <find>rxjs-spy</find>
+      <find>When.al</find>
     </findStrings>
     <replaceStrings>
       <replace>Codes.error</replace>
@@ -352,7 +356,6 @@
         <option value="$PROJECT_DIR$/src/lib/index.ts" />
         <option value="$PROJECT_DIR$/src/lib/transport.ts" />
         <option value="$PROJECT_DIR$/src/test/unit-tests/wamp/call/progress.ts" />
-        <option value="$PROJECT_DIR$/src/test/unit-tests/wamp/call/core.ts" />
         <option value="$PROJECT_DIR$/src/lib/core/session/core-session.ts" />
         <option value="$PROJECT_DIR$/src/lib/core/session/message-arguments.ts" />
         <option value="$PROJECT_DIR$/.travis.yml" />
@@ -363,6 +366,7 @@
         <option value="$PROJECT_DIR$/publish.sh" />
         <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/src/test/unit-tests/wamp/call/core.ts" />
       </list>
     </option>
   </component>
@@ -385,9 +389,9 @@
     <servers />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="63" />
-    <option name="y" value="-8" />
-    <option name="width" value="1865" />
+    <option name="x" value="91" />
+    <option name="y" value="418" />
+    <option name="width" value="1781" />
     <option name="height" value="1216" />
   </component>
   <component name="ProjectLevelVcsManager">
@@ -640,7 +644,7 @@
       <workItem from="1540553683436" duration="493000" />
       <workItem from="1540637364178" duration="16351000" />
       <workItem from="1540721692977" duration="6060000" />
-      <workItem from="1540735447165" duration="2775000" />
+      <workItem from="1540735447165" duration="3497000" />
     </task>
     <servers />
   </component>
@@ -653,7 +657,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="785766000" />
+    <option name="totallyTimeSpent" value="786488000" />
   </component>
   <component name="TodoView" selected-index="2">
     <todo-panel id="selected-file">
@@ -668,7 +672,7 @@
     <frame x="63" y="-8" width="1865" height="1216" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49952334" visible="true" weight="0.13462605" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49952334" visible="true" weight="0.13462605" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" sideWeight="0.50047666" side_tool="true" weight="0.18538852" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -682,8 +686,8 @@
       <window_info anchor="bottom" id="Event Log" order="8" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.49874792" weight="0.32955405" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.6919668" side_tool="true" visible="true" weight="0.36472762" />
-      <window_info anchor="bottom" id="TypeScript" order="12" sideWeight="0.30803323" visible="true" weight="0.36472762" />
+      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.6919668" side_tool="true" visible="true" weight="0.0" />
+      <window_info active="true" anchor="bottom" id="TypeScript" order="12" sideWeight="0.30803323" visible="true" weight="0.0" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -951,13 +955,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/unit-tests/wamp/call/core.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4956">
-          <caret line="190" selection-start-line="190" selection-end-line="190" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/core/session/core-session.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1568">
@@ -1162,18 +1159,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/package.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="229">
-          <caret line="40" column="24" selection-start-line="40" selection-start-column="16" selection-end-line="40" selection-end-column="24" />
+        <state relative-caret-position="56">
+          <caret line="2" column="20" selection-start-line="2" selection-start-column="20" selection-end-line="2" selection-end-column="20" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="112">
-            <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
+          <first_editor relative-caret-position="280">
+            <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
           </first_editor>
           <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/unit-tests/wamp/call/core.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="7" selection-start-line="7" selection-end-line="7" />
         </state>
       </provider>
     </entry>
