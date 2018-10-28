@@ -24,17 +24,17 @@ The goal of Wampus is to provide a full client library for the WAMP protocol, as
 
 ✓  Support for all/most alpha+ advanced profile features.
 
-## Partially implemented
+### Partially implemented
 
-❓ Human-readable error messages.
+**(?)** Human-readable error messages.
 
-❓  Intelligent stack trace collection.
+**(?)**  Intelligent stack trace collection.
 
-❓  Respond to protocol violations per spec (i.e. ABORT connection)
+**(?)** Respond to protocol violations per spec (i.e. ABORT connection)
 
-❓  Support for reviving simple JSON into complex objects and vice versa.
+**(?)**  Support for reviving simple JSON into complex objects and vice versa.
 
-## Not implemented
+### Not implemented
 
 * High performance.
 
