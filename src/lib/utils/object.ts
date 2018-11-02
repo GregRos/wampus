@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+/**@internal*/
 export function makeNonEnumerable<T>(obj : T, ...names : (keyof T)[]) {
     for (let name of names) {
         let desc = Object.getOwnPropertyDescriptor(obj, name);

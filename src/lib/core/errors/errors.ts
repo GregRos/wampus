@@ -8,12 +8,12 @@ import {
     WampusNetworkError
 } from "./types";
 import {WampCancelOptions} from "../protocol/options";
-
+/**@internal*/
 export enum ErrorLevel {
     Transport = "Transport",
     Wamp = "Wamp"
 }
-
+/**@internal*/
 export module Errs {
 
     export function receivedProtocolViolation(source: WampType, error: WampMessage.Error) {

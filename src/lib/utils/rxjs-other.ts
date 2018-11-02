@@ -2,14 +2,14 @@ import {Observable, Subscription} from "rxjs";
 import {EventEmitter} from "events";
 import {Errs} from "../core/errors/errors";
 import {Errors} from "../wrappers/errors";
-
+/**@internal*/
 export interface EventEmitted {
     name : string;
     arg : any;
 }
 
 
-
+/**@internal*/
 export class RxjsEventAdapter<T> {
     private _sub : Subscription;
     private _emitter : EventEmitter;
