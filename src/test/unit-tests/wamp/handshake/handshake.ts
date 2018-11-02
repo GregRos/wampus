@@ -66,7 +66,7 @@ test("send HELLO, when receive WELCOME, session should have received data", asyn
     server.send([2, 123, wDetails]);
     let s = await session;
     t.true(s.isActive);
-    t.is(s.id, 123);
+    t.is(s.sessionId, 123);
     t.is(s.realm, "a");
     t.deepEqual(s.details, wDetails);
 });

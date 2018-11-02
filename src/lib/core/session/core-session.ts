@@ -66,10 +66,10 @@ export interface WampusSessionDependencies {
 }
 
 export class WampusCoreSession {
-    id: number;
+    sessionId: number;
     config: CoreSessionConfig;
     protocol: WampProtocolClient<WampMessage.Any>;
-    welcomeDetails: WelcomeDetails;
+    private _welcomeDetails: WelcomeDetails;
     private _isClosing = false;
 
     constructor(never: never) {
@@ -85,7 +85,7 @@ export class WampusCoreSession {
     }
 
     get details() {
-        return this.welcomeDetails;
+        return this._welcomeDetails;
     }
 
     static async create(config: CoreSessionConfig & WampusSessionDependencies): Promise<WampusCoreSession> {
@@ -108,8 +108,8 @@ export class WampusCoreSession {
         })), EMPTY);
         serverDroppedConnection$.subscribe();
         let getSessionFromShake$ = session._handshake$(config.authenticator).pipe(map(welcome => {
-            session.id = welcome.sessionId;
-            session.welcomeDetails = welcome.details;
+            session.sessionId = welcome.sessionId;
+            session._welcomeDetails = welcome.details;
             session._registerRoutes().subscribe();
         }));
         return concat(getSessionFromShake$).pipe(mapTo(session), take(1)).toPromise();
@@ -138,8 +138,8 @@ export class WampusCoreSession {
         options = options || {};
         let msg = factory.register(options, name);
 
-        let {welcomeDetails} = this;
-        let features = welcomeDetails.roles.dealer.features;
+        let {_welcomeDetails} = this;
+        let features = _welcomeDetails.roles.dealer.features;
         // Make sure the router's WELCOME message supports all the features specified in options and throw an error otherwise.
         if (options.disclose_caller && !features.caller_identification) {
             throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallerIdentification);
@@ -319,7 +319,7 @@ export class WampusCoreSession {
         if (!this.isActive) throw Errs.sessionClosed("publish");
 
         options = options || {};
-        let features = this.welcomeDetails.roles.broker.features;
+        let features = this._welcomeDetails.roles.broker.features;
         if ((options.eligible || options.eligible_authid || options.eligible_authrole
             || options.exclude || options.exclude_authid || options.exclude_authrole) && !features.subscriber_blackwhite_listing) {
             throw Errs.routerDoesNotSupportFeature(AdvProfile.Subscribe.SubscriberBlackWhiteListing);
@@ -378,7 +378,7 @@ export class WampusCoreSession {
         if (!this.isActive) throw Errs.sessionClosed("event unsubscribe");
 
         options = options || {};
-        let features = this.welcomeDetails.roles.broker.features;
+        let features = this._welcomeDetails.roles.broker.features;
         if (options.match && !features.pattern_based_subscription) {
             throw Errs.routerDoesNotSupportFeature(AdvProfile.Subscribe.PatternBasedSubscription);
         }
@@ -491,7 +491,7 @@ export class WampusCoreSession {
             if (!this.isActive) throw Errs.sessionClosed("call procedure");
             options = options || {};
             let self = this;
-            let features = this.welcomeDetails.roles.dealer.features;
+            let features = this._welcomeDetails.roles.dealer.features;
             let canceling: Promise<any>;
 
             // Check call options are compatible with the deaqler's features.

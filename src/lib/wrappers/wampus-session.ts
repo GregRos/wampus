@@ -28,7 +28,7 @@ export class WampusSession {
 
 	private _services: WampusSessionServices;
 
-	constructor(public _core: WampusCoreSession, initServices: NewObjectInitializer<AbstractWampusSessionServices>) {
+	constructor(private _core: WampusCoreSession, initServices: NewObjectInitializer<AbstractWampusSessionServices>) {
 		let svcs = _.cloneDeep({
 			stackTraceService: defaultStackService,
 			transforms: defaultTransformSet
@@ -37,12 +37,29 @@ export class WampusSession {
 		this._services = new WampusSessionServices(svcs);
 	}
 
+	/** @internal */
+	test() {
+
+	}
+
 	get realm() {
 		return this._core.realm;
 	}
 
 	get isActive() {
 		return this._core.isActive;
+	}
+
+	get details() {
+		return this._core.details;
+	}
+
+	get sessionId() {
+		return this._core.sessionId;
+	}
+
+	get protocol() {
+		return this._core.protocol;
 	}
 
 	close() {
