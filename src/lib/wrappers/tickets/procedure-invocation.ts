@@ -8,11 +8,12 @@ import {Errs} from "../../core/errors/errors";
 import {ProcedureRegistrationTicket} from "./procedure-registration-ticket";
 import _ = require("lodash");
 import {Ticket} from "./ticket";
+import {makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/object";
 
 
 export class ProcedureInvocationTicket  {
     constructor(private _base: Core.ProcedureInvocationTicket, private _services: WampusSessionServices, private _source: ProcedureRegistrationTicket) {
-
+    	makeEverythingNonEnumerableExcept(this);
     }
 
     get args() {
@@ -125,12 +126,14 @@ export class ProcedureInvocationTicket  {
         args = this._applyTransforms(args);
         await this._base.return(args);
     }
-
 }
+
+makeEverythingNonEnumerableExcept(ProcedureInvocationTicket.prototype, "kwargs", "args", "invocationId");
 
 export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;
 }
+let a = 1;
 
 export type ExpandableFunction<TIn, TOut> = (req : TIn) => (Promise<TOut> | Observable<TOut> | TOut);
 

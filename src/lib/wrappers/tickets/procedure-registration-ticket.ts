@@ -8,6 +8,7 @@ import {ProcedureHandler, ProcedureInvocationTicket} from "./procedure-invocatio
 import CallSite = NodeJS.CallSite;
 import {WampResult} from "../../core";
 import {Ticket} from "./ticket";
+import {makeEverythingNonEnumerableExcept} from "../../utils/object";
 
 export class ProcedureRegistrationTicket extends Ticket {
     trace = {
@@ -30,6 +31,7 @@ export class ProcedureRegistrationTicket extends Ticket {
         ticket.trace.created = stack;
         ticket._base = coreTicket;
         ticket._services = services;
+        makeEverythingNonEnumerableExcept(ticket);
         return ticket;
     }
 
@@ -61,6 +63,6 @@ export class ProcedureRegistrationTicket extends Ticket {
     get isOpen() {
         return this._base.isOpen;
     }
-
 }
+makeEverythingNonEnumerableExcept(ProcedureInvocationTicket.prototype, "info");
 

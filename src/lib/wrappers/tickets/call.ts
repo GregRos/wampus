@@ -7,11 +7,12 @@ import CallSite = NodeJS.CallSite;
 import {Observable} from "rxjs";
 import {publishReplayAutoConnect} from "../../utils/rxjs-operators";
 import {Ticket} from "./ticket";
+import {makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/object";
 
 export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
-    private _base: Core.CallTicket;
-    private _services: WampusSessionServices;
-    private _adapter: RxjsEventAdapter<CallResultData>;
+    private _base = undefined as Core.CallTicket;
+    private _services = undefined as WampusSessionServices;
+    private _adapter = undefined as RxjsEventAdapter<CallResultData>;
     trace = {
         created : null as CallSite[]
     };
@@ -34,6 +35,7 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
                 isProgress: prog.isProgress,
                 source: ticket
             } as CallResultData;
+	        makeEverythingNonEnumerableExcept(newResult, "args", "kwargs", "details");
             return newResult;
         }), catchError(err => {
             services.stackTraceService.embedTrace(err, ticket.trace.created);
@@ -45,6 +47,7 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
                 arg: x
             }
         }, ["data"]);
+	    makeEverythingNonEnumerableExcept(ticket, "info");
         return ticket;
     }
 
@@ -83,7 +86,12 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
     catch(onrejected : (reason : any) => any) : Promise<any> {
         return this.result.catch(onrejected);
     }
+
+    toString() {
+    	return "AHA"
+    }
 }
+makeEverythingNonEnumerableExcept(CallTicket.prototype, "info");
 
 export interface CallResultData extends Core.CallResultData {
     readonly source: CallTicket;

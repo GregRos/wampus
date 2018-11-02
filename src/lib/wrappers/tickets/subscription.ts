@@ -6,6 +6,7 @@ import {map} from "rxjs/operators";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {Ticket} from "./ticket";
 import CallSite = NodeJS.CallSite;
+import {makeEverythingNonEnumerableExcept} from "../../utils/object";
 export interface EventInvocationData extends Core.EventInvocationData {
     readonly source : EventSubscriptionTicket;
 }
@@ -23,12 +24,14 @@ export class EventSubscriptionTicket extends Ticket {
 
     get events() {
         return this._base.events.pipe(map(x => {
-            return {
+            let data =  {
                 args : this._services.transforms.jsonToObject(x.args),
                 kwargs : this._services.transforms.jsonToObject(x.kwargs),
                 details : x.details,
                 source : this
             } as EventInvocationData;
+            makeEverythingNonEnumerableExcept(data, "args", "kwargs", "details");
+            return data;
         }));
     };
 
@@ -48,6 +51,7 @@ export class EventSubscriptionTicket extends Ticket {
                 arg : x
             }
         }, ["called"]);
+        makeEverythingNonEnumerableExcept(ticket);
         return ticket;
     }
 
@@ -72,3 +76,5 @@ export class EventSubscriptionTicket extends Ticket {
     }
 
 }
+
+makeEverythingNonEnumerableExcept(EventSubscriptionTicket.prototype, "info");
