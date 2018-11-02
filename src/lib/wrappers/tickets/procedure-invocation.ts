@@ -132,4 +132,6 @@ export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;
 }
 
-export type ProcedureHandler = (req: ProcedureInvocationTicket) => (Promise<WampResult> | Observable<WampResult> | WampResult)
+export type ExpandableFunction<TIn, TOut> = (req : TIn) => (Promise<TOut> | Observable<TOut> | TOut);
+
+export type ProcedureHandler = ExpandableFunction<ProcedureInvocationTicket, WampResult>;

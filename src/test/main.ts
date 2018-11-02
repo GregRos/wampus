@@ -80,7 +80,7 @@ function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observabl
                 a : 5
             }
         });
-        console.log("SUBSCRIPTIONS:", (session as any)._session.protocol._router.count());
+        console.log("SUBSCRIPTIONS:", (session as any)._core.protocol._router.count());
         console.log("RESULT:", z);
         await session.close();
     })).toPromise();
