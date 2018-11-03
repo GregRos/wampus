@@ -84,7 +84,7 @@ function getDescriptionByMessage(source: WM.Any) {
 export module Errs {
 
 	export function receivedProtocolViolation(source: WM.Any, error: WampMessage.Abort) {
-		return new WampusNetworkError("Protocol violation.", getWampAbortBasedMembers(error));
+		return new WampusNetworkError("Received protocol violation during handshake.", getWampAbortBasedMembers(error));
 	}
 
 	export function routerDoesNotSupportFeature(source : WM.Any, feature: string) {
@@ -100,11 +100,10 @@ export module Errs {
 
 	export function sessionIsClosing(source: WM.Any) {
 		let operation = getDescriptionByMessage(source);
-		let x =  new WampusNetworkError(`While ${operation}, the session was closing.`, {
+		let x =  new WampusNetworkError(`While ${operation}, the session was closed.`, {
 		});
 		return x;
 	}
-
 
 	export module Handshake {
 
@@ -187,7 +186,7 @@ export module Errs {
 		}
 
 		export function other(msg: WampMessage.Error, event: string) {
-			return new WampusIllegalOperationError(`Tried to unsubscribe to the event ${event}, but received an ERROR response (${msg.error}).`, getWampErrorReplyBasedMembers(msg))
+			return new WampusIllegalOperationError(`Tried to unsubscribe from the topic ${event}, but received an ERROR response (${msg.error}).`, getWampErrorReplyBasedMembers(msg))
 		}
 	}
 
@@ -263,6 +262,6 @@ export module Errs {
 
 	export function sessionClosed(source: WM.Any) {
 		let operation = getDescriptionByMessage(source);
-		return new WampusNetworkError(`Tried to perform ${operation}, but the session was already closed.`, {});
+		return new WampusNetworkError(`Tried ${operation}, but the session was already closed.`, {});
 	}
 }

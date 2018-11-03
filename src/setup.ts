@@ -7,4 +7,3 @@ process.on("unhandledRejection", (error, promise) => {
 
     console.error(error.stack);
 });
-import "./test/unit-tests/uhm";

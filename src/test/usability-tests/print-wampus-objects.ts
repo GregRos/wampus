@@ -11,7 +11,9 @@ async function run() {
 		}
 	});
 
-	await session.register("test", async x => {
+	await session.register({
+		name : "test"
+	}, async x => {
 		console.log("invocation", x);
 		return {
 			kwargs : {a : 1},
@@ -19,7 +21,9 @@ async function run() {
 		};
 	});
 
-	let x = await session.call("test");
+	let x = await session.call({
+		name : "test"
+	});
 	console.log(x);
 }
 

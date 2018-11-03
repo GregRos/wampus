@@ -30,7 +30,10 @@ async function  someBasicCalls(session : WampusSession) {
 
     await procedure.using(async () => {
         {
-            let x = await session.call("x2", [20]).catch(err => err);
+            let x = await session.call({
+	            name : "x2",
+	            args : [20]
+            }).catch(err => err);
             console.log(yp(x));
         }
     });

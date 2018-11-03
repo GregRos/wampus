@@ -1,4 +1,3 @@
-let str = require("stringify-object");
 import exps = require("ava/lib/assert");
 let origAss = exps.wrapAssertions;
 

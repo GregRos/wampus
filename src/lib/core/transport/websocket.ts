@@ -11,6 +11,7 @@ import {WampusError} from "../errors/types";
 import {from, fromEvent, merge, NEVER, Observable, of, race, throwError} from "rxjs";
 import {map, startWith, switchAll, delay, take} from "rxjs/operators";
 import {skipAfter} from "../../utils/rxjs-operators";
+import {makeNonEnumerable} from "../../utils/object";
 
 export interface WebsocketTransportConfig {
     url: string;
@@ -70,9 +71,8 @@ export class WebsocketTransport implements Transport{
                 });
             }
             catch (err) {
-                throw(new WampusNetworkError("The WebSocket client could not be created. Reason: {reason}", {
-                    err : err,
-                    reason : err.message
+                throw(new WampusNetworkError(`The WebSocket client could not be created. ${err.message}`, {
+                    innerError : err
                 }));
             }
             transport._ws = ws;
@@ -91,7 +91,7 @@ export class WebsocketTransport implements Transport{
                     return {
                         type : "error",
                         data : new WampusNetworkError("Received a message that could not be deserialized.", {
-                            err
+                            innerError : err
                         })
                     } as TransportError;
                 }
@@ -104,7 +104,7 @@ export class WebsocketTransport implements Transport{
                 return {
                     type : "error",
                     data : new WampusNetworkError("The WebSocket client emitted an error.", {
-                        err : x
+                        innerError : x
                     })
                 } as TransportError
             }));
@@ -122,12 +122,10 @@ export class WebsocketTransport implements Transport{
             };
             ws.onerror = event => {
                 ws.onerror = ws.onopen = null;
-                sub.error(new WampusNetworkError("Failed to establish WebSocket connection with {url}. Reason: {reason}", {
-                    url: config.url,
-                    type: event.type,
-                    reason: event.message,
-                    error: event.error
-                }));
+                let err = new WampusNetworkError(`Failed to establish WebSocket connection with ${config.url}. ${event.message}`, {
+	                innerError: event.error
+                });
+                sub.error(err);
             };
         }) as Observable<WebsocketTransport>;
 
@@ -174,7 +172,7 @@ export class WebsocketTransport implements Transport{
             }, err => {
                 if (err) {
                     sub.error(new WampusNetworkError("Failed to send message via the web socket transport.", {
-                        err
+                        innerError : err
                     }));
                 } else {
                     sub.complete();

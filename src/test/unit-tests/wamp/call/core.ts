@@ -158,7 +158,7 @@ sendCallReceiveErrorMacro({
     errMatch : err => err instanceof WampusInvocationError && _.isMatch(err, {
         args : ["a"],
         kwargs : {a : 1},
-        error : "custom.error"
+        reason : "custom.error"
     }),
     errId : "custom.error",
     title : "send CALL, receive ERROR(custom), throw"

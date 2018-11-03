@@ -20,12 +20,17 @@ async function  someBasicCalls(session : WampusSession) {
 
     await procedure.using(async () => {
         {
-            let x = await session.call("x2", [20])
+            let x = await session.call({
+	            name : "x2",
+	            args : [20]
+            })
             printResult( x);
         }
     });
 
-    let complexObjectProc = await session.register("enrich-object", async ({kwargs}) => {
+    let complexObjectProc = await session.register({
+	    name : "enrich-object"
+    }, async ({kwargs}) => {
         let ret = {
             embedded : kwargs,
             more : {
@@ -38,9 +43,12 @@ async function  someBasicCalls(session : WampusSession) {
     });
 
     await complexObjectProc.using(async () => {
-        let x = await session.call("enrich-object", null, {
-            x : 1,
-            b : ["a", "b"]
+        let x = await session.call({
+	        name : "enrich-object",
+	        kwargs : {
+		        x : 1,
+		        b : ["a", "b"]
+	        }
         });
         printResult(x);
     })
