@@ -61,7 +61,6 @@
     ]
   },
   "nyc": {
-    "per-file": true,
     "produce-source-map": true,
     "include": [
       "dist/lib/**/*.js"

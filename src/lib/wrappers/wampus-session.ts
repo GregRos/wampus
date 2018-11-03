@@ -21,7 +21,7 @@ import {Ticket} from "./tickets/ticket";
 export interface WampusProcedureDefinitions {
 	[key : string] : ProcedureHandler | {
 		options ?: WampRegisterOptions;
-		call : ProcedureHandler;
+		invocation : ProcedureHandler;
 	};
 }
 
@@ -87,13 +87,13 @@ export class WampusSession {
 			let obj = {
 				name : k,
 				options : {},
-				call : null
+				invocation : null
 			};
 			if (_.isFunction(v)) {
-				obj.call = v;
+				obj.invocation = v;
 			} else {
 				obj.options = v.options || {};
-				obj.call = v.call;
+				obj.invocation = v.invocation;
 			}
 			tickets.push(this.register(obj));
 		});
