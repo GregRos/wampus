@@ -36,14 +36,14 @@ test("send HELLO, when received non-handshake message, throw error", async t => 
     let {server,session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.send([1, {}, "hi"]);
-    await t.throws(session, MatchError.network("Protocol violation", "During handshake", "HELLO"));
+    await t.throws(session, MatchError.network("During handshake", "HELLO"));
 });
 
 test("send hello, when received abrupt disconnect, throw error", async t => {
     let {server,session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.close();
-    await t.throws(session, MatchError.network("transport closed during handshake"));
+    await t.throws(session, MatchError.network("the transport abruptly closed"));
 });
 
 test("send hello, when received connection error, throw error", async t => {

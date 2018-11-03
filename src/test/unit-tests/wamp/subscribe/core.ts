@@ -13,7 +13,7 @@ import {MyPromise} from "../../../../lib/utils/ext-promise";
 test("sends SUBSCRIBE", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    session.event({name : "hi"});
+    session.topic({name : "hi"});
     let subscribeMsg = await serverMonitor.next();
     t.true(_.isMatch(subscribeMsg, {
         0 : 32,
@@ -22,16 +22,16 @@ test("sends SUBSCRIBE", async t => {
     }));
 });
 
-test("event() waits for reply", async t => {
+test("topic() waits for reply", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    await t.throws(Operators.timeout(session.event({name : "x"}), 20));
+    await t.throws(Operators.timeout(session.topic({name : "x"}), 20));
 });
 
-test("event() waits for SUBSCRIBED, EventSubscription basic tests", async t => {
+test("topic() waits for SUBSCRIBED, EventSubscription basic tests", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.event({name : "hi"});
+    let pendingSub = session.topic({name : "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let subscription = await pendingSub;
@@ -41,28 +41,28 @@ test("event() waits for SUBSCRIBED, EventSubscription basic tests", async t => {
     t.falsy(await eventMonitor.nextWithin(20));
 });
 
-test("event() on closed session throws", async t => {
+test("topic() on closed session throws", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     server.send([3, {}, "no"]);
     await session.close();
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.event({name : "hi"});
-    await t.throws(pendingSub, MatchError.network("subscribe"));
+    let pendingSub = session.topic({name : "hi"});
+    await t.throws(pendingSub, MatchError.network("subscribing"));
 });
 
-test("event() on a closing session throws", async t => {
+test("topic() on a closing session throws", async t => {
     let {session, server} = await SessionStages.handshaken("a");
-    let throwSub =  t.throws(session.event({name : "hi"}), MatchError.network("subscribe"));
+    let throwSub =  t.throws(session.topic({name : "hi"}), MatchError.network("subscribing"));
     await MyPromise.wait(10);
     server.send([3, {}, "no"]);
     await session.close();
     await throwSub;
 });
 
-test("after event(), session closing closes subscription", async t => {
+test("after topic(), session closing closes subscription", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.event({name : "hi"});
+    let pendingSub = session.topic({name : "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let subscription = await pendingSub;
@@ -77,7 +77,7 @@ test("after event(), session closing closes subscription", async t => {
 test("send EVENT, verify EventArgs properties", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.event({name : "hi"});
+    let pendingSub = session.topic({name : "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
@@ -95,7 +95,7 @@ test("send EVENT, verify EventArgs properties", async t => {
 test("send EVENT twice, observable emits two EventArgs", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.event({name : "hi"});
+    let pendingSub = session.topic({name : "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
@@ -111,7 +111,7 @@ function testSubscribeReceiveError(o : {errorName : string, errMatch : (err : Er
     test(o.title, async t => {
         let {session,server} = await SessionStages.handshaken("a");
         let serverMonitor = Rxjs.monitor(server.messages);
-        let subbing = session.event({
+        let subbing = session.topic({
             name : "a"
         });
         let next = await serverMonitor.next();
@@ -138,7 +138,7 @@ testSubscribeReceiveError({
 test("close() sends UNSUBSCRIBE, expects reply", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.event({name : "hi"});
+    let pendingSub = session.topic({name : "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
@@ -155,7 +155,7 @@ test("close() sends UNSUBSCRIBE, expects reply", async t => {
 test("receives UNSUBSCRIBED, events complete", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.event({name : "hi"});
+    let pendingSub = session.topic({name : "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
@@ -172,7 +172,7 @@ test("receives UNSUBSCRIBED, events complete", async t => {
 test("close() subscription, session closes instead of UNSUBSCRIBE, subscription still closes", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.event({name : "hi"});
+    let pendingSub = session.topic({name : "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
@@ -191,7 +191,7 @@ function testUnsubscribeReceiveError(o : {errorName : string, errMatch : (err : 
     test(o.title, async t => {
         let {session, server} = await SessionStages.handshaken("a");
         let serverMonitor = Rxjs.monitor(server.messages);
-        let pendingSub = session.event({name : "hi"});
+        let pendingSub = session.topic({name : "hi"});
         let subscribeMsg = await serverMonitor.next();
         server.send([33, subscribeMsg[1], 101]);
         let sub = await pendingSub;
@@ -218,7 +218,7 @@ testUnsubscribeReceiveError({
 test("calling close() a 2nd time returns the same promise", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.event({name : "hi"});
+    let pendingSub = session.topic({name : "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;

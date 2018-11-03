@@ -1,4 +1,4 @@
-import {WampArray, WampObject} from "../protocol/messages";
+import {WampArray, WampMessage, WampObject} from "../protocol/messages";
 import {CancelMode, WampEventOptions, WampInvocationOptions, WampResultOptions} from "../protocol/options";
 import {
     WampusCallArguments,
@@ -67,6 +67,8 @@ export interface CancellationToken {
     readonly received: Date;
 
     readonly options: WampObject;
+
+    readonly wampMessage : WampMessage.Error;
 }
 
 export interface ProcedureInvocationData extends WampResult {

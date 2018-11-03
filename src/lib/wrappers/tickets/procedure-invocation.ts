@@ -61,7 +61,7 @@ export class ProcedureInvocationTicket  {
             return {
                 ...token,
                 throw() {
-                    throw Errs.Call.canceled(this.name);
+                    throw Errs.Call.canceled(this.name, token.wampMessage);
                 }
             } as CancellationTicket
         })).toPromise();

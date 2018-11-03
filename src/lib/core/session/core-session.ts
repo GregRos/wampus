@@ -1,45 +1,44 @@
 import {
-    WampMessage,
-    WampObject,
-    WampUriString,
-    WampusCompletionReason,
-    WampusRouteCompletion
+	WampMessage,
+	WampObject,
+	WampUriString,
+	WampusCompletionReason,
+	WampusRouteCompletion
 } from "../protocol/messages";
 import {WampType} from "../protocol/message.type";
 import {Errs} from "../errors/errors";
 import {AdvProfile, WampUri} from "../protocol/uris";
-import {MessageFactory} from "../protocol/factory";
-import {WampusError, WampusIllegalOperationError, WampusNetworkError} from "../errors/types";
+import {WampusNetworkError} from "../errors/types";
 import {Routes} from "../protocol/routes";
 import {CancelMode, HelloDetails, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
 import {WampProtocolClient} from "../protocol/wamp-protocol-client";
-import {CallResultData, EventSubscriptionTicket, ProcedureRegistrationTicket} from "./ticket";
+import {
+	CallResultData,
+	CallTicket,
+	CancellationToken,
+	EventInvocationData,
+	EventSubscriptionTicket,
+	ProcedureInvocationTicket,
+	ProcedureRegistrationTicket
+} from "./ticket";
 import {concat, defer, EMPTY, merge, Observable, of, onErrorResumeNext, race, Subject, throwError, timer} from "rxjs";
+import {catchError, flatMap, map, mapTo, mergeMapTo, take, takeUntil, takeWhile, timeoutWith,} from "rxjs/operators";
 import {
-    catchError,
-    endWith, exhaustMap,
-    flatMap,
-    map,
-    mapTo,
-    mergeMapTo, publish, publishReplay, share,
-    take,
-    takeUntil,
-    takeWhile,
-    timeoutWith,
-} from "rxjs/operators";
-import {
-    WampusCallArguments,
-    WampusPublishArguments,
-    WampusRegisterArguments,
-    WampusSendErrorArguments,
-    WampusSendResultArguments,
-    WampusSubcribeArguments
+	WampusCallArguments,
+	WampusPublishArguments,
+	WampusRegisterArguments,
+	WampusSendErrorArguments,
+	WampusSendResultArguments,
+	WampusSubcribeArguments
 } from "./message-arguments";
 import {MyPromise} from "../../utils/ext-promise";
-import {CallTicket} from "./ticket";
 import {publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../../utils/rxjs-operators";
 import {Transport} from "../transport/transport";
 import {wampusHelloDetails} from "../hello-details";
+import {MessageReader} from "../protocol/reader";
+import {DefaultMessageFactory} from "./default-factory";
+import {AuthenticationWorkflow, ChallengeEvent} from "./authentication";
+import {fromPromise} from "rxjs/internal-compatibility";
 
 export interface CoreSessionConfig {
     realm: string;
@@ -48,13 +47,8 @@ export interface CoreSessionConfig {
     helloDetails?(defaults: HelloDetails): void;
 }
 
-import WM = WampMessage;
-import {MessageReader} from "../protocol/reader";
-import {EventInvocationData, CancellationToken, ProcedureInvocationTicket} from "./ticket";
-import {DefaultMessageFactory} from "./default-factory";
-import {AuthenticationWorkflow, ChallengeEvent} from "./authentication";
-import {fromPromise} from "rxjs/internal-compatibility";
 import _ = require("lodash");
+import WM = WampMessage;
 
 let factory = DefaultMessageFactory;
 
@@ -133,22 +127,23 @@ export class WampusCoreSession {
 
                 * Send a REGISTER message
          */
-        if (!this.isActive) throw Errs.sessionClosed("register procedure");
+	    let msg = factory.register(options, name);
+
+	    if (!this.isActive) throw Errs.sessionClosed(msg);
 
         options = options || {};
-        let msg = factory.register(options, name);
 
         let {_welcomeDetails} = this;
         let features = _welcomeDetails.roles.dealer.features;
         // Make sure the router's WELCOME message supports all the features specified in options and throw an error otherwise.
         if (options.disclose_caller && !features.caller_identification) {
-            throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallerIdentification);
+            throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Call.CallerIdentification);
         }
         if (options.match && !features.pattern_based_registration) {
-            throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.PatternRegistration);
+            throw Errs.routerDoesNotSupportFeature(msg,AdvProfile.Call.PatternRegistration);
         }
         if (options.invoke && options.invoke !== InvocationPolicy.Single && !features.shared_registration) {
-            throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.SharedRegistration);
+            throw Errs.routerDoesNotSupportFeature(msg,AdvProfile.Call.SharedRegistration);
         }
         let sending$ = this.protocol.send$(msg).pipe(mergeMapTo(EMPTY));
 
@@ -158,7 +153,7 @@ export class WampusCoreSession {
             Routes.error(WampType.REGISTER, msg.requestId)
         ).pipe(catchError(err => {
             if (err instanceof WampusRouteCompletion) {
-                throw Errs.sessionIsClosing("register");
+                throw Errs.sessionIsClosing(msg);
             }
             throw err;
         }));
@@ -169,7 +164,7 @@ export class WampusCoreSession {
                 this._throwCommonError(msg, x);
                 switch (x.error) {
                     case WampUri.Error.ProcAlreadyExists:
-                        throw Errs.Register.procedureAlreadyExists(msg.procedure);
+                        throw Errs.Register.procedureAlreadyExists(msg.procedure, x);
                     default:
                         throw Errs.Register.error(msg.procedure, x);
                 }
@@ -243,7 +238,7 @@ export class WampusCoreSession {
                 let isHandled = false;
                 // Send message
                 let send$ = (msg: WampMessage.Any) => {
-                    if (!this.isActive) return throwError(Errs.sessionIsClosing("reply"));
+                    if (!this.isActive) return throwError(Errs.sessionIsClosing(msg));
                     if (msg instanceof WampMessage.Yield && msg.options.progress) {
                         if (!invocationMsg.options.receive_progress) {
                             return throwError(Errs.Register.doesNotSupportProgressReports(name));
@@ -316,22 +311,23 @@ export class WampusCoreSession {
 
     async publish(full: WampusPublishArguments): Promise<void> {
         let {options, args, kwargs, name} = full;
-        if (!this.isActive) throw Errs.sessionClosed("publish");
+	    let msg = factory.publish(options, name, args, kwargs);
+
+	    if (!this.isActive) throw Errs.sessionClosed(msg);
 
         options = options || {};
         let features = this._welcomeDetails.roles.broker.features;
         if ((options.eligible || options.eligible_authid || options.eligible_authrole
             || options.exclude || options.exclude_authid || options.exclude_authrole) && !features.subscriber_blackwhite_listing) {
-            throw Errs.routerDoesNotSupportFeature(AdvProfile.Subscribe.SubscriberBlackWhiteListing);
+            throw Errs.routerDoesNotSupportFeature(msg,AdvProfile.Subscribe.SubscriberBlackWhiteListing);
         }
         if (options.disclose_me && !features.publisher_identification) {
-            throw Errs.routerDoesNotSupportFeature(AdvProfile.Subscribe.PublisherIdentification);
+            throw Errs.routerDoesNotSupportFeature(msg,AdvProfile.Subscribe.PublisherIdentification);
         }
         if (options.exclude_me === false && !features.publisher_exclusion) {
-            throw Errs.routerDoesNotSupportFeature(AdvProfile.Subscribe.PublisherExclusion);
+            throw Errs.routerDoesNotSupportFeature(msg,AdvProfile.Subscribe.PublisherExclusion);
         }
         return defer(() => {
-            let msg = factory.publish(options, name, args, kwargs);
             let expectAcknowledge$: Observable<any>;
             if (options.acknowledge) {
                 let expectPublishedOrError$ = this.protocol.expectAny$(
@@ -339,16 +335,14 @@ export class WampusCoreSession {
                     Routes.error(WampType.PUBLISH, msg.requestId)
                 ).pipe(take(1), catchError(err => {
                     if (err instanceof WampusRouteCompletion) {
-                        throw Errs.sessionIsClosing("publish");
+                        throw Errs.sessionIsClosing(msg);
                     }
                     throw err;
                 }));
                 let failOnError = map((response: WM.Any) => {
                     if (response instanceof WM.Error) {
                         this._throwCommonError(msg, response);
-                        throw new WampusIllegalOperationError("Failed to publish.", {
-                            msg: response
-                        });
+                        throw Errs.Publish.unknown(msg.topic, response);
                     }
                     return response;
                 });
@@ -373,18 +367,19 @@ export class WampusCoreSession {
      * @param {string} name
      * @returns {Stream<Stream<EventArgs>>}
      */
-    async event(full: WampusSubcribeArguments): Promise<EventSubscriptionTicket> {
+    async topic(full: WampusSubcribeArguments): Promise<EventSubscriptionTicket> {
         let {options, name} = full;
-        if (!this.isActive) throw Errs.sessionClosed("event unsubscribe");
+	    let msg = factory.subscribe(options, name);
+
+	    if (!this.isActive) throw Errs.sessionClosed(msg);
 
         options = options || {};
         let features = this._welcomeDetails.roles.broker.features;
         if (options.match && !features.pattern_based_subscription) {
-            throw Errs.routerDoesNotSupportFeature(AdvProfile.Subscribe.PatternBasedSubscription);
+            throw Errs.routerDoesNotSupportFeature(msg,AdvProfile.Subscribe.PatternBasedSubscription);
         }
 
         let expectSubscribedOrError$ = defer(() => {
-            let msg = factory.subscribe(options, name);
             let sending$ = this.protocol.send$(msg);
             let expectSubscribedOrError$ = this.protocol.expectAny$(
                 Routes.subscribed(msg.requestId),
@@ -400,7 +395,7 @@ export class WampusCoreSession {
             return merge(sending$, expectSubscribedOrError$).pipe(failOnErrorOrCastToSubscribed);
         }).pipe(catchError(err => {
             if (err instanceof WampusRouteCompletion) {
-                throw Errs.sessionIsClosing("subscribe");
+                throw Errs.sessionIsClosing(msg);
             }
             throw err;
         }));
@@ -488,7 +483,9 @@ export class WampusCoreSession {
     call(full: WampusCallArguments): CallTicket {
         try {
             let {options, name, args, kwargs} = full;
-            if (!this.isActive) throw Errs.sessionClosed("call procedure");
+	        let msg = factory.call(options, name, args, kwargs);
+
+	        if (!this.isActive) throw Errs.sessionClosed(msg);
             options = options || {};
             let self = this;
             let features = this._welcomeDetails.roles.dealer.features;
@@ -496,13 +493,13 @@ export class WampusCoreSession {
 
             // Check call options are compatible with the deaqler's features.
             if (options.disclose_me && !features.caller_identification) {
-                throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallerIdentification);
+                throw Errs.routerDoesNotSupportFeature(msg,AdvProfile.Call.CallerIdentification);
             }
             if (options.receive_progress && !features.progressive_call_results) {
-                throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.ProgressReports);
+                throw Errs.routerDoesNotSupportFeature(msg,AdvProfile.Call.ProgressReports);
             }
             if (options.timeout && !features.call_timeout) {
-                throw Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallTimeouts);
+                throw Errs.routerDoesNotSupportFeature(msg,AdvProfile.Call.CallTimeouts);
             }
 
             /*
@@ -518,7 +515,6 @@ export class WampusCoreSession {
                 4. Wait for a RESULT or ERROR response
                 5.
              */
-            let msg = factory.call(options, name, args, kwargs);
 
             let failOnError = map((x: WM.Any) => {
                 canceling = Promise.resolve();
@@ -526,15 +522,15 @@ export class WampusCoreSession {
                     this._throwCommonError(msg, x);
                     switch (x.error) {
                         case WampUri.Error.NoSuchProcedure:
-                            throw Errs.Call.noSuchProcedure(msg.procedure);
+                            throw Errs.Call.noSuchProcedure(msg.procedure, x);
                         case WampUri.Error.NoEligibleCallee:
-                            throw Errs.Call.noEligibleCallee(msg.procedure);
+                            throw Errs.Call.noEligibleCallee(msg.procedure, x);
                         case WampUri.Error.DisallowedDiscloseMe:
-                            throw Errs.Call.optionDisallowedDiscloseMe(msg.procedure);
+                            throw Errs.Call.optionDisallowedDiscloseMe(msg.procedure, x);
                         case WampUri.Error.Canceled:
-                            throw Errs.Call.canceled(name);
+                            throw Errs.Call.canceled(name, x);
                         case WampUri.Error.InvalidArgument:
-                            throw Errs.Call.invalidArgument(name, msg);
+                            throw Errs.Call.invalidArgument(name, x);
                     }
                     if (x.error === WampUri.Error.RuntimeError || !x.error.startsWith(WampUri.Error.Prefix)) {
                         throw Errs.Call.errorResult(name, x);
@@ -561,7 +557,7 @@ export class WampusCoreSession {
                 Routes.error(WampType.CALL, msg.requestId)
             ).pipe(failOnError, catchError(err => {
                 if (err instanceof WampusRouteCompletion) {
-                    throw Errs.sessionIsClosing("call");
+                    throw Errs.sessionIsClosing(msg);
                 }
                 throw err;
             }), toLibraryResult).pipe(publishAutoConnect());
@@ -572,11 +568,8 @@ export class WampusCoreSession {
                 merge(expectResultOrError, sending)
                     .pipe(skipAfter((x: CallResultData) => !x.isProgress));
 
-            let startCancelling = mode => defer(async () => {
+            let startCancelling = (cancel : WM.Cancel) => defer(async () => {
                 if (this._isClosing) return;
-                let cancel = factory.cancel(msg.requestId, {
-                    mode: mode
-                });
                 let sendCancel$ = this.protocol.send$(cancel);
 
                 return merge(sendCancel$, self.protocol.expectAny$(
@@ -597,11 +590,14 @@ export class WampusCoreSession {
             let callTicket: CallTicket = {
                 progress: progressStream,
                 close(mode ?: CancelMode) {
+	                let cancel = factory.cancel(msg.requestId, {
+		                mode: mode || CancelMode.Kill
+	                });
                     if (!features.call_cancelling) {
-                        return Promise.reject(Errs.routerDoesNotSupportFeature(AdvProfile.Call.CallCancelling));
+                        return Promise.reject(Errs.routerDoesNotSupportFeature(cancel,AdvProfile.Call.CallCancelling));
                     }
                     if (canceling) return canceling;
-                    return canceling = concat(sending, startCancelling(mode || CancelMode.Kill)).toPromise().then(() => {
+                    return canceling = concat(sending, startCancelling(cancel)).toPromise().then(() => {
                     });
                 },
                 get isOpen() {
@@ -638,16 +634,15 @@ export class WampusCoreSession {
 
 
     private _throwCommonError(source: WampMessage.Any, err: WampMessage.Error) {
-        let operation = WampType[source.type];
         switch (err.error) {
             case WampUri.Error.NotAuthorized:
-                throw Errs.notAuthorized(operation, err);
+                throw Errs.notAuthorized(source, err);
             case WampUri.Error.InvalidUri:
-                throw Errs.invalidUri(operation, err);
+                throw Errs.invalidUri(source, err);
             case WampUri.Error.NetworkFailure:
-                throw Errs.networkFailure(operation, err);
+                throw Errs.networkFailure(source, err);
             case WampUri.Error.OptionNotAllowed:
-                throw Errs.optionNotAllowed(operation, err);
+                throw Errs.optionNotAllowed(source, err);
         }
     }
 
@@ -733,8 +728,6 @@ export class WampusCoreSession {
             if (x instanceof WampMessage.Goodbye) {
                 return x as WampMessage.Goodbye;
             }
-            throw Errs.Leave.unexpectedMessageOnGoodbye(x);
-
         });
 
         return merge(sending$, concat(expectingByeOrError$).pipe(failOnError));
@@ -770,9 +763,9 @@ export class WampusCoreSession {
             if (msg instanceof WM.Abort) {
                 switch (msg.reason) {
                     case WampUri.Error.NoSuchRealm:
-                        throw Errs.Handshake.noSuchRealm(hello.realm);
+                        throw Errs.Handshake.noSuchRealm(hello.realm, msg);
                     case WampUri.Error.ProtoViolation:
-                        throw Errs.receivedProtocolViolation(hello.type, null);
+                        throw Errs.receivedProtocolViolation(hello, msg);
                     default:
                         throw Errs.Handshake.unrecognizedError(msg);
                 }

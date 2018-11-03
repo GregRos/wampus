@@ -15,7 +15,7 @@ async function isSessionClosed<T>(t : GenericTestContext<T>, session : WampusCor
     t.is(session.isActive, false);
     await t.throws(session.call({name : "ab"}).progress.toPromise(), MatchError.network("closed"));
     await t.throws(session.register({name : "ab"}), MatchError.network("closed"));
-    await t.throws(session.event({name : "ab"}), MatchError.network("closed"));
+    await t.throws(session.topic({name : "ab"}), MatchError.network("closed"));
     await t.throws(session.publish({name : "ab"}), MatchError.network("closed"));
 
     //closing okay should be fine:

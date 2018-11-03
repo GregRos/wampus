@@ -67,7 +67,7 @@ function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observabl
         let z = await session.call({
             name : "a.b"
         }).result;
-        let ev = await session.event({name : "hi.1"});
+        let ev = await session.topic({name : "hi.1"});
         ev.events.subscribe(x=> {
             console.log(yamprint(x));
         });

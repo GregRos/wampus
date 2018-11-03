@@ -15,6 +15,7 @@ export function dummyTransport() {
     }
     return {
         client: {
+        	name : "dummy",
             async close() {
                 intoServer.next({
                     type : "closed",

@@ -16,3 +16,11 @@ export function makeEverythingNonEnumerableExcept<T>(obj : T, ...names : (keyof 
 		Object.defineProperty(obj, name, desc);
 	}
 }
+
+export function assignKeepDescriptor(target : any, source : any) {
+	for (let k of Object.getOwnPropertyNames(source)) {
+		let desc = Object.getOwnPropertyDescriptor(source, k);
+		Object.defineProperty(target, k, desc);
+	}
+	return target;
+}

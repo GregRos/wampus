@@ -18,7 +18,7 @@ import {AdvProfile} from "../../../../lib/core/protocol/uris";
 function testUsingUnsupportedSubscribeOption(option : keyof WampSubscribeOptions, feature : keyof BrokerFeatures, featureName : string, value = true) {
     test(`using subscribe option ${option} when unsupported throws error about ${featureName}`, async t => {
         let {session,server} = await SessionStages.handshaken("a");
-        await t.throws(session.event({
+        await t.throws(session.topic({
             name : "a",
             options : {
                 [option as any] : value

@@ -2,250 +2,279 @@ import {AdvProfile, WampUri} from "../protocol/uris";
 import {WampType} from "../protocol/message.type";
 import {WampMessage, WampObject, WampUriString} from "../protocol/messages";
 import {
-    WampusIllegalOperationError,
-    WampusInvocationCanceledError,
-    WampusInvocationError, WampusIsolatedError,
-    WampusNetworkError
+	WampusIllegalOperationError,
+	WampusInvocationCanceledError,
+	WampusInvocationError,
+	WampusNetworkError
 } from "./types";
 import {WampCancelOptions} from "../protocol/options";
+import {assignKeepDescriptor, makeNonEnumerable} from "../../utils/object";
+
 /**@internal*/
 export enum ErrorLevel {
-    Transport = "Transport",
-    Wamp = "Wamp"
+	Transport = "Transport",
+	Wamp = "Wamp"
 }
+
+function getWampErrorReplyBasedMembers(err: WampMessage.Error) {
+	let members = {
+		_originalWampMessage: err,
+		get kwargs() {
+			return err.kwargs;
+		},
+		get args() {
+			return err.args;
+		},
+		get details() {
+			return err.details;
+		},
+		get reason() {
+			return err.error;
+		}
+	};
+	makeNonEnumerable(members, "_originalWampMessage");
+	return members;
+}
+
+function getWampAbortBasedMembers(abort: WampMessage.Abort) {
+	let members = {
+		_originalWampMessage: abort,
+		get details() {
+			return abort.details;
+		},
+		get reason() {
+			return abort.reason;
+		}
+	};
+	makeNonEnumerable(members, "_originalWampMessage");
+	return members;
+}
+
+import WM = WampMessage;
+import {Transport} from "../transport/transport";
+
+function getDescriptionByMessage(source: WM.Any) {
+	if (source instanceof WM.Authenticate) {
+		return "authenticating";
+	}
+	else if (source instanceof WM.Call) {
+		return `calling procedure ${source.procedure}`;
+	}
+	else if (source instanceof WM.Publish) {
+		return `publishing topic ${source.topic}`;
+	}
+	else if (source instanceof WM.Register) {
+		return `registering procedure ${source.procedure}`;
+	}
+	else if (source instanceof WM.Subscribe) {
+		return `subscribing to topic ${source.topic}`;
+	}
+	else if (source instanceof WM.Unregister) {
+		return `unregistering from procedure`;
+	}
+	else if (source instanceof WM.Unsubscribe) {
+		return `unsubscribing from topic`;
+	}
+	else if (source instanceof WM.Yield) {
+		return `yielding response`;
+	}
+	else if (source instanceof WM.Cancel) {
+		return `cancelling invocation`;
+	}
+	else if (source instanceof WM.Error) {
+		return `sending error response`;
+	}
+	else if (source instanceof WM.Hello) {
+		return `beginning handshake`;
+	}
+	else if (source instanceof WM.Goodbye) {
+		return `saying goodbye`;
+	}
+}
+
 /**@internal*/
 export module Errs {
 
-    export function receivedProtocolViolation(source: WampType, error: WampMessage.Error) {
-        return new WampusNetworkError("Protocol violation.", {
-            level: "WAMP",
-            error: error,
-            source: WampType[source],
-            code: WampUri.Error.ProtoViolation
-        });
-    }
+	export function receivedProtocolViolation(source: WM.Any, error: WampMessage.Abort) {
+		return new WampusNetworkError("Protocol violation.", getWampAbortBasedMembers(error));
+	}
 
-    export function routerDoesNotSupportFeature(feature : string, msg ?: WampMessage.Any) {
-        return new WampusIllegalOperationError("The router doesn't support the feature: {feature}.", {
-            feature,
-            msg
-        });
-    }
+	export function routerDoesNotSupportFeature(source : WM.Any, feature: string) {
+		let operation = getDescriptionByMessage(source);
+		return new WampusIllegalOperationError(`While ${operation}, tried to use the advanced profile feature ${feature}, but it was not supported.`, {});
+	}
 
-    export function optionNotAllowed(operation : string, err: WampMessage.Error,) {
-        return new WampusIllegalOperationError("While doing operation {operation}, received an OptionNotAllowed response.", {
-            operation,
-            err
-        });
-    }
+	export function optionNotAllowed(source: WampMessage.Any, err: WampMessage.Error,) {
+		let operation = getDescriptionByMessage(source);
 
-    export function sessionIsClosing(operation : string) {
-        return new WampusNetworkError("The operation {operation} cannot be completed because the session is being closed.", {
-            operation
-        });
-    }
+		return new WampusIllegalOperationError(`While ${operation}, one of the options was not allowed.`, getWampErrorReplyBasedMembers(err));
+	}
+
+	export function sessionIsClosing(source: WM.Any) {
+		let operation = getDescriptionByMessage(source);
+		return new WampusNetworkError(`While ${operation}, the session was closing.`, {
+			sourceMsg: source
+		});
+	}
 
 
-    export module Handshake {
+	export module Handshake {
 
-        export function noAuthenticator(message : WampMessage.Any) {
-            return new WampusNetworkError("The router sent a CHALLENGE message, requiring authentication, but no authenticator was configured.");
-        }
+		export function noAuthenticator(challenge: WampMessage.Challenge) {
+			return new WampusNetworkError("During handshake, the router sent a CHALLENGE authentication message, but no authenticator was configured.", {
+				sourceMsg: challenge
+			});
+		}
 
-        export function unexpectedMessage(message: WampMessage.Any) {
-            return new WampusNetworkError(
-                `Protocol violation. During handshake, expected WELCOME or ERROR, but received: {type}`, {
-                    type: WampType[message.type]
-                }
-            );
-        }
+		export function unexpectedMessage(message: WampMessage.Any) {
+			let tp = WampType[message.type];
+			let err = new WampusNetworkError(
+				`During handshake, expected WELCOME, ABORT, or CHALLENGE, but received an invalid message of type ${tp}. `, {
+					unexpectedMessage: message
+				}
+			);
+			return err;
+		}
 
-        export function unrecognizedError(error: WampMessage.Abort) {
-            return new WampusIllegalOperationError("During handshake, received ABORT reply from the server: {error}.", {
-                error: error.reason,
-                msg: error
-            });
-        }
+		export function unrecognizedError(abort: WampMessage.Abort) {
+			return new WampusIllegalOperationError(`During handshake, the router sent an ABORT reply (${abort.reason}).`, getWampAbortBasedMembers(abort));
+		}
 
-        export function closed() {
-            return new WampusNetworkError("Transport closed during handshake.", {});
-        }
+		export function closed() {
+			return new WampusNetworkError(`During handshake, the transport abruptly closed.`, {});
+		}
 
-        export function noSuchRealm(realm: string) {
-            return new WampusIllegalOperationError("Tried to join realm {realm}, but it did not exist, and the router refused to auto-create it.", {
-                realm,
-                code: WampUri.Error.NoSuchRealm
-            });
-        }
-    }
+		export function noSuchRealm(realm: string, msg: WampMessage.Abort) {
+			return new WampusIllegalOperationError(`Tried to join realm ${realm}, but it did not exist (${msg.reason}).`, getWampAbortBasedMembers(msg));
+		}
+	}
 
-    export module Unregister {
-        export function registrationDoesntExist(name: string, err: WampMessage.Error) {
-            return new WampusIllegalOperationError("Tried to unregister procedure {procedure}, the dealer replied that it did not exist. This is probably a bug. Going to assume it has been closed.", {
-                procedure: name,
-                err,
-                special : "consider-unregistered"
-            });
-        }
+	export module Unregister {
+		export function registrationDoesntExist(procedure: string, err: WampMessage.Error) {
+			return new WampusIllegalOperationError(`Tried to unregister procedure ${procedure}, but the registration did not exist. This is probably a bug. Going to assume it has been closed.`, getWampErrorReplyBasedMembers(err));
+		}
 
-        export function other(name: string, err: WampMessage.Error) {
-            return new WampusIllegalOperationError(`Tried to unregister procedure {procedure}, but received an ERROR response: ${err.error}`, {
-                procedure: name,
-                err
-            });
-        }
-    }
+		export function other(name: string, err: WampMessage.Error) {
+			return new WampusIllegalOperationError(`Tried to unregister procedure ${name}, but received an ERROR response (${err.error}).`, getWampErrorReplyBasedMembers(err));
+		}
+	}
 
-    export module Register {
-        export function procedureAlreadyExists(name: string) {
-            return new WampusIllegalOperationError("Tried to register procedure {procedureName}, but it's already registered.", {
-                name
-            });
-        }
+	export module Register {
+		export function procedureAlreadyExists(name: string, err: WampMessage.Error) {
+			return new WampusIllegalOperationError(`Tried to register procedure ${name}, but a procedure with this name is already registered.`, getWampErrorReplyBasedMembers(err));
+		}
 
-        export function error(name: string, err: WampMessage.Error) {
-            return new WampusIllegalOperationError(`Tried to register procedure {name}, but recieved an ERROR response: ${err.error}`, {
-                err,
-                name
-            });
-        }
+		export function error(name: string, err: WampMessage.Error) {
+			return new WampusIllegalOperationError(`Tried to register procedure ${name}, but recieved an ERROR response (${err.error}).`, getWampErrorReplyBasedMembers(err));
+		}
 
-        export function cannotSendResultTwice(name: string) {
-            return new WampusIllegalOperationError("While invoking {procedureName}, tried to send a result or error more than once.", {
-                name
-            });
-        }
+		export function cannotSendResultTwice(name: string) {
+			return new WampusIllegalOperationError(`While executing procedure ${name}, tried to yield a response or error, but the final response has already been sent.`, {});
+		}
 
-        export function doesNotSupportProgressReports(name: string) {
-            return new WampusIllegalOperationError("While invoking {procedureName}, tried to send a progress report but this call does not support progress reports.", {
-                name
-            })
-        }
+		export function doesNotSupportProgressReports(name: string) {
+			return new WampusIllegalOperationError(`While executing procedure ${name}, tried to send a progress report but this call does not support progress reports.`, {})
+		}
 
-    }
+		export function resultIncorrectFormat(name : string) {
+			return new WampusIllegalOperationError(`While executing procedure ${name}, tried to yield an incorrectly structured response.`, {})
+		}
+
+	}
 
 
-    export module Subscribe {
-        export function other(name : string, err : WampMessage.Error){
-            return new WampusIllegalOperationError(`Tried to subscribe to {name}, but received an ERROR response: ${err.error}`, {
-                name,
-                err
-            });
-        }
+	export module Subscribe {
+		export function other(name: string, err: WampMessage.Error) {
+			return new WampusIllegalOperationError(`Tried to subscribe to ${name}, but received an ERROR response (${err.error}).`, getWampErrorReplyBasedMembers(err));
+		}
 
-    }
+	}
 
 
+	export module Unsubscribe {
+		export function subDoesntExist(msg: WampMessage.Error, event: string) {
+			return new WampusIllegalOperationError(`Tried to unsubscribe from ${event}, but the subscription did not exist. This is probably a bug. Going to assume the subscription is closed.`,
+				getWampErrorReplyBasedMembers(msg)
+			);
+		}
 
-    export module Unsubscribe {
-        export function subDoesntExist(msg: WampMessage.Error, event: string) {
-            return new WampusIllegalOperationError("Tried to unsubscribe from {event}, but the broker reported the subscription did not exist. This is probably a bug. Going to assume the subscription is closed.", {
-                msg,
-                name: event
-            });
-        }
+		export function other(msg: WampMessage.Error, event: string) {
+			return new WampusIllegalOperationError(`Tried to unsubscribe to the event ${event}, but received an ERROR response (${msg.error}).`, getWampErrorReplyBasedMembers(msg))
+		}
+	}
 
-        export function other(msg: WampMessage.Error, event: string) {
-            return new WampusIllegalOperationError(`Tried to unsubscribe to the event {event}, but received an ERROR response: ${msg.error}`, {
-                msg,
-                event
-            })
-        }
-    }
+	export module Leave {
+		export function networkErrorOnAbort(err: WampusNetworkError) {
+			return new WampusNetworkError("While trying to ABORT, received a network error. Going to terminate connection anyway.", {
+				innerError: err
+			})
+		}
 
-    export module Leave {
-        export function networkErrorOnAbort(err: Error) {
-            return new WampusNetworkError("While trying to ABORT, received a network error. Going to terminate connection anyway.", {
-                innerError: err
-            })
-        }
 
-        export function unexpectedMessageOnGoodbye(msg : WampMessage.Any) {
-            return new WampusNetworkError("Unexpected on goodbye.", {
-                msg
-            });
-        }
+		export function goodbyeTimedOut() {
+			return new WampusNetworkError("While saying GOODBYE, timed out waiting for the router's response.");
+		}
 
-        export function goodbyeTimedOut() {
-            return new WampusNetworkError("Tried to say GOODBYE, but timed out before receiving GOODBYE response.");
-        }
+	}
 
-    }
+	export module Publish {
+		export function unknown(topic : string, err : WM.Error) {
+			return new WampusIllegalOperationError(`Tried to publish topic ${topic}, but received an error response (${err.error})`, getWampErrorReplyBasedMembers(err))
+		}
+	}
 
-    export module Call {
-        export function noSuchProcedure(name: string) {
-            return new WampusIllegalOperationError("Tried to call procedure {procedureName}, but it did not exist.", {
-                name,
-                code: WampUri.Error.NoSuchProcedure
-            });
-        }
+	export module Call {
+		export function noSuchProcedure(name: string, err: WM.Error) {
+			return new WampusIllegalOperationError(`Tried to call procedure ${name}, but it did not exist.`, getWampErrorReplyBasedMembers(err));
+		}
 
-        export function noEligibleCallee(name: string) {
-            return new WampusIllegalOperationError("This peer tried to call procedure {procedureName} with exclusions, but no callee matching the exclusions was found.", {
-                name,
-                code: WampUri.Error.NoEligibleCallee
-            });
-        }
+		export function noEligibleCallee(name: string, err: WM.Error) {
+			return new WampusIllegalOperationError(`Tried to call procedure ${name} with exclusions, but no eligible callee was found.`,
+				getWampErrorReplyBasedMembers(err)
+			);
+		}
 
-        export function errorResult(name: string, msg: WampMessage.Error) {
-            return new WampusInvocationError(name, msg);
-        }
+		export function errorResult(name: string, err: WampMessage.Error) {
+			return new WampusInvocationError(name, err);
+		}
 
-        export function other(name : string, msg : WampMessage.Error) {
-            return new WampusIllegalOperationError(`Invoked procedure {name} and received an ERROR: {error}`, {
-                name,
-                msg,
-                error : msg.error
-            });
-        }
+		export function other(name: string, err: WampMessage.Error) {
+			return new WampusIllegalOperationError(`While calling procedure ${name}, received an error response (${err.error})`, getWampErrorReplyBasedMembers(err));
+		}
 
-        export function invalidArgument(name: string, msg : WampMessage.Any) {
-            return new WampusIllegalOperationError("In realm {realm}, called procedure {procedureName}, but responded with an invalid_arguments error.", {
-                name,
-                msg,
-            });
-        }
+		export function invalidArgument(name: string, err: WampMessage.Error) {
+			return new WampusIllegalOperationError(`While calling procedure ${name}, one of the arguments was invalid.`, getWampErrorReplyBasedMembers(err));
+		}
 
-        export function optionDisallowedDiscloseMe(name: string) {
-            return new WampusIllegalOperationError("The peer tried to call the procedure {procedureName} with the disclose_me flag, but the router refused the flag.", {
-                name,
-                code: WampUri.Error.DisallowedDiscloseMe
-            });
-        }
+		export function optionDisallowedDiscloseMe(name: string, err : WampMessage.Error) {
+			return new WampusIllegalOperationError(`Tried calling procedure ${name} with the disclose_me option, but it was denied.`,
+				getWampErrorReplyBasedMembers(err)
+			);
+		}
 
-        export function canceled(name: string) {
-            return new WampusInvocationCanceledError("Called {procedureName} successfuly, but the call was canceled before its result could be processed.", {
-                name,
-                code: WampUri.Error.Canceled
-            });
-        }
+		export function canceled(name: string, err : WampMessage.Error) {
+			return new WampusInvocationCanceledError(`While calling the procedure ${name}, the call was cancelled.`, getWampErrorReplyBasedMembers(err));
+		}
 
-    }
+	}
 
-    export function notAuthorized(operation: string, msg : WampMessage.Error) {
-        return new WampusIllegalOperationError(`Tried to perform the operation: ${operation}, but received NOT AUTHORIZED.`, {
-            msg,
-            operation
-        });
-    }
+	export function notAuthorized(source : WampMessage.Any, msg: WampMessage.Error) {
+		let operation = getDescriptionByMessage(source);
+		return new WampusIllegalOperationError(`While ${operation}, received a not authorized error.`, getWampErrorReplyBasedMembers(msg));
+	}
 
-    export function invalidUri(operation : string, msg : WampMessage.Error) {
-        return new WampusIllegalOperationError(`Tried to perform operation: {operation}, but the call/event URI was invalid.`, {
-            operation,
-            msg
-        })
-    }
+	export function invalidUri(source: WM.Any, msg: WampMessage.Error) {
+		let operation = getDescriptionByMessage(source);
+		return new WampusIllegalOperationError(`While ${operation}, the URI was invalid.`, getWampErrorReplyBasedMembers(msg))
+	}
 
-    export function networkFailure(operation : string, msg : WampMessage.Error) {
-        return new WampusIllegalOperationError("Tried to perform operation {operation}, but received a network failure response.", {
-            operation,
-            msg
-        });
-    }
+	export function networkFailure(source: WM.Any, msg: WampMessage.Error) {
+		let operation = getDescriptionByMessage(source);
+		return new WampusNetworkError(`While ${operation}, received a network failure response`, getWampErrorReplyBasedMembers(msg));
+	}
 
-    export function sessionClosed(operation : string) {
-        return new WampusNetworkError("Tried to perform {operation}, but the session was closed.", {
-            operation
-        });
-    }
+	export function sessionClosed(source: WM.Any) {
+		let operation = getDescriptionByMessage(source);
+		return new WampusNetworkError(`Tried to perform ${operation}, but the session was already closed.`, {});
+	}
 }

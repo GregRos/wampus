@@ -170,8 +170,8 @@ test("after INVOCATION, after error(), cannot call result() or error().", async 
     next.error({
         error : "custom.error"
     });
-    await t.throws(next.return({}), MatchError.illegalOperation("result or error more than once"));
-    await t.throws(next.error({error: "hi"}), MatchError.illegalOperation("result or error more than once"))
+    await t.throws(next.return({}), MatchError.illegalOperation("ried to yield"));
+    await t.throws(next.error({error: "hi"}), MatchError.illegalOperation("ried to yield"))
 });
 
 test("after INVOCATION, after return(final), cannot call result() or error().", async t => {
@@ -184,8 +184,8 @@ test("after INVOCATION, after return(final), cannot call result() or error().", 
     next.return({
 
     });
-    await t.throws(next.return({}), MatchError.illegalOperation("result or error more than once"));
-    await t.throws(next.error({error : "hi"}), MatchError.illegalOperation("result or error more than once"))
+    await t.throws(next.return({}), MatchError.illegalOperation("a response or error"));
+    await t.throws(next.error({error : "hi"}), MatchError.illegalOperation("a response or error"))
 });
 
 test("registration.close() sends UNREGISTER, expects reply", async t => {
@@ -296,7 +296,7 @@ test("register() on closed session throws", async t => {
     let registering = session.register({
         name : "a"
     });
-    await t.throws(registering, MatchError.network("register", "close"));
+    await t.throws(registering, MatchError.network("register", "clos"));
 });
 
 test("register() on closing session throws", async t => {
@@ -305,7 +305,7 @@ test("register() on closing session throws", async t => {
     let serverMonitor = Rxjs.monitor(server.messages);
     let registeringThrows =  t.throws(session.register({
         name : "a"
-    }), MatchError.network("register", "close"));
+    }), MatchError.network("register", "clos"));
     server.send([3, {}, "no"]);
     await session.close();
     await registeringThrows;
@@ -337,8 +337,8 @@ test("receive INVOCATION, session closes, return() and error() throw", async t =
     t.deepEqual(invocation.kwargs, {a : 1});
     server.send([3, {}, "no"]);
     await session.close();
-    await t.throws(invocation.return({}), MatchError.network("operation", "reply", "close"));
-    await t.throws(invocation.error({error : "a"}), MatchError.network("operation", "reply", "close"));
+    await t.throws(invocation.return({}), MatchError.network("yield", "response", "clos"));
+    await t.throws(invocation.error({error : "a"}), MatchError.network("error", "response", "clos"));
 });
 
 test("while closing registration, session closes instead of UNREGISTER reply", async t => {

@@ -53,7 +53,7 @@ testPublishError({
 test("publish on closing session", async t => {
     let {server,session} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let expectThrow = t.throws(session.publish({name : "a", options : {acknowledge : true}}), MatchError.network("close", "publish"));
+    let expectThrow = t.throws(session.publish({name : "a", options : {acknowledge : true}}), MatchError.network("publishing", "topic"));
     server.send([3, {}, "no"]);
     await session.close();
     await expectThrow;

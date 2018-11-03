@@ -120,9 +120,9 @@ export class WampusSession {
 		return Ticket.combine(resolvedTickets);
 	}
 
-	event(name: string, options ?: WampSubscribeOptions): Promise<EventSubscriptionTicket>;
-	event(full: WampusSubcribeArguments): Promise<EventSubscriptionTicket>
-	async event(arg1: string | WampusSubcribeArguments, arg2 ?: WampSubscribeOptions) {
+	topic(name: string, options ?: WampSubscribeOptions): Promise<EventSubscriptionTicket>;
+	topic(full: WampusSubcribeArguments): Promise<EventSubscriptionTicket>
+	async topic(arg1: string | WampusSubcribeArguments, arg2 ?: WampSubscribeOptions) {
 		let obj: WampusSubcribeArguments;
 		if (typeof arg1 === "string") {
 			obj = {
@@ -132,7 +132,7 @@ export class WampusSession {
 		} else {
 			obj = arg1;
 		}
-		return EventSubscriptionTicket.create(this._core.event(obj), this._services);
+		return EventSubscriptionTicket.create(this._core.topic(obj), this._services);
 	}
 
 	publish(name: string, args ?: WampArray, kwargs ?: WampObject, options ?: WampPublishOptions): Promise<void>

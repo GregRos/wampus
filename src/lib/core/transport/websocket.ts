@@ -23,6 +23,10 @@ export class WebsocketTransport implements Transport{
     private _config : WebsocketTransportConfig;
     private _ws : ws;
     private _expectingClose : Promise<void>;
+
+    get name() {
+    	return `websocket.${this._config.serializer.id}`;
+    }
     events$ : Observable<TransportEvent>;
 
     /**

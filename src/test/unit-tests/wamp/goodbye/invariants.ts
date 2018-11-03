@@ -21,5 +21,5 @@ test("basic properties of a session in a closed state", async t => {
     await t.throws(sess.call({name : "hi"}).progress.toPromise(), MatchError.network("closed"));
     await t.throws(sess.register({name : "hi"}), MatchError.network("closed"));
     await t.throws(sess.publish({name : "hi"}), MatchError.network("closed"));
-    await t.throws(sess.event({name : "hi"}), MatchError.network("closed"));
+    await t.throws(sess.topic({name : "hi"}), MatchError.network("closed"));
 });

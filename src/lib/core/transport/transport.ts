@@ -21,6 +21,7 @@ export interface TransportError {
 export type TransportEvent = TransportError | TransportMessage | TransportClosed;
 
 export interface Transport {
+	readonly name : string;
     /**
      * Creates a COLD stream that, when subscribed to, will send the specified message to the target.
      * @param {object} msg

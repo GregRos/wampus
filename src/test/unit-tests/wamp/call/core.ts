@@ -115,7 +115,7 @@ sendCallReceiveErrorMacro({
 });
 
 sendCallReceiveErrorMacro({
-    errMatch : MatchError.illegalOperation("OptionNotAllowed "),
+    errMatch : MatchError.illegalOperation("options was not allowed"),
     errId : "wamp.error.option_not_allowed",
     title : "send CALL, receive ERROR(Option not allowed), throw"
 });
@@ -145,7 +145,7 @@ sendCallReceiveErrorMacro({
 });
 
 sendCallReceiveErrorMacro({
-    errMatch : err => err instanceof WampusInvocationError && _.isMatch(err.msg, {
+    errMatch : err => err instanceof WampusInvocationError && _.isMatch(err, {
         args : ["a"],
         kwargs : {a : 1}
     }),
@@ -154,7 +154,7 @@ sendCallReceiveErrorMacro({
 });
 
 sendCallReceiveErrorMacro({
-    errMatch : err => err instanceof WampusInvocationError && _.isMatch(err.msg, {
+    errMatch : err => err instanceof WampusInvocationError && _.isMatch(err, {
         args : ["a"],
         kwargs : {a : 1},
         error : "custom.error"
@@ -172,7 +172,7 @@ test("call() on closed session", async t => {
     let cp1 = session.call({
         name: "a"
     });
-    await t.throws(cp1.progress.toPromise(), MatchError.network("session", "closed"));
+    await t.throws(cp1.progress.toPromise(), MatchError.network("session", "clos"));
 });
 
 test("close connection before result received", async t => {
@@ -183,7 +183,7 @@ test("close connection before result received", async t => {
         name: "a"
     });
     let finished =  cp1.progress.toPromise();
-    finished = t.throws(finished, MatchError.network("session", "being closed"));
+    finished = t.throws(finished, MatchError.network("session", "clos"));
     server.send([3, {}, "no"]);
 
     await session.close();
