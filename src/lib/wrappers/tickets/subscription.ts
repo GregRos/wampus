@@ -8,9 +8,9 @@ import {Ticket} from "./ticket";
 import CallSite = NodeJS.CallSite;
 import {makeEverythingNonEnumerableExcept} from "../../utils/object";
 export interface EventInvocationData extends Core.EventInvocationData {
-    readonly source : EventSubscriptionTicket;
+    readonly source : SubscriptionTicket;
 }
-export class EventSubscriptionTicket extends Ticket {
+export class SubscriptionTicket extends Ticket {
     trace = {
         created : null as CallSite[]
     };
@@ -36,18 +36,18 @@ export class EventSubscriptionTicket extends Ticket {
     };
 
     static async create(subscribing : Promise<Core.EventSubscriptionTicket>, services : WampusSessionServices) {
-        let trace =  services.stackTraceService.capture(EventSubscriptionTicket.create);
+        let trace =  services.stackTraceService.capture(SubscriptionTicket.create);
         let coreTicket = await subscribing.catch(err => {
             services.stackTraceService.embedTrace(err, trace);
             throw err;
         });
-        let ticket = new EventSubscriptionTicket(null as never);
+        let ticket = new SubscriptionTicket(null as never);
         ticket.trace.created = trace;
         ticket._base = coreTicket;
         ticket._services = services;
         ticket._adapter = new RxjsEventAdapter(ticket.events, x => {
             return {
-                name : "called",
+                name : "event",
                 arg : x
             }
         }, ["called"]);
@@ -67,14 +67,14 @@ export class EventSubscriptionTicket extends Ticket {
         return this._base.close();
     }
 
-    off(name: "fired", handler: any): void {
+    off(name: "event", handler: any): void {
         this._adapter.off(name, handler);
     }
 
-    on(name: "fired", handler: (x: EventInvocationData) => void): void {
+    on(name: "event", handler: (x: EventInvocationData) => void): void {
         this._adapter.on(name, handler);
     }
 
 }
 
-makeEverythingNonEnumerableExcept(EventSubscriptionTicket.prototype, "info");
+makeEverythingNonEnumerableExcept(SubscriptionTicket.prototype, "info");

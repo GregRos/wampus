@@ -5,14 +5,14 @@ import {WampusSendErrorArguments, WampusSendResultArguments} from "../../core/se
 import {WampusSessionServices, AbstractWampusSessionServices} from "../services";
 import {catchError, endWith, flatMap, map, pairwise, takeUntil} from "rxjs/operators";
 import {Errs} from "../../core/errors/errors";
-import {ProcedureRegistrationTicket} from "./procedure-registration-ticket";
+import {RegistrationTicket} from "./registration-ticket";
 import _ = require("lodash");
 import {Ticket} from "./ticket";
 import {makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/object";
 
 
-export class ProcedureInvocationTicket  {
-    constructor(private _base: Core.ProcedureInvocationTicket, private _services: WampusSessionServices, private _source: ProcedureRegistrationTicket) {
+export class InvocationTicket  {
+    constructor(private _base: Core.ProcedureInvocationTicket, private _services: WampusSessionServices, private _source: RegistrationTicket) {
     	makeEverythingNonEnumerableExcept(this);
     }
 
@@ -56,7 +56,7 @@ export class ProcedureInvocationTicket  {
         await this._base.error(msg);
     }
 
-    waitForCancelRequest(time) {
+    waitForCancel(time) {
         return this._base.cancellation.pipe(takeUntil(timer(time)), map(token => {
             return {
                 ...token,
@@ -74,7 +74,12 @@ export class ProcedureInvocationTicket  {
         } as WampResult;
     }
 
-    private _handle(handler: ProcedureHandler): void {
+	/**
+	 * @internal
+	 * @param handler
+	 * @private
+	 */
+	_handle(handler: ProcedureHandler): void {
         let ticket = this;
         let handleError = async (err) => {
             let errResponse = ticket._services.transforms.errorToErrorResponse(this, err);
@@ -95,6 +100,9 @@ export class ProcedureInvocationTicket  {
             } else if (isObservable(result)) {
                 result.pipe(endWith(null), pairwise(), flatMap(([lastEmission, b]) => {
                     if (!lastEmission) return;
+                    if (!(typeof lastEmission === "object")) {
+                    	throw Errs.Register.resultIncorrectFormat(this.name, lastEmission);
+                    }
                     if (b === null) {
                         return ticket._return({
                             ...lastEmission
@@ -128,7 +136,7 @@ export class ProcedureInvocationTicket  {
     }
 }
 
-makeEverythingNonEnumerableExcept(ProcedureInvocationTicket.prototype, "kwargs", "args", "invocationId");
+makeEverythingNonEnumerableExcept(InvocationTicket.prototype, "kwargs", "args", "invocationId");
 
 export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;
@@ -137,4 +145,4 @@ let a = 1;
 
 export type ExpandableFunction<TIn, TOut> = (req : TIn) => (Promise<TOut> | Observable<TOut> | TOut);
 
-export type ProcedureHandler = ExpandableFunction<ProcedureInvocationTicket, WampResult>;
+export type ProcedureHandler = ExpandableFunction<InvocationTicket, WampResult>;

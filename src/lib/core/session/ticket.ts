@@ -1,5 +1,11 @@
 import {WampArray, WampMessage, WampObject} from "../protocol/messages";
-import {CancelMode, WampEventOptions, WampInvocationOptions, WampResultOptions} from "../protocol/options";
+import {
+	CancelMode,
+	WampCallOptions,
+	WampEventOptions,
+	WampInvocationOptions,
+	WampResultOptions
+} from "../protocol/options";
 import {
     WampusCallArguments,
     WampusRegisterArguments,
@@ -17,7 +23,9 @@ export interface Ticket {
 }
 
 export interface CallTicket extends Ticket {
-    readonly info: WampusCallArguments & {
+    readonly info:{
+    	readonly options : WampCallOptions;
+    	readonly name : string;
         readonly callId: number;
     };
     readonly progress: Observable<CallResultData>;

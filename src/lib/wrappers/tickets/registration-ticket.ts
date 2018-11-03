@@ -4,13 +4,12 @@ import {WampusSession} from "../wampus-session";
 import {catchError, map} from "rxjs/operators";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {WampusSessionServices, StackTraceService, AbstractWampusSessionServices} from "../services";
-import {ProcedureHandler, ProcedureInvocationTicket} from "./procedure-invocation";
+import {ProcedureHandler, InvocationTicket} from "./invocation-ticket";
 import CallSite = NodeJS.CallSite;
-import {WampResult} from "../../core";
+import {WampResult, WampusRegisterArguments} from "../../core";
 import {Ticket} from "./ticket";
 import {makeEverythingNonEnumerableExcept} from "../../utils/object";
-
-export class ProcedureRegistrationTicket extends Ticket {
+export class RegistrationTicket extends Ticket {
     trace = {
         created : null as CallSite[]
     };
@@ -21,13 +20,13 @@ export class ProcedureRegistrationTicket extends Ticket {
     }
 
     static async create(registering : Promise<Core.ProcedureRegistrationTicket>, services : WampusSessionServices) {
-        let stack = services.stackTraceService.capture(ProcedureRegistrationTicket.create);
+        let stack = services.stackTraceService.capture(RegistrationTicket.create);
         let coreTicket = await registering.catch(err => {
             services.stackTraceService.embedTrace(err, stack);
             throw err;
         });
 
-        let ticket = new ProcedureRegistrationTicket(null as never);
+        let ticket = new RegistrationTicket(null as never);
         ticket.trace.created = stack;
         ticket._base = coreTicket;
         ticket._services = services;
@@ -43,16 +42,21 @@ export class ProcedureRegistrationTicket extends Ticket {
         return this._base.close();
     }
 
-    private _handle(handler : ProcedureHandler) {
+	/**
+	 * @internal
+	 * @param handler
+	 * @private
+	 */
+	_handle(handler : ProcedureHandler) {
         this._invocations.subscribe(myTicket => {
-            (myTicket as any)._handle(handler);
+	        myTicket._handle(handler);
         });
     }
 
     private get _invocations() {
-        let myTrace = this._services.stackTraceService.capture(Object.getOwnPropertyDescriptor(ProcedureRegistrationTicket.prototype, "_invocations").get);
+        let myTrace = this._services.stackTraceService.capture(Object.getOwnPropertyDescriptor(RegistrationTicket.prototype, "_invocations").get);
         return this._base.invocations.pipe(map(coreTicket => {
-            let newTicket = new ProcedureInvocationTicket(coreTicket, this._services, this);
+            let newTicket = new InvocationTicket(coreTicket, this._services, this);
             return newTicket;
         }), catchError(err => {
             this._services.stackTraceService.embedTrace(err, myTrace);
@@ -64,5 +68,5 @@ export class ProcedureRegistrationTicket extends Ticket {
         return this._base.isOpen;
     }
 }
-makeEverythingNonEnumerableExcept(ProcedureInvocationTicket.prototype, "info");
+makeEverythingNonEnumerableExcept(InvocationTicket.prototype, "info");
 

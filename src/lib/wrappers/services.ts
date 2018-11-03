@@ -1,7 +1,7 @@
 import {WampObject} from "../core/protocol/messages";
 import {WampusSendErrorArguments} from "../core/session/message-arguments";
 import {WampusInvocationError} from "../core/errors/types";
-import {ProcedureInvocationTicket} from "./tickets/procedure-invocation";
+import {InvocationTicket} from "./tickets/invocation-ticket";
 import {CallTicket} from "./tickets/call";
 import CallSite = NodeJS.CallSite;
 
@@ -30,7 +30,7 @@ export interface AbstractWampusSessionServices {
     stackTraceService?: StackTraceService;
 }
 
-export type RuntimeErrorToResponse = (services : WampusSessionServices, source : ProcedureInvocationTicket, error: Error) => WampusSendErrorArguments;
+export type RuntimeErrorToResponse = (services : WampusSessionServices, source : InvocationTicket, error: Error) => WampusSendErrorArguments;
 
 export class WampusSessionServices {
 
@@ -65,7 +65,7 @@ export class WampusSessionServices {
         errorResponseToError : (call : CallTicket, error : WampusInvocationError) => {
             return this._services.transforms.errorResponseToError(this, call, error);
         },
-        errorToErrorResponse : (invocation : ProcedureInvocationTicket, error : Error) => {
+        errorToErrorResponse : (invocation : InvocationTicket, error : Error) => {
             return this._services.transforms.errorToErrorResponse(this, invocation, error);
         }
     };

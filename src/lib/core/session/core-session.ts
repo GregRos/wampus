@@ -607,8 +607,9 @@ export class WampusCoreSession {
                     return !!canceling;
                 },
                 info: {
-                    ...full,
-                    callId: msg.requestId
+                	callId : msg.requestId,
+	                name : full.name,
+	                options : full.options
                 }
             };
 

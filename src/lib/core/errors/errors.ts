@@ -163,8 +163,10 @@ export module Errs {
 			return new WampusIllegalOperationError(`While executing procedure ${name}, tried to send a progress report but this call does not support progress reports.`, {})
 		}
 
-		export function resultIncorrectFormat(name : string) {
-			return new WampusIllegalOperationError(`While executing procedure ${name}, tried to yield an incorrectly structured response.`, {})
+		export function resultIncorrectFormat(name : string, obj : any) {
+			return new WampusIllegalOperationError(`While executing procedure ${name}, tried to yield an incorrectly structured response.`, {
+				result : obj
+			})
 		}
 
 	}

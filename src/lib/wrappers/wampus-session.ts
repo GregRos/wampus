@@ -4,10 +4,10 @@ import {
 	WampusSessionServices,
 	AbstractWampusSessionServices
 } from "./services";
-import {ProcedureRegistrationTicket} from "./tickets/procedure-registration-ticket";
+import {RegistrationTicket} from "./tickets/registration-ticket";
 import {CallTicket} from "./tickets/call";
-import {EventSubscriptionTicket} from "./tickets/subscription";
-import {ProcedureHandler} from "./tickets/procedure-invocation";
+import {SubscriptionTicket} from "./tickets/subscription";
+import {ProcedureHandler} from "./tickets/invocation-ticket";
 import {WampArray, WampObject} from "../core/protocol/messages";
 import {WampCallOptions, WampPublishOptions, WampRegisterOptions, WampSubscribeOptions} from "../core/protocol/options";
 import _ = require("lodash");
@@ -24,6 +24,8 @@ export interface WampusProcedureDefinitions {
 		call : ProcedureHandler;
 	};
 }
+
+
 export class WampusSession {
 
 	private readonly _services: WampusSessionServices;
@@ -35,11 +37,6 @@ export class WampusSession {
 		});
 		initServices && initServices(svcs);
 		this._services = new WampusSessionServices(svcs);
-	}
-
-	/** @internal */
-	test() {
-
 	}
 
 	get realm() {
@@ -77,10 +74,10 @@ export class WampusSession {
 
 	};
 
-	async register(obj: WampusRegisterArguments, handler: ProcedureHandler): Promise<ProcedureRegistrationTicket> {
+	async register(obj: WampusRegisterArguments & {invocation : ProcedureHandler}): Promise<RegistrationTicket> {
 		let coreRegTicket = this._core.register(obj);
-		let ticket = await ProcedureRegistrationTicket.create(coreRegTicket, this._services);
-		(ticket as any)._handle(handler);
+		let ticket = await RegistrationTicket.create(coreRegTicket, this._services);
+		ticket._handle(obj.invocation);
 		return ticket;
 	};
 
@@ -90,23 +87,23 @@ export class WampusSession {
 			let obj = {
 				name : k,
 				options : {},
-				procedure : null
+				call : null
 			};
 			if (_.isFunction(v)) {
-				obj.procedure = v;
+				obj.call = v;
 			} else {
 				obj.options = v.options || {};
-				obj.procedure = v.call;
+				obj.call = v.call;
 			}
-			tickets.push(this.register(obj, obj.procedure));
+			tickets.push(this.register(obj));
 		});
 		let resolvedTickets = await Promise.all(tickets);
 		return Ticket.combine(resolvedTickets);
 	}
 
-	topic(full: WampusSubcribeArguments): Promise<EventSubscriptionTicket> {
+	topic(full: WampusSubcribeArguments): Promise<SubscriptionTicket> {
 		let obj = full;
-		return EventSubscriptionTicket.create(this._core.topic(obj), this._services);
+		return SubscriptionTicket.create(this._core.topic(obj), this._services);
 	}
 
 	publish(args: WampusPublishArguments): Promise<void> {
