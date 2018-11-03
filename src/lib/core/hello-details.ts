@@ -6,19 +6,20 @@ export const wampusHelloDetails : HelloDetails = {
     roles: {
         callee: {
             features : {
-                call_cancelling : true,
+                call_canceling : true,
                 call_timeout : true,
                 call_trustlevels : true,
                 caller_identification : true,
                 pattern_based_registration : true,
                 progressive_call_results : true,
                 shared_registration : true,
-                sharded_registration : false
+                sharded_registration : false,
+
             }
         },
         caller: {
             features : {
-                call_cancelling : true,
+                call_canceling : true,
                 call_timeout : true,
                 caller_identification : true,
                 progressive_call_results : true,

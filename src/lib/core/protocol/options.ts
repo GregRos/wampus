@@ -16,7 +16,7 @@ export interface SubscriberFeatures {
 export interface CallerFeatures {
     progressive_call_results: boolean;
     call_timeout: boolean;
-    call_cancelling: boolean;
+    call_canceling: boolean;
     caller_identification: boolean;
     sharded_registration: boolean;
 }
@@ -27,7 +27,7 @@ export interface CalleeFeatures {
     pattern_based_registration: boolean;
     shared_registration: boolean;
     call_timeout: boolean;
-    call_cancelling: boolean;
+    call_canceling: boolean;
     caller_identification: boolean;
     sharded_registration: boolean;
 }

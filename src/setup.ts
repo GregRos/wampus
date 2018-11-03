@@ -1,3 +1,4 @@
+
 require("source-map-support/register");
 Error.stackTraceLimit = 50;
 process.on("unhandledRejection", (error, promise) => {
@@ -6,3 +7,4 @@ process.on("unhandledRejection", (error, promise) => {
 
     console.error(error.stack);
 });
+import "./test/unit-tests/uhm";

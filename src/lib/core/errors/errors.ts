@@ -8,7 +8,7 @@ import {
 	WampusNetworkError
 } from "./types";
 import {WampCancelOptions} from "../protocol/options";
-import {assignKeepDescriptor, makeNonEnumerable} from "../../utils/object";
+import {assignKeepDescriptor, makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/object";
 
 /**@internal*/
 export enum ErrorLevel {
@@ -19,32 +19,20 @@ export enum ErrorLevel {
 function getWampErrorReplyBasedMembers(err: WampMessage.Error) {
 	let members = {
 		_originalWampMessage: err,
-		get kwargs() {
-			return err.kwargs;
-		},
-		get args() {
-			return err.args;
-		},
-		get details() {
-			return err.details;
-		},
-		get reason() {
-			return err.error;
-		}
+		kwargs : err.kwargs,
+		args : err.args,
+		details : err.details,
+		reason : err.error
 	};
-	makeNonEnumerable(members, "_originalWampMessage");
+	makeEverythingNonEnumerableExcept(members, "kwargs", "args", "details", "reason");
 	return members;
 }
 
 function getWampAbortBasedMembers(abort: WampMessage.Abort) {
 	let members = {
 		_originalWampMessage: abort,
-		get details() {
-			return abort.details;
-		},
-		get reason() {
-			return abort.reason;
-		}
+		details : abort.details,
+		reason : abort.reason
 	};
 	makeNonEnumerable(members, "_originalWampMessage");
 	return members;
@@ -112,9 +100,9 @@ export module Errs {
 
 	export function sessionIsClosing(source: WM.Any) {
 		let operation = getDescriptionByMessage(source);
-		return new WampusNetworkError(`While ${operation}, the session was closing.`, {
-			sourceMsg: source
+		let x =  new WampusNetworkError(`While ${operation}, the session was closing.`, {
 		});
+		return x;
 	}
 
 
@@ -235,7 +223,7 @@ export module Errs {
 		}
 
 		export function errorResult(name: string, err: WampMessage.Error) {
-			return new WampusInvocationError(name, err);
+			return new WampusInvocationError(name, getWampErrorReplyBasedMembers(err));
 		}
 
 		export function other(name: string, err: WampMessage.Error) {

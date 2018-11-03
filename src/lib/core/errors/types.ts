@@ -1,12 +1,18 @@
 import * as template from "string-template";
 import {WampMessage, WampObject} from "../protocol/messages";
-import {assignKeepDescriptor, makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/object";
+import {
+	assignKeepDescriptor,
+	makeEnumerable,
+	makeEverythingNonEnumerableExcept,
+	makeNonEnumerable
+} from "../../utils/object";
 
 export class WampusError extends Error {
     name = this.constructor.name;
     constructor(message: string, props: object) {
         super(template(message, props || {}));
 	    assignKeepDescriptor(this, props);
+	    makeNonEnumerable(this, "name");
     }
 }
 
@@ -22,6 +28,7 @@ export class WampusError extends Error {
 export class WampusNetworkError extends WampusError {
     constructor(message: string, props ?: Record<string, any>) {
         super(message, props || {});
+
     }
 }
 

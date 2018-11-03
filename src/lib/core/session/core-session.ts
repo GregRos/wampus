@@ -312,7 +312,6 @@ export class WampusCoreSession {
     async publish(full: WampusPublishArguments): Promise<void> {
         let {options, args, kwargs, name} = full;
 	    let msg = factory.publish(options, name, args, kwargs);
-
 	    if (!this.isActive) throw Errs.sessionClosed(msg);
 
         options = options || {};
@@ -483,12 +482,16 @@ export class WampusCoreSession {
     call(full: WampusCallArguments): CallTicket {
         try {
             let {options, name, args, kwargs} = full;
+	        let features = this._welcomeDetails.roles.dealer.features;
+
+	        options = _.defaults(options, {
+            	receive_progress : features.progressive_call_results
+            });
 	        let msg = factory.call(options, name, args, kwargs);
 
 	        if (!this.isActive) throw Errs.sessionClosed(msg);
             options = options || {};
             let self = this;
-            let features = this._welcomeDetails.roles.dealer.features;
             let canceling: Promise<any>;
 
             // Check call options are compatible with the deaqler's features.
