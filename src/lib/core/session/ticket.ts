@@ -79,20 +79,6 @@ export interface CancellationToken {
     readonly wampMessage : WampMessage.Error;
 }
 
-export interface ProcedureInvocationData extends WampResult {
-    readonly args: WampArray;
-
-    readonly kwargs: WampObject;
-
-    readonly options: WampInvocationOptions;
-
-    readonly name: string;
-
-    readonly invocationId: number;
-
-    readonly isHandled: boolean;
-}
-
 export interface ProcedureInvocationTicket extends WampResult {
     readonly source : ProcedureRegistrationTicket;
 

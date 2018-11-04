@@ -1,7 +1,6 @@
 import {WampusCallArguments, WampusPublishArguments, WampusRegisterArguments, WampusSubcribeArguments} from "../core";
 import {WampusCoreSession} from "../core/session/core-session";
 import {
-	WampusSessionServices,
 	AbstractWampusSessionServices
 } from "./services";
 import {RegistrationTicket} from "./tickets/registration-ticket";
@@ -11,10 +10,9 @@ import {ProcedureHandler} from "./tickets/invocation-ticket";
 import {WampArray, WampObject} from "../core/protocol/messages";
 import {WampCallOptions, WampPublishOptions, WampRegisterOptions, WampSubscribeOptions} from "../core/protocol/options";
 import _ = require("lodash");
-import {defaultStackService} from "./services/default-stack-trace-service";
-import {defaultTransformSet} from "./services/transform-service";
 import {NewObjectInitializer} from "../common/common";
 import {Ticket} from "./tickets/ticket";
+import {defaultServices} from "./services/default-services";
 
 
 
@@ -28,15 +26,12 @@ export interface WampusProcedureDefinitions {
 
 export class WampusSession {
 
-	private readonly _services: WampusSessionServices;
+	private readonly _services: AbstractWampusSessionServices;
 
 	constructor(private _core: WampusCoreSession, initServices: NewObjectInitializer<AbstractWampusSessionServices>) {
-		let svcs = _.cloneDeep({
-			stackTraceService: defaultStackService,
-			transforms: defaultTransformSet
-		});
+		let svcs = defaultServices();
 		initServices && initServices(svcs);
-		this._services = new WampusSessionServices(svcs);
+		this._services = svcs;
 	}
 
 	get realm() {

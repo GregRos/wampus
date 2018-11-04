@@ -2,7 +2,7 @@ import * as Core from "../../core/session/ticket";
 import {WampResult} from "../../core/basics";
 import {isObservable, Observable, timer} from "rxjs";
 import {WampusSendErrorArguments, WampusSendResultArguments} from "../../core/session/message-arguments";
-import {WampusSessionServices, AbstractWampusSessionServices} from "../services";
+import {AbstractWampusSessionServices} from "../services";
 import {catchError, endWith, flatMap, map, pairwise, takeUntil} from "rxjs/operators";
 import {Errs} from "../../core/errors/errors";
 import {RegistrationTicket} from "./registration-ticket";
@@ -12,7 +12,7 @@ import {makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/
 
 
 export class InvocationTicket  {
-    constructor(private _base: Core.ProcedureInvocationTicket, private _services: WampusSessionServices, private _source: RegistrationTicket) {
+    constructor(private _base: Core.ProcedureInvocationTicket, private _services: AbstractWampusSessionServices, private _source: RegistrationTicket) {
     	makeEverythingNonEnumerableExcept(this);
     }
 
@@ -100,9 +100,7 @@ export class InvocationTicket  {
             } else if (isObservable(result)) {
                 result.pipe(endWith(null), pairwise(), flatMap(([lastEmission, b]) => {
                     if (!lastEmission) return;
-                    if (!(typeof lastEmission === "object")) {
-                    	throw Errs.Register.resultIncorrectFormat(this.name, lastEmission);
-                    }
+
                     if (b === null) {
                         return ticket._return({
                             ...lastEmission
@@ -141,7 +139,6 @@ makeEverythingNonEnumerableExcept(InvocationTicket.prototype, "kwargs", "args", 
 export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;
 }
-let a = 1;
 
 export type ExpandableFunction<TIn, TOut> = (req : TIn) => (Promise<TOut> | Observable<TOut> | TOut);
 

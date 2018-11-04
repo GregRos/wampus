@@ -25,7 +25,7 @@ export function dummyTransport() {
             },
             events$: intoClient,
             send$(x) {
-                return concat(timer(20), defer(() => {
+                return concat(timer(Math.random() * 20), defer(() => {
                     intoServer.next({
                         type : "message",
                         data : x

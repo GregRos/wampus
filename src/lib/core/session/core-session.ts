@@ -256,10 +256,18 @@ export class WampusCoreSession {
 
                 let procInvocationTicket: ProcedureInvocationTicket = {
                     source: procRegistrationTicket,
-                    error({args, error, kwargs, options}: WampusSendErrorArguments) {
+                    error(err: WampusSendErrorArguments) {
+	                    if (typeof err !== "object") {
+		                    throw Errs.Register.resultIncorrectFormat(name, err);
+	                    }
+                    	let {args, error, kwargs, options} = err;
                         return send$(factory.error(WampType.INVOCATION, invocationMsg.requestId, options, error, args, kwargs)).toPromise();
                     },
-                    return({args, kwargs, options}: WampusSendResultArguments) {
+                    return(obj: WampusSendResultArguments) {
+                    	if (typeof obj !== "object") {
+                    		throw Errs.Register.resultIncorrectFormat(name, obj);
+	                    }
+                    	let {args, kwargs, options} = obj;
                         return send$(factory.yield(invocationMsg.requestId, options, args, kwargs)).toPromise();
                     },
                     progress(args) {

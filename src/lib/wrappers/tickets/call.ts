@@ -1,5 +1,5 @@
 import * as Core from "../../core/session/ticket";
-import {WampusSessionServices, AbstractWampusSessionServices} from "../services";
+import {AbstractWampusSessionServices} from "../services";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {catchError, map} from "rxjs/operators";
 import {CancelMode} from "../../core/protocol/options";
@@ -11,7 +11,7 @@ import {makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/
 
 export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
     private _base = undefined as Core.CallTicket;
-    private _services = undefined as WampusSessionServices;
+    private _services = undefined as AbstractWampusSessionServices;
     private _adapter = undefined as RxjsEventAdapter<CallResultData>;
     trace = {
         created : null as CallSite[]
@@ -22,7 +22,7 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
         super();
     }
 
-    static create(call: Core.CallTicket, services: WampusSessionServices) {
+    static create(call: Core.CallTicket, services: AbstractWampusSessionServices) {
         let ticket = new CallTicket(null as never);
         ticket.trace.created = services.stackTraceService.capture(CallTicket.create);
         ticket._base = call;
@@ -38,7 +38,7 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
 	        makeEverythingNonEnumerableExcept(newResult, "args", "kwargs", "details");
             return newResult;
         }), catchError(err => {
-            services.stackTraceService.embedTrace(err, ticket.trace.created);
+        	if (ticket.trace.created) err.stack = services.stackTraceService.format(err, ticket.trace.created);
             throw err;
         })).pipe(publishReplayAutoConnect());
         ticket._adapter = new RxjsEventAdapter(ticket.progress, x => {

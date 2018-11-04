@@ -3,7 +3,7 @@ import * as Core from "../../core/session/ticket";
 import {WampusSession} from "../wampus-session";
 import {catchError, map} from "rxjs/operators";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
-import {WampusSessionServices, StackTraceService, AbstractWampusSessionServices} from "../services";
+import {StackTraceService, AbstractWampusSessionServices} from "../services";
 import {ProcedureHandler, InvocationTicket} from "./invocation-ticket";
 import CallSite = NodeJS.CallSite;
 import {WampResult, WampusRegisterArguments} from "../../core";
@@ -14,20 +14,20 @@ export class RegistrationTicket extends Ticket {
         created : null as CallSite[]
     };
     private _base : Core.ProcedureRegistrationTicket;
-    private _services : WampusSessionServices;
+    private _services : AbstractWampusSessionServices;
     constructor(never : never) {
-        super();
-    }
+		super();
+	}
 
-    static async create(registering : Promise<Core.ProcedureRegistrationTicket>, services : WampusSessionServices) {
-        let stack = services.stackTraceService.capture(RegistrationTicket.create);
+    static async create(registering : Promise<Core.ProcedureRegistrationTicket>, services : AbstractWampusSessionServices) {
+        let trace = services.stackTraceService.capture(RegistrationTicket.create);
         let coreTicket = await registering.catch(err => {
-            services.stackTraceService.embedTrace(err, stack);
+	        if (trace) err.trace = services.stackTraceService.format(err, trace);
             throw err;
         });
 
         let ticket = new RegistrationTicket(null as never);
-        ticket.trace.created = stack;
+        ticket.trace.created = trace;
         ticket._base = coreTicket;
         ticket._services = services;
         makeEverythingNonEnumerableExcept(ticket);
@@ -59,7 +59,7 @@ export class RegistrationTicket extends Ticket {
             let newTicket = new InvocationTicket(coreTicket, this._services, this);
             return newTicket;
         }), catchError(err => {
-            this._services.stackTraceService.embedTrace(err, myTrace);
+        	if (myTrace) err.stack = this._services.stackTraceService.format(err, myTrace);
             throw err;
         }));
     }
