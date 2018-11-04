@@ -387,6 +387,48 @@ The stack trace service looks like this:
 }
 ```
 
+## Advanced profile support
+
+Wampus supports most alpha+ advanced profile features. Here is the breakdown:
+
+| RPC Feature                | Supported | Support Info                                   |
+| -------------------------- | --------- | ---------------------------------------------- |
+| progressive_call_results   | ✓         |                                                |
+| progressive_calls          | ✗         | Sketch only                                    |
+| call_timeout               | ✓         | Depends on the callee checking cancel requests |
+| call_canceling             | ✓         |                                                |
+| caller_identification      | ✓*        | No special implementation needed               |
+| call_trustlevels           | ✓*        | No special implementation needed               |
+| registration_meta_api      | ✓*        | No special implementation needed               |
+| pattern_based_registration | ✓*        | No special implementation needed               |
+| shared_registration        | ✓*        | No special implementation needed               |
+| sharded_registration       | ✗         | (Sketch)                                       |
+| registration_revocation    | ✗         | (Sketch)                                       |
+| procedure_reflection       | ✗         | (Sketch)                                       |
+
+| PubSub Feature                | Supported | Support Info                     |
+| ----------------------------- | --------- | -------------------------------- |
+| subscriber_blackwhite_listing | ✓*        | No special implementation needed |
+| publisher_exclusion           | ✓*        | No special implementation needed |
+| publisher_identification      | ✓*        | No special implementation needed |
+| publication_trustlevels       | ✓*        | No special implementation needed |
+| subscription_meta_api         | ✓*        | No special implementation needed |
+| pattern_based_subscription    | ✓*        | No special implementation needed |
+| sharded_subscription          | ✗         | (Sketch)                         |
+| event_history                 | ✓*        | No special implementation needed |
+| topic_reflection              | ✗         | (Sketch)                         |
+
+| Other Feature                     | Supported | Support Info                                                 |
+| --------------------------------- | --------- | ------------------------------------------------------------ |
+| challenge-response authentication | ✓         | No authentication method is built-in, so challenge response must be done manually by the client. |
+| cookie authentication             | ✗         | Must be manually performed by the user                       |
+| ticket authentication             | ✗         | Must be manually performed by the user                       |
+| rawsocket transport               | ✗         | Currently only WS transport is supported                     |
+| batched WS transport              | ✗         | (Sketch)                                                     |
+| longpoll transport                | ✗         | Currently only WS transport is supported                     |
+| session meta api                  | ✓*        | No special implementation needed                             |
+| MessagePack serialization         | ✗         | Only JSON serialization is implemented                       |
+
 ## Comments
 
 Originally, this library was supposed to have an API completely based around cold observables. For example, using `call` would return an observable that performs the call when subscribed to. Unsubscribing would cancel the call.

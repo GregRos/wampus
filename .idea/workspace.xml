@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="479a9b66-b2d3-4247-b6ef-de9bcc439169" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/core/errors/errors.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/errors/errors.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/unit-tests/wrapper/session-wrapper.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/unit-tests/wrapper/session-wrapper.ts" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -151,7 +149,7 @@
           <entry key="js" value="10" />
           <entry key="json" value="20" />
           <entry key="sh" value="2" />
-          <entry key="ts" value="211" />
+          <entry key="ts" value="212" />
           <entry key="yml" value="1" />
         </counts>
       </usages-collector>
@@ -161,7 +159,7 @@
           <entry key="JSON" value="13" />
           <entry key="JavaScript" value="10" />
           <entry key="PLAIN_TEXT" value="1" />
-          <entry key="TypeScript" value="211" />
+          <entry key="TypeScript" value="212" />
           <entry key="YAML" value="1" />
           <entry key="tsconfig" value="7" />
         </counts>
@@ -191,11 +189,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/unit-tests/wrapper/session-wrapper.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
+            <state relative-caret-position="192">
+              <caret line="8" column="3" lean-forward="true" selection-start-line="8" selection-start-column="3" selection-end-line="8" selection-end-column="3" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -203,14 +201,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/wrappers/wampus-session.ts">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/uris.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="456">
-              <caret line="33" column="30" selection-start-line="33" selection-start-column="30" selection-end-line="33" selection-end-column="30" />
-              <folding>
-                <element signature="e#0#118#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="253">
+              <caret line="97" column="62" selection-start-line="97" selection-start-column="40" selection-end-line="97" selection-end-column="62" />
             </state>
           </provider>
         </entry>
@@ -855,7 +850,7 @@
       <workItem from="1541262267015" duration="9654000" />
       <workItem from="1541280640389" duration="3889000" />
       <workItem from="1541332652318" duration="1737000" />
-      <workItem from="1541334681855" duration="4815000" />
+      <workItem from="1541334681855" duration="6061000" />
     </task>
     <servers />
   </component>
@@ -868,7 +863,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="842026000" />
+    <option name="totallyTimeSpent" value="843272000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -883,12 +878,12 @@
     <frame x="59" y="-7" width="1996" height="1166" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49952334" visible="true" weight="0.15030992" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49952334" visible="true" weight="0.15030992" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" sideWeight="0.50047666" side_tool="true" weight="0.18538852" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4845155" weight="0.32595575" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.5945248" visible="true" weight="0.35783365" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.5945248" visible="true" weight="0.35783365" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.44855145" weight="0.5301811" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1050,13 +1045,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/lib/utils/object.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="98">
-          <caret line="10" selection-start-line="10" selection-end-line="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/wamp-protocol-client.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="141">
@@ -1401,11 +1389,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/unit-tests/wrapper/session-wrapper.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
+        <state relative-caret-position="192">
+          <caret line="8" column="3" lean-forward="true" selection-start-line="8" selection-start-column="3" selection-end-line="8" selection-end-column="3" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/core/protocol/uris.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="97" column="62" selection-start-line="97" selection-start-column="40" selection-end-line="97" selection-end-column="62" />
         </state>
       </provider>
     </entry>
