@@ -5,18 +5,20 @@
 
 Currently under development.
 
-Wampus.js will be a JavaScript client for the WAMP protocol. The WAMP protocol is a protocol that allows peer-to-peer RPC and PubSub-type communication between different nodes connected to the same server.
+Wampus.js is a JavaScript client for the WAMP protocol. The WAMP protocol is a protocol that allows peer-to-peer RPC and PubSub-type communication between different nodes connected to the same server.
 
-The goal of Wampus is to provide a full client library for the WAMP protocol, as well as to better integrate WAMP communication into the language and the environment, using modern ES6+ features such as async functions, built-in Promises, Observables, etc. without sacrificing the cross-platform and language-agnostic nature of the WAMP protocol.
+For more information about the WAMP protocol, see **[The official WAMP website](https://wamp-proto.org/)**. 
 
-## Current feature list
+Other examples of WAMP protocol clients:
 
-### Implemented
+* [Autobahn|JS](https://github.com/crossbario/autobahn-js), which convinced me to write my own client.
+* [others...](https://wamp-proto.org/implementations/index.html)
+
+## Features
+
 ✓ Accurate implementation of the WAMP protocol.
 
 ✓ Observable- and Promise- based API, using `rxjs`.
-
-✓ Secondary callback-based API for callers unused to observables.
 
 ✓ Primary high-level invocation-based API (e.g. `session.call("name")`).
 
@@ -24,20 +26,19 @@ The goal of Wampus is to provide a full client library for the WAMP protocol, as
 
 ✓  Support for all/most alpha+ advanced profile features.
 
-### Partially implemented
+✓ Human-readable error messages.
 
-**(?)** Human-readable error messages.
+**(Untested)** Secondary callback-based API for callers unused to observables.
 
-**(?)**  Intelligent stack trace collection.
+**(Untested)** Intelligent stack trace collection.
 
-**(?)** Respond to protocol violations per spec (i.e. ABORT connection)
+**(Untested)** Respond to protocol violations per spec (i.e. ABORT connection)
 
-**(?)**  Support for reviving simple JSON into complex objects and vice versa.
+**(Untested)**  Support for reviving simple JSON into complex objects and vice versa.
 
-### Not implemented
+Currently, the finer points of the API need to be ironed out and a lot of the wrapping API code needs to be tested.
 
-* High performance.
-* Platform-agonstic (Node.js and browser)
+Although high-performance and portability are a goal, no work has been done on those things yet.
 
 ## Calling
 
@@ -270,73 +271,7 @@ ticket.on("event", data => {
 
 Note that each ticket is a single remote subscription, even though you can subscribe to the ticket's events multiple times. Calling `ticket.close()` will unsubscribe from the topic.
 
-## Extra features - services
-
-Wampus has a number of extra features designed to make WAMP easier to work with. These are called services and are configured when a session is created.
-
-```typescript
-let session = Wampus.create({
-    services : (svcs => {
-        svcs.transforms.jsonToObject = (x) => {
-            
-        }
-    })
-})
-```
-
-
-
-### Transformations
-
-You can define a set of transformations on a session that let you customize how your objects are serialized into JSON, how JSON data is serialized into objects, and how errors are serialized and deserialized.
-
-These transformations are set when the session is created, in the `services` key. This key shouldn't contain an object, but instead a function to transform the default set of services.
-
-```typescript
-let session = Wampus.create({
-    services : svcs => {
-        svcs.json
-    }
-})
-```
-
-
-
-#### JSON-to-object and vice versa
-
-These functions are called when an object from outside needs to be turned into flat JSON and vice versa.
-
-You can use them to revive JSON data as real objects, with a constructor and a prototype, and to change how complex objects are serialized.
-
-##### Defaults
-
-By default, JSON data is not transformed and objects are transformed into JSON by selecting only their own properties.
-
-#### Error transforms
-
-WAMP uses a very specific format for error responses that you can't generically map to JS exceptions.
-
-One of the goals of Wampus was to avoid having to throw special exceptions in order to send proper error responses. So instead making sure your errors make sense to the caller is concentrated here.
-
-The error-response-to-runtime-error transform receives a `WampusInvocationError` with WAMP error response data and should return a JavaScript exception. The opposite transform receives an arbitrary error and should return WAMP error data.
-
-##### Defaults
-
-By default, an error response will be converted into a `WampusInvocationError` and a runtime error will be serialized into an error response by embedding its own properties into the `kwargs` data field.
-
-### Stack trace service
-
-Due to the asynchronous nature of WAMP, there is no stack information linking an error response from the remote server and the call that caused that error response. This makes stack traces confusing and totally disconnected from their original cause.
-
-To solve this, Wampus purposefully gathers stack info and embeds it into errors. To successfully do this, a stack trace gathering function is required.  
-
-Gathering stack traces can also be somewhat expensive so you might want to turn it off.
-
-#### Defaults
-
-By default, the V8 stack trace API is used, but in other environments you will need to replace the service with something else.
-
-# Errors
+## Debugging
 
 Wampus uses a rich system of error objects that are extremely helpful when debugging. 
 
@@ -348,3 +283,112 @@ Wampus code should always throw errors that extend `WampusError`. Specific error
 4. `WampusInvocationCancelledError` - Thrown by code waiting for a cancelled invocation to complete.
 
 Error objects can have additional properties that contain more information on the error. Errors that are caused by WAMP messages will have properties such as `args`, `kwargs`, etc. 
+
+## Protocol constraints and Wampus services
+
+This section is necessary in order to put some of Wampus's features in context, and also to show how the constraints of the WAMP protocol affect the way you write your software. It also shows you how Wampus services deal with these constraints.
+
+This section isn't meant to be a complete guide to the protocol, just to highlight some things and how they influence the library.
+
+### The format of data messages
+
+Messages in the WAMP protocol have the following customizable fields (note that this is NOT how they are actually serialized):
+
+```
+{
+    args ?: any[];
+    kwargs ?: any[];
+    options ?: OperationSpecificOptions;
+}
+```
+
+The `options` field can sometimes be called `details`.
+
+Procedures that return successfully MUST reply with a message in this format. That means you can't just return `4`, `undefined`, an array, etc. As a consequence of this, a WAMP procedure cannot return nothing. The closest you can come to that is returning an empty object, `{}`.
+
+When you make a call using WAMP, you also send data in this format as the argument. Once again, you can't just send `null` as an argument. 
+
+Note that there are two (sometimes three) ways to send data in the WAMP protocol: `args`, which sends a number of arguments in order, and `kwargs`, which is supposed to be for sending named arguments.  `options` is reserved for protocol options.
+
+This makes things a bit confusing, especially if you opt to use both systems. 
+
+Regardless, this makes it impossible to simply convert a single return value into a WAMP return response, since there are many ways to do it. For this reason, whenever you call a WAMP procedure or return a value from one, you'll need to use the WAMP data message format. 
+
+#### Transforming data
+
+Although Wampus does NOT transform WAMP data messages into single objects or lists of objects, and you have to return and receive data in WAMP format yourself, it does transform objects that you send using data fields, such as the contents of `args` and `kwargs`. 
+
+By default, only the own, enumerable properties of an object will be stringified by `JSON.stringify` and similar functions. This is unsuitable when working with complex objects, some of which inherit important properties from their parents (including getters and setters), and may contain important non-enumerable properties.
+
+For this reason, Wampus provides transformations that are applied to objects before they are sent via WAMP and after they are received via WAMP, in order to flatten or enrich them.
+
+```typescript
+let session = Wampus.create({
+    services(svcs) {
+        // svcs is the default services object
+        svcs.transforms.jsonToObject = (flatObject) => {
+            // We receive a flat object and return a complex one.
+        };
+        svcs.transforms.objectToJson = (complexObject) => {
+            // We receive a complex object and return a flat one.
+        }
+    })
+})
+```
+
+These transformations are part of the configurable *services* defined when the session is created.
+
+### The format of error messages
+
+WAMP also has a format for error messages sent by invocations. 
+
+```
+{
+    args ?: any[];
+    kwargs ?: any[];
+    details ?: any;
+    error : string;
+}
+```
+
+In this case, `error` contains the name of the error, typically in WAMP naming convention, such as `application.error.no_id_found`. This field can also contain protocol errors such as `wamp.error.no_such_realm`, which are sent by the router and not the callee. 
+
+`args` and `kwargs` serve the same purpose as in the data message format.
+
+`details` is another field that can contain an informational object, just like `kwargs`. 
+
+Once again, this special format makes it impossible to directly convert JavaScript errors from and to WAMP error responses. Unlike return values, Wampus does not expect you to throw special exceptions in order to serialize them. You can throw regular exceptions, and they will be transformed to error responses.
+
+#### Transforming errors
+
+Wampus uses `errorToErrorResponse` and `errorResponseToError` in order to convert between error responses and full JavaScript errors. These configurable services are defined when the session is created, just like json-to-object transformations.
+
+By default, an error response will be converted into a `WampusInvocationError`, which has the error response fields as properties.
+
+Error objects are converted into error responses by serializing them (using `transforms.objectToJson`) and embedding the result in the `kwargs` field. The `error` field is set to the default `wamp.error.runtime_error`.
+
+### Stack trace service
+
+Due to the asynchronous nature of WAMP, there is no stack trace information linking a WAMP message being sent and a WAMP error being received in response to that message.
+
+In addition, because Wampus heavily uses rxjs, stack traces will tend to be full of rxjs code and little else. This makes such calls hard to debug.
+
+The stack trace service is an optional service that captures stack traces when an asynchronous call is made and embeds the stack trace into errors thrown as a result of that code. This makes debugging somewhat easier.
+
+The default stack trace service uses the V8 stack trace API, and so only works in environments that use V8. In other environments, you will need to implement your own stack trace service.
+
+The stack trace service looks like this:
+
+```
+{
+    capture(ctor : Function) : CallSite[];
+    format(err : Error, callSites : CallSite[]) : string;
+    enabled : boolean;
+}
+```
+
+## Comments
+
+Originally, this library was supposed to have an API completely based around cold observables. For example, using `call` would return an observable that performs the call when subscribed to. Unsubscribing would cancel the call.
+
+However, I had to abandon this design due to technical limitations.

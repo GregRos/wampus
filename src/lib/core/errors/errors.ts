@@ -17,13 +17,17 @@ export enum ErrorLevel {
 }
 
 function getWampErrorReplyBasedMembers(err: WampMessage.Error) {
-	let members = {
-		_originalWampMessage: err,
-		kwargs : err.kwargs,
-		args : err.args,
-		details : err.details,
-		reason : err.error
-	};
+	let members = {} as any;
+
+	members._originalWampMessage = err;
+	members.reason = err.error;
+	members.details = err.details;
+	if ("args" in err) {
+		members.args = err.args
+	}
+	if ("kwargs" in err) {
+		members.kwargs = err.kwargs;
+	}
 	makeEverythingNonEnumerableExcept(members, "kwargs", "args", "details", "reason");
 	return members;
 }
