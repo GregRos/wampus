@@ -299,7 +299,8 @@ export class WampusCoreSession {
                     return closing;
                 },
                 info: {
-                    ...full,
+                    name,
+	                options,
                     registrationId: registered.registrationId
                 },
                 get isOpen() {
@@ -491,14 +492,12 @@ export class WampusCoreSession {
         try {
             let {options, name, args, kwargs} = full;
 	        let features = this._welcomeDetails.roles.dealer.features;
-
 	        options = _.defaults(options, {
             	receive_progress : features.progressive_call_results
             });
 	        let msg = factory.call(options, name, args, kwargs);
 
 	        if (!this.isActive) throw Errs.sessionClosed(msg);
-            options = options || {};
             let self = this;
             let canceling: Promise<any>;
 
@@ -616,8 +615,8 @@ export class WampusCoreSession {
                 },
                 info: {
                 	callId : msg.requestId,
-	                name : full.name,
-	                options : full.options
+	                name,
+	                options
                 }
             };
 

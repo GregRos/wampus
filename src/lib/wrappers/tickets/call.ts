@@ -30,7 +30,7 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
         ticket._replayProgress = call.progress.pipe(map(prog => {
             let newResult = {
                 details: prog.details,
-                args: services.transforms.objectToJson(prog.args),
+                args: prog.args ? prog.args.map(services.transforms.objectToJson) : prog.args,
                 kwargs: services.transforms.objectToJson(prog.kwargs),
                 isProgress: prog.isProgress,
                 source: ticket
@@ -85,10 +85,6 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
 
     catch(onrejected : (reason : any) => any) : Promise<any> {
         return this.result.catch(onrejected);
-    }
-
-    toString() {
-    	return "AHA"
     }
 }
 makeEverythingNonEnumerableExcept(CallTicket.prototype, "info");

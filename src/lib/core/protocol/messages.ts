@@ -11,6 +11,7 @@ import {
     WampYieldOptions,
     WelcomeDetails
 } from "./options";
+import {WampusError} from "../errors/types";
 
 export type WampId = number;
 export type WampUriString = string;
@@ -23,6 +24,7 @@ export type WampRawMessage = WampArray;
 
 export interface WampMessage {
      type : WampType;
+	toTransportFormat() : WampRawMessage;
 }
 
 export enum WampusCompletionReason {
@@ -197,6 +199,10 @@ export module WampMessage {
         constructor(public raw : WampArray) {
 
         }
+
+        toTransportFormat() {
+        	return this.raw;
+        }
     }
 
     /**
@@ -238,6 +244,10 @@ export module WampMessage {
         constructor(public sessionId : WampId, public details : WelcomeDetails) {
 
         }
+
+        toTransportFormat() {
+        	return [WampType.WELCOME, this.sessionId, this.details];
+        }
     }
 
     /**
@@ -248,6 +258,10 @@ export module WampMessage {
 
         constructor(public publishReqId : WampId, public publicationId : WampId) {
 
+        }
+
+        toTransportFormat() {
+        	return [WampType.PUBLISHED, this.publishReqId, this.publicationId];
         }
     }
 
@@ -260,6 +274,10 @@ export module WampMessage {
         constructor(public subscribeReqId : WampId, public subscriptionId : WampId) {
 
         }
+
+        toTransportFormat() {
+        	return [WampType.SUBSCRIBED, this.subscribeReqId, this.subscriptionId]
+        }
     }
 
     /**
@@ -270,6 +288,10 @@ export module WampMessage {
 
         constructor(public unsubscribeReqId : WampId) {
 
+        }
+
+        toTransportFormat() {
+        	return [WampType.UNSUBSCRIBED, this.unsubscribeReqId];
         }
     }
 
@@ -283,6 +305,10 @@ export module WampMessage {
             this.args = this.args || [];
             this.kwargs = this.kwargs || {};
         }
+
+        toTransportFormat() {
+        	return [WampType.EVENT, this.subscriptionId, this.publicationId, this.details, ...argsKwargsArray(this.args, this.kwargs)]
+        }
     }
 
     /**
@@ -293,6 +319,10 @@ export module WampMessage {
 
         constructor(public callReqId : WampId, public details : WampResultOptions, public args ?: WampArray, public kwargs ?: WampObject) {
 
+        }
+
+        toTransportFormat() {
+        	return [WampType.RESULT, this.callReqId, this.details, ...argsKwargsArray(this.args, this.kwargs)]
         }
     }
 
@@ -305,6 +335,10 @@ export module WampMessage {
         constructor(public registerReqId : WampId, public registrationId : WampId) {
 
         }
+
+        toTransportFormat() {
+        	return [WampType.REGISTERED, this.registerReqId, this.registrationId];
+        }
     }
 
     /**
@@ -315,6 +349,10 @@ export module WampMessage {
 
         constructor(public unregisterReqId : WampId) {
 
+        }
+
+        toTransportFormat() {
+        	return [WampType.UNREGISTERED, this.unregisterReqId];
         }
     }
 
@@ -327,6 +365,10 @@ export module WampMessage {
         constructor(public requestId : WampId, public registrationId : WampId, public options : WampInvocationOptions, public args ?: WampArray, public kwargs ?: WampObject) {
 
         }
+
+        toTransportFormat() {
+        	return [WampType.INVOCATION, this.requestId, this.registrationId, this.options, ...argsKwargsArray(this.args, this.kwargs)];
+        }
     }
 
     /**
@@ -337,6 +379,10 @@ export module WampMessage {
 
         constructor(public authMethod : string, public extra : WampObject) {
 
+        }
+
+        toTransportFormat() {
+        	return [WampType.CHALLENGE, this.authMethod, this.extra];
         }
     }
 
@@ -363,6 +409,10 @@ export module WampMessage {
 
         constructor(public callRequestId : WampId, public options : WampObject) {
 
+        }
+
+        toTransportFormat() {
+        	return [WampType.INTERRUPT, this.callRequestId, this.options];
         }
     }
 

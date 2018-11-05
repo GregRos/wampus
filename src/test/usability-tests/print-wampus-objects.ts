@@ -1,4 +1,4 @@
-import {SessionStages} from "../helpers/wamp";
+import {SessionStages} from "../helpers/dummy-session";
 import {Wampus, WampusSession} from "../../lib";
 
 async function run() {

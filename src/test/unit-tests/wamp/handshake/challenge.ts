@@ -1,5 +1,5 @@
 import test from "ava";
-import {SessionStages} from "../../../helpers/wamp";
+import {SessionStages} from "../../../helpers/dummy-session";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
 import {ChallengeEvent, ChallengeResponse} from "../../../../lib/core/session/authentication";
 import {Rxjs} from "../../../helpers/observable-monitor";

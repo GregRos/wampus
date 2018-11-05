@@ -1,5 +1,5 @@
 import test from "ava";
-import {SessionStages} from "../../../helpers/wamp";
+import {SessionStages} from "../../../helpers/dummy-session";
 import {MatchError} from "../../../helpers/errors";
 import {AdvProfile} from "../../../../lib/core/protocol/uris";
 

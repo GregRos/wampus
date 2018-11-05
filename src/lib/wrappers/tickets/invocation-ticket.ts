@@ -9,6 +9,7 @@ import {RegistrationTicket} from "./registration-ticket";
 import _ = require("lodash");
 import {Ticket} from "./ticket";
 import {makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/object";
+import {WampYieldOptions} from "../../core/protocol/options";
 
 
 export class InvocationTicket  {
@@ -46,7 +47,7 @@ export class InvocationTicket  {
 
     private _applyTransforms<T extends WampResult>(obj: T) {
         let clone = _.clone(obj);
-        clone.args = this._services.transforms.objectToJson(clone.args);
+        clone.args = clone.args ? clone.args.map(this._services.transforms.objectToJson) : clone.args;
         clone.kwargs = this._services.transforms.objectToJson(clone.kwargs);
         return clone;
     }
@@ -65,13 +66,6 @@ export class InvocationTicket  {
                 }
             } as CancellationTicket
         })).toPromise();
-    }
-
-    wrap(args ?: any[], kwargs ?: any) {
-        return {
-            args,
-            kwargs
-        } as WampResult;
     }
 
 	/**
@@ -140,6 +134,6 @@ export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;
 }
 
-export type ExpandableFunction<TIn, TOut> = (req : TIn) => (Promise<TOut> | Observable<TOut> | TOut);
+export type ExpandableFunction<TIn, TOut> = (req : TIn) => (TOut | Promise<TOut> | Observable<TOut>)
 
-export type ProcedureHandler = ExpandableFunction<InvocationTicket, WampResult>;
+export type ProcedureHandler = (ticket : InvocationTicket) => Promise<WampusSendResultArguments>

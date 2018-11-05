@@ -149,13 +149,7 @@ As part of the method, you supply an `invocation` function which is called whene
 
 The function receives an `InvocationTicket`, which is another type of ticket that contains the invocation info and lets you send progress reports and check if the caller requested cancellation.
 
-The invocation function, called the `ProcedureHandler`, is very flexible in terms of its return type. It can return:
-
-1. A promise, making it async function.
-2. An observable, with the initial values being progress reports.
-3. A concrete value.
-
-The function must always yield one or more values of the form:
+The invocation function, called the `ProcedureHandler`, returns a promise with the final result of the invocation. The function must yield a result of the form:
 
 ```
 {
@@ -196,10 +190,6 @@ let registrationTicket = await session.register({
     }
 });
 ```
-
-You can also report progress by returning an observable from the invocation function. In this case, the last value will be considered to be a non-progress value.
-
-You can also combine both technique, though this is not recommended as it's not possible to know which report will be sent before which.
 
 ### Cancellation
 

@@ -1,7 +1,7 @@
 import test from "ava";
 import {count} from "rxjs/operators";
 import {MatchError} from "../../../helpers/errors";
-import {SessionStages} from "../../../helpers/wamp";
+import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 
 

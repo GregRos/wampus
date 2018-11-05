@@ -1,8 +1,9 @@
-import {dummyTransport} from "./dummy-transport";
+import {dummyTransport, HigherLevelDummyServer} from "./dummy-transport";
 import {WampusCoreSession} from "../../lib/core/session/core-session";
 import {first} from "rxjs/operators";
 import {BrokerFeatures, DealerFeatures} from "../../lib/core/protocol/options";
 import {AuthenticationWorkflow} from "../../lib/core/session/authentication";
+import {WampusSession} from "../../lib";
 
 
 export module SessionStages {
@@ -41,6 +42,15 @@ export module SessionStages {
             server,
             session: await session
         };
+    }
+
+    export async function wrappedShaken(realm : string) {
+    	let {server,session} = await handshaken(realm);
+
+    	return {
+    		server : new HigherLevelDummyServer(server),
+		    session : new WampusSession(session, () => {})
+	    }
     }
 }
 

@@ -92,14 +92,8 @@ export class WampProtocolClient<T> {
      */
     send$(msg : WampMessage.Any) : Observable<any> {
         return of(null).pipe(flatMap(() => {
-            if ("toTransportFormat" in msg) {
-                let loose = msg.toTransportFormat();
-                return this.transport.send$(loose);
-            } else {
-                throw new WampusNetworkError("Wampus doesn't know how to serialize this kind of message.", {
-                    type : msg.type
-                });
-            }
+	        let loose = msg.toTransportFormat();
+	        return this.transport.send$(loose);
         }));
     }
 

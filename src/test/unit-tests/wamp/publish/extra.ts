@@ -1,5 +1,5 @@
 import test from "ava";
-import {SessionStages} from "../../../helpers/wamp";
+import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {Operators} from "promise-stuff";
 import {MatchError} from "../../../helpers/errors";

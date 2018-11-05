@@ -1,6 +1,6 @@
 
 import test, {GenericTestContext} from "ava";
-import {SessionStages} from "../../../helpers/wamp";
+import {SessionStages} from "../../../helpers/dummy-session";
 import {WampType} from "../../../../lib/core/protocol/message.type";
 import _ = require("lodash");
 import {choose} from "../../../../lib/utils/rxjs-operators";

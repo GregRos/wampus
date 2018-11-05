@@ -4,7 +4,7 @@ import {MyPromise} from "../../../../lib/utils/ext-promise";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {MatchError} from "../../../helpers/errors";
 import {WampusNetworkError} from "../../../../lib/core/errors/types";
-import {SessionStages} from "../../../helpers/wamp";
+import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 
 test("when receive goodbye, send goodbye and close+disconnect", async t => {

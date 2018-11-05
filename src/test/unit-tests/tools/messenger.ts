@@ -1,5 +1,5 @@
 import test from "ava";
-import {SessionStages} from "../../helpers/wamp";
+import {SessionStages} from "../../helpers/dummy-session";
 import {dummyTransport} from "../../helpers/dummy-transport";
 import {WampProtocolClient} from "../../../lib/core/protocol/wamp-protocol-client";
 import {take} from "rxjs/operators";

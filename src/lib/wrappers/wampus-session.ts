@@ -62,7 +62,7 @@ export class WampusSession {
 		args = {
 			...args,
 			kwargs : this._services.transforms.objectToJson(args.kwargs),
-			args : this._services.transforms.objectToJson(args.args)
+			args : args.args ? args.args.map(this._services.transforms.objectToJson) : args.args
 		};
 		return CallTicket.create(this._core.call(args), this._services);
 
@@ -105,7 +105,7 @@ export class WampusSession {
 		args = {
 			...args,
 			kwargs: this._services.transforms.objectToJson(args.kwargs),
-			args: this._services.transforms.objectToJson(args.args)
+			args: args.args ? args.args.map(this._services.transforms.objectToJson) : args.args,
 		};
 		return this._core.publish(args);
 	};
