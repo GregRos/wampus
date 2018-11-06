@@ -31,7 +31,7 @@ export type TransportDeclaration = TransportFactory | WebsocketTransportConfig |
 export interface WampusConfig {
     realm : string;
     timeout ?: number;
-    helloDetails?: NewObjectInitializer<HelloDetails>;
+    helloDetails?(dits : HelloDetails) : void;
     authenticator ?: AuthenticationWorkflow;
     transport : TransportDeclaration;
     services?: NewObjectInitializer<AbstractWampusSessionServices>

@@ -384,7 +384,7 @@ Wampus supports most alpha+ advanced profile features. Here is the breakdown:
 | RPC Feature                | Supported | Support Info                                   |
 | -------------------------- | --------- | ---------------------------------------------- |
 | progressive_call_results   | ✓         |                                                |
-| progressive_calls          | ✗         | Sketch only                                    |
+| progressive_calls          | ✗         | (Sketch)                                       |
 | call_timeout               | ✓         | Depends on the callee checking cancel requests |
 | call_canceling             | ✓         |                                                |
 | caller_identification      | ✓*        | No special implementation needed               |

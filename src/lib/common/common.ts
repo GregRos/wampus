@@ -1,1 +1,1 @@
-export type NewObjectInitializer<T> = (x: T) => void;
+export type NewObjectInitializer<T> = (freshClone: T, original : T) => void;

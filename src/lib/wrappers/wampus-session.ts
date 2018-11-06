@@ -30,7 +30,7 @@ export class WampusSession {
 
 	constructor(private _core: WampusCoreSession, initServices: NewObjectInitializer<AbstractWampusSessionServices>) {
 		let svcs = defaultServices();
-		initServices && initServices(svcs);
+		initServices && initServices(svcs, _.cloneDeep(svcs));
 		this._services = svcs;
 	}
 

@@ -91,25 +91,6 @@ export class InvocationTicket  {
                 }, err => {
                     return handleError(err);
                 });
-            } else if (isObservable(result)) {
-                result.pipe(endWith(null), pairwise(), flatMap(([lastEmission, b]) => {
-                    if (!lastEmission) return;
-
-                    if (b === null) {
-                        return ticket._return({
-                            ...lastEmission
-                        });
-                    } else {
-                        return ticket.progress({
-                            ...lastEmission,
-                            options: {
-                                progress: true
-                            }
-                        })
-                    }
-                }), catchError(err => {
-                    return handleError(err);
-                }))
             }
         }
         catch (err) {
