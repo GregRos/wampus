@@ -1,7 +1,7 @@
 import {WampusCallArguments, WampusPublishArguments, WampusRegisterArguments, WampusSubcribeArguments} from "../core";
 import {WampusCoreSession} from "../core/session/core-session";
 import {
-	AbstractWampusSessionServices
+	AbstractWampusSessionServices, TransformSet
 } from "./services";
 import {RegistrationTicket} from "./tickets/registration-ticket";
 import {CallTicket} from "./tickets/call";
@@ -12,7 +12,7 @@ import {WampCallOptions, WampPublishOptions, WampRegisterOptions, WampSubscribeO
 import _ = require("lodash");
 import {NewObjectInitializer} from "../common/common";
 import {Ticket} from "./tickets/ticket";
-import {defaultServices} from "./services/default-services";
+import {createDefaultServices} from "./services/default-services";
 
 
 
@@ -29,9 +29,9 @@ export class WampusSession {
 	private readonly _services: AbstractWampusSessionServices;
 
 	constructor(private _core: WampusCoreSession, initServices: NewObjectInitializer<AbstractWampusSessionServices>) {
-		let svcs = defaultServices();
-		initServices && initServices(svcs, _.cloneDeep(svcs));
-		this._services = svcs;
+		let services = createDefaultServices();
+		initServices && initServices(services);
+		this._services = services;
 	}
 
 	get realm() {
@@ -61,8 +61,8 @@ export class WampusSession {
 	call(args: WampusCallArguments): CallTicket {
 		args = {
 			...args,
-			kwargs : this._services.transforms.objectToJson(args.kwargs),
-			args : args.args ? args.args.map(this._services.transforms.objectToJson) : args.args
+			kwargs : this._services.transforms.objectToJson.transform(args.kwargs),
+			args : args.args ? args.args.map(this._services.transforms.objectToJson.transform) : args.args
 		};
 		return CallTicket.create(this._core.call(args), this._services);
 
@@ -104,8 +104,8 @@ export class WampusSession {
 	publish(args: WampusPublishArguments): Promise<void> {
 		args = {
 			...args,
-			kwargs: this._services.transforms.objectToJson(args.kwargs),
-			args: args.args ? args.args.map(this._services.transforms.objectToJson) : args.args,
+			kwargs: this._services.transforms.objectToJson.transform(args.kwargs),
+			args: args.args ? args.args.map(this._services.transforms.objectToJson.transform) : args.args,
 		};
 		return this._core.publish(args);
 	};

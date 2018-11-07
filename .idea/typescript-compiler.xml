@@ -3,6 +3,7 @@
   <component name="TypeScriptCompiler">
     <option name="enableServiceForProjectsWithoutConfig" value="false" />
     <option name="recompileOnChanges" value="true" />
+    <option name="nodeInterpreterTextField" value="wsl://UBUNTU1804@/home/gr/.nvm/versions/node/v10.13.0/bin/node" />
     <option name="showAllErrors" value="true" />
   </component>
 </project>

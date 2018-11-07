@@ -60,31 +60,3 @@ let x = {
 
 	}
 }
-
-test("register and call, with transforms", async t => {
-	class SpecialToken {
-
-	}
-	let session = await getSession({
-		services(next, old) {
-			next.transforms.jsonToObject = json => {
-				if (json.token === "special") {
-					return new SpecialToken();
-				} else {
-					return _.mapValues(json, v => next.transforms.jsonToObject(v));
-				}
-			}
-		}
-	});
-
-	let ticket = await session.register({
-		name : "wampus.procedure",
-		async invocation(x) {
-			return {
-				kwargs : {a : 5}
-			}
-		}
-	});
-
-	ticket.info
-})

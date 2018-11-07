@@ -47,8 +47,8 @@ export class InvocationTicket  {
 
     private _applyTransforms<T extends WampResult>(obj: T) {
         let clone = _.clone(obj);
-        clone.args = clone.args ? clone.args.map(this._services.transforms.objectToJson) : clone.args;
-        clone.kwargs = this._services.transforms.objectToJson(clone.kwargs);
+        clone.args = clone.args ? clone.args.map(this._services.transforms.objectToJson.transform) : clone.args;
+        clone.kwargs = this._services.transforms.objectToJson.transform(clone.kwargs);
         return clone;
     }
 
@@ -76,7 +76,7 @@ export class InvocationTicket  {
 	_handle(handler: ProcedureHandler): void {
         let ticket = this;
         let handleError = async (err) => {
-            let errResponse = ticket._services.transforms.errorToErrorResponse(this, err);
+            let errResponse = ticket._services.transforms.errorToErrorResponse.transform(err);
             if (!this.isHandled) {
                 await ticket._error(errResponse);
             } else {

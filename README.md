@@ -312,15 +312,30 @@ By default, only the own, enumerable properties of an object will be stringified
 
 For this reason, Wampus provides transformations that are applied to objects before they are sent via WAMP and after they are received via WAMP, in order to flatten or enrich them.
 
+Transformations in Wampus use a powerful system that lets you avoid repeating yourself or repeating code written by someone else.
+
+See the section on this.
+
 ```typescript
 let session = Wampus.create({
     services(svcs) {
         // svcs is the default services object
-        svcs.transforms.jsonToObject = (flatObject) => {
-            // We receive a flat object and return a complex one.
+        svcs.transforms.objectToJson = (value, context) => {
+            if (value instanceof MySpecialClass) {
+                return {
+                    type : "Special",
+                    data : value.data
+                };
+            } else {
+                return context.next(value);
+            }
         };
-        svcs.transforms.objectToJson = (complexObject) => {
-            // We receive a complex object and return a flat one.
+        svcs.transforms.objectToJson = (value, context) => {
+            if (value.type === "Special") {
+                return new MySpecialClass(value.data);
+            } else {
+                return context.next(value);
+            }
         }
     })
 })

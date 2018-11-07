@@ -4,16 +4,18 @@ import {WampusInvocationError} from "../core/errors/types";
 import {InvocationTicket} from "./tickets/invocation-ticket";
 import {CallTicket} from "./tickets/call";
 import CallSite = NodeJS.CallSite;
+import {Transformation, Transformer} from "./services/recursive-transform";
 
-export interface TransformSet {
-    objectToJson?: RuntimeObjectToJson;
+export class TransformSet {
+	objectToJson = new  Transformer<any, WampObject>();
 
-    jsonToObject?: JsonToRuntimeObject;
+	jsonToObject = new Transformer<WampObject, any>();
 
-    errorResponseToError?: ResponseToRuntimeError;
+	errorResponseToError = new Transformer<WampusInvocationError, Error>();
 
-    errorToErrorResponse?: RuntimeErrorToResponse;
+	errorToErrorResponse = new Transformer<{error : Error, source : InvocationTicket}, WampusSendErrorArguments>();
 }
+
 
 export type StackTraceService = {
     enabled : boolean;
@@ -21,10 +23,10 @@ export type StackTraceService = {
     format(err : Error, callSites: CallSite[]): string;
 };
 
-export type JsonToRuntimeObject = (json: WampObject) => any;
-export type RuntimeObjectToJson = (obj: any) => WampObject;
-export type ResponseToRuntimeError = (source : CallTicket, error : WampusInvocationError) => Error;
-export type RuntimeErrorToResponse = (source : InvocationTicket, error: Error) => WampusSendErrorArguments;
+export type JsonToRuntimeObject = Transformation<WampObject, any>;
+export type RuntimeObjectToJson = Transformation<any, WampObject>;
+export type ResponseToRuntimeError = Transformation<WampusInvocationError, Error>;
+export type RuntimeErrorToResponse = Transformation<Error, WampusSendErrorArguments>;
 
 export interface AbstractWampusSessionServices {
     transforms?: TransformSet;

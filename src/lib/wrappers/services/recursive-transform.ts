@@ -1,41 +1,94 @@
+import {WampusError} from "../../core/errors/types";
+import {InvocationTicket} from "../tickets/invocation-ticket";
+import {CallTicket} from "../tickets/call";
+import {SubscriptionTicket} from "../tickets/subscription";
 
+export type TransformationSource = InvocationTicket | CallTicket | SubscriptionTicket;
 
-export interface TransformContext {
-	deeper(subObject : any) : any;
-	next(value : any) : any;
+export interface RecursionControl<TIn, TOut> {
+	deeper(subObject: TIn): TOut;
+
+	next(value: TIn): TOut;
 }
 
-export type Transformation = (value : any, ctx : TransformContext) => any;
+export interface Transformation<TIn, TOut> {
+	(value: TIn, ctx: RecursionControl<TIn, TOut>): TOut;
+}
 
-export function compileTransform(steps : Transformation[]) {
-	if (steps.length === 0) return (x => x);
-	let firstSkip : (this : TransformContext, value : any) => void;
-	let curSkip : (this : TransformContext, value : any) => void;
-	for (let i = 0; i < steps.length; i++) {
-		let z = i;
-		let lastNext = curSkip;
-		curSkip = function(this : TransformContext, value : any) {
-			let step = steps[z];
-			this.next = lastNext;
-			return step(value, this);
+export module Transformation {
+	export function compile<TIn = any, TOut = any>(...steps: Transformation<TIn, TOut>[]): (x: TIn) => TOut
+	export function compile<TIn = any, TOut = any>(steps: Transformation<TIn, TOut>[]): (x: TIn) => TOut
+	export function compile<TIn, TOut>(arg1 ?: any, ...args: any[]): (x: TIn) => TOut {
+		type MyTransform = Transformation<TIn, TOut>;
+		type MyRecursionControl = RecursionControl<TIn, TOut>;
+		let steps: MyTransform[];
+		if (!arg1) {
+			steps = [];
+		} else if (Array.isArray(arg1)) {
+			steps = arg1;
+		} else {
+			steps = [arg1, ...args];
+		}
+		if (steps.length === 0) throw new WampusError("Cannot compile a list with zero transforms", {});
+		let firstSkip: (this: MyRecursionControl, value: any) => void;
+		let curSkip: (this: MyRecursionControl, value: any) => any;
+		for (let i = 0; i < steps.length; i++) {
+			let z = i;
+			let lastNext = curSkip;
+			curSkip = function (this: MyRecursionControl, value: any) {
+				let step = steps[z];
+				this.next = lastNext;
+				return step(value, this);
+			};
+		}
+		firstSkip = curSkip;
+
+		let createTransformCtx = (set: Set<any>) => {
+			return {
+				deeper(obj) {
+					if (set.has(obj)) {
+						throw new WampusError("Circular reference.", {});
+					}
+					set.add(obj);
+					try {
+						let ctx = createTransformCtx(set);
+						let res = ctx.next(obj);
+						return res;
+					}
+					finally {
+						set.delete(obj);
+					}
+				},
+				next(x) {
+					return firstSkip.call(this, x);
+				}} as MyRecursionControl;
+
 		};
-	}
-	firstSkip = curSkip;
 
-	let createTransformCtx = () => {
-		return {
-			deeper(obj) {
-				let ctx = createTransformCtx();
-				return ctx.next(obj);
-			},
-			next(x) {
-				return firstSkip.call(this, x);
-			}
-		} as TransformContext;
-	};
-
-	return x => {
-		let ctx = createTransformCtx();
-		return ctx.next(x);
+		return (x) => {
+			let ctx = createTransformCtx(new Set());
+			return ctx.next(x);
+		}
 	}
+}
+
+export class Transformer<TIn, TOut> {
+	private _transforms = [] as Transformation<TIn, TOut>[];
+	private _compiled: (x: TIn) => TOut;
+
+	constructor() {
+		this._compiled = Transformation.compile([]);
+	}
+
+	add(...ts: Transformation<TIn, TOut>[]) {
+		for (let t of ts) {
+			this._transforms.push(t);
+		}
+		this._compiled = Transformation.compile(this._transforms);
+	}
+
+	get transform() {
+		return this._compiled;
+	}
+
 }

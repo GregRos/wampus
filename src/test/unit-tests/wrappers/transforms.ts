@@ -1,29 +1,21 @@
 import test from "ava";
-import {compileTransform} from "../../../lib/wrappers/services/recursive-transform";
-import {Transform} from "stream";
-
-test("empty transform", async t => {
-	let empty = [];
-	let compiled = compileTransform(empty);
-	t.is(compiled(1), 1);
-	t.deepEqual(compiled({}), {});
-});
+import {Transformation} from "../../../lib/wrappers/services/recursive-transform";
 
 test("one transform", async t => {
-	let one = compileTransform([v => {
+	let one = Transformation.compile(v => {
 		if (typeof v === "object") {
 			return 5;
 		} else {
 			return v;
 		}
-	}]);
+	});
 
 	t.is(one({}), 5);
 	t.is(one(1), 1);
 });
 
 test("two transforms", async t => {
-	let two = compileTransform([(v, ctx) => {
+	let two = Transformation.compile((v, ctx) => {
 		if (v === 5) {
 			return 6;
 		}
@@ -33,9 +25,90 @@ test("two transforms", async t => {
 			return ctx.next(5);
 		}
 		return ctx.next(x);
-	}]);
+	});
 	t.is(two(10), 6);
 	t.is(two(5), 6);
 	t.is(1, 1);
 	t.deepEqual(two({}), {});
 });
+
+test("one transform, with deeper", async t => {
+	let one = Transformation.compile((v, ctx) => {
+		if (v < 5) {
+			return "" + v;
+		} else {
+			return ctx.deeper(v % 5);
+		}
+	});
+	t.is(one(11), "1");
+	t.is(one(3), "3");
+	t.is(one(20), "0");
+});
+
+test("two transform, with next and deeper", async t => {
+	let two = Transformation.compile((v, ctx) => {
+		return v.toString();
+	}, (v, ctx) => {
+		if (v && typeof v === "object" && "data" in v) {
+			return {
+				data: ctx.deeper(v.data)
+			};
+		} else {
+			return ctx.next(v);
+		}
+	});
+
+	t.deepEqual(two(1), "1");
+	t.deepEqual(two({data: 1}), {data: "1"});
+	t.deepEqual(two({a: 1}), {}.toString());
+	t.deepEqual(two({data: {data: 1}}), {data: {data: "1"}})
+});
+
+test("one step, circular refernece", async t => {
+	let one = Transformation.compile((v, ctx) => {
+		if (v === 5 || v === "a") {
+			return ctx.deeper(v);
+		}
+		return v;
+	});
+
+	t.deepEqual(one(4), 4);
+	t.throws(() => one(5));
+	t.throws(() => one("a"));
+	t.is(one("b"), "b");
+});
+
+test("circular reference, depth N", async t => {
+	let one = Transformation.compile((v, ctx) => {
+		if (v >= 10) {
+			return v;
+		}
+		else if (v < 5) {
+			return ctx.deeper(v + 1);
+		} else {
+			return ctx.deeper(v % 5);
+		}
+	});
+	t.is(one(11), 11);
+	t.throws(() => one(4));
+	t.throws(() => one(6));
+	t.throws(() => one(0));
+
+	t.is(one(10), 10);
+});
+
+test("no circ reference side by side", async t => {
+	let one = Transformation.compile((v, ctx) => {
+		if (Array.isArray(v)) {
+			return v.map(x => ctx.deeper(x));
+		} else {
+			return v;
+		}
+	});
+
+	t.deepEqual(one([5, 5]), [5, 5]);
+	let arr = [];
+	let arr2 = [arr];
+	arr[0] = arr2;
+	t.throws(() => one(arr2));
+})

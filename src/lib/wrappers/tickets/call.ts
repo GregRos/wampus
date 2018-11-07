@@ -30,8 +30,8 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
         ticket._replayProgress = call.progress.pipe(map(prog => {
             let newResult = {
                 details: prog.details,
-                args: prog.args ? prog.args.map(services.transforms.objectToJson) : prog.args,
-                kwargs: services.transforms.objectToJson(prog.kwargs),
+                args: prog.args ? prog.args.map(services.transforms.objectToJson.transform) : prog.args,
+                kwargs: services.transforms.objectToJson.transform(prog.kwargs),
                 isProgress: prog.isProgress,
                 source: ticket
             } as CallResultData;
