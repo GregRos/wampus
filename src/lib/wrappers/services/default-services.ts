@@ -7,7 +7,7 @@ import {
 import {WampUri} from "../../core/protocol/uris";
 import _ = require("lodash");
 import CallSite = NodeJS.CallSite;
-import {Transformation} from "./recursive-transform";
+import {TransformStep} from "./recursive-transform";
 import {CallTicket} from "../tickets/call";
 
 export const createDefaultServices = () => {
@@ -41,13 +41,19 @@ export const createDefaultServices = () => {
 
 	x.jsonToObject.add((x,ctrl) => {
 		if (!x || typeof x !== "object") return x;
-		let res = _.mapValues(x, v => ctrl.deeper(v));
+		if (Array.isArray(x)) {
+			return x.map(x => ctrl.recurse(x));
+		}
+		let res = _.mapValues(x, v => ctrl.recurse(v));
 		return res;
 	});
 
 	x.objectToJson.add((x,ctrl) => {
 		if (!x || typeof x !== "object") return x;
-		let res = _.mapValues(x, v => ctrl.deeper(v));
+		if (Array.isArray(x)) {
+			return x.map(x => ctrl.recurse(x));
+		}
+		let res = _.mapValues(x, v => ctrl.recurse(v));
 		return res;
 	});
 

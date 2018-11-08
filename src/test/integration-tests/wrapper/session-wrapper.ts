@@ -8,9 +8,12 @@ import {WampUri} from "../../../lib/core/protocol/uris";
 
 let factory = DefaultMessageFactory;
 
+let randomRealm = () => {
+	return ( Math.random() * 100000).toString(36);
+}
 function getSession(stuff ?: Partial<WampusConfig>) {
 	return Wampus.create({
-		realm : "library",
+		realm : randomRealm(),
 		transport : {
 			type : "websocket",
 			url : "ws://localhost:8080",
@@ -53,10 +56,62 @@ test("register, call, and then close registration", async t => {
 	await ticket.close();
 	t.false(ticket.isOpen);
 	await t.throws(session.call({name : ticket.info.name}));
+	await session.close();
 });
 
-let x = {
-	continue(x){
+test("add transforms, register, call, ", async t => {
+	let session = await getSession({
+		services(s) {
+			s.transforms.objectToJson.add((x, ctrl) => {
+				if (x === 5) {
+					return 7;
+				}
+				return ctrl.next(x);
+			});
+		}
+	});
+	t.true(_.isNumber(session.sessionId));
+	let lastInvocation = null;
+	let ticket = await session.register({
+		name : "wampus.procedure.promise",
+		async invocation(x) {
+			lastInvocation = x;
+			return {
+				args : x.args,
+				kwargs:  x.kwargs
+			}
+		}
+	});
 
-	}
-}
+	let result = await session.call({
+		name : ticket.info.name,
+		args : [{
+			a: 1000
+		}, {
+			b : 5
+		}],
+		kwargs : {
+
+			data : 5,
+			a1 : {
+				a2 : {
+					a3 : 5
+				}
+			}
+		}
+	});
+
+	t.deepEqual(lastInvocation.kwargs, {
+		data : 7,
+		a1 : {
+			a2 : {
+				a3 : 7
+			}
+		}
+	});
+	t.deepEqual(lastInvocation.args, [
+		{a : 1000},
+		{b : 7}
+	])
+
+});

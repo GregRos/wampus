@@ -5,22 +5,22 @@ import {SubscriptionTicket} from "../tickets/subscription";
 
 export type TransformationSource = InvocationTicket | CallTicket | SubscriptionTicket;
 
-export interface RecursionControl<TIn, TOut> {
-	deeper(subObject: TIn): TOut;
+export interface TransformerControl<TIn, TOut> {
+	recurse(subObject: TIn): TOut;
 
 	next(value: TIn): TOut;
 }
 
-export interface Transformation<TIn, TOut> {
-	(value: TIn, ctx: RecursionControl<TIn, TOut>): TOut;
+export interface TransformStep<TIn, TOut> {
+	(value: TIn, ctx: TransformerControl<TIn, TOut>): TOut;
 }
 
 export module Transformation {
-	export function compile<TIn = any, TOut = any>(...steps: Transformation<TIn, TOut>[]): (x: TIn) => TOut
-	export function compile<TIn = any, TOut = any>(steps: Transformation<TIn, TOut>[]): (x: TIn) => TOut
+	export function compile<TIn = any, TOut = any>(...steps: TransformStep<TIn, TOut>[]): (x: TIn) => TOut
+	export function compile<TIn = any, TOut = any>(steps: TransformStep<TIn, TOut>[]): (x: TIn) => TOut
 	export function compile<TIn, TOut>(arg1 ?: any, ...args: any[]): (x: TIn) => TOut {
-		type MyTransform = Transformation<TIn, TOut>;
-		type MyRecursionControl = RecursionControl<TIn, TOut>;
+		type MyTransform = TransformStep<TIn, TOut>;
+		type MyRecursionControl = TransformerControl<TIn, TOut>;
 		let steps: MyTransform[];
 		if (!arg1) {
 			steps = [];
@@ -45,7 +45,7 @@ export module Transformation {
 
 		let createTransformCtx = (set: Set<any>) => {
 			return {
-				deeper(obj) {
+				recurse(obj) {
 					if (set.has(obj)) {
 						throw new WampusError("Circular reference.", {});
 					}
@@ -72,15 +72,15 @@ export module Transformation {
 	}
 }
 
-export class Transformer<TIn, TOut> {
-	private _transforms = [] as Transformation<TIn, TOut>[];
+export class StepByStepTransformer<TIn, TOut> {
+	private _transforms = [] as TransformStep<TIn, TOut>[];
 	private _compiled: (x: TIn) => TOut;
 
 	constructor() {
-		this._compiled = Transformation.compile([]);
+		this._compiled = null;
 	}
 
-	add(...ts: Transformation<TIn, TOut>[]) {
+	add(...ts: TransformStep<TIn, TOut>[]) {
 		for (let t of ts) {
 			this._transforms.push(t);
 		}

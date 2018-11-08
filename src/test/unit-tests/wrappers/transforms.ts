@@ -1,5 +1,5 @@
 import test from "ava";
-import {Transformation} from "../../../lib/wrappers/services/recursive-transform";
+import {TransformStep} from "../../../lib/wrappers/services/recursive-transform";
 
 test("one transform", async t => {
 	let one = Transformation.compile(v => {
@@ -32,12 +32,12 @@ test("two transforms", async t => {
 	t.deepEqual(two({}), {});
 });
 
-test("one transform, with deeper", async t => {
+test("one transform, with recurse", async t => {
 	let one = Transformation.compile((v, ctx) => {
 		if (v < 5) {
 			return "" + v;
 		} else {
-			return ctx.deeper(v % 5);
+			return ctx.recurse(v % 5);
 		}
 	});
 	t.is(one(11), "1");
@@ -45,13 +45,13 @@ test("one transform, with deeper", async t => {
 	t.is(one(20), "0");
 });
 
-test("two transform, with next and deeper", async t => {
+test("two transform, with next and recurse", async t => {
 	let two = Transformation.compile((v, ctx) => {
 		return v.toString();
 	}, (v, ctx) => {
 		if (v && typeof v === "object" && "data" in v) {
 			return {
-				data: ctx.deeper(v.data)
+				data: ctx.recurse(v.data)
 			};
 		} else {
 			return ctx.next(v);
@@ -67,7 +67,7 @@ test("two transform, with next and deeper", async t => {
 test("one step, circular refernece", async t => {
 	let one = Transformation.compile((v, ctx) => {
 		if (v === 5 || v === "a") {
-			return ctx.deeper(v);
+			return ctx.recurse(v);
 		}
 		return v;
 	});
@@ -84,9 +84,9 @@ test("circular reference, depth N", async t => {
 			return v;
 		}
 		else if (v < 5) {
-			return ctx.deeper(v + 1);
+			return ctx.recurse(v + 1);
 		} else {
-			return ctx.deeper(v % 5);
+			return ctx.recurse(v % 5);
 		}
 	});
 	t.is(one(11), 11);
@@ -100,7 +100,7 @@ test("circular reference, depth N", async t => {
 test("no circ reference side by side", async t => {
 	let one = Transformation.compile((v, ctx) => {
 		if (Array.isArray(v)) {
-			return v.map(x => ctx.deeper(x));
+			return v.map(x => ctx.recurse(x));
 		} else {
 			return v;
 		}

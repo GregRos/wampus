@@ -274,7 +274,7 @@ Wampus code should always throw errors that extend `WampusError`. Specific error
 
 Error objects can have additional properties that contain more information on the error. Errors that are caused by WAMP messages will have properties such as `args`, `kwargs`, etc. 
 
-## Protocol constraints and Wampus services
+## Protocol constraints
 
 This section is necessary in order to put some of Wampus's features in context, and also to show how the constraints of the WAMP protocol affect the way you write your software. It also shows you how Wampus services deal with these constraints.
 
@@ -282,66 +282,30 @@ This section isn't meant to be a complete guide to the protocol, just to highlig
 
 ### The format of data messages
 
-Messages in the WAMP protocol have the following customizable fields (note that this is NOT how they are actually serialized):
+Most data messages in the WAMP protocol have the following fields:
 
 ```
 {
     args ?: any[];
-    kwargs ?: any[];
+    kwargs ?: any;
     options ?: OperationSpecificOptions;
 }
 ```
 
-The `options` field can sometimes be called `details`.
+This format appears in:
+
+1. Procedure returns (output)
+2. Procedure arguments (input)
+
+So both returns and arguments can have multiple positional values, as well as one set of keyed values.
 
 Procedures that return successfully MUST reply with a message in this format. That means you can't just return `4`, `undefined`, an array, etc. As a consequence of this, a WAMP procedure cannot return nothing. The closest you can come to that is returning an empty object, `{}`.
 
-When you make a call using WAMP, you also send data in this format as the argument. Once again, you can't just send `null` as an argument. 
+It's not possible to automatically convert from JavaScript's single return value (output) and positional arguments (input) into this format, and Wampus doesn't try to do this. Instead, you'll have to send and receive data in this format yourself.
 
-Note that there are two (sometimes three) ways to send data in the WAMP protocol: `args`, which sends a number of arguments in order, and `kwargs`, which is supposed to be for sending named arguments.  `options` is reserved for protocol options.
+However, Wampus does transform the contents of data messages when they are received and sent. The central idea is to allow you to control how complex objects are flattened, and how flat JSON is revived into a complex object.
 
-This makes things a bit confusing, especially if you opt to use both systems. 
-
-Regardless, this makes it impossible to simply convert a single return value into a WAMP return response, since there are many ways to do it. For this reason, whenever you call a WAMP procedure or return a value from one, you'll need to use the WAMP data message format. 
-
-#### Transforming data
-
-Although Wampus does NOT transform WAMP data messages into single objects or lists of objects, and you have to return and receive data in WAMP format yourself, it does transform objects that you send using data fields, such as the contents of `args` and `kwargs`. 
-
-By default, only the own, enumerable properties of an object will be stringified by `JSON.stringify` and similar functions. This is unsuitable when working with complex objects, some of which inherit important properties from their parents (including getters and setters), and may contain important non-enumerable properties.
-
-For this reason, Wampus provides transformations that are applied to objects before they are sent via WAMP and after they are received via WAMP, in order to flatten or enrich them.
-
-Transformations in Wampus use a powerful system that lets you avoid repeating yourself or repeating code written by someone else.
-
-See the section on this.
-
-```typescript
-let session = Wampus.create({
-    services(svcs) {
-        // svcs is the default services object
-        svcs.transforms.objectToJson = (value, context) => {
-            if (value instanceof MySpecialClass) {
-                return {
-                    type : "Special",
-                    data : value.data
-                };
-            } else {
-                return context.next(value);
-            }
-        };
-        svcs.transforms.objectToJson = (value, context) => {
-            if (value.type === "Special") {
-                return new MySpecialClass(value.data);
-            } else {
-                return context.next(value);
-            }
-        }
-    })
-})
-```
-
-These transformations are part of the configurable *services* defined when the session is created.
+The way it does this is pretty interesting and appears in a later section.
 
 ### The format of error messages
 
@@ -362,17 +326,178 @@ In this case, `error` contains the name of the error, typically in WAMP naming c
 
 `details` is another field that can contain an informational object, just like `kwargs`. 
 
-Once again, this special format makes it impossible to directly convert JavaScript errors from and to WAMP error responses. Unlike return values, Wampus does not expect you to throw special exceptions in order to serialize them. You can throw regular exceptions, and they will be transformed to error responses.
+Wampus lets you revive error responses into full Error objects, and vice versa, using the same type of transformation that's used for the contents of data messages.
 
-#### Transforming errors
+## Transform Service
 
-Wampus uses `errorToErrorResponse` and `errorResponseToError` in order to convert between error responses and full JavaScript errors. These configurable services are defined when the session is created, just like json-to-object transformations.
+Wampus uses a transformation system that lets you revive and flatten objects in a customizable, extensible, and powerful way.
 
-By default, an error response will be converted into a `WampusInvocationError`, which has the error response fields as properties.
+Wampus defines four transformations. 
 
-Error objects are converted into error responses by serializing them (using `transforms.objectToJson`) and embedding the result in the `kwargs` field. The `error` field is set to the default `wamp.error.runtime_error`.
+1. Object transformations
+   1. `jsonToObject`
+   2. `objectToJson`
+2. Error transformations
+   1. `errorToErrorResponse`
+   2. `errorResponseToError`
 
-### Stack trace service
+They all use the same system.
+
+### How it works
+
+#### Step-by-step
+
+Wampus uses a `StepByStepTransformer`, which has a list of `TransformStep` objects. Each `TransformStep` object is a function that you supply. Steps are executed in LIFO order, with each step being able to control how execution continues, in the manner described below.
+
+This function looks like this:
+
+```typescript
+type TransformStep = (value : any, ctrl : TransformerControl) => any
+```
+
+The function takes two parameters, the value being transformed and a `TransformerControl` object. This object looks like this:
+
+```typescript
+type TransformerControl = {
+    next(value : any) : any;
+	recurse(value : any) : any;
+}
+```
+
+Each transformation step should be seen as expecting some kind of data. For example, one step might transform a string into a date, another might transform a plain object into an instance of a class called `Person`, and so on.
+
+The function `next` calls the next transform step in the list and returns whatever it returns. It's basically like saying "I can't handle this type of data, maybe the next transformation can." However, it also lets you change the value being transformed, and to modify the result before it's sent to the caller.
+
+Here is an example of series of transformation steps and how `.next` is used to move between them:
+
+```typescript
+steps = [
+    // It's helpful to name these steps, for debugging and informational purposes
+    function parseStringIntoObject(x, ctrl) {
+        // We only deal with strings in this step
+        if (typeof x !== "string") return ctrl.next(x);
+        
+        // Try to parse this string
+        if (someRegex.test(x)) {
+            return new ParsedObject(x);
+        }
+        
+        // This is a string we don't know how to parse, 
+        // so let's yield to the next step:
+        return ctrl.next(x);
+    },
+    
+    // But you don't have to name them.
+    (x, ctrl) => {
+        // If the value is not an object, this step will ignore it:
+        if (!x || typeof x !== "object") return ctrl.next(x);
+        
+        // This step looks for objects with type === "person"
+        // and transforms them into instances of Person
+        if (x.type === "person") {
+            return new Person(x.firstName, x.lastName);
+        }
+        
+        // If the data isn't of this type, then we can't handle it, 
+        // let's try the next step
+        return ctrl.next(x);
+    },
+]
+```
+
+Wampus will always have a final fallback transform step that will transform an object in a default way, so you don't have to write that code yourself every time. All you need to do is to yield execution to the next step until Wampus's transform is reached.
+
+#### Recursion
+
+Sometimes, you want to treat most of an object purely structurally (like flat JSON data), but there is one or more properties, somewhere deep inside the object, that need to be deserialized in a special way.
+
+```typescript
+{
+    property1 : {
+        property2 : [{
+            // Supposed to be a date:
+            date : {
+                type : "date",
+                value : "2018-11-07T21:51:42.767Z"
+            },
+            
+            // Supposed to be a regex:
+            regex :{
+                type : "regex",
+                value :  "[a-z]{3}-[0-9]{3}"
+            },
+        }]
+    }
+}
+```
+
+Somewhere deep inside these nested objects, is some value that you should transform. 
+
+You deal with this structure using the `recurse` method. This method applies the whole sequence of transformation steps all over again, starting from the first one, on a new value. Normally, this will be the value of a key or an array element, but you can do weirder things too.
+
+The benefit here over `next` is that `recurse` will apply all the steps before the current step, actually doing recursion (potentially infinitely, in fact). This is especially important in the default fallback step, because it has no next step, so it has to `recurse`.
+
+Here is how a recursive step might recurse over the components of an object:
+
+```typescript
+function structuralStep(value : any, ctrl : TransformerControl) {
+    // We don't yield to the next step, maybe because there is no next step
+	if (!value || typeof value !== "object") return value;
+	
+    if (Array.isArray(value)) {
+        return value.map(x => ctrl.recurse(x));
+    }
+    
+    let clone = {};
+    
+    for (let k of Object.keys(value)) {
+        clone[k] = ctrl.recurse(value[k]);
+    }
+    return clone;
+}
+```
+
+`recurse` can cause infinite recursion, like any other form of recursion. Wampus protects against this by making sure you don't enter a cycle where you recurse into the same object more than once. So something like this:
+
+```typescript
+function infiniteRecursion(value, ctrl) {
+    return ctrl.recurse(value);
+}
+```
+
+Which would normally cause infinite recursion would just throw an error. This also means that mutating the object you're working on and then recursing into it is a bad idea.
+
+However, you can still end up with a stack overflow if you're not careful (or try to do it on purpose), such as:
+
+```typescript
+function reallyInfiniteRecursion(value, ctrl) {
+    return ctrl.recurse(value + "a");
+}
+```
+
+If you started with `""`, this would end up recursing into `a` , then `aa`, then `aaa`, and so on.
+
+Note that there is little reason to use `recurse` in the error transforms.
+
+### Adding transform steps
+
+You add transforms when you create a session. One of the session configuration parameters is the `services` function, which lets you modify the set of services. One thing you can do is add transformation steps:
+
+```typescript
+let x = Wampus.create({
+    //...
+    services(svcs) {
+        svcs.transforms.jsonToObject.add(function myExtraStep(value, ctrl) {
+            //...
+        });
+        
+    }
+})
+```
+
+Note that transform steps are added LIFO (or maybe Last-In-First-Executed), so the initial steps will be fallbacks to steps you add later (this, again, allows Wampus to have its own fallback steps).
+
+## Stack trace service
 
 Due to the asynchronous nature of WAMP, there is no stack trace information linking a WAMP message being sent and a WAMP error being received in response to that message.
 
@@ -391,6 +516,22 @@ The stack trace service looks like this:
     enabled : boolean;
 }
 ```
+
+You can modify the stack trace service by overwriting it or parts of it in the service initializer:
+
+```typescript
+let x = Wampus.create({
+    //...
+    services(svcs) {
+        svcs.stackTraceService = {
+            // my service
+        }
+        
+    }
+})
+```
+
+You can also just disable it by setting `stackTraceService.enabled = false`.
 
 ## Advanced profile support
 
