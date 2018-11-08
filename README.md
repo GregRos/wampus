@@ -135,7 +135,7 @@ let registrationTicket = await session.register({
     options : {
         // any protocol options
     },
-    async invocation(invocationTicket) {
+    async called(invocationTicket) {
         return {
             args : [1, 2]
         }
@@ -145,7 +145,7 @@ let registrationTicket = await session.register({
 
 Note that the method returns a promise, and to receive the actual ticket, you must `await` it.
 
-As part of the method, you supply an `invocation` function which is called whenever the procedure is invoked.
+As part of the method, you supply an `called` function which is called whenever the procedure is invoked.
 
 The function receives an `InvocationTicket`, which is another type of ticket that contains the invocation info and lets you send progress reports and check if the caller requested cancellation.
 
@@ -444,12 +444,14 @@ function structuralStep(value : any, ctrl : TransformerControl) {
     // We don't yield to the next step, maybe because there is no next step
 	if (!value || typeof value !== "object") return value;
 	
+    // For arrays, recursively transform each element separately:
     if (Array.isArray(value)) {
         return value.map(x => ctrl.recurse(x));
     }
     
     let clone = {};
     
+    // For objects, recursively transform each property value
     for (let k of Object.keys(value)) {
         clone[k] = ctrl.recurse(value[k]);
     }

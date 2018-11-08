@@ -13,12 +13,18 @@ import {WampYieldOptions} from "../../core/protocol/options";
 
 
 export class InvocationTicket  {
+
+	private _transformedInput : WampResult;
     constructor(private _base: Core.ProcedureInvocationTicket, private _services: AbstractWampusSessionServices, private _source: RegistrationTicket) {
+    	this._transformedInput = {
+    		args : _base.args ? _base.args.map(_services.transforms.jsonToObject.transform) : _base.args,
+		    kwargs : _services.transforms.jsonToObject.transform(_base.kwargs)
+	    };
     	makeEverythingNonEnumerableExcept(this);
     }
 
     get args() {
-        return this._base.args;
+        return this._transformedInput.args;
     }
 
     get invocationId() {
@@ -30,7 +36,7 @@ export class InvocationTicket  {
     }
 
     get kwargs() {
-        return this._base.kwargs;
+        return this._transformedInput.kwargs;
     }
 
     get name() {
@@ -45,7 +51,7 @@ export class InvocationTicket  {
         return this._source;
     }
 
-    private _applyTransforms<T extends WampResult>(obj: T) {
+    private _applyOutputTransforms<T extends WampResult>(obj: T) {
         let clone = _.clone(obj);
         clone.args = clone.args ? clone.args.map(this._services.transforms.objectToJson.transform) : clone.args;
         clone.kwargs = this._services.transforms.objectToJson.transform(clone.kwargs);
@@ -53,7 +59,7 @@ export class InvocationTicket  {
     }
 
     private async _error(msg: WampusSendErrorArguments): Promise<void> {
-        msg = this._applyTransforms(msg);
+        msg = this._applyOutputTransforms(msg);
         await this._base.error(msg);
     }
 
@@ -76,6 +82,9 @@ export class InvocationTicket  {
 	_handle(handler: ProcedureHandler): void {
         let ticket = this;
         let handleError = async (err) => {
+	        if (this._services.stackTraceService.enabled) {
+		        err.stack = err.stack + "\n(Wampus Registered At)" + this._services.stackTraceService.format("" as any, this.source.trace.created);
+	        }
             let errResponse = ticket._services.transforms.errorToErrorResponse.transform(err);
             if (!this.isHandled) {
                 await ticket._error(errResponse);
@@ -99,12 +108,12 @@ export class InvocationTicket  {
     }
 
     async progress(msg: WampusSendResultArguments): Promise<void> {
-        msg = this._applyTransforms(msg);
+        msg = this._applyOutputTransforms(msg);
         await this._base.progress(msg);
     }
 
     private async _return(args: WampusSendResultArguments): Promise<void> {
-        args = this._applyTransforms(args);
+        args = this._applyOutputTransforms(args);
         await this._base.return(args);
     }
 }

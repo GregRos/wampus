@@ -19,14 +19,17 @@ import {createDefaultServices} from "./services/default-services";
 export interface WampusProcedureDefinitions {
 	[key : string] : ProcedureHandler | {
 		options ?: WampRegisterOptions;
-		invocation : ProcedureHandler;
+		called : ProcedureHandler;
 	};
 }
 
 
 export class WampusSession {
 
-	private readonly _services: AbstractWampusSessionServices;
+	/**
+	 * @internal
+	 */
+	readonly _services: AbstractWampusSessionServices;
 
 	constructor(private _core: WampusCoreSession, initServices: NewObjectInitializer<AbstractWampusSessionServices>) {
 		let services = createDefaultServices();
@@ -69,10 +72,10 @@ export class WampusSession {
 
 	};
 
-	async register(obj: WampusRegisterArguments & {invocation : ProcedureHandler}): Promise<RegistrationTicket> {
+	async register(obj: WampusRegisterArguments & {called : ProcedureHandler}): Promise<RegistrationTicket> {
 		let coreRegTicket = this._core.register(obj);
 		let ticket = await RegistrationTicket.create(coreRegTicket, this._services);
-		ticket._handle(obj.invocation);
+		ticket._handle(obj.called);
 		return ticket;
 	};
 
@@ -82,13 +85,13 @@ export class WampusSession {
 			let obj = {
 				name : k,
 				options : {},
-				invocation : null
+				called : null
 			};
 			if (_.isFunction(v)) {
-				obj.invocation = v;
+				obj.called = v;
 			} else {
 				obj.options = v.options || {};
-				obj.invocation = v.invocation;
+				obj.called = v.called;
 			}
 			tickets.push(this.register(obj));
 		});

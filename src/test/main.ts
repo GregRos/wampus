@@ -57,7 +57,7 @@ function firstAndKeepSub<T>(obs : Observable<Observable<T>>) : Promise<Observabl
         let session = new WampusSession(lSession, x => {});
         let proc_ab = await session.register({
             name : "a.b",
-	        async invocation(req) {
+	        async called(req) {
 		        return {
 			        kwargs : {
 				        a : 5

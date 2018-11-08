@@ -13,8 +13,8 @@ async function run() {
 
 	await session.register({
 		name: "test",
-		async invocation(x) {
-			console.log("invocation", x);
+		async called(x) {
+			console.log("called", x);
 			return {
 				kwargs: {a: 1},
 				args: [1, 2, 5]

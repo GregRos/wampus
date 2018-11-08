@@ -14,7 +14,7 @@ function printResult(x: any) {
 async function someBasicCalls(session: WampusSession) {
 	let procedure = await session.register({
 		name: "x2",
-		async invocation(x) {
+		async called(x) {
 			return {
 				args: [x.args[0] * 2],
 			};
@@ -33,7 +33,7 @@ async function someBasicCalls(session: WampusSession) {
 
 	let complexObjectProc = await session.register({
 		name: "enrich-object",
-		async invocation({kwargs}) {
+		async called({kwargs}) {
 			let ret = {
 				embedded: kwargs,
 				more: {

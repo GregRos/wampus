@@ -57,11 +57,7 @@ export const createDefaultServices = () => {
 		return res;
 	});
 
-	x.errorToErrorResponse.add(({error, source}, ctrl) => {
-		let err = error;
-		if (s.stackTraceService.enabled) {
-			err.stack = err.stack + "\n(Wampus Registered At)" + s.stackTraceService.format("" as any, source.source.trace.created);
-		}
+	x.errorToErrorResponse.add((err, ctrl) => {
 		return {
 			args: [],
 			error: WampUri.Error.RuntimeError,

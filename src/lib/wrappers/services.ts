@@ -13,7 +13,7 @@ export class TransformSet {
 
 	errorResponseToError = new StepByStepTransformer<WampusInvocationError, Error>();
 
-	errorToErrorResponse = new StepByStepTransformer<{error : Error, source : InvocationTicket}, WampusSendErrorArguments>();
+	errorToErrorResponse = new StepByStepTransformer<Error, WampusSendErrorArguments>();
 }
 
 

@@ -8,6 +8,7 @@ import {Observable} from "rxjs";
 import {publishReplayAutoConnect} from "../../utils/rxjs-operators";
 import {Ticket} from "./ticket";
 import {makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/object";
+import {WampusInvocationError} from "../../core/errors/types";
 
 export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
     private _base = undefined as Core.CallTicket;
@@ -30,15 +31,19 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
         ticket._replayProgress = call.progress.pipe(map(prog => {
             let newResult = {
                 details: prog.details,
-                args: prog.args ? prog.args.map(services.transforms.objectToJson.transform) : prog.args,
-                kwargs: services.transforms.objectToJson.transform(prog.kwargs),
+                args: prog.args ? prog.args.map(services.transforms.jsonToObject.transform) : prog.args,
+                kwargs: services.transforms.jsonToObject.transform(prog.kwargs),
                 isProgress: prog.isProgress,
                 source: ticket
             } as CallResultData;
 	        makeEverythingNonEnumerableExcept(newResult, "args", "kwargs", "details");
             return newResult;
         }), catchError(err => {
+	        if (err instanceof WampusInvocationError) {
+		        err = services.transforms.errorResponseToError.transform(err)
+	        }
         	if (ticket.trace.created) err.stack = services.stackTraceService.format(err, ticket.trace.created);
+
             throw err;
         })).pipe(publishReplayAutoConnect());
         ticket._adapter = new RxjsEventAdapter(ticket.progress, x => {

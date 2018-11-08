@@ -1,5 +1,5 @@
 import test from "ava";
-import {TransformStep} from "../../../lib/wrappers/services/recursive-transform";
+import {Transformation, TransformStep} from "../../../lib/wrappers/services/recursive-transform";
 
 test("one transform", async t => {
 	let one = Transformation.compile(v => {
