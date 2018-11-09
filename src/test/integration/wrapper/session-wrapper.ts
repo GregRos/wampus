@@ -1,5 +1,5 @@
 import test from "ava";
-import {Wampus, WampusConfig, WampusSession} from "../../../lib/index";
+import {AbstractWampusSessionServices, Wampus, WampusConfig, WampusSession} from "../../../lib/index";
 import {SessionStages} from "../../helpers/dummy-session";
 import {RealSessions} from "../../helpers/real-sessions";
 import {DefaultMessageFactory} from "../../../lib/core/session/default-factory";
@@ -10,21 +10,7 @@ import invocation = Routes.invocation;
 
 let factory = DefaultMessageFactory;
 
-let randomRealm = () => {
-	return (Math.random() * 100000).toString(36);
-}
 
-function getSession(stuff ?: Partial<WampusConfig>) {
-	return Wampus.create({
-		realm: randomRealm(),
-		transport: {
-			type: "websocket",
-			url: "ws://localhost:8080",
-			serializer: "json"
-		},
-		...(stuff || {})
-	});
-}
 
 test("register, call, and then close registration", async t => {
 	let session = await getSession();
@@ -63,16 +49,24 @@ test("register, call, and then close registration", async t => {
 	await session.close();
 });
 
-test("transform applies to call output", async t => {
-	let session = await getSession({
-		services(s) {
-			s.transforms.objectToJson.add((x, ctrl) => {
-				if (x === "original") {
-					return "modified";
-				}
-				return ctrl.next(x);
-			});
+function transformOutServices(s : AbstractWampusSessionServices) {
+	s.transforms.objectToJson.add((x, ctrl) => {
+		if (x === "original") {
+			return "modified";
 		}
+		return ctrl.next(x);
+	});
+	s.transforms.objectToJson.add((x, ctrl) => {
+		if (Array.isArray(x)) {
+			return x.length;
+		}
+		return ctrl.next(x);
+	});
+}
+
+test("transform applies to call input, invocation output", async t => {
+	let session = await getSession({
+		services : transformOutServices
 	});
 	t.true(_.isNumber(session.sessionId));
 	let lastInvocation = null;
@@ -81,8 +75,10 @@ test("transform applies to call output", async t => {
 		async called(x) {
 			lastInvocation = x;
 			return {
-				args: x.args,
-				kwargs: x.kwargs
+				args : [1, 2, 3],
+				kwargs : {
+					a : "original"
+				}
 			}
 		}
 	});
@@ -90,41 +86,39 @@ test("transform applies to call output", async t => {
 	let result1 = await session.call({
 		name: ticket.info.name,
 		args: [{
-			data: "original"
+			data: "original",
+			x : [1, 2]
 		}],
 		kwargs: {
 			a: {
 				b: {
-					c: "original",
-					d: "hi"
+					c: "original"
 				}
 			}
 		}
 	});
-
-	t.deepEqual(_.pick(lastInvocation, "args", "kwargs"), {
-		args: [{
-			data: "modified"
+	t.true(_.isMatch(lastInvocation, {
+		args : [{
+			data : "modified",
+			x : 2
 		}],
-		kwargs: {
-			a: {
-				b: {
-					c: "modified",
-					d: "hi"
+		kwargs : {
+			a : {
+				b : {
+					c : "modified"
 				}
 			}
 		}
-	});
-
-	session._services.transforms.objectToJson.add();
-
-	let result2 = await session.call({name: ticket.info.name, args : [1, 2]});
-	t.deepEqual(lastInvocation.args, [1, 2]);
-	t.deepEqual(result2.args, [1, 2]);
-	await ticket.close();
+	}));
+	t.true(_.isMatch(result1, {
+		args : [1, 2, 3],
+		kwargs : {
+			a : "modified"
+		}
+	}));
 });
 
-test("transform applies to invocation output", async t => {
+test("objectToJson transform: call ", async t => {
 	let session = await getSession({
 		services(s) {
 			s.transforms.objectToJson.add((x, ctrl) => {
@@ -196,6 +190,7 @@ test("transform applies to call output", async t => {
 	let result3 = await session.call({
 		name : ticket.info.name
 	});
+
 	t.deepEqual(_.pick(result3, "args", "kwargs"), {
 		args : [1, 2, 3],
 		kwargs : {

@@ -24,7 +24,7 @@ export interface WampusProcedureDefinitions {
 }
 
 
-export class WampusSession {
+export class WampusSession extends Ticket {
 
 	/**
 	 * @internal
@@ -32,6 +32,7 @@ export class WampusSession {
 	readonly _services: AbstractWampusSessionServices;
 
 	constructor(private _core: WampusCoreSession, initServices: NewObjectInitializer<AbstractWampusSessionServices>) {
+		super();
 		let services = createDefaultServices();
 		initServices && initServices(services);
 		this._services = services;

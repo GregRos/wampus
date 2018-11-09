@@ -21,7 +21,7 @@
   ],
   "private": false,
   "scripts": {
-    "test": "nyc node_modules/ava/cli.js --files=dist/test/unit-tests/**/*.js",
+    "test": "nyc node_modules/ava/cli.js --files=dist/test/unit/**/*.js",
     "build": "rm -rf dist/ && tsc"
   },
   "devDependencies": {
@@ -54,7 +54,7 @@
   },
   "ava": {
     "files": [
-      "dist/test/unit-tests/**/*.js"
+      "dist/test/unit/**/*.js"
     ],
     "require": [
       "source-map-support/register"

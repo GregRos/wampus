@@ -332,17 +332,6 @@ Wampus lets you revive error responses into full Error objects, and vice versa, 
 
 Wampus uses a transformation system that lets you revive and flatten objects in a customizable, extensible, and powerful way.
 
-Wampus defines four transformations. 
-
-1. Object transformations
-   1. `jsonToObject`
-   2. `objectToJson`
-2. Error transformations
-   1. `errorToErrorResponse`
-   2. `errorResponseToError`
-
-They all use the same system.
-
 ### How it works
 
 #### Step-by-step
@@ -499,6 +488,23 @@ let x = Wampus.create({
 
 Note that transform steps are added LIFO (or maybe Last-In-First-Executed), so the initial steps will be fallbacks to steps you add later (this, again, allows Wampus to have its own fallback steps).
 
+### Transform types
+
+Wampus uses four transforms:
+
+1. Object transformations
+   1. `jsonToObject`
+   2. `objectToJson`
+2. Error transformations
+   1. `errorToErrorResponse`
+   2. `errorResponseToError`
+
+The transforms `jsonToObject` and `objectToJson` recursively transform all objects within `args` and `kwargs` properties in both directions. 
+
+The error transformations are applied when turning a JavaScript error into an error response, and vice versa. Before the error transformations are applied, the object transformations are first applied on the `args` and `kwargs` fields.
+
+Note that there is little reason to use recursion in the error transformations, but it's still an option.
+
 ## Stack trace service
 
 Due to the asynchronous nature of WAMP, there is no stack trace information linking a WAMP message being sent and a WAMP error being received in response to that message.
@@ -542,29 +548,29 @@ Wampus supports most alpha+ advanced profile features. Here is the breakdown:
 | RPC Feature                | Supported | Support Info                                   |
 | -------------------------- | --------- | ---------------------------------------------- |
 | progressive_call_results   | ✓         |                                                |
-| progressive_calls          | ✗         | (Sketch)                                       |
+| progressive_calls          | (Sketch)  |                                                |
 | call_timeout               | ✓         | Depends on the callee checking cancel requests |
 | call_canceling             | ✓         |                                                |
-| caller_identification      | ✓*        | No special implementation needed               |
-| call_trustlevels           | ✓*        | No special implementation needed               |
-| registration_meta_api      | ✓*        | No special implementation needed               |
-| pattern_based_registration | ✓*        | No special implementation needed               |
-| shared_registration        | ✓*        | No special implementation needed               |
-| sharded_registration       | ✗         | (Sketch)                                       |
-| registration_revocation    | ✗         | (Sketch)                                       |
-| procedure_reflection       | ✗         | (Sketch)                                       |
+| caller_identification      | ✓         | No special implementation needed               |
+| call_trustlevels           | ✓         | No special implementation needed               |
+| registration_meta_api      | ✓         | No special implementation needed               |
+| pattern_based_registration | ✓         | No special implementation needed               |
+| shared_registration        | ✓         | No special implementation needed               |
+| sharded_registration       | (Sketch)  |                                                |
+| registration_revocation    | (Sketch)  |                                                |
+| procedure_reflection       | (Sketch)  |                                                |
 
 | PubSub Feature                | Supported | Support Info                     |
 | ----------------------------- | --------- | -------------------------------- |
-| subscriber_blackwhite_listing | ✓*        | No special implementation needed |
-| publisher_exclusion           | ✓*        | No special implementation needed |
-| publisher_identification      | ✓*        | No special implementation needed |
-| publication_trustlevels       | ✓*        | No special implementation needed |
-| subscription_meta_api         | ✓*        | No special implementation needed |
-| pattern_based_subscription    | ✓*        | No special implementation needed |
-| sharded_subscription          | ✗         | (Sketch)                         |
-| event_history                 | ✓*        | No special implementation needed |
-| topic_reflection              | ✗         | (Sketch)                         |
+| subscriber_blackwhite_listing | ✓         | No special implementation needed |
+| publisher_exclusion           | ✓         | No special implementation needed |
+| publisher_identification      | ✓         | No special implementation needed |
+| publication_trustlevels       | ✓         | No special implementation needed |
+| subscription_meta_api         | ✓         | No special implementation needed |
+| pattern_based_subscription    | ✓         | No special implementation needed |
+| sharded_subscription          | (Sketch)  |                                  |
+| event_history                 | ✓         | No special implementation needed |
+| topic_reflection              | (Sketch)  |                                  |
 
 | Other Feature                     | Supported | Support Info                                                 |
 | --------------------------------- | --------- | ------------------------------------------------------------ |
@@ -572,9 +578,9 @@ Wampus supports most alpha+ advanced profile features. Here is the breakdown:
 | cookie authentication             | ✗         | Must be manually performed by the user                       |
 | ticket authentication             | ✗         | Must be manually performed by the user                       |
 | rawsocket transport               | ✗         | Currently only WS transport is supported                     |
-| batched WS transport              | ✗         | (Sketch)                                                     |
+| batched WS transport              | (Sketch)  |                                                              |
 | longpoll transport                | ✗         | Currently only WS transport is supported                     |
-| session meta api                  | ✓*        | No special implementation needed                             |
+| session meta api                  | ✓         | No special implementation needed                             |
 | MessagePack serialization         | ✗         | Only JSON serialization is implemented                       |
 
 ## Comments

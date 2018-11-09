@@ -40,6 +40,8 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
             return newResult;
         }), catchError(err => {
 	        if (err instanceof WampusInvocationError) {
+	        	err.args = err.args ? err.args.map(services.transforms.jsonToObject.transform) : err.args;
+	        	err.kwargs = services.transforms.jsonToObject.transform(err.kwargs);
 		        err = services.transforms.errorResponseToError.transform(err)
 	        }
         	if (ticket.trace.created) err.stack = services.stackTraceService.format(err, ticket.trace.created);

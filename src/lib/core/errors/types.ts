@@ -1,5 +1,5 @@
 import * as template from "string-template";
-import {WampMessage, WampObject} from "../protocol/messages";
+import {WampArray, WampMessage, WampObject} from "../protocol/messages";
 import {
 	assignKeepDescriptor,
 	makeEnumerable,
@@ -49,6 +49,8 @@ function hasMoreInfo(msg : WampMessage.Error) {
  * Thrown when a WAMP operation succeeds with an error state, such as if the target of an RPC call threw an exception.
  */
 export class WampusInvocationError extends WampusError {
+	args : WampArray;
+	kwargs : WampObject;
 
 }
 makeEverythingNonEnumerableExcept(WampusInvocationError.prototype, "wampName", "kwargs", "args", "details");
