@@ -10,6 +10,7 @@ import _ = require("lodash");
 import {Ticket} from "./ticket";
 import {makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/object";
 import {WampYieldOptions} from "../../core/protocol/options";
+import {WampusInvocationCanceledError} from "../../core/errors/types";
 
 
 export class InvocationTicket  {
@@ -68,7 +69,7 @@ export class InvocationTicket  {
             return {
                 ...token,
                 throw() {
-                    throw Errs.Call.canceled(this.name, token.wampMessage);
+                    throw new WampusInvocationCanceledError("Invocation has been cancelled", {});
                 }
             } as CancellationTicket
         })).toPromise();

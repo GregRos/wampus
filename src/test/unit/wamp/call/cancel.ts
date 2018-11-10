@@ -10,7 +10,7 @@ import {Operators} from "promise-stuff";
 async function cancelSession() {
     return await SessionStages.handshaken("a", {
             dealer: {
-                call_cancelling : true
+                call_canceling : true
             }
         }
     );
@@ -158,7 +158,7 @@ test("2nd call to cancel is no-op, returns the same promise", async t => {
 test("try to cancel call on a closed session should be a no-op", async t => {
     let {server, session} = await SessionStages.handshaken("a", {
         dealer : {
-            call_cancelling : true
+            call_canceling : true
         }
     });
     let sbs = Rxjs.monitor(server.messages);
@@ -174,7 +174,7 @@ test("try to cancel call on a closed session should be a no-op", async t => {
 test("close session while cancelling should be a no-op", async t => {
     let {server, session} = await SessionStages.handshaken("a", {
         dealer : {
-            call_cancelling : true
+            call_canceling : true
         }
     });
     let sbs = Rxjs.monitor(server.messages);

@@ -51,6 +51,8 @@ function hasMoreInfo(msg : WampMessage.Error) {
 export class WampusInvocationError extends WampusError {
 	args : WampArray;
 	kwargs : WampObject;
+	error : string;
+	details : any;
 
 }
 makeEverythingNonEnumerableExcept(WampusInvocationError.prototype, "wampName", "kwargs", "args", "details");

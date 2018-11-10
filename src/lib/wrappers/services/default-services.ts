@@ -9,6 +9,7 @@ import _ = require("lodash");
 import CallSite = NodeJS.CallSite;
 import {TransformStep} from "./recursive-transform";
 import {CallTicket} from "../tickets/call";
+import {WampusInvocationCanceledError} from "../../core/errors/types";
 
 export const createDefaultServices = () => {
 	let s = {
@@ -58,13 +59,21 @@ export const createDefaultServices = () => {
 	});
 
 	x.errorToErrorResponse.add((err, ctrl) => {
+		if (err instanceof WampusInvocationCanceledError) {
+			return {
+				error : WampUri.Error.Canceled,
+				details : {
+					message : "Invocation cancelled"
+				}
+			}
+		}
 		return {
 			args: [],
 			error: WampUri.Error.RuntimeError,
-			options: {
+			details: {
 				message: err.message
 			},
-			kwargs: _.pick(err, ["message", "name", "stack"])
+			kwargs: _.pick(err, ["message", "name", "stack", ...Object.keys(err)])
 		};
 	});
 

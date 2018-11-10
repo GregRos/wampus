@@ -32,7 +32,7 @@ export interface WampusSendErrorArguments {
     args?: WampArray;
     kwargs?: WampObject;
     error: WampUriString;
-    options?: WampObject;
+    details?: WampObject;
 }
 
 export interface WampusSubcribeArguments {

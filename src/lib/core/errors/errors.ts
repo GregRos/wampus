@@ -20,7 +20,7 @@ function getWampErrorReplyBasedMembers(err: WampMessage.Error) {
 	let members = {} as any;
 
 	members._originalWampMessage = err;
-	members.reason = err.error;
+	members.error = err.error;
 	members.details = err.details;
 	if ("args" in err) {
 		members.args = err.args
@@ -28,7 +28,7 @@ function getWampErrorReplyBasedMembers(err: WampMessage.Error) {
 	if ("kwargs" in err) {
 		members.kwargs = err.kwargs;
 	}
-	makeEverythingNonEnumerableExcept(members, "kwargs", "args", "details", "reason");
+	makeEverythingNonEnumerableExcept(members, "kwargs", "args", "details", "error");
 	return members;
 }
 
@@ -228,7 +228,7 @@ export module Errs {
 		}
 
 		export function errorResult(name: string, err: WampMessage.Error) {
-			return new WampusInvocationError(name, getWampErrorReplyBasedMembers(err));
+			return new WampusInvocationError(`Called procedure ${name}, the callee replied with an error (${err.error})`, getWampErrorReplyBasedMembers(err));
 		}
 
 		export function other(name: string, err: WampMessage.Error) {
@@ -246,7 +246,7 @@ export module Errs {
 		}
 
 		export function canceled(name: string, err : WampMessage.Error) {
-			return new WampusInvocationCanceledError(`While calling the procedure ${name}, the call was cancelled.`, getWampErrorReplyBasedMembers(err));
+			return new WampusInvocationCanceledError(`While calling the procedure ${name}, the call was cancelled.`, {});
 		}
 
 	}

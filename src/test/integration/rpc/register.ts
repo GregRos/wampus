@@ -14,7 +14,7 @@ test.afterEach(async t => {
 });
 
 test("verify registration ticket", async t => {
-	let session = t.context as WampusSession;
+	let session = t.context.session as WampusSession;
 	let opts = {
 		disclose_caller : true,
 		match : MatchType.Prefix,
@@ -34,7 +34,7 @@ test("verify registration ticket", async t => {
 });
 
 test("close registration, try to call to make sure", async t => {
-	let session = t.context as WampusSession;
+	let session = t.context.session as WampusSession;
 	let ticket = await session.register({
 		name : "wampus.example",
 		async called(x) {
@@ -56,7 +56,7 @@ test("close registration, try to call to make sure", async t => {
 });
 
 test("close registration, closed registration can be closed again and inspected", async t => {
-	let session = t.context as WampusSession;
+	let session = t.context.session as WampusSession;
 	let ticket = await session.register({
 		name : "wampus.example",
 		async called(x) {
@@ -70,4 +70,16 @@ test("close registration, closed registration can be closed again and inspected"
 		options : {}
 	}));
 	 t.false(ticket.isOpen);
+});
+
+test("close session, registration should also be closed", async t => {
+	let session = t.context.session as WampusSession;
+	let ticket = await session.register({
+		name : "wampus.example",
+		async called(x) {
+			return {};
+		}
+	});
+	await session.close();
+	t.false(ticket.isOpen);
 });

@@ -2,13 +2,14 @@ import * as Core from "../../core/session/ticket";
 import {AbstractWampusSessionServices} from "../services";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {catchError, map} from "rxjs/operators";
-import {CancelMode} from "../../core/protocol/options";
+import {CancelMode, WampResultOptions} from "../../core/protocol/options";
 import CallSite = NodeJS.CallSite;
 import {Observable} from "rxjs";
 import {publishReplayAutoConnect} from "../../utils/rxjs-operators";
 import {Ticket} from "./ticket";
 import {makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/object";
 import {WampusInvocationError} from "../../core/errors/types";
+import {WampArray, WampObject} from "../../core/protocol/messages";
 
 export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
     private _base = undefined as Core.CallTicket;
@@ -29,14 +30,13 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
         ticket._base = call;
         ticket._services = services;
         ticket._replayProgress = call.progress.pipe(map(prog => {
-            let newResult = {
-                details: prog.details,
-                args: prog.args ? prog.args.map(services.transforms.jsonToObject.transform) : prog.args,
-                kwargs: services.transforms.jsonToObject.transform(prog.kwargs),
-                isProgress: prog.isProgress,
-                source: ticket
-            } as CallResultData;
-	        makeEverythingNonEnumerableExcept(newResult, "args", "kwargs", "details");
+        	let newResult = new CallResultData({
+		        details: prog.details,
+		        args: prog.args ? prog.args.map(services.transforms.jsonToObject.transform) : prog.args,
+		        kwargs: services.transforms.jsonToObject.transform(prog.kwargs),
+		        isProgress: prog.isProgress,
+		        source: ticket
+	        }, ticket);
             return newResult;
         }), catchError(err => {
 	        if (err instanceof WampusInvocationError) {
@@ -96,6 +96,26 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
 }
 makeEverythingNonEnumerableExcept(CallTicket.prototype, "info");
 
-export interface CallResultData extends Core.CallResultData {
-    readonly source: CallTicket;
+export class CallResultData implements Core.CallResultData {
+	constructor(private _base : Core.CallResultData, public source : CallTicket) {
+		makeNonEnumerable(this, "source", "_base");
+	}
+
+	get args() {
+		return this._base.args;
+	}
+
+	get details() {
+		return this._base.details;
+	}
+
+	get isProgress() {
+		return this._base.isProgress;
+	}
+
+	get kwargs() {
+		return this._base.kwargs;
+	}
 }
+
+makeEverythingNonEnumerableExcept(CallResultData.prototype, "args", "details", "kwargs");

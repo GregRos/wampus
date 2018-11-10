@@ -587,4 +587,4 @@ Wampus supports most alpha+ advanced profile features. Here is the breakdown:
 
 Originally, this library was supposed to have an API completely based around cold observables. For example, using `call` would return an observable that performs the call when subscribed to. Unsubscribing would cancel the call.
 
-However, I had to abandon this design due to technical limitations.
+However, I had to abandon this design due to technical limitations.	

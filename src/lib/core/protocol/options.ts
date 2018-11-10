@@ -73,7 +73,7 @@ export interface DealerFeatures {
     session_meta_api: boolean;
     progressive_call_results: boolean;
     call_timeout: boolean;
-    call_cancelling: boolean;
+    call_canceling: boolean;
     caller_identification: boolean;
     call_trustlevels: boolean;
     pattern_based_registration: boolean;
@@ -166,4 +166,5 @@ export interface WampInvocationOptions {
     caller?: number;
     trustlevel?: number;
     procedure?: string;
+    timeout ?: number;
 }

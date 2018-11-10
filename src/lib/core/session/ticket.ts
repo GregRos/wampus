@@ -47,6 +47,8 @@ export interface EventSubscriptionTicket extends Ticket {
     }
 }
 
+
+
 export interface CallResultData extends WampResult {
     readonly source: CallTicket;
 
@@ -70,13 +72,14 @@ export interface EventInvocationData extends WampResult {
 }
 
 export interface CancellationToken {
+
+	readonly type : "timeout" | "cancel";
+
     readonly source: ProcedureInvocationTicket;
 
     readonly received: Date;
 
     readonly options: WampObject;
-
-    readonly wampMessage : WampMessage.Error;
 }
 
 export interface ProcedureInvocationTicket extends WampResult {
@@ -98,7 +101,7 @@ export interface ProcedureInvocationTicket extends WampResult {
 
     progress(args: WampusSendResultArguments): Promise<void>;
 
-    error({args, options, kwargs, error}: WampusSendErrorArguments): Promise<void>;
+    error({args, details, kwargs, error}: WampusSendErrorArguments): Promise<void>;
 
     readonly cancellation: Observable<CancellationToken>;
 }
