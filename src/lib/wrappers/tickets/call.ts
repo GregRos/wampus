@@ -97,25 +97,18 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
 makeEverythingNonEnumerableExcept(CallTicket.prototype, "info");
 
 export class CallResultData implements Core.CallResultData {
+	readonly args : WampArray
+	readonly kwargs : WampObject;
+	readonly details : WampResultOptions;
+
 	constructor(private _base : Core.CallResultData, public source : CallTicket) {
-		makeNonEnumerable(this, "source", "_base");
-	}
-
-	get args() {
-		return this._base.args;
-	}
-
-	get details() {
-		return this._base.details;
+		this.kwargs = _base.kwargs;
+		this.args = _base.args;
+		this.details = _base.details;
+		makeEverythingNonEnumerableExcept(this, "kwargs", "args", "details");
 	}
 
 	get isProgress() {
 		return this._base.isProgress;
 	}
-
-	get kwargs() {
-		return this._base.kwargs;
-	}
 }
-
-makeEverythingNonEnumerableExcept(CallResultData.prototype, "args", "details", "kwargs");

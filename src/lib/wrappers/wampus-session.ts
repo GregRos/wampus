@@ -69,8 +69,6 @@ export class WampusSession extends Ticket {
 			args : args.args ? args.args.map(this._services.transforms.objectToJson.transform) : args.args
 		};
 		return CallTicket.create(this._core.call(args), this._services);
-
-
 	};
 
 	async register(obj: WampusRegisterArguments & {called : ProcedureHandler}): Promise<RegistrationTicket> {

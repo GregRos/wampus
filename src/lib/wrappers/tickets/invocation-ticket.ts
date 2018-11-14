@@ -9,43 +9,31 @@ import {RegistrationTicket} from "./registration-ticket";
 import _ = require("lodash");
 import {Ticket} from "./ticket";
 import {makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/object";
-import {WampYieldOptions} from "../../core/protocol/options";
+import {WampInvocationOptions, WampYieldOptions} from "../../core/protocol/options";
 import {WampusInvocationCanceledError} from "../../core/errors/types";
+import {WampArray, WampObject} from "../../core/protocol/messages";
 
 
 export class InvocationTicket  {
 
 	private _transformedInput : WampResult;
+	readonly args : WampArray;
+	readonly invocationId : number;
+	readonly kwargs : WampObject;
+	readonly options : WampInvocationOptions;
+	readonly name : string;
     constructor(private _base: Core.ProcedureInvocationTicket, private _services: AbstractWampusSessionServices, private _source: RegistrationTicket) {
-    	this._transformedInput = {
-    		args : _base.args ? _base.args.map(_services.transforms.jsonToObject.transform) : _base.args,
-		    kwargs : _services.transforms.jsonToObject.transform(_base.kwargs)
-	    };
-    	makeEverythingNonEnumerableExcept(this);
-    }
 
-    get args() {
-        return this._transformedInput.args;
-    }
-
-    get invocationId() {
-        return this._base.invocationId;
+    	this.args =  _base.args ? _base.args.map(_services.transforms.jsonToObject.transform) : _base.args;
+    	this.kwargs = _services.transforms.jsonToObject.transform(_base.kwargs);
+    	this.options = _base.options;
+    	this.name = _base.name;
+	    this.invocationId = _base.invocationId;
+	    makeEverythingNonEnumerableExcept(this, "args", "kwargs", "options", "name", "invocationId");
     }
 
     get isHandled() {
         return this._base.isHandled;
-    }
-
-    get kwargs() {
-        return this._transformedInput.kwargs;
-    }
-
-    get name() {
-        return this._base.name;
-    }
-
-    get options() {
-        return this._base.options;
     }
 
     get source() {
@@ -119,7 +107,7 @@ export class InvocationTicket  {
     }
 }
 
-makeEverythingNonEnumerableExcept(InvocationTicket.prototype, "kwargs", "args", "invocationId");
+makeEverythingNonEnumerableExcept(InvocationTicket.prototype);
 
 export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;

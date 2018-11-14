@@ -510,7 +510,7 @@ export class WampusCoreSession {
 					options: options
 				},
 				get isOpen() {
-					return !closing && self._isClosing;
+					return !closing && ! self._isClosing;
 				}
 			} as EventSubscriptionTicket;
 			return eventSubscriptionTicket;
