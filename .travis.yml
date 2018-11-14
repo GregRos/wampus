@@ -9,7 +9,7 @@ cache:
 install:
   - yarn install
   - yarn add rxjs
-  - gimme 1.11.1
+  - eval "$(gimme 1.11.1)"
   - bash ./test_scripts/install_router.sh
 script:
   - yarn run build
