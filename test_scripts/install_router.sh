@@ -6,11 +6,11 @@ mkdir -p .tmp/wamp_router
 cd .tmp/wamp_router
 
 echo "Cloning nexus wamp_router"
-git clone http://github.com/gammazero/nexus
-cd nexus/nexusd
+go get github.com/gammazero/nexus
+cd $GOPATH/src/github.com/gammazero/nexus/nexusd
 
 echo "Building go"
-go build -i
+go build
 
 echo "Copying config file"
 cp -f $ORIG_DIR/test_scripts/nexus.json ./etc/nexus.json
