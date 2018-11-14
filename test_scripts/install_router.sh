@@ -10,7 +10,7 @@ git clone http://github.com/gammazero/nexus
 cd nexus/nexusd
 
 echo "Building go"
-go build
+go build -i
 
 echo "Copying config file"
 cp -f $ORIG_DIR/test_scripts/nexus.json ./etc/nexus.json
