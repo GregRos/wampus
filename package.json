@@ -21,7 +21,7 @@
   ],
   "private": false,
   "scripts": {
-    "test": "nyc node_modules/ava/cli.js --files=dist/test/*/**/*.js",
+    "test": "nyc node_modules/ava/cli.js --files='dist/test/unit/**/*.js' --files='dist/test/integration/**/*.js'",
 	"int-test" : "nyc node_modules/ava/cli.js --files=dist/test/integration/**/*.js",
     "build": "rm -rf dist/ && tsc"
   },

@@ -3,13 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="479a9b66-b2d3-4247-b6ef-de9bcc439169" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/core/session/core-session.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/session/core-session.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/wrappers/tickets/call.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/wrappers/tickets/call.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/wrappers/tickets/invocation-ticket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/wrappers/tickets/invocation-ticket.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/wrappers/wampus-session.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/wrappers/wampus-session.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/integration/rpc/advanced-profile.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/integration/rpc/advanced-profile.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/main.ts" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -197,53 +192,53 @@
         <counts>
           <entry key="project.closed" value="16" />
           <entry key="project.open.time.4" value="1" />
-          <entry key="project.open.time.5" value="9" />
+          <entry key="project.open.time.5" value="10" />
           <entry key="project.open.time.6" value="7" />
           <entry key="project.open.time.7" value="1" />
           <entry key="project.open.time.8" value="1" />
-          <entry key="project.opened" value="19" />
+          <entry key="project.opened" value="20" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.js.language.service.starts">
         <counts>
-          <entry key="TypeScriptServerServiceImpl" value="17" />
+          <entry key="TypeScriptServerServiceImpl" value="18" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="json" value="48" />
-          <entry key="sh" value="398" />
+          <entry key="json" value="90" />
+          <entry key="sh" value="445" />
           <entry key="ts" value="21333" />
-          <entry key="yml" value="240" />
+          <entry key="yml" value="265" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Bash" value="372" />
-          <entry key="JSON" value="48" />
+          <entry key="Bash" value="419" />
+          <entry key="JSON" value="90" />
           <entry key="PLAIN_TEXT" value="26" />
           <entry key="TypeScript" value="21333" />
-          <entry key="YAML" value="240" />
+          <entry key="YAML" value="265" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="js" value="1" />
-          <entry key="json" value="5" />
+          <entry key="json" value="6" />
           <entry key="md" value="1" />
           <entry key="sh" value="3" />
-          <entry key="ts" value="109" />
+          <entry key="ts" value="110" />
           <entry key="yml" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Bash" value="2" />
-          <entry key="JSON" value="5" />
+          <entry key="JSON" value="6" />
           <entry key="JavaScript" value="1" />
           <entry key="Markdown" value="1" />
           <entry key="PLAIN_TEXT" value="1" />
-          <entry key="TypeScript" value="109" />
+          <entry key="TypeScript" value="110" />
           <entry key="YAML" value="2" />
         </counts>
       </usages-collector>
@@ -254,11 +249,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/package.json">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="552">
-              <caret line="23" column="60" selection-start-line="23" selection-start-column="60" selection-end-line="23" selection-end-column="60" />
+              <caret line="23" column="113" selection-start-line="23" selection-start-column="113" selection-end-line="23" selection-end-column="113" />
             </state>
           </provider>
         </entry>
@@ -276,8 +271,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/.travis.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="264">
-              <caret line="11" column="31" lean-forward="true" selection-start-line="11" selection-start-column="31" selection-end-line="11" selection-end-column="31" />
+            <state relative-caret-position="408">
+              <caret line="17" column="3" lean-forward="true" selection-start-line="17" selection-start-column="3" selection-end-line="17" selection-end-column="3" />
             </state>
           </provider>
         </entry>
@@ -291,11 +286,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test_scripts/install_router.sh">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="5" column="8" selection-start-line="5" selection-start-column="8" selection-end-line="5" selection-end-column="8" />
+            <state relative-caret-position="240">
+              <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
             </state>
           </provider>
         </entry>
@@ -357,7 +352,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>new WampusInvocationError</find>
       <find>error</find>
       <find>console</find>
       <find>new CallResultData</find>
@@ -387,6 +381,7 @@
       <find>transforms</find>
       <find>wamp</find>
       <find>subscribe(</find>
+      <find>9003</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;@most/core&quot;</replace>
@@ -488,11 +483,11 @@
         <option value="$PROJECT_DIR$/src/lib/wrappers/wampus-session.ts" />
         <option value="$PROJECT_DIR$/src/test/integration/pubsub/publish.ts" />
         <option value="$PROJECT_DIR$/src/test/integration/pubsub/transforms.ts" />
-        <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/test_scripts/install-wamp-router.sh" />
         <option value="$PROJECT_DIR$/test_scripts/nexus.json" />
-        <option value="$PROJECT_DIR$/.travis.yml" />
         <option value="$PROJECT_DIR$/test_scripts/install_router.sh" />
+        <option value="$PROJECT_DIR$/.travis.yml" />
+        <option value="$PROJECT_DIR$/package.json" />
       </list>
     </option>
   </component>
@@ -547,6 +542,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -557,13 +553,23 @@
             <path>
               <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
               <item name="wampus" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wampus" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="wampus" type="b2602c69:ProjectViewProjectNode" />
+              <item name="wampus" type="462c0819:PsiDirectoryNode" />
               <item name="test_scripts" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -842,6 +848,7 @@
       <workItem from="1542226742871" duration="2679000" />
       <workItem from="1542229436953" duration="900000" />
       <workItem from="1542230352465" duration="59000" />
+      <workItem from="1542231388132" duration="1144000" />
     </task>
     <servers />
   </component>
@@ -854,7 +861,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="905546000" />
+    <option name="totallyTimeSpent" value="906690000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -869,7 +876,7 @@
     <frame x="-7" y="-7" width="2062" height="1126" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49952334" visible="true" weight="0.18681319" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49952334" visible="true" weight="0.18881118" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" sideWeight="0.50047666" side_tool="true" weight="0.18538852" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -883,7 +890,7 @@
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="TODO" order="9" sideWeight="0.4975025" weight="0.24547283" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.49874792" weight="0.32955405" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.4225774" side_tool="true" visible="true" weight="0.31790745" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="11" sideWeight="0.4225774" side_tool="true" visible="true" weight="0.31790745" />
       <window_info anchor="bottom" id="TypeScript" order="12" sideWeight="0.33616385" weight="0.2303823" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -1031,7 +1038,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/integration-tests/wrapper/make-sure-wrapper-included.ts" />
     <entry file="file://$PROJECT_DIR$/src/test/unit-tests/wrappers/transforms.ts" />
     <entry file="file://$PROJECT_DIR$/src/lib/wrappers/dependency-declarations.ts">
       <provider selected="true" editor-type-id="text-editor">
@@ -1268,13 +1274,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test_scripts/install-wamp-router.sh" />
-    <entry file="file://$PROJECT_DIR$/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="552">
-          <caret line="23" column="60" selection-start-line="23" selection-start-column="60" selection-end-line="23" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/integration.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -1325,17 +1324,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.travis.yml">
+    <entry file="file://$PROJECT_DIR$/test_scripts/install_router.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="11" column="31" lean-forward="true" selection-start-line="11" selection-start-column="31" selection-end-line="11" selection-end-column="31" />
+        <state relative-caret-position="240">
+          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test_scripts/install_router.sh">
+    <entry file="file://$PROJECT_DIR$/src/test/main.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="5" column="8" selection-start-line="5" selection-start-column="8" selection-end-line="5" selection-end-column="8" />
+        <state relative-caret-position="192">
+          <caret line="50" column="37" selection-start-line="50" selection-start-column="37" selection-end-line="50" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.travis.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="17" column="3" lean-forward="true" selection-start-line="17" selection-start-column="3" selection-end-line="17" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="552">
+          <caret line="23" column="113" selection-start-line="23" selection-start-column="113" selection-end-line="23" selection-end-column="113" />
         </state>
       </provider>
     </entry>
