@@ -3,8 +3,6 @@
 [![codecov](https://codecov.io/gh/GregRos/wampus/branch/master/graph/badge.svg)](https://codecov.io/gh/GregRos/wampus)
 [![npm version](https://badge.fury.io/js/wampus.svg)](https://badge.fury.io/js/wampus)
 
-Currently under development.
-
 Wampus.js is a JavaScript client for the WAMP protocol. The WAMP protocol is a protocol that allows peer-to-peer RPC and PubSub-type communication between different nodes connected to the same server.
 
 For more information about the WAMP protocol, see **[The official WAMP website](https://wamp-proto.org/)**. 
@@ -14,6 +12,7 @@ Other examples of WAMP protocol clients:
 * [Autobahn|JS](https://github.com/crossbario/autobahn-js), which convinced me to write my own client.
 * [others...](https://wamp-proto.org/implementations/index.html)
 
+Wampus is currently a Node-only  client, but it will work on browsers in the future.
 ## Features
 
 ✓ Accurate implementation of the WAMP protocol.
@@ -28,17 +27,13 @@ Other examples of WAMP protocol clients:
 
 ✓ Human-readable error messages.
 
-**(Untested)** Secondary callback-based API for callers unused to observables.
+✓ Secondary callback-based API for callers unused to observables.
 
-**(Untested)** Intelligent stack trace collection.
+✓ Intelligent stack trace collection.
 
-**(Untested)** Respond to protocol violations per spec (i.e. ABORT connection)
+✓  Support for reviving simple JSON into complex objects and vice versa.
 
-**(Untested)**  Support for reviving simple JSON into complex objects and vice versa.
 
-Currently, the finer points of the API need to be ironed out and a lot of the wrapping API code needs to be tested.
-
-Although high-performance and portability are a goal, no work has been done on those things yet.
 
 ## Calling
 
