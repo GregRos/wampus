@@ -140,6 +140,7 @@ export interface WampEventOptions {
     publisher?: number;
     trustlevel?: number;
     topic?: string;
+    
 }
 
 export enum CancelMode {

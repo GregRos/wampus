@@ -78,7 +78,7 @@ export class WampusSession extends Ticket {
 		return ticket;
 	};
 
-	async registerAll(procedures : WampusProcedureDefinitions) {
+	async registerAll(procedures : WampusProcedureDefinitions) : Promise<Ticket> {
 		let tickets = [];
 		_.forIn(procedures, (v, k) => {
 			let obj = {

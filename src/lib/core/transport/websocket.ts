@@ -2,7 +2,7 @@ import {EventEmitter} from "events";
 import {TransportClosed, TransportError, TransportEvent, TransportMessage, Transport} from "./transport";
 import * as ws from "ws";
 
-import {WampusNetworkError} from "../errors/types";
+import {WampusInvalidArgument, WampusNetworkError} from "../errors/types";
 const WebSocket = require('isomorphic-ws') as typeof ws;
 import {MyPromise} from "../../utils/ext-promise";
 import {Serializer} from "../serializer/serializer";
@@ -47,12 +47,12 @@ export class WebsocketTransport implements Transport{
     static async create(config: WebsocketTransportConfig) : Promise<WebsocketTransport>{
 
         if (config.timeout != null && typeof config.timeout !== "number") {
-            throw new WampusError("Timeout value {timeout} is invalid.", {
+            throw new WampusInvalidArgument("Timeout value {timeout} is invalid.", {
                 timeout : config.timeout
             });
         }
         if (!config.serializer || typeof config.serializer !== "object"  || !["serialize", "deserialize", "id"].every(x => x in config.serializer)) {
-            throw new WampusError("Serializer is not valid.", {
+            throw new WampusInvalidArgument("Serializer is not valid.", {
                 obj : config.serializer
             });
         }

@@ -208,3 +208,44 @@ test("send and receive cancel", async t => {
 	await t.throws(results, MatchError.cancelled());
 
 });
+
+test("progress via event", async t => {
+	let session = t.context.session as WampusSession;
+
+	let data = [];
+	let ticket = await session.register({
+		name : "wampus.example",
+		async called(x) {
+			await x.progress({
+				args : [1]
+			});
+
+			await x.progress({
+				args : [2]
+			});
+
+			await x.progress({
+				args : [3]
+			});
+
+			return {
+				args : [4]
+			}
+		}
+	});
+
+	let call = session.call({
+		name : ticket.info.name
+	});
+
+	let handler = x => {
+		data.push(x);
+		if (data.length === 3) call.off("data", handler);
+	};
+
+	call.on("data", handler);
+
+	await call;
+
+	t.deepEqual(data.map(x => x.args[0]), [1, 2, 3]);
+});

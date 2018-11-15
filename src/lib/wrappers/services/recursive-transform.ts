@@ -1,4 +1,4 @@
-import {WampusError} from "../../core/errors/types";
+import {WampusError, WampusInvalidArgument} from "../../core/errors/types";
 import {InvocationTicket} from "../tickets/invocation-ticket";
 import {CallTicket} from "../tickets/call";
 import {SubscriptionTicket} from "../tickets/subscription";
@@ -47,7 +47,9 @@ export module Transformation {
 			return {
 				recurse(obj) {
 					if (set.has(obj)) {
-						throw new WampusError("Circular reference.", {});
+						throw new WampusInvalidArgument("Transformation has tried to do circular recursion.", {
+							obj
+						});
 					}
 					set.add(obj);
 					try {

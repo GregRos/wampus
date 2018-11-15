@@ -16,6 +16,12 @@ export class WampusError extends Error {
     }
 }
 
+export class WampusInvalidArgument extends WampusError {
+	constructor(message : string, props : object) {
+		super(message, props)
+	}
+}
+
 /**
  * Thrown when an error occurs in a transport protocol or the WAMP protocol itself.
  * This includes the following WAMP error codes:

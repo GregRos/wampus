@@ -11,6 +11,9 @@ import {makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/
 import {WampusInvocationError} from "../../core/errors/types";
 import {WampArray, WampObject} from "../../core/protocol/messages";
 
+/**
+ *
+ */
 export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
     private _base = undefined as Core.CallTicket;
     private _services = undefined as AbstractWampusSessionServices;

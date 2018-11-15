@@ -72,6 +72,52 @@ test("close registration, closed registration can be closed again and inspected"
 	 t.false(ticket.isOpen);
 });
 
+test("registerAll", async t => {
+	let session = t.context.session as WampusSession;
+
+	let tickets = await session.registerAll({
+		async ["wampus.a"](x) {
+			return {
+				args : ["a"]
+			};
+		},
+		async ["wampus.b"](x) {
+			return {
+				args : ["b"]
+			};
+		},
+		async ["wampus.c"](x) {
+			return {
+				args : ["c"]
+			};
+		},
+		"wampus.d." : {
+			options : {
+				match : MatchType.Prefix
+			},
+			async called(x) {
+				return {
+					args : [x.options.procedure]
+				};
+			}
+		}
+	});
+
+
+
+	t.is((await session.call({name : "wampus.a"})).args[0], "a");
+	t.is((await session.call({name : "wampus.b"})).args[0], "b");
+	t.is((await session.call({name : "wampus.c"})).args[0], "c");
+
+	let longForm = await session.call({name : "wampus.d.1"});
+	t.is(longForm.args[0], "wampus.d.1");
+	let longForm2 = await session.call({name : "wampus.d.2"});
+	t.is(longForm2.args[0], "wampus.d.2");
+	await tickets.close();
+
+	await t.throws(session.call({name : "wampus.a"}));
+})
+
 test("close session, registration should also be closed", async t => {
 	let session = t.context.session as WampusSession;
 	let ticket = await session.register({

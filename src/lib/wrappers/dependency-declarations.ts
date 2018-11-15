@@ -4,6 +4,7 @@ import {Serializer} from "../core/serializer/serializer";
 import {JsonSerializer} from "../core/serializer/json";
 import {WebsocketTransport} from "../core/transport/websocket";
 import {WampusError} from "../core/errors/types";
+import {Errors} from "./errors";
 
 export module DependencyDeclarations {
 
@@ -13,9 +14,11 @@ export module DependencyDeclarations {
         } else if (typeof declr.deserialize === "function") {
             return declr;
         } else {
-            throw new WampusError("Unknown serializer definition.", {
-                value : declr
-            });
+        	if (typeof declr === "string") {
+        		throw Errors.Creation.unknownSerializerName(declr)
+	        } else {
+        		throw Errors.Creation.unknownSerializer(declr)
+	        }
         }
     }
 
@@ -34,6 +37,12 @@ export module DependencyDeclarations {
                     url : transportData.url,
                 });
             }
+        } else {
+        	if (typeof config.type === "string"){
+        		throw Errors.Creation.unknownTransportName(config.type);
+	        } else {
+        		throw Errors.Creation.unknownTransport(config);
+	        }
         }
     }
 }

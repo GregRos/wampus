@@ -6,7 +6,7 @@ export abstract class Ticket {
 
     static combine(tickets : Ticket[]) {
         let flattenedOthers = _.flatMap(tickets, x => x instanceof CompoundTicket ? x._inner : [x]);
-        return flattenedOthers;
+        return new CompoundTicket(flattenedOthers);
     }
 
     add(...others : Ticket[]) {

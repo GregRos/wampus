@@ -50,7 +50,7 @@ export class SubscriptionTicket extends Ticket {
                 name : "event",
                 arg : x
             }
-        }, ["called"]);
+        }, ["event"]);
         makeEverythingNonEnumerableExcept(ticket);
         return ticket;
     }

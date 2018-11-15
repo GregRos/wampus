@@ -1,6 +1,6 @@
 {
   "name": "wampus",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "description": "WAMP client for JavaScript",
   "main": "index.js",
   "repository": "https://github.com/GregRos/wampus",
@@ -22,7 +22,7 @@
   "private": false,
   "scripts": {
     "test": "nyc node_modules/ava/cli.js --files='dist/test/unit/**/*.js' --files='dist/test/integration/**/*.js'",
-	"int-test" : "nyc node_modules/ava/cli.js --files=dist/test/integration/**/*.js",
+    "int-test": "nyc node_modules/ava/cli.js --files=dist/test/integration/**/*.js",
     "build": "rm -rf dist/ && tsc"
   },
   "devDependencies": {
