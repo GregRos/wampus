@@ -32,10 +32,10 @@ export class RxjsEventAdapter<T> {
             throw Errors.unknownEvent(name);
         }
         this._initEmitter();
-        this._emitter.on(name, handler);
+        this._emitter.addListener(name, handler);
     }
 
     off(name : string, handler : any) {
-        this._emitter.off(name, handler);
+        this._emitter.removeListener(name, handler);
     }
 }

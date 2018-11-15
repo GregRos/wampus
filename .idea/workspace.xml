@@ -3,21 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="479a9b66-b2d3-4247-b6ef-de9bcc439169" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/core/errors/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/errors/types.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/core/protocol/options.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/protocol/options.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/core/transport/websocket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/core/transport/websocket.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/wrappers/dependency-declarations.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/wrappers/dependency-declarations.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/wrappers/errors.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/wrappers/errors.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/wrappers/services/recursive-transform.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/wrappers/services/recursive-transform.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/wrappers/tickets/call.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/wrappers/tickets/call.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/wrappers/tickets/subscription.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/wrappers/tickets/subscription.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/wrappers/tickets/ticket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/wrappers/tickets/ticket.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/wrappers/wampus-session.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/wrappers/wampus-session.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/integration/pubsub/publish.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/integration/pubsub/publish.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/integration/rpc/call.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/integration/rpc/call.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/integration/rpc/register.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/integration/rpc/register.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/integration/wrapper/make-sure-wrapper-included.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/integration/make-sure-wrapper-included.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/utils/rxjs-other.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/utils/rxjs-other.ts" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -224,7 +210,7 @@
           <entry key="json" value="95" />
           <entry key="md" value="27" />
           <entry key="sh" value="445" />
-          <entry key="ts" value="26680" />
+          <entry key="ts" value="26685" />
           <entry key="yml" value="265" />
         </counts>
       </usages-collector>
@@ -234,7 +220,7 @@
           <entry key="JSON" value="95" />
           <entry key="Markdown" value="27" />
           <entry key="PLAIN_TEXT" value="26" />
-          <entry key="TypeScript" value="26680" />
+          <entry key="TypeScript" value="26685" />
           <entry key="YAML" value="265" />
         </counts>
       </usages-collector>
@@ -244,7 +230,7 @@
           <entry key="json" value="11" />
           <entry key="md" value="3" />
           <entry key="sh" value="4" />
-          <entry key="ts" value="154" />
+          <entry key="ts" value="157" />
           <entry key="yml" value="3" />
         </counts>
       </usages-collector>
@@ -255,7 +241,7 @@
           <entry key="JavaScript" value="1" />
           <entry key="Markdown" value="3" />
           <entry key="PLAIN_TEXT" value="1" />
-          <entry key="TypeScript" value="154" />
+          <entry key="TypeScript" value="157" />
           <entry key="YAML" value="3" />
         </counts>
       </usages-collector>
@@ -266,11 +252,31 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/package.json">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="48">
               <caret line="2" column="19" selection-start-line="2" selection-start-column="19" selection-end-line="2" selection-end-column="19" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/integration/make-sure-wrapper-included.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <element signature="e#0#23#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/integration/rpc/advanced-profile.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="402">
+              <caret line="80" column="43" lean-forward="true" selection-start-line="80" selection-start-column="43" selection-end-line="80" selection-end-column="43" />
             </state>
           </provider>
         </entry>
@@ -295,6 +301,15 @@
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/lib/utils/rxjs-other.ts">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="474">
+              <caret line="38" column="37" selection-start-line="38" selection-start-column="37" selection-end-line="38" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -327,33 +342,6 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/lib/wrappers/tickets/subscription.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1008">
-              <caret line="50" selection-start-line="50" selection-end-line="52" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/integration/pubsub/publish.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1584">
-              <caret line="72" column="26" selection-start-line="72" selection-start-column="26" selection-end-line="72" selection-end-column="26" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/integration/pubsub/transforms.ts">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2208">
-              <caret line="97" column="19" selection-start-line="97" selection-start-column="19" selection-end-line="97" selection-end-column="19" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/integration/pubsub/advanced-profile.ts">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="360">
@@ -377,7 +365,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>WampusSendErr</find>
       <find>WampusSendErrorArgum</find>
       <find>WampusInvocationErro</find>
       <find>reason :</find>
@@ -407,6 +394,7 @@
       <find>8080</find>
       <find>yamprint.</find>
       <find>progress</find>
+      <find>off</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;@most/core&quot;</replace>
@@ -463,7 +451,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/test/unit-tests/wrapper/session-wrapper.ts" />
         <option value="$PROJECT_DIR$/src/lib/core/basics.ts" />
         <option value="$PROJECT_DIR$/src/lib/core/protocol/reader.ts" />
         <option value="$PROJECT_DIR$/src/lib/wrappers/wampus.ts" />
@@ -514,6 +501,7 @@
         <option value="$PROJECT_DIR$/src/lib/wrappers/tickets/ticket.ts" />
         <option value="$PROJECT_DIR$/src/test/integration/rpc/register.ts" />
         <option value="$PROJECT_DIR$/package.json" />
+        <option value="$PROJECT_DIR$/src/lib/utils/rxjs-other.ts" />
       </list>
     </option>
   </component>
@@ -933,7 +921,7 @@
       <workItem from="1542305936490" duration="241000" />
       <workItem from="1542306205740" duration="1596000" />
       <workItem from="1542307823883" duration="4121000" />
-      <workItem from="1542314623396" duration="541000" />
+      <workItem from="1542314623396" duration="1026000" />
     </task>
     <servers />
   </component>
@@ -946,7 +934,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="916076000" />
+    <option name="totallyTimeSpent" value="916561000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -961,7 +949,7 @@
     <frame x="-7" y="-7" width="2062" height="1126" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49952334" visible="true" weight="0.1988012" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49952334" visible="true" weight="0.1988012" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" sideWeight="0.50047666" side_tool="true" weight="0.18538852" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -975,7 +963,7 @@
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="TODO" order="9" sideWeight="0.4975025" weight="0.24547283" />
       <window_info anchor="bottom" id="Version Control" order="10" sideWeight="0.49874792" weight="0.32955405" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.6078921" side_tool="true" visible="true" weight="0.27867204" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="11" sideWeight="0.6078921" side_tool="true" visible="true" weight="0.27867204" />
       <window_info anchor="bottom" id="TypeScript" order="12" sideWeight="0.33516484" weight="0.18309858" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -1332,22 +1320,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/integration/make-sure-wrapper-included.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/integration/rpc/advanced-profile.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1920">
-          <caret line="85" column="3" selection-start-line="85" selection-start-column="3" selection-end-line="85" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/usability/yamprinter.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="168">
@@ -1401,13 +1373,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="384">
           <caret line="28" column="20" selection-start-line="28" selection-start-column="20" selection-end-line="28" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/lib/utils/rxjs-other.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="15" column="8" selection-start-line="15" selection-start-column="8" selection-end-line="15" selection-end-column="8" />
         </state>
       </provider>
     </entry>
@@ -1487,6 +1452,29 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="48">
           <caret line="2" column="19" selection-start-line="2" selection-start-column="19" selection-end-line="2" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/integration/make-sure-wrapper-included.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/integration/rpc/advanced-profile.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="402">
+          <caret line="80" column="43" lean-forward="true" selection-start-line="80" selection-start-column="43" selection-end-line="80" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/lib/utils/rxjs-other.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="474">
+          <caret line="38" column="37" selection-start-line="38" selection-start-column="37" selection-end-line="38" selection-end-column="37" />
         </state>
       </provider>
     </entry>
