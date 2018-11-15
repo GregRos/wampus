@@ -1,6 +1,6 @@
 {
   "name": "wampus",
-  "version": "0.1.16-beta",
+  "version": "0.2.0",
   "description": "WAMP client for JavaScript",
   "main": "index.js",
   "repository": "https://github.com/GregRos/wampus",

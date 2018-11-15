@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 /**@internal*/
 export module Errors {
     export function unknownEvent(name : string) {

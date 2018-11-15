@@ -33,6 +33,22 @@ test("one CHALLENGE during handshake", async t => {
     await session;
 });
 
+test("no authenticator", async t => {
+	let handshaker = null;
+	let wDetails = {
+		roles: {
+			broker: {},
+			dealer: {}
+		}
+	};
+	let {server,session} = SessionStages.fresh("a", handshaker);
+	let srvMonitor = Rxjs.monitor(server.messages);
+	let eventuallySessionThrows = t.throws(session)
+	await srvMonitor.next();
+	server.send([4, "auth", {b : 1}]);
+	await eventuallySessionThrows
+});
+
 test("two CHALLENGE during handshake", async t => {
     let handshaker = async (x : ChallengeEvent) => {
         return {
