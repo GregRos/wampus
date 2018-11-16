@@ -59,6 +59,7 @@ export class MessageFactory {
         return new WampMessage.Register(this._config.requestId(), options || {}, procedure);
     }
 
+
     error(sourceType: WampType, requestId: WampId, details: WampObject, reason: WampUriString, args ?: WampArray, kwargs ?: WampObject) {
         return new WampMessage.Error(sourceType, requestId, details || {}, reason, args || [], kwargs || {});
     }
@@ -95,7 +96,7 @@ export class MessageFactory {
     	return new WampMessage.Registered(registerReqId, this._config.requestId());
     }
 
-    challenge(authMethod : string, extra : WampObject) {
+	challenge(authMethod : string, extra : WampObject) {
     	return new WampMessage.Challenge(authMethod, extra);
     }
 
@@ -103,21 +104,19 @@ export class MessageFactory {
     	return new WampMessage.Subscribed(subscribeReqId, this._config.requestId());
     }
 
-    unsubscribed(unsubscribeReqId : WampId) {
-    	return new WampMessage.Unsubscribed(unsubscribeReqId);
-    }
-
     event(subscriptionId : WampId, details ?: WampEventOptions, args ?: WampArray, kwargs ?: WampObject) {
     	return new WampMessage.Event(subscriptionId, this._config.requestId(), details || {}, args, kwargs);
     }
-
     invocation(registrationId : WampId, options ?: WampInvocationOptions, args ?: WampArray, kwargs ?: WampObject) {
     	return new WampMessage.Invocation(this._config.requestId(), registrationId, options ||{}, args, kwargs);
     }
 
-    welcome(details : WelcomeDetails) {
+	welcome(details : WelcomeDetails) {
     	return new WampMessage.Welcome(this._config.requestId(), details);
     }
 
+	unsubscribed(unsubscribeReqId : WampId) {
+		return new WampMessage.Unsubscribed(unsubscribeReqId);
+	}
 
 }

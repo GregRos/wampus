@@ -22,13 +22,27 @@ export interface Ticket {
     readonly isOpen: boolean;
 }
 
+export interface CallTicketInfo {
+	/**
+	 * The WAMP protocol options this call was made with.
+	 */
+	readonly options : WampCallOptions;
+
+	/**
+	 * The name of the procedure being invoked.
+	 */
+	readonly name : string;
+
+	/**
+	 * The WAMP protocol ID of the call.
+	 */
+	readonly callId: number;
+}
+
 export interface CallTicket extends Ticket {
-    readonly info:{
-    	readonly options : WampCallOptions;
-    	readonly name : string;
-        readonly callId: number;
-    };
-    readonly progress: Observable<CallResultData>;
+    readonly info:CallTicketInfo;
+
+	readonly progress: Observable<CallResultData>;
 
     close(cancelMode ?: CancelMode): Promise<void>;
 }
