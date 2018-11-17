@@ -121,7 +121,7 @@ export class WampusCoreSession {
 		let getSessionFromShake$ = session._handshake$(config.authenticator).pipe(map(welcome => {
 			session.sessionId = welcome.sessionId;
 			session._welcomeDetails = welcome.details;
-			session._registerRoutes().subscribe();
+			session._registerControlRoutes().subscribe();
 		}));
 		return concat(getSessionFromShake$).pipe(mapTo(session), take(1)).toPromise();
 	}
@@ -748,24 +748,48 @@ export class WampusCoreSession {
 	}
 
 	private _close$(details: WampObject, reason: WampUriString, abrupt: boolean): Observable<any> {
+		// If we're already closing, return an EMPTY
 		if (this._isClosing) return EMPTY;
+		// Mark _isClosing ourselves
 		this._isClosing = true;
+		// If told to close using ABORT
 		if (abrupt) {
-			return concat(this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.SelfAbort)), this._abort$(details, reason));
+			// We do these steps in sequence. First we force close all routes, and then we send an ABORT signal.
+			// We do that because sending ABORT will end up in the transport being closed, and we want to handle
+			// Forcing the routes closed correctly ourselves to avoid issues.
+
+			// Finally, we terminate the connection ourselves
+			return concat(
+				this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.SelfAbort)),
+				this._abort$(details, reason),
+				defer(async () => {
+					return this.protocol.transport.close();
+				})
+			);
 		}
 
+		// Here we deal with GOODBYE-type termination.
+		// We set a timeout for the GOODBYE response to arrive.
 		let timeout = timer(this.config.timeout).pipe(flatMap(() => {
 			throw Errs.Leave.goodbyeTimedOut();
 		}));
 
+		// We take the first: GOODBYE or timeout.
 		let expectGoodbyeOrTimeout = race(this._goodbye$(details, reason), timeout).pipe(catchError(err => {
+			// If the transport is closed before the _goodbye$ workflow is finished, just stop.
 			if (err instanceof WampusNetworkError) {
 				return EMPTY;
 			}
+			// TODO: Handle this without console.warn
 			console.warn("Error when saying GOODBYE. Going to say ABORT.", err);
+			// Going to ABORT since GOODBYE failed.
 			return this._abort$(details, reason);
 		}), take(1));
 
+		// The same as in the timing for abrupt termination
+		// We first close the routes and only then begin the GOODBYE sequence
+		// This is also true because routes defined earlier are set up to receive GOODBYE to detect a server-initiated polite termination
+		// And if we didn't close the routes here, it would get confused.
 		return concat(this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.SelfGoodbye)), expectGoodbyeOrTimeout, defer(async () => {
 			return this.protocol.transport.close();
 		}));
@@ -778,21 +802,27 @@ export class WampusCoreSession {
 	}
 
 	private _closeRoutes$(err: WampusRouteCompletion) {
+		// TODO: Rework the timing of this code
+		// Note that the timing here is really fragile, because we might end up doing something like:
+		// expectRoute$(x).flatMap(x => _closeRoutes$())
+		// Which basically means that as part of the inner obervable returned by flatMap, the outer observable `expectRoute$(x)` is going to error
+		// So a sequence of timeouts is used that may not be portable or even a good idea.
 		return defer(async () => {
 			this.protocol.invalidateAllRoutes(err);
+			// We give the routes time to close before continuing
 			await MyPromise.wait(0);
-			return 5;
-		}).pipe(take(1), map(x => {
-			let a = 5;
-		}));
+		}).pipe(take(1));
 	}
 
 
 	private _handleClose$(msg: WampMessage.Goodbye | WampMessage.Abort) {
+		// This code is for handling server-initiated closing.
 		if (this._isClosing) return EMPTY;
 		this._isClosing = true;
-		let reason: WampusRouteCompletion;
+
+
 		if (msg instanceof WampMessage.Abort) {
+			// The closing is abrupt. The server doesn't want any reply and may terminate the connection immediately.
 			return concat(this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.RouterAbort, msg)), defer(async () => {
 				await this.protocol.transport.close();
 			}));
@@ -888,15 +918,19 @@ export class WampusCoreSession {
 		}));
 	}
 
-	private _registerRoutes() {
+	private _registerControlRoutes() {
 		let catchCompletionError = catchError(err => {
+			// These routes can be completed without any issue.
 			if (err instanceof WampusRouteCompletion) return EMPTY;
 			throw err;
 		});
+
+		// Here we detect server-initiated closing of the session.
 		let serverInitiatedClose$ = this.protocol.expectAny$([WampType.ABORT], [WampType.GOODBYE]).pipe(take(1), flatMap((x: WM.Abort) => {
 			return concat(this._handleClose$(x));
 		}), catchCompletionError);
 
+		// Now we define a few protocol violations that can be committed by the router.
 		let serverSentInvalidMessage$ = this.protocol.expectAny$(
 			[WampType.WELCOME],
 			[WampType.CHALLENGE]
