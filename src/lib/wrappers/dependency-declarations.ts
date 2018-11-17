@@ -1,4 +1,4 @@
-import {TransportFactory} from "../core/session/core-session";
+import {TransportFactory} from "../core/transport/transport";
 import {SerializerDeclaration, TransportDeclaration, UnknownTransportConfig, WebsocketTransportConfig} from "./wampus";
 import {Serializer} from "../core/serializer/serializer";
 import {JsonSerializer} from "../core/serializer/json";

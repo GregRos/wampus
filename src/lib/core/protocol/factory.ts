@@ -12,11 +12,10 @@ import {
     WampId,
     WampMessage,
     WampObject,
-    WampUriString,
-    WampusCompletionReason,
-    WampusRouteCompletion
-} from "./messages";
+    WampUriString} from "./messages";
 import {WampType} from "./message.type";
+import {WampusCompletionReason} from "../session/route-completion";
+import {WampusRouteCompletion} from "../session/route-completion";
 
 export interface MessageFactoryConfig {
     requestId() : number;

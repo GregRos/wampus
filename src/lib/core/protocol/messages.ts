@@ -1,17 +1,17 @@
 import {WampType} from "./message.type";
 import {
-    HelloDetails,
-    WampCallOptions, WampCancelOptions,
-    WampEventOptions,
-    WampInvocationOptions,
-    WampPublishOptions,
-    WampRegisterOptions,
-    WampResultOptions,
-    WampSubscribeOptions,
-    WampYieldOptions,
-    WelcomeDetails
+	HelloDetails,
+	WampCallOptions,
+	WampCancelOptions,
+	WampEventOptions,
+	WampInvocationOptions,
+	WampPublishOptions,
+	WampRegisterOptions,
+	WampResultOptions,
+	WampSubscribeOptions,
+	WampYieldOptions,
+	WelcomeDetails
 } from "./options";
-import {WampusError} from "../errors/types";
 
 /**
  * An integer matching the WAMP ID specification.
@@ -54,26 +54,6 @@ export interface WampMessage {
 	 * Transforms the WAMP message object to raw array format.
 	 */
 	toTransportFormat() : WampRawMessage;
-}
-
-export enum WampusCompletionReason {
-    SelfGoodbye = "SelfPoliteTermination",
-    RouterGoodbye = "RouterPoliteTermination",
-    SelfAbort = "SelfAbort",
-    RouterAbort = "RouterAbort",
-    RouterDisconnect = "RouterDisconnect"
-}
-
-
-export class WampusRouteCompletion extends Error {
-
-    constructor(public reason : WampusCompletionReason, public msg ?: WampMessage.Any) {
-        super("Route completed");
-    }
-
-    toTransportFormat() {
-        throw new global.Error("This message is used internally and cannot be transmitted.");
-    }
 }
 
 

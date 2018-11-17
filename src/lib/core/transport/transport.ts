@@ -1,6 +1,5 @@
-import {WampusNetworkError} from "../errors/types";
-import {WampMessage, WampObject, WampRawMessage} from "../protocol/messages";
 import {WampusError} from "../errors/types";
+import {WampObject} from "../protocol/messages";
 import {Observable} from "rxjs";
 
 /**
@@ -51,20 +50,30 @@ export interface Transport {
 	readonly name : string;
 
     /**
-     * Creates a COLD stream that, when subscribed to, will complete when the message is finished sending.
+     * Creates a COLD observable that, when subscribed to, will send the given message and complete when the message is finished sending.
      * @param {WampObject} msg The message to send.
      * @returns {Observable<never>} A COLD observable.
      */
     send$(msg : object) : Observable<any>;
 
     /**
-     * Exposes a COLD stream that gives access to the transport's network events.
-     * Network events include Data, Error, and Completion.
+     * Exposes a stream that gives access to the transport's network events.
      */
     readonly events$ : Observable<TransportEvent>;
 
-    close(obj ?: object) : Promise<void>;
+	/**
+	 * Closes the transport, optionally with the given extra data.
+	 * @param extra Some extra data that may be used as part of closing the transport.
+	 */
+	close(extra ?: object) : Promise<void>;
 
-    readonly isActive : boolean;
+	/**
+	 * Whether or not this transport has been closed.
+	 */
+	readonly isActive : boolean;
 }
 
+/**
+ * A function that creates and configures a transport instance.
+ */
+export type TransportFactory = () => (Promise<Transport> | Transport);

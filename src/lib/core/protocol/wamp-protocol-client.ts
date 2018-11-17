@@ -1,4 +1,4 @@
-import {WampArray, WampMessage, WampPrimitive, WampRawMessage, WampusRouteCompletion} from "./messages";
+import {WampArray, WampMessage, WampPrimitive, WampRawMessage} from "./messages";
 import {WebsocketTransport} from "../transport/websocket";
 import {WampusError, WampusNetworkError} from "../errors/types";
 import {PrefixRoute, PrefixRouter} from "../routing/prefix-router";
@@ -8,6 +8,7 @@ import {MessageReader} from "./reader";
 import {merge, Observable, of, Subject} from "rxjs";
 import {flatMap, take, tap} from "rxjs/operators";
 import {MyPromise} from "../../utils/ext-promise";
+import {WampusRouteCompletion} from "../session/route-completion";
 
 /**
  * A message-based WAMP protocol client that allows sending WAMP messages and receiving them.

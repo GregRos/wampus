@@ -3,3 +3,5 @@ export * from "./core/protocol/messages";
 export * from "./core/protocol/message.type";
 export * from "./core/protocol/wamp-protocol-client";
 export * from "./core/protocol/uris";
+export {WampusRouteCompletion} from "./core/session/route-completion";
+export {WampusCompletionReason} from "./core/session/route-completion";

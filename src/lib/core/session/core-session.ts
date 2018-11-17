@@ -1,10 +1,4 @@
-import {
-	WampMessage,
-	WampObject,
-	WampUriString,
-	WampusCompletionReason,
-	WampusRouteCompletion
-} from "../protocol/messages";
+import {WampMessage, WampObject, WampUriString} from "../protocol/messages";
 import {WampType} from "../protocol/message.type";
 import {Errs} from "../errors/errors";
 import {AdvProfile, WampUri} from "../protocol/uris";
@@ -17,9 +11,9 @@ import {
 	CallTicket,
 	CancellationToken,
 	EventData,
-	SubscriptionTicket,
 	InvocationTicket,
-	RegistrationTicket
+	RegistrationTicket,
+	SubscriptionTicket
 } from "./ticket";
 import {
 	concat,
@@ -35,7 +29,18 @@ import {
 	throwError,
 	timer
 } from "rxjs";
-import {catchError, flatMap, map, mapTo, mergeMapTo, take, takeUntil, takeWhile, timeoutWith,} from "rxjs/operators";
+import {
+	catchError,
+	flatMap,
+	map,
+	mapTo,
+	mergeMapTo,
+	take,
+	takeUntil,
+	takeWhile,
+	tap,
+	timeoutWith,
+} from "rxjs/operators";
 import {
 	WampusCallArguments,
 	WampusPublishArguments,
@@ -46,17 +51,19 @@ import {
 } from "./message-arguments";
 import {MyPromise} from "../../utils/ext-promise";
 import {publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../../utils/rxjs-operators";
-import {Transport} from "../transport/transport";
+import {TransportFactory} from "../transport/transport";
 import {wampusHelloDetails} from "../hello-details";
 import {MessageReader} from "../protocol/reader";
 import {DefaultMessageFactory} from "./default-factory";
 import {AuthenticatorFunction, ChallengeEvent} from "./authentication";
 import {fromPromise} from "rxjs/internal-compatibility";
+import {WampusCompletionReason, WampusRouteCompletion} from "./route-completion";
 
 export interface CoreSessionConfig {
 	realm: string;
 	timeout: number;
-
+	transport: TransportFactory;
+	authenticator?: AuthenticatorFunction;
 	helloDetails?(defaults: HelloDetails): void;
 }
 
@@ -65,13 +72,10 @@ import WM = WampMessage;
 
 let factory = DefaultMessageFactory;
 
-export type TransportFactory = () => (Promise<Transport> | Transport);
-
-export interface WampusSessionDependencies {
-	transport: TransportFactory;
-	authenticator?: AuthenticatorFunction;
-}
-
+/**
+ * The Wampus class that implements most WAMP session logic.
+ * This class is usually used via a wrapper session that enriches the session object's functionality.
+ */
 export class WampusCoreSession {
 	sessionId: number;
 	config: CoreSessionConfig;
@@ -95,7 +99,7 @@ export class WampusCoreSession {
 		return this._welcomeDetails;
 	}
 
-	static async create(config: CoreSessionConfig & WampusSessionDependencies): Promise<WampusCoreSession> {
+	static async create(config: CoreSessionConfig): Promise<WampusCoreSession> {
 		// 1. Receive transport
 		// 2. Handshake
 		// 3. Wait until session closed:
@@ -123,28 +127,12 @@ export class WampusCoreSession {
 	}
 
 	/**
-	 * Registers a procedure.
-	 * @param full The arguments for registering the procedure.
-	 * @returns A promise that, once the registration is approved, resolves into a ticket for the registration.
+	 * Registers a procedure and returns a registration ticket.
+	 * @param wArgs The arguments for registering the procedure, including the function that is invoked when the procedure is called.
+	 * @returns A promise that resolves with the ticket once the registration is successful.
 	 */
-	async register(full: WampusRegisterArguments): Promise<RegistrationTicket> {
-		let {options, name} = full;
-		/*
-			Returns a cold observable yielding a hot observable.
-			When the cold outer observable is subscribed to, Wampus will register the specified operation.
-			The returned observable will yield the inner observable, which exposes invocations of the procedure,
-			once the registration has finished.
-
-			The inner observable will yield InvocationRequest objects each time the procedure is called. The InvocationRequest
-			object allows the callee to handle a call of the procedure in various ways.
-
-			1. Make sure the router's WELCOME message supports all the features specified in options and throw an error otherwise.
-
-			2. Concurrently:
-				* Expect on a REGISTERED or ERROR
-
-				* Send a REGISTER message
-		 */
+	async register(wArgs: WampusRegisterArguments): Promise<RegistrationTicket> {
+		let {options, name} = wArgs;
 		let msg = factory.register(options, name);
 
 		let self = this;
@@ -250,8 +238,8 @@ export class WampusCoreSession {
 						} as CancellationToken;
 					}));
 
+				// Fabricate a cancellation token if the timeout is elapsed.
 				let timeout = invocationMsg.options.timeout >= 0 ? timer(invocationMsg.options.timeout) : NEVER;
-
 				let timeoutEvent$ = timeout.pipe(map(x => {
 					return {
 						received : new Date(),
@@ -262,7 +250,6 @@ export class WampusCoreSession {
 				}));
 
 				let anyInterrupt$ = merge(interruptRequest$, timeoutEvent$);
-
 				let expectInterrupt =
 					anyInterrupt$
 						.pipe(take(1), takeUntil(completeInterrupt), catchError(err => {
@@ -272,17 +259,23 @@ export class WampusCoreSession {
 							throw err;
 						}), publishReplayAutoConnect());
 				let isHandled = false;
-				// Send message
+
+				// Send the selected WAMP message as a reply to the invocation
 				let send$ = (msg: WampMessage.Any) => {
 					if (!this.isActive) return throwError(Errs.sessionIsClosing(msg));
+
+					// If the message is progress, make sure this invocation supports progress
 					if (msg instanceof WampMessage.Yield && msg.options.progress) {
 						if (!invocationMsg.options.receive_progress) {
 							return throwError(Errs.Register.doesNotSupportProgressReports(name));
 						}
 					}
+					// Make sure the user can't send a response twice.
 					if (isHandled) {
 						return throwError(Errs.Register.cannotSendResultTwice(name));
 					}
+					// If this response finishes the invocation, close the route waiting for an INTERRUPT
+					// and mark handled.
 					if (msg instanceof WampMessage.Error || msg instanceof WampMessage.Yield && !msg.options.progress) {
 						completeInterrupt.next();
 						isHandled = true
@@ -290,6 +283,7 @@ export class WampusCoreSession {
 					return this.protocol.send$(msg);
 				};
 
+				// Create an invocation ticket.
 				let procInvocationTicket: InvocationTicket = {
 					source: procRegistrationTicket,
 					error(err: WampusSendErrorArguments) {
@@ -326,7 +320,10 @@ export class WampusCoreSession {
 				return procInvocationTicket;
 			});
 
+			// Bind the case when an invocation is received to the expectation for the INVOCATION message.
 			let invocations$ = expectInvocation$.pipe(whenInvocationReceived);
+
+			// Create the registration ticket
 			let procRegistrationTicket: RegistrationTicket = {
 				invocations: invocations$.pipe(publishAutoConnect()),
 				close() {
@@ -354,13 +351,19 @@ export class WampusCoreSession {
 		return result.toPromise();
 	}
 
-	async publish(full: WampusPublishArguments): Promise<void> {
-		let {options, args, kwargs, name} = full;
+	/**
+	 * Publish an event to a topic.
+	 * @param wArgs All the arguments required
+	 */
+	async publish(wArgs: WampusPublishArguments): Promise<void> {
+		let {options, args, kwargs, name} = wArgs;
 		let msg = factory.publish(options, name, args, kwargs);
 		if (!this.isActive) throw Errs.sessionClosed(msg);
 
 		options = options || {};
 		let features = this._welcomeDetails.roles.broker.features;
+
+		// Make sure the event's options are supported by the broker
 		if ((options.eligible || options.eligible_authid || options.eligible_authrole
 			|| options.exclude || options.exclude_authid || options.exclude_authrole) && !features.subscriber_blackwhite_listing) {
 			throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Subscribe.SubscriberBlackWhiteListing);
@@ -373,16 +376,20 @@ export class WampusCoreSession {
 		}
 		return defer(() => {
 			let expectAcknowledge$: Observable<any>;
+			// If acknowledgement is enabled, we need to wait for a message...
 			if (options.acknowledge) {
+				// Create a route for PUBLISHED | ERROR, PUBLISH
 				let expectPublishedOrError$ = this.protocol.expectAny$(
 					Routes.published(msg.requestId),
 					Routes.error(WampType.PUBLISH, msg.requestId)
 				).pipe(take(1), catchError(err => {
 					if (err instanceof WampusRouteCompletion) {
+						// If the route is completed, throw an error (the event could not be published).
 						throw Errs.sessionIsClosing(msg);
 					}
 					throw err;
 				}));
+				// If an error is received, handle it.
 				let failOnError = map((response: WM.Any) => {
 					if (response instanceof WM.Error) {
 						this._throwCommonError(msg, response);
@@ -392,32 +399,39 @@ export class WampusCoreSession {
 				});
 				expectAcknowledge$ = expectPublishedOrError$.pipe(failOnError, mergeMapTo(EMPTY));
 			} else {
+				// If acknowledgelement is not enabled, use EMPTY.
 				expectAcknowledge$ = EMPTY;
 			}
-			let sendingPublish$ = this.protocol.send$(msg).pipe(catchError(err => {
-				return EMPTY;
-			}));
+			// Send the PUBLISH message
+			let sendingPublish$ = this.protocol.send$(msg);
+
+			if (!options.acknowledge) {
+				// If acknowledgement is disabled, swallow any errors fom a failed send$ call
+				sendingPublish$ = sendingPublish$.pipe(catchError(err => {
+					return EMPTY;
+				}))
+			}
+
+			// Send the PUBLISH message and set up the route for expecting acknowledgement at the same time
+			// to maintain uniformity
 			return merge(sendingPublish$, expectAcknowledge$);
 		}).toPromise();
 	}
 
 	/**
-	 * Returns a cold stream to a hot data source.
-	 * Sends a subscription message. The returned observable fires when the subscription is created,
-	 * yielding a hot observable containing the events as they are fired.
-	 * Unsubscribing from the outer cold observable terminates the subscription.
-	 * If you don't care when the subscription actually happens, just use .switchLatest() to get a flat event stream.
-	 * @param {WampSubscribeOptions} options
-	 * @param {string} name
-	 * @returns {Stream<Stream<EventArgs>>}
+	 * Subscribes to a topic and returns a subscription ticket that exposes an observable which will fire every time the subscription is triggered.
+	 * @param {WampSubscribeOptions} wArgs All the info necessary to subscribe to a topic.
+	 * @returns A promise that resolves with the subscription ticket when the subscription has been established.
 	 */
-	async topic(full: WampusSubcribeArguments): Promise<SubscriptionTicket> {
-		let {options, name} = full;
+	async topic(wArgs: WampusSubcribeArguments): Promise<SubscriptionTicket> {
+		let {options, name} = wArgs;
 		let msg = factory.subscribe(options, name);
 		let self = this;
 		if (!this.isActive) throw Errs.sessionClosed(msg);
 
 		options = options || {};
+
+		// Make sure the session supports the subscription features.
 		let features = this._welcomeDetails.roles.broker.features;
 		if (options.match && !features.pattern_based_subscription) {
 			throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Subscribe.PatternBasedSubscription);
@@ -425,28 +439,39 @@ export class WampusCoreSession {
 
 		let expectSubscribedOrError$ = defer(() => {
 			let sending$ = this.protocol.send$(msg);
+			// Creates a expectation for the SUBSCRIBED message
+
 			let expectSubscribedOrError$ = this.protocol.expectAny$(
 				Routes.subscribed(msg.requestId),
 				Routes.error(WampType.SUBSCRIBE, msg.requestId)
 			);
+
+			// Throw an error if an ERROR message is received
 			let failOnErrorOrCastToSubscribed = map((x: WM.Any) => {
 				if (x instanceof WM.Error) {
+					// No SUBSCRIBE-specific errors spring to mind
 					this._throwCommonError(msg, x);
 					throw Errs.Subscribe.other(name, x);
 				}
 				return x as WM.Subscribed;
 			});
+			// Send the SUBSCRIBE message and set up the route for the reply at the same time
 			return merge(sending$, expectSubscribedOrError$).pipe(failOnErrorOrCastToSubscribed);
 		}).pipe(catchError(err => {
+			// If the route is being forced closed, throw an error.
 			if (err instanceof WampusRouteCompletion) {
 				throw Errs.sessionIsClosing(msg);
 			}
 			throw err;
 		}));
 
-		let whenSubscribedStreamEvents = map((subscribed: WM.Subscribed) => {
+		// Once SUBSCRIBED is received, create a ticket for the subscription.
+		let whenSubscribedCreateTicket = map((subscribed: WM.Subscribed) => {
 			let unsub = factory.unsubscribe(subscribed.subscriptionId);
+
+			// Create route for EVENT messages.
 			let expectEvents$ = this.protocol.expectAny$(Routes.event(subscribed.subscriptionId)).pipe(catchError(err => {
+				// If the route is forced closed, just pretend the subscription has been closed.
 				if (err instanceof WampusRouteCompletion) {
 					closing = Promise.resolve();
 					return EMPTY;
@@ -455,13 +480,19 @@ export class WampusCoreSession {
 			}));
 			let closeSignal = new Subject();
 			let closing: Promise<any>;
+
+			// This is called when the subscription is closed.
 			let close = async () => {
+				// If the session is closing, ignore this.
 				if (this._isClosing) return;
+
+				// Create route for UNSUBSCRIBED or ERROR, UNSUBSCRIBE
 				let expectUnsubscribedOrError$ = this.protocol.expectAny$(
 					Routes.unsubscribed(unsub.requestId),
 					Routes.error(WampType.UNSUBSCRIBE, unsub.requestId)
 				);
 
+				// Handle errors, if any
 				let failOnUnsubscribedError = map((msg: WM.Any) => {
 					closeSignal.next();
 					if (msg instanceof WampMessage.Error) {
@@ -476,9 +507,11 @@ export class WampusCoreSession {
 					return msg as WM.Unsubscribed;
 				});
 
-				let sendUnsub$ = this.protocol.send$(unsub);
 
+				let sendUnsub$ = this.protocol.send$(unsub);
+				// Actually send the UNSUBSCRIBE message and set up the route for the repy.
 				let total = merge(sendUnsub$, expectUnsubscribedOrError$).pipe(failOnUnsubscribedError, take(1), catchError(err => {
+					// If a route is forced closed, just pretend we've received a reply.
 					if (err instanceof WampusRouteCompletion) {
 						return EMPTY;
 					}
@@ -487,6 +520,7 @@ export class WampusCoreSession {
 				return total.toPromise();
 			};
 
+			// Map EVENT messages to objects.
 			let mapToLibraryEvent = map((x: WM.Event) => {
 				let a: EventData = {
 					args: x.args,
@@ -497,42 +531,46 @@ export class WampusCoreSession {
 				return a;
 			});
 
+			// Create the subscription ticket.
 			let eventSubscriptionTicket = {
 				close() {
 					if (closing) return closing;
 					closing = close();
 					return closing;
 				},
-				events: expectEvents$.pipe(mapToLibraryEvent).pipe(catchError(err => {
-					if (err instanceof WampusRouteCompletion) {
-						return EMPTY;
-					}
-					throw err;
-				}), takeUntil(closeSignal), publishAutoConnect()),
+				// Here we map the EVENT messages to objects
+				events: expectEvents$.pipe(mapToLibraryEvent).pipe(takeUntil(closeSignal), publishAutoConnect()),
 				info: {
 					subscriptionId: subscribed.subscriptionId,
 					name: name,
 					options: options
 				},
 				get isOpen() {
-					return !closing && ! self._isClosing;
+					return !closing && !self._isClosing;
 				}
 			} as SubscriptionTicket;
 			return eventSubscriptionTicket;
 		});
 
-		return expectSubscribedOrError$.pipe(take(1), whenSubscribedStreamEvents).toPromise();
+		return expectSubscribedOrError$.pipe(take(1), whenSubscribedCreateTicket).toPromise();
 	}
 
-	call(full: WampusCallArguments): CallTicket {
+	/**
+	 * Calls a WAMP procedure
+	 * @param wArgs All the arguments required to call a procedure.
+	 */
+	call(wArgs: WampusCallArguments): CallTicket {
 		try {
-			let {options, name, args, kwargs} = full;
+			let {options, name, args, kwargs} = wArgs;
 			let features = this._welcomeDetails.roles.dealer.features;
+
+			// Wampus calls support progress by default
 			options = _.defaults(options, {
 				receive_progress: features.progressive_call_results
 			});
 			let msg = factory.call(options, name, args, kwargs);
 
+			// If the session is closed, end here.
 			if (!this.isActive) throw Errs.sessionClosed(msg);
 			let self = this;
 			let canceling: Promise<any>;
@@ -548,22 +586,15 @@ export class WampusCoreSession {
 				throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Call.CallTimeouts);
 			}
 
-			/*
-				Goes like this:
-				* Send a CALL message
-				* Await a RESULT or ERROR response.
-				- If received a RESULT.PROGRESS = false response, complete the progress stream.
+			// Check if this message will finish the call to mark it as non-cancellable.
+			let maybeTooLateToCancel = tap((x : WM.Any) => {
+				if (x instanceof WM.Error || x instanceof WM.Result && !x.details.progress) {
+					canceling = Promise.resolve();
+				}
+			});
 
-				On CANCEL:
-				1. Wait until CALL message is delivered
-				2. Force complete progress stream
-				3. Send a CANCEL message
-				4. Wait for a RESULT or ERROR response
-				5.
-			 */
-
+			// Handle an error or continue
 			let failOnError = map((x: WM.Any) => {
-				canceling = Promise.resolve();
 				if (x instanceof WampMessage.Error) {
 					this._throwCommonError(msg, x);
 					switch (x.error) {
@@ -585,64 +616,84 @@ export class WampusCoreSession {
 				}
 				return x as WM.Result;
 			});
-			let toLibraryResult = map((x: WM.Any) => {
-				if (x instanceof WampMessage.Result) {
-					return {
-						args: x.args,
-						kwargs: x.kwargs,
-						isProgress: x.details.progress || false,
-						details: x.details,
-						name: name,
-						source: callTicket
-					} as CallResultData;
-				}
-				throw new Error("Unknown message.");
+
+			// Map a RESULT message to an object.
+			let toLibraryResult = map((x: WM.Result) => {
+				return {
+					args: x.args,
+					kwargs: x.kwargs,
+					isProgress: x.details.progress || false,
+					details: x.details,
+					name: name,
+					source: callTicket
+				} as CallResultData;
 			});
+
+			// Set up the route for (RESULT | ERROR, CALL)
+			// And pass it through the operators defined above
 			let expectResultOrError = self.protocol.expectAny$(
 				Routes.result(msg.requestId),
 				Routes.error(WampType.CALL, msg.requestId)
-			).pipe(failOnError, catchError(err => {
+			).pipe(maybeTooLateToCancel, catchError(err => {
 				if (err instanceof WampusRouteCompletion) {
+					// If the route is being closed, throw an error to indicate calling failed
 					throw Errs.sessionIsClosing(msg);
 				}
 				throw err;
-			}), toLibraryResult).pipe(publishAutoConnect());
+			}), failOnError, toLibraryResult).pipe(publishAutoConnect());
 
+			// Send the CALL message and cache the result. We'll need to refer to this observable in the future.
 			let sending = this.protocol.send$(msg).pipe(publishAutoConnect());
 
+			// Merge sending and creating the route for the reply, and set up the conditions for non-error call completion.
 			let allStream =
 				merge(expectResultOrError, sending)
 					.pipe(skipAfter((x: CallResultData) => !x.isProgress));
 
+			// Start the cancelling flow
 			let startCancelling = (cancel: WM.Cancel) => defer(async () => {
 				if (this._isClosing) return;
 				let sendCancel$ = this.protocol.send$(cancel);
 
+				// Send the CANCEL message
+				// And also create a route for (RESULT | ERROR, CALL)
 				return merge(sendCancel$, self.protocol.expectAny$(
 					Routes.result(msg.requestId),
 					Routes.error(WampType.CALL, msg.requestId)
 				).pipe(skipAfter(x => {
+					// If canelling is successful, the route will yield ERROR, CALL so this will be used both in the regular flow
+					// and also as a response to the CANCEL message.
+					// If cancelling comes too late, the route will yield a non-progress RESULT, which will also be a response to the CANCEL message.
 					return x instanceof WM.Result && !x.details.progress || x instanceof WM.Error;
 				}), catchError(err => {
+					// If the route is forced closed, stop the cancelling flow and assume it finished.
 					if (err instanceof WampusRouteCompletion) {
 						return EMPTY;
 					}
 					throw err;
 				}), map(msg => {
-
+					// Swallow any result
 				}))).toPromise();
 			});
+			// Record all messages
 			let progressStream = allStream.pipe(publishAutoConnect());
+
+			// Create a call ticket
 			let callTicket: CallTicket = {
 				progress: progressStream,
 				close(mode ?: CancelMode) {
+					// Here we'll begin the cancelling flow
 					let cancel = factory.cancel(msg.requestId, {
 						mode: mode || CancelMode.Kill
 					});
+					// First we need to make sure cancelling is supported
 					if (!features.call_canceling) {
 						return Promise.reject(Errs.routerDoesNotSupportFeature(cancel, AdvProfile.Call.CallCancelling));
 					}
+					// If cancelling is already being performed, just return the existing promise.
 					if (canceling) return canceling;
+
+					// Otherwise, assign the promise to a cancelling flow.
 					return canceling = concat(sending, startCancelling(cancel)).toPromise().then(() => {
 					});
 				},
@@ -659,6 +710,9 @@ export class WampusCoreSession {
 			return callTicket;
 		}
 		catch (err) {
+			// We want to deal uniformally with errors thrown by the called code directly
+			// And errors encountered in the async observable flow. That's why we turn a sync error here
+			// into an async one.
 			return {
 				async close() {
 
@@ -668,7 +722,7 @@ export class WampusCoreSession {
 					return false;
 				},
 				info: {
-					...full,
+					...wArgs,
 					callId: undefined
 				}
 			} as CallTicket;

@@ -1,6 +1,6 @@
 import {HelloDetails} from "../core/protocol/options";
 import {WampusSession} from "./wampus-session";
-import {TransportFactory, WampusCoreSession} from "../core/session/core-session";
+import {WampusCoreSession} from "../core/session/core-session";
 import {AuthenticatorFunction} from "../core/session/authentication";
 import {Serializer} from "../core/serializer/serializer";
 import {WampMessage} from "../core/protocol/messages";
@@ -10,6 +10,7 @@ import {JsonSerializer} from "../core/serializer/json";
 import {AbstractWampusSessionServices, StackTraceService, TransformSet} from "./services";
 import {DependencyDeclarations} from "./dependency-declarations";
 import {NewObjectInitializer} from "../common/common";
+import {TransportFactory} from "../core/transport/transport";
 
 
 export type SerializerDeclaration = "json" | Serializer;
