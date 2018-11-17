@@ -25,19 +25,46 @@ import _ = require("lodash");
  */
 
 /**
- * A function that returns true if the route is considered "handled" and should be removed.
+ * A route registration.
  */
 export type PrefixRoute<T> = {
-    special ?: string;
-    keys : WampArray;
+	/**
+	 * The prefix key for matching the route.
+	 */
+	readonly key : WampPrimitive[];
+
+	/**
+	 * Used to notify a route a message matching its key has been received.
+	 * @param x The argument.
+	 */
     next?(x: T): void;
-    complete?() : void;
+
+	/**
+	 * Notifies a route it should complete.
+	 */
+	complete?() : void;
+
+	/**
+	 * Notifies a route it should error.
+	 * @param err The error to error with.
+	 */
     error?(err : Error) : void;
 }
 
+/**
+ * A recursive data structure containing a bucket of routes, and a dictionary of route indexes by key element value.
+ * Used to invoke routes matching a key.
+ */
 interface RouteIndex<T> {
+	/**
+	 * The bucket of routes matching the key so far.
+	 */
     match?: PrefixRoute<T>[];
-    next?: Map<any, RouteIndex<T>>;
+
+	/**
+	 * A dictionary of route indexes based on the next key component.
+	 */
+	next?: Map<any, RouteIndex<T>>;
 }
 
 /**
@@ -46,7 +73,10 @@ interface RouteIndex<T> {
 export class PrefixRouter<T> {
     private _root: RouteIndex<T> = null;
 
-    count() {
+	/**
+	 * Returns the total number of registered routes.
+	 */
+	count() {
         if (!this._root) return 0;
         let rec = (x : RouteIndex<T>) => {
             return x.match.length + Array.from(x.next.values()).reduce((tot, cur) => tot + rec(cur), 0);
@@ -54,19 +84,26 @@ export class PrefixRouter<T> {
         return rec(this._root);
     }
 
-    matchAll() {
-        return this.prefixMatch([]);
+	/**
+	 * Returns all routes.
+	 */
+	matchAll() {
+        return this.reverseMatch([]);
     }
 
-    prefixMatch(keys : WampPrimitive[]) {
+	/**
+	 * Matches routes where the given key is a prefix of the route's key. Reverse matching.
+	 * @param key The given key to match against the routes.
+	 */
+	reverseMatch(key : WampPrimitive[]) {
         let routes = [];
         function rec(cur : RouteIndex<T>, index : number) {
             if (!cur) return;
-            if (index >= keys.length) {
+            if (index >= key.length) {
                 routes.push(...cur.match);
                 [...cur.next.values()].forEach(next => rec(next, index + 1));
             } else {
-                let next = cur.next.get(keys[index]);
+                let next = cur.next.get(key[index]);
                 if (next) {
                     rec(next, index + 1);
                 }
@@ -76,7 +113,11 @@ export class PrefixRouter<T> {
         return routes;
     }
 
-    match(keys: WampPrimitive[]) {
+	/**
+	 * Matches all routes where the route's key is a prefix of the given key.
+	 * @param keys
+	 */
+	match(keys: WampPrimitive[]) {
         if (keys[0] === WampType.INVOCATION) {
             //ugly but works
             let a = keys[2];
@@ -101,8 +142,12 @@ export class PrefixRouter<T> {
         return routes;
     }
 
-    insertRoute(target: PrefixRoute<T>) {
-        let keys = target.keys;
+	/**
+	 * Inserts route into the router.
+	 * @param target The prefix route.
+	 */
+	insertRoute(target: PrefixRoute<T>) {
+        let keys = target.key;
         _.defaults(target, {
             error() {},
             next() {},
@@ -128,11 +173,11 @@ export class PrefixRouter<T> {
     }
 
     /**
-     * Do not call this method except as part of `.expect`. If you remove a route, that will still leave some Streams expecting that route to be called dangling.
-     * To properly remove a route, make sure the Stream that depends on it will complete or error.
+     * Removes a route from the internal index. Note that this won't do anything to the route object itself, so it may still expect input.
+     * @param target The route to remove, by reference.
      */
     removeRoute(target: PrefixRoute<T>) {
-        let keys = target.keys;
+        let keys = target.key;
         let rec = (cur: RouteIndex<T>, index: number) => {
             if (!cur) return null;
             if (keys.length <= index) {

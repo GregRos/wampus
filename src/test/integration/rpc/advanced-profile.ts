@@ -3,7 +3,7 @@ import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
 import {MyPromise} from "../../../lib/utils/ext-promise";
 import {yp} from "../../usability/yamprinter";
-import {MatchType} from "../../../lib/core/protocol/options";
+import {MatchingPolicy} from "../../../lib/core/protocol/options";
 
 test.beforeEach(async t => {
 	t.context = {
@@ -62,7 +62,7 @@ test("pattern registration", async t => {
 	let ticket = await session.register({
 		name : "wampus.example",
 		options : {
-			match : MatchType.Prefix
+			match : MatchingPolicy.Prefix
 		},
 		async called(x) {
 			t.is(x.options.procedure, x.args[0]);

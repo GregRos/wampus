@@ -2,8 +2,8 @@ import {WampType} from "./message.type";
 
 /**
  * A set of prefix key routes used to identify common routes messages.
- * @see [WAMP Basic Profile]{@link https://wamp-proto.org/static/rfc/draft-oberstet-hybi-crossbar-wamp.html#message-definitions}
- * @see [WAMP Advanced Profile]{@link https://wamp-proto.org/static/rfc/draft-oberstet-hybi-crossbar-wamp.html#rfc.section.14.1.1}
+ * @see [WAMP Basic Profile]{@link https://wamp-proto.org/_static/wamp_latest.html#message-definitions}
+ * @see [WAMP Advanced Profile]{@link https://wamp-proto.org/_static/wamp_latest.html#message-definitions-0}
  */
 export module Routes {
 

@@ -1,6 +1,6 @@
 import {Wampus} from "../../lib/wrappers/wampus";
 import "../../setup";
-import {MatchType} from "../../lib/core/protocol/options";
+import {MatchingPolicy} from "../../lib/core/protocol/options";
 import {yamprint} from "yamprint";
 import {WampusSession} from "../../lib/wrappers/wampus-session";
 import "yamprint-ansi-color"

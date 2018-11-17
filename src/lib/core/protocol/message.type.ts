@@ -1,8 +1,8 @@
 
 /**
  * The message type IDs for all messages in the WAMP protocol specification.
- * @see [Basic Profile]{@link https://wamp-proto.org/static/rfc/draft-oberstet-hybi-crossbar-wamp.html#message-codes-and-direction}
- * @see [Advanced Profile]{@link https://wamp-proto.org/static/rfc/draft-oberstet-hybi-crossbar-wamp.html#rfc.section.14.1.2}
+ * @see [Basic Profile]{@link https://wamp-proto.org/_static/wamp_latest.html#message-codes-and-direction}
+ * @see [Advanced Profile]{@link https://wamp-proto.org/_static/wamp_latest.html#message-codes-and-direction-0}
  */
 export enum WampType {
     HELLO = 1,

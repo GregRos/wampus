@@ -16,10 +16,10 @@ import {
 	CallResultData,
 	CallTicket,
 	CancellationToken,
-	EventInvocationData,
-	EventSubscriptionTicket,
-	ProcedureInvocationTicket,
-	ProcedureRegistrationTicket
+	EventData,
+	SubscriptionTicket,
+	InvocationTicket,
+	RegistrationTicket
 } from "./ticket";
 import {
 	concat,
@@ -50,7 +50,7 @@ import {Transport} from "../transport/transport";
 import {wampusHelloDetails} from "../hello-details";
 import {MessageReader} from "../protocol/reader";
 import {DefaultMessageFactory} from "./default-factory";
-import {AuthenticationWorkflow, ChallengeEvent} from "./authentication";
+import {AuthenticatorFunction, ChallengeEvent} from "./authentication";
 import {fromPromise} from "rxjs/internal-compatibility";
 
 export interface CoreSessionConfig {
@@ -69,7 +69,7 @@ export type TransportFactory = () => (Promise<Transport> | Transport);
 
 export interface WampusSessionDependencies {
 	transport: TransportFactory;
-	authenticator?: AuthenticationWorkflow;
+	authenticator?: AuthenticatorFunction;
 }
 
 export class WampusCoreSession {
@@ -122,7 +122,12 @@ export class WampusCoreSession {
 		return concat(getSessionFromShake$).pipe(mapTo(session), take(1)).toPromise();
 	}
 
-	async register(full: WampusRegisterArguments): Promise<ProcedureRegistrationTicket> {
+	/**
+	 * Registers a procedure.
+	 * @param full The arguments for registering the procedure.
+	 * @returns A promise that, once the registration is approved, resolves into a ticket for the registration.
+	 */
+	async register(full: WampusRegisterArguments): Promise<RegistrationTicket> {
 		let {options, name} = full;
 		/*
 			Returns a cold observable yielding a hot observable.
@@ -285,7 +290,7 @@ export class WampusCoreSession {
 					return this.protocol.send$(msg);
 				};
 
-				let procInvocationTicket: ProcedureInvocationTicket = {
+				let procInvocationTicket: InvocationTicket = {
 					source: procRegistrationTicket,
 					error(err: WampusSendErrorArguments) {
 						if (typeof err !== "object") {
@@ -322,7 +327,7 @@ export class WampusCoreSession {
 			});
 
 			let invocations$ = expectInvocation$.pipe(whenInvocationReceived);
-			let procRegistrationTicket: ProcedureRegistrationTicket = {
+			let procRegistrationTicket: RegistrationTicket = {
 				invocations: invocations$.pipe(publishAutoConnect()),
 				close() {
 					if (closing) return closing;
@@ -406,7 +411,7 @@ export class WampusCoreSession {
 	 * @param {string} name
 	 * @returns {Stream<Stream<EventArgs>>}
 	 */
-	async topic(full: WampusSubcribeArguments): Promise<EventSubscriptionTicket> {
+	async topic(full: WampusSubcribeArguments): Promise<SubscriptionTicket> {
 		let {options, name} = full;
 		let msg = factory.subscribe(options, name);
 		let self = this;
@@ -483,7 +488,7 @@ export class WampusCoreSession {
 			};
 
 			let mapToLibraryEvent = map((x: WM.Event) => {
-				let a: EventInvocationData = {
+				let a: EventData = {
 					args: x.args,
 					details: x.details,
 					kwargs: x.kwargs,
@@ -512,7 +517,7 @@ export class WampusCoreSession {
 				get isOpen() {
 					return !closing && ! self._isClosing;
 				}
-			} as EventSubscriptionTicket;
+			} as SubscriptionTicket;
 			return eventSubscriptionTicket;
 		});
 
@@ -775,7 +780,7 @@ export class WampusCoreSession {
 		return merge(sending$, concat(expectingByeOrError$).pipe(failOnError));
 	}
 
-	private _handshake$(authenticator: AuthenticationWorkflow): Observable<WM.Welcome> {
+	private _handshake$(authenticator: AuthenticatorFunction): Observable<WM.Welcome> {
 		let messenger = this.protocol;
 		let config = this.config;
 		let helloDetails = _.cloneDeep(wampusHelloDetails);

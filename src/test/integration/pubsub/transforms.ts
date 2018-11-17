@@ -18,6 +18,7 @@ test("publish input, event output", async t => {
 	let session = t.context.session = await RealSessions.session({
 		services(s) {
 			s.transforms.objectToJson.add((x,ctrl) => {
+
 				if (x instanceof Token) return "modified";
 				// This is to make sure the array in args isn't transformed:
 				if (Array.isArray(x)) return x.length;

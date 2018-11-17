@@ -6,15 +6,15 @@ import {map} from "rxjs/operators";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {Ticket} from "./ticket";
 import CallSite = NodeJS.CallSite;
-import {makeEverythingNonEnumerableExcept} from "../../utils/object";
-export interface EventInvocationData extends Core.EventInvocationData {
+import {ObjectHelpers} from "../../utils/object";
+export interface EventInvocationData extends Core.EventData {
     readonly source : SubscriptionTicket;
 }
 export class SubscriptionTicket extends Ticket {
     trace = {
         created : null as CallSite[]
     };
-    private _base : Core.EventSubscriptionTicket;
+    private _base : Core.SubscriptionTicket;
     private _services : AbstractWampusSessionServices;
     private _adapter : RxjsEventAdapter<EventInvocationData>;
 
@@ -30,12 +30,12 @@ export class SubscriptionTicket extends Ticket {
                 details : x.details,
                 source : this
             } as EventInvocationData;
-            makeEverythingNonEnumerableExcept(data, "args", "kwargs", "details");
+            ObjectHelpers.makeEverythingNonEnumerableExcept(data, "args", "kwargs", "details");
             return data;
         }));
     };
 
-    static async create(subscribing : Promise<Core.EventSubscriptionTicket>, services : AbstractWampusSessionServices) {
+    static async create(subscribing : Promise<Core.SubscriptionTicket>, services : AbstractWampusSessionServices) {
         let trace =  services.stackTraceService.capture(SubscriptionTicket.create);
         let coreTicket = await subscribing.catch(err => {
         	if (trace) err.stack = services.stackTraceService.format(err, trace);
@@ -51,7 +51,7 @@ export class SubscriptionTicket extends Ticket {
                 arg : x
             }
         }, ["event"]);
-        makeEverythingNonEnumerableExcept(ticket);
+        ObjectHelpers.makeEverythingNonEnumerableExcept(ticket);
         return ticket;
     }
 
@@ -77,4 +77,4 @@ export class SubscriptionTicket extends Ticket {
 
 }
 
-makeEverythingNonEnumerableExcept(SubscriptionTicket.prototype, "info");
+ObjectHelpers.makeEverythingNonEnumerableExcept(SubscriptionTicket.prototype, "info");

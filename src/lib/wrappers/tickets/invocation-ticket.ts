@@ -8,7 +8,7 @@ import {Errs} from "../../core/errors/errors";
 import {RegistrationTicket} from "./registration-ticket";
 import _ = require("lodash");
 import {Ticket} from "./ticket";
-import {makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/object";
+import {ObjectHelpers} from "../../utils/object";
 import {WampInvocationOptions, WampYieldOptions} from "../../core/protocol/options";
 import {WampusInvocationCanceledError} from "../../core/errors/types";
 import {WampArray, WampObject} from "../../core/protocol/messages";
@@ -22,14 +22,14 @@ export class InvocationTicket  {
 	readonly kwargs : WampObject;
 	readonly options : WampInvocationOptions;
 	readonly name : string;
-    constructor(private _base: Core.ProcedureInvocationTicket, private _services: AbstractWampusSessionServices, private _source: RegistrationTicket) {
+    constructor(private _base: Core.InvocationTicket, private _services: AbstractWampusSessionServices, private _source: RegistrationTicket) {
 
     	this.args =  _base.args ? _base.args.map(_services.transforms.jsonToObject.transform) : _base.args;
     	this.kwargs = _services.transforms.jsonToObject.transform(_base.kwargs);
     	this.options = _base.options;
     	this.name = _base.name;
 	    this.invocationId = _base.invocationId;
-	    makeEverythingNonEnumerableExcept(this, "args", "kwargs", "options", "name", "invocationId");
+	    ObjectHelpers.makeEverythingNonEnumerableExcept(this, "args", "kwargs", "options", "name", "invocationId");
     }
 
     get isHandled() {
@@ -107,7 +107,7 @@ export class InvocationTicket  {
     }
 }
 
-makeEverythingNonEnumerableExcept(InvocationTicket.prototype);
+ObjectHelpers.makeEverythingNonEnumerableExcept(InvocationTicket.prototype);
 
 export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;

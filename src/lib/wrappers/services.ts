@@ -7,9 +7,9 @@ import CallSite = NodeJS.CallSite;
 import {TransformStep, StepByStepTransformer} from "./services/recursive-transform";
 
 export class TransformSet {
-	objectToJson = new  StepByStepTransformer<any, WampObject>();
+	objectToJson = new  StepByStepTransformer<any, any>();
 
-	jsonToObject = new StepByStepTransformer<WampObject, any>();
+	jsonToObject = new StepByStepTransformer<any, any>();
 
 	errorResponseToError = new StepByStepTransformer<WampusInvocationError, Error>();
 

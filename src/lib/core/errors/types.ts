@@ -1,18 +1,15 @@
 import * as template from "string-template";
 import {WampArray, WampMessage, WampObject} from "../protocol/messages";
 import {
-	assignKeepDescriptor,
-	makeEnumerable,
-	makeEverythingNonEnumerableExcept,
-	makeNonEnumerable
+	ObjectHelpers
 } from "../../utils/object";
 
 export class WampusError extends Error {
     name = this.constructor.name;
     constructor(message: string, props: object) {
         super(template(message, props || {}));
-	    assignKeepDescriptor(this, props);
-	    makeNonEnumerable(this, "name");
+	    ObjectHelpers.assignKeepDescriptor(this, props);
+	    ObjectHelpers.makeNonEnumerable(this, "name");
     }
 }
 
@@ -61,7 +58,7 @@ export class WampusInvocationError extends WampusError {
 	details : any;
 
 }
-makeEverythingNonEnumerableExcept(WampusInvocationError.prototype, "wampName", "kwargs", "args", "details");
+ObjectHelpers.makeEverythingNonEnumerableExcept(WampusInvocationError.prototype, "wampName", "kwargs", "args", "details");
 
 /**
  * Thrown when a WAMP RPC call is canceled.

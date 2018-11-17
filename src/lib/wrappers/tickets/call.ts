@@ -7,7 +7,7 @@ import {CancelMode} from "../../core/protocol/options";
 import {Observable} from "rxjs";
 import {publishReplayAutoConnect} from "../../utils/rxjs-operators";
 import {Ticket} from "./ticket";
-import {makeEverythingNonEnumerableExcept} from "../../utils/object";
+import {ObjectHelpers} from "../../utils/object";
 import {WampusInvocationError} from "../../core/errors/types";
 import {CallResultData} from "./call-result";
 import CallSite = NodeJS.CallSite;
@@ -68,7 +68,7 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
                 arg: x
             }
         }, ["data"]);
-	    makeEverythingNonEnumerableExcept(ticket, "info");
+	    ObjectHelpers.makeEverythingNonEnumerableExcept(ticket, "info");
         return ticket;
     }
 
@@ -146,5 +146,5 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
         return this.result.catch(onrejected);
     }
 }
-makeEverythingNonEnumerableExcept(CallTicket.prototype, "info");
+ObjectHelpers.makeEverythingNonEnumerableExcept(CallTicket.prototype, "info");
 

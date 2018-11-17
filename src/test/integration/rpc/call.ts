@@ -1,7 +1,7 @@
 import test from "ava";
 import {WampusSession} from "../../../lib";
 import {InvocationTicket, ProcedureHandler} from "../../../lib/wrappers/tickets/invocation-ticket";
-import {InvocationPolicy, MatchType, WampCallOptions} from "../../../lib/core/protocol/options";
+import {InvocationPolicy, MatchingPolicy, WampCallOptions} from "../../../lib/core/protocol/options";
 import _ = require("lodash");
 import {RealSessions} from "../../helpers/real-sessions";
 import {last, toArray} from "rxjs/operators";

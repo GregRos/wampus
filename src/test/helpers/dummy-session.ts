@@ -2,12 +2,12 @@ import {dummyTransport, HigherLevelDummyServer} from "./dummy-transport";
 import {WampusCoreSession} from "../../lib/core/session/core-session";
 import {first} from "rxjs/operators";
 import {BrokerFeatures, DealerFeatures} from "../../lib/core/protocol/options";
-import {AuthenticationWorkflow} from "../../lib/core/session/authentication";
+import {AuthenticatorFunction} from "../../lib/core/session/authentication";
 import {WampusSession} from "../../lib";
 
 
 export module SessionStages {
-    export function fresh(realm: string, authenticator ?: AuthenticationWorkflow) {
+    export function fresh(realm: string, authenticator ?: AuthenticatorFunction) {
         let {client, server} = dummyTransport();
         let session = WampusCoreSession.create({
             realm: realm,

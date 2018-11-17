@@ -1,7 +1,7 @@
 import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
-import {InvocationPolicy, MatchType, WampRegisterOptions} from "../../../lib/core/protocol/options";
+import {InvocationPolicy, MatchingPolicy, WampRegisterOptions} from "../../../lib/core/protocol/options";
 import _ = require("lodash");
 
 test.beforeEach(async t => {
@@ -17,7 +17,7 @@ test("verify registration ticket", async t => {
 	let session = t.context.session as WampusSession;
 	let opts = {
 		disclose_caller : true,
-		match : MatchType.Prefix,
+		match : MatchingPolicy.Prefix,
 		invoke : InvocationPolicy.Random
 	} as WampRegisterOptions
 	let ticket = await session.register({
@@ -93,7 +93,7 @@ test("registerAll", async t => {
 		},
 		"wampus.d." : {
 			options : {
-				match : MatchType.Prefix
+				match : MatchingPolicy.Prefix
 			},
 			async called(x) {
 				return {

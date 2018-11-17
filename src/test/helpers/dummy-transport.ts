@@ -1,6 +1,6 @@
 import {Transport, TransportEvent, TransportMessage} from "../../lib/core/transport/transport";
 import {concat, defer, EMPTY, Observable, Subject, timer} from "rxjs";
-import {WampMessage, WampObject, WampRawMessage} from "../../lib/core/protocol/messages";
+import {WampArray, WampMessage, WampObject, WampRawMessage} from "../../lib/core/protocol/messages";
 import {choose} from "../../lib/utils/rxjs-operators";
 import {MyPromise} from "../../lib/utils/ext-promise";
 import {domainToASCII} from "url";
@@ -73,7 +73,7 @@ export function dummyTransport() {
 			})
 		},
 		events: intoServer,
-		messages: intoServer.pipe(choose(x => x.type === "message" ? x.data : undefined))
+		messages: intoServer.pipe(choose(x => x.type === "message" ? x.data as WampArray : undefined))
 	};
 	return {
 		client: {
@@ -90,7 +90,7 @@ export function dummyTransport() {
                 return concat(timer(Math.random() * 20), defer(() => {
                     intoServer.next({
                         type : "message",
-                        data : x
+                        data : x as any[]
                     });
                     return EMPTY;
                 })).pipe(mergeMapTo(EMPTY));

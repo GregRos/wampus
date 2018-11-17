@@ -16,6 +16,9 @@ import {
 import {Observable} from "rxjs";
 import {WampResult} from "../basics";
 
+/**
+ * Core ticket.
+ */
 export interface Ticket {
     close(): Promise<void>;
 
@@ -39,6 +42,9 @@ export interface CallTicketInfo {
 	readonly callId: number;
 }
 
+/**
+ * Core call ticket with minimal functionality returned by the CoreWampusSession.
+ */
 export interface CallTicket extends Ticket {
     readonly info:CallTicketInfo;
 
@@ -47,22 +53,30 @@ export interface CallTicket extends Ticket {
     close(cancelMode ?: CancelMode): Promise<void>;
 }
 
-export interface ProcedureRegistrationTicket extends Ticket {
-    readonly invocations: Observable<ProcedureInvocationTicket>;
+/**
+ * Core registration ticket.
+ */
+export interface RegistrationTicket extends Ticket {
+    readonly invocations: Observable<InvocationTicket>;
     readonly info: WampusRegisterArguments & {
         readonly registrationId: number;
     }
 }
 
-export interface EventSubscriptionTicket extends Ticket {
-    readonly events: Observable<EventInvocationData>;
+/**
+ * Core subscription ticket.
+ */
+export interface SubscriptionTicket extends Ticket {
+    readonly events: Observable<EventData>;
     readonly info: WampusSubcribeArguments & {
         readonly subscriptionId: number;
     }
 }
 
 
-
+/**
+ * Data from a procedure invocation.
+ */
 export interface CallResultData extends WampResult {
     readonly source: CallTicket;
 
@@ -75,8 +89,11 @@ export interface CallResultData extends WampResult {
     readonly details: WampResultOptions;
 }
 
-export interface EventInvocationData extends WampResult {
-    readonly source: EventSubscriptionTicket;
+/**
+ * Data for a single procedure invocation.
+ */
+export interface EventData extends WampResult {
+    readonly source: SubscriptionTicket;
 
     readonly args: WampArray;
 
@@ -85,19 +102,25 @@ export interface EventInvocationData extends WampResult {
     readonly details: WampEventOptions;
 }
 
+/**
+ * Token containing cancellation info.
+ */
 export interface CancellationToken {
 
 	readonly type : "timeout" | "cancel";
 
-    readonly source: ProcedureInvocationTicket;
+    readonly source: InvocationTicket;
 
     readonly received: Date;
 
     readonly options: WampObject;
 }
 
-export interface ProcedureInvocationTicket extends WampResult {
-    readonly source : ProcedureRegistrationTicket;
+/**
+ * Core invocation ticket for a procedure invocation.
+ */
+export interface InvocationTicket extends WampResult {
+    readonly source : RegistrationTicket;
 
     readonly args: WampArray;
 

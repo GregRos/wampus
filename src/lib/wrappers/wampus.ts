@@ -1,7 +1,7 @@
 import {HelloDetails} from "../core/protocol/options";
 import {WampusSession} from "./wampus-session";
 import {TransportFactory, WampusCoreSession} from "../core/session/core-session";
-import {AuthenticationWorkflow} from "../core/session/authentication";
+import {AuthenticatorFunction} from "../core/session/authentication";
 import {Serializer} from "../core/serializer/serializer";
 import {WampMessage} from "../core/protocol/messages";
 import Unknown = WampMessage.Unknown;
@@ -32,7 +32,7 @@ export interface WampusConfig {
     realm : string;
     timeout ?: number;
     helloDetails?(dits : HelloDetails) : void;
-    authenticator ?: AuthenticationWorkflow;
+    authenticator ?: AuthenticatorFunction;
     transport : TransportDeclaration;
     services?: NewObjectInitializer<AbstractWampusSessionServices>
 }

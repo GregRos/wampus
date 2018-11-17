@@ -13,17 +13,46 @@ import {
 } from "./options";
 import {WampusError} from "../errors/types";
 
+/**
+ * An integer matching the WAMP ID specification.
+ */
 export type WampId = number;
+/**
+ * A string matching the WAMP URI specification.
+ */
 export type WampUriString = string;
-export type WampPrimitive = string | number | boolean | WampId | WampUriString;
+/**
+ * A basic primitive value that can appear in WAMP messages: a string, a number, an ID, or a URI.
+ */
+export type WampPrimitive = string | number | WampId | WampUriString;
 
+/**
+ * A dictionary that can appear in WAMP messages.
+ */
 export type WampObject = any;
 
+/**
+ * An array that can appear in WAMP messages.
+ */
 export type WampArray = any[];
+
+/**
+ * An arbitrary WAMP message in raw array format.
+ */
 export type WampRawMessage = WampArray;
 
+/**
+ * An abstract interface for WAMP message classes to implement.
+ */
 export interface WampMessage {
-     type : WampType;
+	/**
+	 * The type of the WAMP message.
+	 */
+	type : WampType;
+
+	/**
+	 * Transforms the WAMP message object to raw array format.
+	 */
 	toTransportFormat() : WampRawMessage;
 }
 
@@ -196,7 +225,7 @@ export module WampMessage {
      */
     export class Unknown {
         type = WampType._Unknown;
-        constructor(public raw : WampArray) {
+        constructor(public raw : WampRawMessage) {
 
         }
 

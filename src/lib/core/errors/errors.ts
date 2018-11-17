@@ -8,7 +8,7 @@ import {
 	WampusNetworkError
 } from "./types";
 import {WampCancelOptions} from "../protocol/options";
-import {assignKeepDescriptor, makeEverythingNonEnumerableExcept, makeNonEnumerable} from "../../utils/object";
+import {ObjectHelpers} from "../../utils/object";
 
 /**@internal*/
 export enum ErrorLevel {
@@ -28,7 +28,7 @@ function getWampErrorReplyBasedMembers(err: WampMessage.Error) {
 	if ("kwargs" in err) {
 		members.kwargs = err.kwargs;
 	}
-	makeEverythingNonEnumerableExcept(members, "kwargs", "args", "details", "error");
+	ObjectHelpers.makeEverythingNonEnumerableExcept(members, "kwargs", "args", "details", "error");
 	return members;
 }
 
@@ -38,7 +38,7 @@ function getWampAbortBasedMembers(abort: WampMessage.Abort) {
 		details : abort.details,
 		reason : abort.reason
 	};
-	makeNonEnumerable(members, "_originalWampMessage");
+	ObjectHelpers.makeNonEnumerable(members, "_originalWampMessage");
 	return members;
 }
 

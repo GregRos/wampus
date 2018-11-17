@@ -7,7 +7,7 @@ import _ = require("lodash");
 
 function getRoute<T>(key : any[], tag ?: string) {
     return Object.assign(new Subject(), {
-        keys : key,
+        key : key,
         tag
     });
 }
@@ -27,7 +27,7 @@ test("should fulfill empty invariants", t => {
 test("remove non-existent route is okay", t => {
     let router = new PrefixRouter();
     router.removeRoute({
-        keys : []
+        key : []
     });
     t.is(router.count(), 0);
 });
@@ -52,7 +52,7 @@ test("match single route in various ways", t => {
     t.deepEqual(router.match([1, 2, 3, 4]), [route], "failed broad match");
     t.deepEqual(router.match([1, 2]), [], "failed narrow match");
     t.deepEqual(router.matchAll(), [route]);
-    t.deepEqual(router.prefixMatch([1]), [route]);
+    t.deepEqual(router.reverseMatch([1]), [route]);
 });
 
 test("match two routes, subsequence case", t => {
@@ -65,8 +65,8 @@ test("match two routes, subsequence case", t => {
     t.deepEqual(router.match([1]), [], "failed broad match");
     t.true(setEqual(router.match([1, 2, 3, 4]), [route1, route2]));
     t.true(setEqual(router.match([1, 2, 3]), [route1]));
-    t.true(setEqual(router.prefixMatch([1, 2, 3]), [route1, route2]));
-    t.true(setEqual(router.prefixMatch([1, 2]), [route1, route2]));
+    t.true(setEqual(router.reverseMatch([1, 2, 3]), [route1, route2]));
+    t.true(setEqual(router.reverseMatch([1, 2]), [route1, route2]));
 });
 
 test("match two routes, shared prefix case", t => {
@@ -81,8 +81,8 @@ test("match two routes, shared prefix case", t => {
     t.true(setEqual(router.match([1, 2, 4]), [route1]));
     t.true(setEqual(router.match([1, 2, 3, 4]), [route2]));
 
-    t.true(setEqual(router.prefixMatch([1, 2]), [route1, route2]));
-    t.true(setEqual(router.prefixMatch([1, 2, 3]), [route2]));
+    t.true(setEqual(router.reverseMatch([1, 2]), [route1, route2]));
+    t.true(setEqual(router.reverseMatch([1, 2, 3]), [route2]));
 });
 
 test("match two isolated routes", t => {

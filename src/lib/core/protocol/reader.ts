@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import {WampMessage, WampRawMessage} from "./messages";
 import {WampType} from "./message.type";
 

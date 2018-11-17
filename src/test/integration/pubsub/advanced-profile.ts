@@ -1,7 +1,7 @@
 import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
-import {MatchType} from "../../../lib/core/protocol/options";
+import {MatchingPolicy} from "../../../lib/core/protocol/options";
 import {take, toArray} from "rxjs/operators";
 import {AdvProfile} from "../../../lib/core/protocol/uris";
 
@@ -19,7 +19,7 @@ test("pattern_based_subscription", async t => {
 	let ticket = await session.topic({
 		name: "wampus.",
 		options: {
-			match: MatchType.Prefix
+			match: MatchingPolicy.Prefix
 		}
 	});
 

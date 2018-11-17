@@ -8,18 +8,18 @@ import {ProcedureHandler, InvocationTicket} from "./invocation-ticket";
 import CallSite = NodeJS.CallSite;
 import {WampResult, WampusRegisterArguments} from "../../core";
 import {Ticket} from "./ticket";
-import {makeEverythingNonEnumerableExcept} from "../../utils/object";
+import {ObjectHelpers} from "../../utils/object";
 export class RegistrationTicket extends Ticket {
     trace = {
         created : null as CallSite[]
     };
-    private _base : Core.ProcedureRegistrationTicket;
+    private _base : Core.RegistrationTicket;
     private _services : AbstractWampusSessionServices;
     constructor(never : never) {
 		super();
 	}
 
-    static async create(registering : Promise<Core.ProcedureRegistrationTicket>, services : AbstractWampusSessionServices) {
+    static async create(registering : Promise<Core.RegistrationTicket>, services : AbstractWampusSessionServices) {
         let trace = services.stackTraceService.capture(RegistrationTicket.create);
         let coreTicket = await registering.catch(err => {
 	        if (trace) err.trace = services.stackTraceService.format(err, trace);
@@ -30,7 +30,7 @@ export class RegistrationTicket extends Ticket {
         ticket.trace.created = trace;
         ticket._base = coreTicket;
         ticket._services = services;
-        makeEverythingNonEnumerableExcept(ticket);
+        ObjectHelpers.makeEverythingNonEnumerableExcept(ticket);
         return ticket;
     }
 
@@ -68,5 +68,5 @@ export class RegistrationTicket extends Ticket {
         return this._base.isOpen;
     }
 }
-makeEverythingNonEnumerableExcept(InvocationTicket.prototype, "info");
+ObjectHelpers.makeEverythingNonEnumerableExcept(InvocationTicket.prototype, "info");
 

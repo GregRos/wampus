@@ -1,7 +1,7 @@
 import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib/index";
-import {MatchType, WampSubscribeOptions} from "../../../lib/core/protocol/options";
+import {MatchingPolicy, WampSubscribeOptions} from "../../../lib/core/protocol/options";
 import _ = require("lodash");
 import {WampusPublishArguments} from "../../../lib/core/session/message-arguments";
 import {take, toArray} from "rxjs/operators";
