@@ -38,46 +38,80 @@ export class WampusSession extends Ticket {
 		this._services = services;
 	}
 
+	/**
+	 * Gets the realm this session belongs to.
+	 */
 	get realm() {
 		return this._core.realm;
 	}
 
+	/**
+	 * Gets whether this session is still alive.
+	 */
 	get isActive() {
 		return this._core.isActive;
 	}
 
+	/**
+	 * Gets information about this session.
+	 */
 	get details() {
 		return this._core.details;
 	}
 
+	/**
+	 * Gets this session's ID.
+	 */
 	get sessionId() {
 		return this._core.sessionId;
 	}
 
+	/**
+	 * Exposes the WAMP protocol client used to send and receive protocol messages. This gives you lower-level control over the session.
+	 * Don't use it unless you know what you're doing.
+	 */
 	get protocol() {
 		return this._core.protocol;
 	}
 
+	/**
+	 * Closes this session.
+	 */
 	close() {
 		return this._core.close();
 	}
 
-	call(args: WampusCallArguments): CallTicket {
-		args = {
-			...args,
-			kwargs : this._services.transforms.objectToJson.transform(args.kwargs),
-			args : args.args ? args.args.map(this._services.transforms.objectToJson.transform) : args.args
+	/**
+	 * Calls a procedure via the WAMP protocol
+	 * @param wArgs All the information required to make the call.
+	 * @returns An awaitable call ticket that lets you receive progress from the call.
+	 */
+	call(wArgs: WampusCallArguments): CallTicket {
+		wArgs = {
+			...wArgs,
+			kwargs : this._services.transforms.objectToJson.transform(wArgs.kwargs),
+			args : wArgs.args ? wArgs.args.map(this._services.transforms.objectToJson.transform) : wArgs.args
 		};
-		return CallTicket.create(this._core.call(args), this._services);
+		return CallTicket.create(this._core.call(wArgs), this._services);
 	};
 
-	async register(obj: WampusRegisterArguments & {called : ProcedureHandler}): Promise<RegistrationTicket> {
-		let coreRegTicket = this._core.register(obj);
+	/**
+	 * Registers a procedure via the WAMP protocol.
+	 * @param wArgs All the information needed to register the procedure, including the backing callback.
+	 * @returns A promise that resolves to a registration ticket once the procedure has been registered.
+	 */
+	async register(wArgs: WampusRegisterArguments & {called : ProcedureHandler}): Promise<RegistrationTicket> {
+		let coreRegTicket = this._core.register(wArgs);
 		let ticket = await RegistrationTicket.create(coreRegTicket, this._services);
-		ticket._handle(obj.called);
+		ticket._handle(wArgs.called);
 		return ticket;
 	};
 
+	/**
+	 * Registers multiple procedures based on an object specification.
+	 * @param procedures A procedure specification.
+	 * @see WampusProcedureDefinitions
+	 */
 	async registerAll(procedures : WampusProcedureDefinitions) : Promise<Ticket> {
 		let tickets = [];
 		_.forIn(procedures, (v, k) => {
@@ -98,17 +132,27 @@ export class WampusSession extends Ticket {
 		return Ticket.combine(resolvedTickets);
 	}
 
-	topic(full: WampusSubcribeArguments): Promise<SubscriptionTicket> {
-		let obj = full;
-		return SubscriptionTicket.create(this._core.topic(obj), this._services);
+	/**
+	 * Subscribes to a topic via the WAMP protocol.
+	 * @param wArgs All the information needed to create the subscription.
+	 * @returns A promise that resolves to a subscription ticket that can be used to receive events.
+	 */
+	topic(wArgs: WampusSubcribeArguments): Promise<SubscriptionTicket> {
+
+		return SubscriptionTicket.create(this._core.topic(wArgs), this._services);
 	}
 
-	publish(args: WampusPublishArguments): Promise<void> {
-		args = {
-			...args,
-			kwargs: this._services.transforms.objectToJson.transform(args.kwargs),
-			args: args.args ? args.args.map(this._services.transforms.objectToJson.transform) : args.args,
+	/**
+	 * Publishes an event via the WAMP protocol.
+	 * @param wArgs All the information needed to publish the event.
+	 * @returns A promise that resolves once the event has been published.
+	 */
+	publish(wArgs: WampusPublishArguments): Promise<void> {
+		wArgs = {
+			...wArgs,
+			kwargs: this._services.transforms.objectToJson.transform(wArgs.kwargs),
+			args: wArgs.args ? wArgs.args.map(this._services.transforms.objectToJson.transform) : wArgs.args,
 		};
-		return this._core.publish(args);
+		return this._core.publish(wArgs);
 	};
 }

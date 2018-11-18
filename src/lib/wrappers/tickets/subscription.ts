@@ -10,6 +10,10 @@ import {ObjectHelpers} from "../../utils/object";
 export interface EventInvocationData extends Core.EventData {
     readonly source : SubscriptionTicket;
 }
+
+/**
+ * A ticket for a topic subscription.
+ */
 export class SubscriptionTicket extends Ticket {
     trace = {
         created : null as CallSite[]
@@ -22,7 +26,10 @@ export class SubscriptionTicket extends Ticket {
         super();
     }
 
-    get events() {
+	/**
+	 * A hot observable that emits all the events received by this subscription in real time.
+	 */
+	get events() {
         return this._base.events.pipe(map(x => {
             let data =  {
                 args : x.args ? x.args.map(x => this._services.transforms.jsonToObject.transform(x)) : x.args,
@@ -35,6 +42,11 @@ export class SubscriptionTicket extends Ticket {
         }));
     };
 
+	/**
+	 * @internal
+	 * @param subscribing
+	 * @param services
+	 */
     static async create(subscribing : Promise<Core.SubscriptionTicket>, services : AbstractWampusSessionServices) {
         let trace =  services.stackTraceService.capture(SubscriptionTicket.create);
         let coreTicket = await subscribing.catch(err => {
@@ -55,22 +67,40 @@ export class SubscriptionTicket extends Ticket {
         return ticket;
     }
 
-    get info() {
+	/**
+	 * Info about this subscription.
+	 */
+	get info() {
         return this._base.info;
     }
 
-    get isOpen() {
+	/**
+	 * Whether this subscription is still active.
+	 */
+	get isOpen() {
         return this._base.isOpen;
     }
 
-    close(): Promise<void> {
+	/**
+	 * Closes this subscription.
+	 */
+	close(): Promise<void> {
         return this._base.close();
     }
 
-    off(name: "event", handler: any): void {
+	/**
+	 * Removes an event handler from this ticket.
+	 * @param name The name of the event.
+	 * @param handler The handler
+	 */
+	off(name: "event", handler: any): void {
         this._adapter.off(name, handler);
     }
-
+	/**
+	 * Adds an event handler to this ticket.
+	 * @param name The name of the event.
+	 * @param handler The handler
+	 */
     on(name: "event", handler: (x: EventInvocationData) => void): void {
         this._adapter.on(name, handler);
     }

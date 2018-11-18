@@ -14,14 +14,37 @@ import {WampusInvocationCanceledError} from "../../core/errors/types";
 import {WampArray, WampObject} from "../../core/protocol/messages";
 
 
+/**
+ * A ticket for the invocation of a procedure, on the callee's side.
+ */
 export class InvocationTicket  {
-
-	private _transformedInput : WampResult;
+	/**
+	 * The sequential arguments.
+	 */
 	readonly args : WampArray;
+	/**
+	 * The ID of the invocation.
+	 */
 	readonly invocationId : number;
+	/**
+	 * The named arguments.
+	 */
 	readonly kwargs : WampObject;
+	/**
+	 * The WAMP protocol options.
+	 */
 	readonly options : WampInvocationOptions;
+	/**
+	 * The procedure name.
+	 */
 	readonly name : string;
+
+	/**
+	 * @internal
+	 * @param _base
+	 * @param _services
+	 * @param _source
+	 */
     constructor(private _base: Core.InvocationTicket, private _services: AbstractWampusSessionServices, private _source: RegistrationTicket) {
 
     	this.args =  _base.args ? _base.args.map(_services.transforms.jsonToObject.transform) : _base.args;
@@ -32,11 +55,17 @@ export class InvocationTicket  {
 	    ObjectHelpers.makeEverythingNonEnumerableExcept(this, "args", "kwargs", "options", "name", "invocationId");
     }
 
-    get isHandled() {
+	/**
+	 * Whether this invocation has already received the final result.
+	 */
+	get isHandled() {
         return this._base.isHandled;
     }
 
-    get source() {
+	/**
+	 * The source {{RegistrationTicket}} for the procedure that created this invocation ticket.
+	 */
+	get source() {
         return this._source;
     }
 
@@ -52,7 +81,12 @@ export class InvocationTicket  {
         await this._base.error(msg);
     }
 
-    waitForCancel(time) {
+	/**
+	 * Checks if this call has been cancelled, and continues to wait for {{time}} milliseconds for a cancellation request.
+	 * @param time The time to wait for. Can be 0.
+	 * @returns A promise that resolves to a {{CancellationTicket}} if one is found, or no value otherwise.
+	 */
+	waitForCancel(time) {
         return this._base.cancellation.pipe(takeUntil(timer(time)), map(token => {
             return {
                 ...token,
@@ -96,7 +130,12 @@ export class InvocationTicket  {
         }
     }
 
-    async progress(msg: WampusSendResultArguments): Promise<void> {
+	/**
+	 * Sends a progress report to the caller.
+	 * The message sent by this method will have its `options.progress` field set to true.
+	 * @param msg The contents of the progress message.
+	 */
+	async progress(msg: WampusSendResultArguments): Promise<void> {
         msg = this._applyOutputTransforms(msg);
         await this._base.progress(msg);
     }
@@ -112,7 +151,5 @@ ObjectHelpers.makeEverythingNonEnumerableExcept(InvocationTicket.prototype);
 export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;
 }
-
-export type ExpandableFunction<TIn, TOut> = (req : TIn) => (TOut | Promise<TOut> | Observable<TOut>)
 
 export type ProcedureHandler = (ticket : InvocationTicket) => Promise<WampusSendResultArguments>

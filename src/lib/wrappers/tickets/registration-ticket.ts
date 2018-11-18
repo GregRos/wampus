@@ -9,6 +9,10 @@ import CallSite = NodeJS.CallSite;
 import {WampResult, WampusRegisterArguments} from "../../core";
 import {Ticket} from "./ticket";
 import {ObjectHelpers} from "../../utils/object";
+
+/**
+ * A ticket for a procedure registration.
+ */
 export class RegistrationTicket extends Ticket {
     trace = {
         created : null as CallSite[]
@@ -19,6 +23,11 @@ export class RegistrationTicket extends Ticket {
 		super();
 	}
 
+	/**
+	 * @internal
+	 * @param registering
+	 * @param services
+	 */
     static async create(registering : Promise<Core.RegistrationTicket>, services : AbstractWampusSessionServices) {
         let trace = services.stackTraceService.capture(RegistrationTicket.create);
         let coreTicket = await registering.catch(err => {
@@ -34,11 +43,17 @@ export class RegistrationTicket extends Ticket {
         return ticket;
     }
 
-    get info() {
+	/**
+	 * Info about the registration.
+	 */
+	get info() {
         return this._base.info;
     }
 
-    close(): Promise<void> {
+	/**
+	 * Closes the registration.
+	 */
+	close(): Promise<void> {
         return this._base.close();
     }
 
@@ -64,7 +79,10 @@ export class RegistrationTicket extends Ticket {
         }));
     }
 
-    get isOpen() {
+	/**
+	 * Whether the registration has been closed.
+	 */
+	get isOpen() {
         return this._base.isOpen;
     }
 }
