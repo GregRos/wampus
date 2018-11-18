@@ -72,7 +72,7 @@ export class WampProtocolClient<T> {
                     }
                 } else if (x.type === "message") {
                 	if (!(Array.isArray(x.data))) {
-                		throw new WampusError("Non-array message.", {})
+                		throw new WampusNetworkError("Non-array message.", {})
 	                }
                     let msg = this._parser(x.data);
                     let routes = this._router.match(x.data);

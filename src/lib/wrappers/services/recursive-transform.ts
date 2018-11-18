@@ -29,7 +29,7 @@ export module Transformation {
 		} else {
 			steps = [arg1, ...args];
 		}
-		if (steps.length === 0) throw new WampusError("Cannot compile a list with zero transforms", {});
+		if (steps.length === 0) throw new WampusInvalidArgument("Cannot compile a list with zero transforms", {});
 		let firstSkip: (this: MyRecursionControl, value: any) => void;
 		let curSkip: (this: MyRecursionControl, value: any) => any;
 		for (let i = 0; i < steps.length; i++) {

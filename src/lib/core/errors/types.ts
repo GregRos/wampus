@@ -4,7 +4,10 @@ import {
 	ObjectHelpers
 } from "../../utils/object";
 
-export class WampusError extends Error {
+/**
+ * The base class for errors thrown by the Wampus library.
+ */
+export abstract class WampusError extends Error {
     name = this.constructor.name;
     constructor(message: string, props: object) {
         super(template(message, props || {}));
@@ -13,6 +16,9 @@ export class WampusError extends Error {
     }
 }
 
+/**
+ * Thrown when an argument supplied to a function was invalid.
+ */
 export class WampusInvalidArgument extends WampusError {
 	constructor(message : string, props : object) {
 		super(message, props)
@@ -20,13 +26,10 @@ export class WampusInvalidArgument extends WampusError {
 }
 
 /**
- * Thrown when an error occurs in a transport protocol or the WAMP protocol itself.
- * This includes the following WAMP error codes:
- * 1. wamp.error.invalid_uri
- * 2. wamp.error.protocol_violation
- *
- * In the following additional situations:
- *
+ * Thrown when a network issue has prevented an action from completing, such as:
+ * 1. A transport issue
+ * 2. A WAMP protocol violation.
+ * 3. A valid WAMP response with the `network_failure` error code.
  */
 export class WampusNetworkError extends WampusError {
     constructor(message: string, props ?: Record<string, any>) {
@@ -36,20 +39,17 @@ export class WampusNetworkError extends WampusError {
 }
 
 /**
- * Thrown when a WAMP operation fails due to a technical reason, such as an RPC call being unknown.
- * Not thrown when an RPC call succeeds with an error state.
+ * Thrown when the operation the caller tried to perform was invalid, such as:
+ * 1. Trying to register a procedure with an invalid name.
+ * 2. Trying to use a feature that wasn't enabled for the session.
+ * 3. A valid WAMP response with an appropriate error code.
  */
 export class WampusIllegalOperationError extends WampusError {
 
 }
 
-function hasMoreInfo(msg : WampMessage.Error) {
-	return Object.keys(msg.kwargs).length > 0 || msg.args.length > 0 || Object.keys(msg.details).length > 0;
-
-}
-
 /**
- * Thrown when a WAMP operation succeeds with an error state, such as if the target of an RPC call threw an exception.
+ * Thrown when a WAMP operation succeeds with an error state, such as if the target of an RPC call threw an exception or was cancelled.
  */
 export class WampusInvocationError extends WampusError {
 	args : WampArray;
@@ -58,7 +58,7 @@ export class WampusInvocationError extends WampusError {
 	details : any;
 
 }
-ObjectHelpers.makeEverythingNonEnumerableExcept(WampusInvocationError.prototype, "wampName", "kwargs", "args", "details");
+ObjectHelpers.makeEverythingNonEnumerableExcept(WampusInvocationError.prototype, "kwargs", "args", "details");
 
 /**
  * Thrown when a WAMP RPC call is canceled.
