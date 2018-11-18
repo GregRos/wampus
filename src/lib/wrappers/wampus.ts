@@ -2,32 +2,11 @@ import {HelloDetails} from "../core/protocol/options";
 import {WampusSession} from "./wampus-session";
 import {WampusCoreSession} from "../core/session/core-session";
 import {AuthenticatorFunction} from "../core/session/authentication";
-import {Serializer} from "../core/serializer/serializer";
 import {WampMessage} from "../core/protocol/messages";
-import Unknown = WampMessage.Unknown;
-import {WebsocketTransport} from "../core/transport/websocket";
-import {JsonSerializer} from "../core/serializer/json";
-import {AbstractWampusSessionServices, StackTraceService, TransformSet} from "./services";
-import {DependencyDeclarations} from "./dependency-declarations";
+import {AbstractWampusSessionServices} from "./services";
+import {DependencyDeclarations, TransportDeclaration} from "./dependency-selector";
 import {NewObjectInitializer} from "../common/common";
-import {TransportFactory} from "../core/transport/transport";
 
-
-export type SerializerDeclaration = "json" | Serializer;
-
-export interface WebsocketTransportConfig {
-    type : "websocket";
-    url : string;
-    serializer : SerializerDeclaration;
-    timeout ?: number;
-}
-
-export interface UnknownTransportConfig {
-    type : "unknown";
-}
-
-
-export type TransportDeclaration = TransportFactory | WebsocketTransportConfig | UnknownTransportConfig
 
 export interface WampusConfig {
     realm : string;

@@ -1,11 +1,14 @@
+/**
+ * @module core
+ */
 import {WampMessage, WampObject, WampUriString} from "../protocol/messages";
 import {WampType} from "../protocol/message.type";
 import {Errs} from "../errors/errors";
 import {AdvProfile, WampUri} from "../protocol/uris";
 import {WampusNetworkError} from "../errors/types";
-import {Routes} from "../protocol/routes";
+import {Routes} from "../routing/routes";
 import {CancelMode, HelloDetails, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
-import {WampProtocolClient} from "../protocol/wamp-protocol-client";
+import {WampProtocolClient} from "../routing/wamp-protocol-client";
 import {
 	CallResultData,
 	CallTicket,
@@ -71,6 +74,7 @@ import _ = require("lodash");
 import WM = WampMessage;
 
 let factory = DefaultMessageFactory;
+
 
 /**
  * The Wampus class that implements most WAMP session logic.

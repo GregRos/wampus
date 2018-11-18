@@ -1,6 +1,6 @@
 import test, {GenericTestContext} from "ava";
 import {dummyTransport} from "../../helpers/dummy-transport";
-import {WampProtocolClient} from "../../../lib/core/protocol/wamp-protocol-client";
+import {WampProtocolClient} from "../../../lib/core/routing/wamp-protocol-client";
 import {Observer, Subject} from "rxjs";
 import {PrefixRouter} from "../../../lib/core/routing/prefix-router";
 import _ = require("lodash");

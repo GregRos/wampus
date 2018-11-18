@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "noImplicitAny": false,
+    "sourceMap": true,
+    "allowUnreachableCode": true,
+    "lib": [
+      "es6",
+      "es2015.collection",
+      "es2016.array.include",
+      "dom"
+    ],
+    "declaration": true,
+    "outDir" : ".tmp/publish",
+    "rootDir": "src/lib",
+	"stripInternal": true,
+	"noEmit" : true
+  },
+  "exclude": [
+    "dist",
+    "node_modules"
+  ],
+  "include": [
+    "src/lib"
+  ]
+}

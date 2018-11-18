@@ -1,10 +1,10 @@
-import {WampArray, WampMessage, WampPrimitive, WampRawMessage} from "./messages";
+import {WampArray, WampMessage, WampPrimitive, WampRawMessage} from "../protocol/messages";
 import {WebsocketTransport} from "../transport/websocket";
 import {WampusError, WampusNetworkError} from "../errors/types";
-import {PrefixRoute, PrefixRouter} from "../routing/prefix-router";
+import {PrefixRoute, PrefixRouter} from "./prefix-router";
 import {Transport, TransportMessage} from "../transport/transport";
 import {Errs} from "../errors/errors";
-import {MessageReader} from "./reader";
+import {MessageReader} from "../protocol/reader";
 import {merge, Observable, of, Subject} from "rxjs";
 import {flatMap, take, tap} from "rxjs/operators";
 import {MyPromise} from "../../utils/ext-promise";

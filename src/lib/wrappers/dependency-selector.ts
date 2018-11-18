@@ -1,11 +1,26 @@
 import {TransportFactory} from "../core/transport/transport";
-import {SerializerDeclaration, TransportDeclaration, UnknownTransportConfig, WebsocketTransportConfig} from "./wampus";
 import {Serializer} from "../core/serializer/serializer";
 import {JsonSerializer} from "../core/serializer/json";
 import {WebsocketTransport} from "../core/transport/websocket";
-import {WampusError} from "../core/errors/types";
 import {Errors} from "./errors";
 
+export type SerializerDeclaration = "json" | Serializer;
+
+export interface WebsocketTransportConfig {
+	type: "websocket";
+	url: string;
+	serializer: SerializerDeclaration;
+	timeout?: number;
+}
+
+export interface UnknownTransportConfig {
+	type: "unknown";
+}
+
+export type TransportDeclaration = TransportFactory | WebsocketTransportConfig | UnknownTransportConfig
+/**
+ * @internal
+ */
 export module DependencyDeclarations {
 
     export function serializer(declr : SerializerDeclaration) {

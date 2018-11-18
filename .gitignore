@@ -18,6 +18,9 @@
 .idea/dynamic.xml
 .idea/uiDesigner.xml
 
+# temporary
+docs/
+
 # Gradle:
 .idea/gradle.xml
 .idea/libraries

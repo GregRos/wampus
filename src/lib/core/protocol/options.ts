@@ -301,7 +301,7 @@ export enum CancelMode {
  */
 export interface WampCancelOptions {
 	/**
-	 * The mode of the cancellation request.
+	 * A setting that controls how the call will be cancelled and whether to wait for confirmation.
 	 */
 	mode?: CancelMode;
 }
