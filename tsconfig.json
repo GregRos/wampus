@@ -6,7 +6,8 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "allowUnreachableCode": true,
-    "lib": [
+	"experimentalDecorators": true,
+	"lib": [
       "es6",
       "es2015.collection",
       "es2016.array.include",
