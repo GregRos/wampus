@@ -59,7 +59,7 @@ async function someBasicCalls(session: WampusSession) {
 }
 
 export async function main() {
-	let session = await Wampus.create({
+	let session = await Wampus.connect({
 		realm: "proxy",
 		transport: {
 			type: "websocket",

@@ -5,7 +5,7 @@ let randomRealm = () => {
 
 export module RealSessions {
 	export function session(stuff ?: Partial<WampusConfig>) {
-		return Wampus.create({
+		return Wampus.connect({
 			realm: randomRealm(),
 			transport: {
 				type: "websocket",

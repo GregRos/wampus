@@ -12,7 +12,7 @@ test.afterEach(async t => {
 });
 
 test("configure websocket transport", async t => {
-	let session = t.context.session = Wampus.create({
+	let session = t.context.session = Wampus.connect({
 		transport : {
 			serializer : "json",
 			type : "websocket",
@@ -26,7 +26,7 @@ test("configure websocket transport", async t => {
 });
 
 test("verify session details", async t => {
-	let session = await Wampus.create({
+	let session = await Wampus.connect({
 		transport : {
 			serializer : "json",
 			type : "websocket",
@@ -42,7 +42,7 @@ test("verify session details", async t => {
 });
 
 test("invalid transport type, throws", async t => {
-	let session = Wampus.create({
+	let session = Wampus.connect({
 		transport : {
 			type : "?!"
 		} as any,
@@ -52,7 +52,7 @@ test("invalid transport type, throws", async t => {
 });
 
 test("invalid serializer type, throws", async t => {
-	let session = Wampus.create({
+	let session = Wampus.connect({
 		transport : {
 			type : "websocket",
 			url : "ws://localhost:8080",
@@ -64,7 +64,7 @@ test("invalid serializer type, throws", async t => {
 });
 
 test("configure websocket transport, assign serializer", async t => {
-	let session = t.context.session = Wampus.create({
+	let session = t.context.session = Wampus.connect({
 		transport : {
 			serializer : new JsonSerializer(),
 			type : "websocket",
@@ -78,7 +78,7 @@ test("configure websocket transport, assign serializer", async t => {
 });
 
 test("assign websocket transport directly", async t => {
-	let session = t.context.session =Wampus.create({
+	let session = t.context.session =Wampus.connect({
 		transport() {
 			return WebsocketTransport.create({
 				url : "ws://localhost:8080",

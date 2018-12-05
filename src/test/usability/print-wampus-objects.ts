@@ -2,7 +2,7 @@ import {SessionStages} from "../helpers/dummy-session";
 import {Wampus, WampusSession} from "../../lib";
 
 async function run() {
-	let session = await Wampus.create({
+	let session = await Wampus.connect({
 		realm: "library",
 		transport: {
 			type: "websocket",

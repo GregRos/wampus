@@ -31,7 +31,7 @@ export class WebsocketTransport implements Transport{
     events$ : Observable<TransportEvent>;
 
     /**
-     * Use `WebsocketTransport.create` instead.
+     * Use `WebsocketTransport.connect` instead.
      * @param {never} never
      */
     constructor(never : never) {
@@ -39,8 +39,8 @@ export class WebsocketTransport implements Transport{
     }
 
     /**
-     * Creates a COLD stream that will create a [[WebsocketTransport]] when subscribed to.
-     * The [[WebsocketTransport]] will be automatically closed when the subscription ends.
+     * Creates a COLD stream that will create a {@link  WebsocketTransport} when subscribed to.
+     * The {@link  WebsocketTransport} will be automatically closed when the subscription ends.
      * @param {WebsocketTransportConfig} config
      * @returns {Observable<WebsocketTransport>}
      */

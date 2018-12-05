@@ -20,7 +20,7 @@ export class WampProtocolClient<T> {
     public _router : PrefixRouter<T>;
     private _parser : (x : WampRawMessage) => T;
     /**
-     * Use [[WampProtocolClient.create]].
+     * Use {@link  WampProtocolClient.connect}.
      * @param {never} never
      */
     constructor(never : never) {
@@ -28,7 +28,7 @@ export class WampProtocolClient<T> {
     }
 
     /**
-     * Creates an instance of the [[WampProtocolClient]].
+     * Creates an instance of the {@link  WampProtocolClient}.
      * @param transport The transport used to send and receive messages.
      * @param selector Used to transform messages from a raw array format to an object format.
      * @returns WampProtocolClient<T>
@@ -164,7 +164,7 @@ export class WampProtocolClient<T> {
     }
 
     /**
-     * Like [[expect$]], except that this defines several routes with a union.
+     * Like {@link  expect$}, except that this defines several routes with a union.
      * @see expect$
      * @param routes
      */

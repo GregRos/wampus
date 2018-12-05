@@ -18,7 +18,7 @@ export interface WampusConfig {
 }
 
 export module Wampus {
-    export async function create(config : WampusConfig) {
+    export async function connect(config : WampusConfig) {
         let transportFactory= DependencyDeclarations.transport(config.transport);
         let coreSession = await WampusCoreSession.create({
             helloDetails : config.helloDetails,
