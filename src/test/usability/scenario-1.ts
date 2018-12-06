@@ -12,7 +12,7 @@ function printResult(x: any) {
 }
 
 async function someBasicCalls(session: WampusSession) {
-	let procedure = await session.register({
+	let procedure = await session.procedure({
 		name: "x2",
 		async called(x) {
 			return {
@@ -31,7 +31,7 @@ async function someBasicCalls(session: WampusSession) {
 		}
 	});
 
-	let complexObjectProc = await session.register({
+	let complexObjectProc = await session.procedure({
 		name: "enrich-object",
 		async called({kwargs}) {
 			let ret = {

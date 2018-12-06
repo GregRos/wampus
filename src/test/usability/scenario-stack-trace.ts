@@ -21,7 +21,7 @@ function level1() {
 
 
 async function someBasicCalls(session: WampusSession) {
-	let procedure = await session.register({
+	let procedure = await session.procedure({
 		name: "x2",
 		async called(x) {
 			level1();

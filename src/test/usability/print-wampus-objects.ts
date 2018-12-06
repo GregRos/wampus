@@ -11,7 +11,7 @@ async function run() {
 		}
 	});
 
-	await session.register({
+	await session.procedure({
 		name: "test",
 		async called(x) {
 			console.log("called", x);

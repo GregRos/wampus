@@ -24,7 +24,7 @@ test("call input, invocation output", async t => {
 			})
 		}
 	});
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		async called(x) {
 			t.true(_.isMatch(x, {
@@ -83,7 +83,7 @@ test("call output, invocation input", async t => {
 		}
 	});
 
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		async called(x) {
 			t.true(_.isMatch(x, {
@@ -171,7 +171,7 @@ test("invocation error to error response", async t => {
 		optionsName : "d"
 	};
 
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		async called(x) {
 			throw Object.assign(new MySpecialError("Hi"), args);

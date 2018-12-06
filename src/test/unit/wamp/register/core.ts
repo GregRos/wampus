@@ -288,7 +288,7 @@ test("after UNREGISTERED, handle pending invocations", async t => {
     }));
 });
 
-test("register() on closed session throws", async t => {
+test("procedure() on closed session throws", async t => {
     let {session,server} = await SessionStages.handshaken("a");
     server.send([3, {}, "no"]);
     await session.close();
@@ -299,7 +299,7 @@ test("register() on closed session throws", async t => {
     await t.throws(registering, MatchError.network("register", "clos"));
 });
 
-test("register() on closing session throws", async t => {
+test("procedure() on closing session throws", async t => {
     let {session,server} = await SessionStages.handshaken("a");
 
     let serverMonitor = Rxjs.monitor(server.messages);

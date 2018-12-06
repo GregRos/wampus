@@ -15,7 +15,7 @@ test.afterEach(async t => {
 });
 test("call_timeout", async t => {
 	let session = t.context.session as WampusSession;
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		async called(x) {
 			await MyPromise.wait(400);
@@ -40,7 +40,7 @@ test("call_timeout", async t => {
 
 test("caller_identification", async t => {
 	let session = t.context.session as WampusSession;
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		async called(x) {
 			t.is(x.options.caller, session.sessionId);
@@ -59,7 +59,7 @@ test("caller_identification", async t => {
 
 test("pattern registration", async t => {
 	let session = t.context.session as WampusSession;
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		options : {
 			match : MatchingPolicy.Prefix

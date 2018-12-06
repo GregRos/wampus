@@ -20,7 +20,7 @@ test("verify registration ticket", async t => {
 		match : MatchingPolicy.Prefix,
 		invoke : InvocationPolicy.Random
 	} as WampRegisterOptions
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		async called(x) {
 			return {};
@@ -35,7 +35,7 @@ test("verify registration ticket", async t => {
 
 test("close registration, try to call to make sure", async t => {
 	let session = t.context.session as WampusSession;
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		async called(x) {
 			return {};
@@ -57,7 +57,7 @@ test("close registration, try to call to make sure", async t => {
 
 test("close registration, closed registration can be closed again and inspected", async t => {
 	let session = t.context.session as WampusSession;
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		async called(x) {
 			return {};
@@ -72,10 +72,10 @@ test("close registration, closed registration can be closed again and inspected"
 	 t.false(ticket.isOpen);
 });
 
-test("registerAll", async t => {
+test("procedures", async t => {
 	let session = t.context.session as WampusSession;
 
-	let tickets = await session.registerAll({
+	let tickets = await session.procedures({
 		async ["wampus.a"](x) {
 			return {
 				args : ["a"]
@@ -120,7 +120,7 @@ test("registerAll", async t => {
 
 test("close session, registration should also be closed", async t => {
 	let session = t.context.session as WampusSession;
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		async called(x) {
 			return {};

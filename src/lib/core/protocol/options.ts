@@ -54,6 +54,7 @@ export interface HelloDetails {
 	};
 	authmethods?: string[];
 	authid?: string;
+	authrole ?: string;
 	roles: {
 		publisher?: {
 			features?: Partial<PublisherFeatures>

@@ -22,7 +22,7 @@ test.afterEach(async t => {
 });
 
 async function registerShared(session: WampusSession, handlerBox: { handler: ProcedureHandler }) {
-	return await session.register({
+	return await session.procedure({
 		name: "wampus.shared",
 		async called(x) {
 			return handlerBox.handler(x);
@@ -32,7 +32,7 @@ async function registerShared(session: WampusSession, handlerBox: { handler: Pro
 
 test("verify call ticket", async t => {
 	let session = t.context.session as WampusSession;
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name: "wampus.example",
 		async called(x) {
 			return {};
@@ -60,7 +60,7 @@ test("verify call ticket", async t => {
 test("verify invocation ticket", async t => {
 	let session = t.context.session as WampusSession;
 	let lastInvocation: InvocationTicket;
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name: "wampus.example",
 		async called(x) {
 			lastInvocation = x;
@@ -92,7 +92,7 @@ test("verify result data", async t => {
 			}
 		}
 	};
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name: "wampus.example",
 		async called(x) {
 			return result;
@@ -113,7 +113,7 @@ test("verify result data", async t => {
 
 test("throw in handler translates to error response", async t => {
 	let session = t.context.session as WampusSession;
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name: "wampus.example",
 		async called(x) {
 			throw Object.assign(new Error("AnError"), {
@@ -144,7 +144,7 @@ test("throw in handler translates to error response", async t => {
 test("send progress", async t => {
 	let session = t.context.session as WampusSession;
 
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		async called(x) {
 			await x.progress({
@@ -184,7 +184,7 @@ test("send progress", async t => {
 test("send and receive cancel", async t => {
 	let session = t.context.session as WampusSession;
 
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		async called(x) {
 			await MyPromise.wait(500);
@@ -213,7 +213,7 @@ test("progress via event", async t => {
 	let session = t.context.session as WampusSession;
 
 	let data = [];
-	let ticket = await session.register({
+	let ticket = await session.procedure({
 		name : "wampus.example",
 		async called(x) {
 			await x.progress({

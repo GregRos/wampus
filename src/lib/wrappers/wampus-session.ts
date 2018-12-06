@@ -23,7 +23,6 @@ export interface WampusProcedureDefinitions {
 	};
 }
 
-
 export class WampusSession extends Ticket {
 
 	/**
@@ -100,7 +99,7 @@ export class WampusSession extends Ticket {
 	 * @param wArgs All the information needed to register the procedure, including the backing callback.
 	 * @returns A promise that resolves to a registration ticket once the procedure has been registered.
 	 */
-	async register(wArgs: WampusRegisterArguments & {called : ProcedureHandler}): Promise<RegistrationTicket> {
+	async procedure(wArgs: WampusRegisterArguments & {called : ProcedureHandler}): Promise<RegistrationTicket> {
 		let coreRegTicket = this._core.register(wArgs);
 		let ticket = await RegistrationTicket.create(coreRegTicket, this._services);
 		ticket._handle(wArgs.called);
@@ -112,7 +111,7 @@ export class WampusSession extends Ticket {
 	 * @param procedures A procedure specification.
 	 * @see WampusProcedureDefinitions
 	 */
-	async registerAll(procedures : WampusProcedureDefinitions) : Promise<Ticket> {
+	async procedures(procedures : WampusProcedureDefinitions) : Promise<Ticket> {
 		let tickets = [];
 		_.forIn(procedures, (v, k) => {
 			let obj = {
@@ -126,7 +125,7 @@ export class WampusSession extends Ticket {
 				obj.options = v.options || {};
 				obj.called = v.called;
 			}
-			tickets.push(this.register(obj));
+			tickets.push(this.procedure(obj));
 		});
 		let resolvedTickets = await Promise.all(tickets);
 		return Ticket.combine(resolvedTickets);

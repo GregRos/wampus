@@ -5,6 +5,8 @@ import {InvocationTicket} from "./tickets/invocation-ticket";
 import {CallTicket} from "./tickets/call";
 import CallSite = NodeJS.CallSite;
 import {TransformStep, StepByStepTransformer} from "./services/recursive-transform";
+import {NewObjectInitializer} from "../common/common";
+import {HelloDetails} from "../core/protocol/options";
 
 export class TransformSet {
 	objectToJson = new  StepByStepTransformer<any, any>();
