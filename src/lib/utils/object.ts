@@ -23,7 +23,7 @@ export module ObjectHelpers {
 	export function makeEverythingNonEnumerableExcept<T>(obj: T, ...names: (keyof T | string)[]) {
 		for (let name of Object.getOwnPropertyNames(obj)) {
 			let desc = Object.getOwnPropertyDescriptor(obj, name);
-			desc.enumerable = names.includes(name);
+			desc.enumerable = names.indexOf(name) > 0;
 			Object.defineProperty(obj, name, desc);
 		}
 	}

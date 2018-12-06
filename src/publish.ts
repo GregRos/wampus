@@ -1,6 +1,6 @@
 import execa = require("execa");
 import globby = require("globby");
-import {createProgram, ModuleKind, ScriptTarget} from "typescript";
+import {createProgram, ModuleKind, ScriptTarget, getPreEmitDiagnostics, flattenDiagnosticMessageText} from "typescript";
 import path = require("path");
 import fs = require("mz/fs");
 import sm = require("source-map");
@@ -22,17 +22,38 @@ async function run() {
         options: {
             module: ModuleKind.CommonJS,
             target: ScriptTarget.ES2015,
-            noImplicitAny: true,
+            noImplicitAny: false,
             sourceMap: true,
             allowUnreachableCode: true,
-            lib: ["es6"],
+            lib: ["lib.es2015.d.ts", "lib.dom.d.ts"],
             declaration: true,
             rootDir: "src/lib",
             outDir: ".tmp/publish",
         },
         rootNames: globby.sync("src/lib/**/*.ts")
     });
-    program.emit()
+    let emitResult = program.emit()
+	let allDiagnostics = getPreEmitDiagnostics(program)
+		.concat(emitResult.diagnostics);
+
+	allDiagnostics.forEach(diagnostic => {
+		if (diagnostic.file) {
+			let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(
+				diagnostic.start!
+			);
+			let message = flattenDiagnosticMessageText(
+				diagnostic.messageText,
+				"\n"
+			);
+			console.log(
+				`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`
+			);
+		} else {
+			console.log(
+				`${flattenDiagnosticMessageText(diagnostic.messageText, "\n")}`
+			);
+		}
+	});
     await execa.shell("mkdir -p .tmp/publish/src");
     let copyExtras = await globby(["package.json", "LICENSE.md", "README.md"]).then(misc => {
         return Promise.all(misc.map(cur => {

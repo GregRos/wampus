@@ -28,7 +28,7 @@ export class RxjsEventAdapter<T> {
 
 
     on(name : string, handler : (x : any) => void) {
-        if (!this._events.includes(name)) {
+        if (this._events.indexOf(name) < 0) {
             throw Errors.unknownEvent(name);
         }
         this._initEmitter();

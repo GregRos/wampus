@@ -133,7 +133,7 @@ export class WebsocketTransport implements Transport{
     }
 
     get isActive() {
-        return  !this._expectingClose && ![WebSocket.CLOSED, WebSocket.CLOSING].includes(this._ws.readyState);
+        return  !this._expectingClose && [WebSocket.CLOSED, WebSocket.CLOSING].indexOf(this._ws.readyState) < 0;
     }
 
     close(x ?: {code ?: number, data ?: any}): Promise<void> {
