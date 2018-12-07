@@ -33,7 +33,24 @@ Wampus is currently a Node-only  client, but it will work on browsers in the fut
 
 ✓  Support for reviving simple JSON into complex objects and vice versa.
 
+## Connecting
 
+To connect to a router use the `connect` method, where you can specify the transport (which includes the type, address, etc)
+
+```typescript
+import {Wampus} from "wampus";
+let session = Wampus.connect({
+    // transport - required
+    transport : {
+        type : "websocket",
+        url : "ws://localhost:8080",
+        // serializer - required
+        serializer : "json"
+    },
+    // realm - required
+    realm : "my_realm"
+})
+```
 
 ## Calling
 
@@ -122,10 +139,10 @@ let {options, name, callId} = ticket.info;
 
 ## Registration
 
-You register procedures using the `.register` method:
+You register procedures using the `.procedure` method:
 
 ```typescript
-let registrationTicket = await session.register({
+let registrationTicket = await session.procedure({
     name : "wampus.examples.register",
     options : {
         // any protocol options
@@ -161,7 +178,7 @@ The invocation function, called the `ProcedureHandler`, returns a promise with t
 You can report progress by calling `invocationTicket.progress({})`. 
 
 ```typescript
-let registrationTicket = await session.register({
+let registrationTicket = await session.procedure({
     name : "wampus.examples.register",
     async invocation(invocationTicket) {
         // progress report 1
@@ -470,7 +487,7 @@ Note that there is little reason to use `recurse` in the error transforms.
 You add transforms when you create a session. One of the session configuration parameters is the `services` function, which lets you modify the set of services. One thing you can do is add transformation steps:
 
 ```typescript
-let x = Wampus.create({
+let x = Wampus.connect{
     //...
     services(svcs) {
         svcs.transforms.jsonToObject.add(function myExtraStep(value, ctrl) {
@@ -523,7 +540,7 @@ The stack trace service looks like this:
 You can modify the stack trace service by overwriting it or parts of it in the service initializer:
 
 ```typescript
-let x = Wampus.create({
+let x = Wampus.connect({
     //...
     services(svcs) {
         svcs.stackTraceService = {

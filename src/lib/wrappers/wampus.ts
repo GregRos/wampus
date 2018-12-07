@@ -2,12 +2,33 @@ import {HelloDetails} from "../core/protocol/options";
 import {WampusSession} from "./wampus-session";
 import {WampusCoreSession} from "../core/session/core-session";
 import {AuthenticatorFunction} from "../core/session/authentication";
-import {WampMessage} from "../core/protocol/messages";
 import {AbstractWampusSessionServices} from "./services";
-import {DependencyDeclarations, TransportDeclaration} from "./dependency-selector";
+import {DependencyDeclarations} from "./dependency-selector";
 import {NewObjectInitializer} from "../common/common";
+import {Serializer} from "../core/serializer/serializer";
+import {TransportFactory} from "../core/transport/transport";
 
+/**
+ * Declares the serializer to use.
+ */
+export type SerializerDeclaration = "json" | Serializer;
 
+export interface WebsocketTransportConfig {
+	type: "websocket";
+	url: string;
+	serializer: SerializerDeclaration;
+	timeout?: number;
+}
+
+export interface UnknownTransportConfig {
+	type: "unknown";
+}
+
+export type TransportDeclaration = TransportFactory | WebsocketTransportConfig | UnknownTransportConfig
+
+/**
+ * Specifies the transport, realm, authenticator, and services for use by a Wampus session.
+ */
 export interface WampusConfig {
 	/**
 	 * An object describing what transport to use, or a factory for transport objects.
@@ -35,6 +56,9 @@ export interface WampusConfig {
 	services?: NewObjectInitializer<AbstractWampusSessionServices>
 }
 
+/**
+ * Creates Wampus sessions.
+ */
 export module Wampus {
     export async function connect(config : WampusConfig) {
         let transportFactory= DependencyDeclarations.transport(config.transport);
