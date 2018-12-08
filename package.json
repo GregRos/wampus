@@ -22,7 +22,8 @@
   "private": false,
   "scripts": {
     "test": "nyc node_modules/ava/cli.js --files='dist/test/unit/**/*.js' --files='dist/test/integration/**/*.js'",
-    "int-test": "nyc node_modules/ava/cli.js --files=dist/test/integration/**/*.js",
+    "test-integration": "node $NODE_DEBUG_OPTION node_modules/ava/cli.js --files=dist/test/integration/**/*.js --verbose --require='./dist/setup.js'",
+	"test-unit": "node $NODE_DEBUG_OPTION node_modules/ava/cli.js --files=dist/test/unit/**/*.js --verbose --require='./dist/setup.js'",
     "build": "rm -rf dist/ && tsc"
   },
   "devDependencies": {
