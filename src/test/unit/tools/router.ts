@@ -1,19 +1,17 @@
-import test, {GenericTestContext} from "ava";
-import {dummyTransport} from "../../helpers/dummy-transport";
-import {WampProtocolClient} from "../../../lib/core/routing/wamp-protocol-client";
-import {Observer, Subject} from "rxjs";
+import test from "ava";
+import {Subject} from "rxjs";
 import {PrefixRouter} from "../../../lib/core/routing/prefix-router";
 import _ = require("lodash");
 
-function getRoute<T>(key : any[], tag ?: string) {
+function getRoute<T>(key: any[], tag ?: string) {
     return Object.assign(new Subject(), {
-        key : key,
+        key: key,
         tag
     });
 }
 
 
-function setEqual(a : any[], b : any[]) {
+function setEqual(a: any[], b: any[]) {
     return _.isEqual(new Set(a), new Set(b));
 }
 
@@ -27,7 +25,7 @@ test("should fulfill empty invariants", t => {
 test("remove non-existent route is okay", t => {
     let router = new PrefixRouter();
     router.removeRoute({
-        key : []
+        key: []
     });
     t.is(router.count(), 0);
 });

@@ -1,31 +1,28 @@
 import {
-	HelloDetails,
-	WampCallOptions,
-	WampCancelOptions, WampEventOptions, WampInvocationOptions,
-	WampPublishOptions,
-	WampRegisterOptions, WampResultOptions,
-	WampSubscribeOptions,
-	WampYieldOptions, WelcomeDetails
+    HelloDetails,
+    WampCallOptions,
+    WampCancelOptions,
+    WampEventOptions,
+    WampInvocationOptions,
+    WampPublishOptions,
+    WampRegisterOptions,
+    WampResultOptions,
+    WampSubscribeOptions,
+    WampYieldOptions,
+    WelcomeDetails
 } from "./options";
-import {
-    WampArray,
-    WampId,
-    WampMessage,
-    WampObject,
-    WampUriString} from "./messages";
+import {WampArray, WampId, WampMessage, WampObject, WampUriString} from "./messages";
 import {WampType} from "./message.type";
-import {WampusCompletionReason} from "../session/route-completion";
-import {WampusRouteCompletion} from "../session/route-completion";
 
 export interface MessageFactoryConfig {
-    requestId() : number;
+    requestId(): number;
 }
 
 /**
  * A helper class for creating commonly used message objects and embedding them with request IDs.
  */
 export class MessageFactory {
-    constructor(private _config : MessageFactoryConfig) {
+    constructor(private _config: MessageFactoryConfig) {
 
     }
 
@@ -83,39 +80,40 @@ export class MessageFactory {
         return new WampMessage.Goodbye(details || {}, reason);
     }
 
-    unregistered(reqId : WampId) {
-    	return new WampMessage.Unregistered(reqId);
+    unregistered(reqId: WampId) {
+        return new WampMessage.Unregistered(reqId);
     }
 
-    result(callReqId : WampId, details : WampResultOptions, args ?: WampArray, kwargs ?: WampObject) {
-    	return new WampMessage.Result(callReqId, details || {}, args, kwargs);
+    result(callReqId: WampId, details: WampResultOptions, args ?: WampArray, kwargs ?: WampObject) {
+        return new WampMessage.Result(callReqId, details || {}, args, kwargs);
     }
 
-    registered(registerReqId : WampId) {
-    	return new WampMessage.Registered(registerReqId, this._config.requestId());
+    registered(registerReqId: WampId) {
+        return new WampMessage.Registered(registerReqId, this._config.requestId());
     }
 
-	challenge(authMethod : string, extra : WampObject) {
-    	return new WampMessage.Challenge(authMethod, extra);
+    challenge(authMethod: string, extra: WampObject) {
+        return new WampMessage.Challenge(authMethod, extra);
     }
 
-    subscribed(subscribeReqId : WampId ) {
-    	return new WampMessage.Subscribed(subscribeReqId, this._config.requestId());
+    subscribed(subscribeReqId: WampId) {
+        return new WampMessage.Subscribed(subscribeReqId, this._config.requestId());
     }
 
-    event(subscriptionId : WampId, details ?: WampEventOptions, args ?: WampArray, kwargs ?: WampObject) {
-    	return new WampMessage.Event(subscriptionId, this._config.requestId(), details || {}, args, kwargs);
-    }
-    invocation(registrationId : WampId, options ?: WampInvocationOptions, args ?: WampArray, kwargs ?: WampObject) {
-    	return new WampMessage.Invocation(this._config.requestId(), registrationId, options ||{}, args, kwargs);
+    event(subscriptionId: WampId, details ?: WampEventOptions, args ?: WampArray, kwargs ?: WampObject) {
+        return new WampMessage.Event(subscriptionId, this._config.requestId(), details || {}, args, kwargs);
     }
 
-	welcome(details : WelcomeDetails) {
-    	return new WampMessage.Welcome(this._config.requestId(), details);
+    invocation(registrationId: WampId, options ?: WampInvocationOptions, args ?: WampArray, kwargs ?: WampObject) {
+        return new WampMessage.Invocation(this._config.requestId(), registrationId, options || {}, args, kwargs);
     }
 
-	unsubscribed(unsubscribeReqId : WampId) {
-		return new WampMessage.Unsubscribed(unsubscribeReqId);
-	}
+    welcome(details: WelcomeDetails) {
+        return new WampMessage.Welcome(this._config.requestId(), details);
+    }
+
+    unsubscribed(unsubscribeReqId: WampId) {
+        return new WampMessage.Unsubscribed(unsubscribeReqId);
+    }
 
 }

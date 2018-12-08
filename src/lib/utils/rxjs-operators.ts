@@ -1,16 +1,6 @@
 /* istanbul ignore file */
-import {
-    catchError,
-    filter,
-    flatMap,
-    map,
-    publish,
-    publishReplay,
-    switchMap,
-    takeUntil,
-    takeWhile
-} from "rxjs/operators";
-import {EMPTY, Notification, Observable, ObservableInput, of, pipe, Subject, UnaryFunction} from "rxjs";
+import {filter, map, publish, publishReplay, switchMap, takeWhile} from "rxjs/operators";
+import {Observable, of, pipe, UnaryFunction} from "rxjs";
 
 let stopToken = {};
 /**@internal*/
@@ -21,24 +11,24 @@ export const skipAfter = function <T>(predicate: (x: T) => boolean) {
         } else {
             return of(x);
         }
-    }), takeWhile(x => x !== stopToken)) as UnaryFunction<Observable<T>, Observable<T>>
+    }), takeWhile(x => x !== stopToken)) as UnaryFunction<Observable<T>, Observable<T>>;
 };
 
 /**@internal*/
-export const publishReplayAutoConnect = function<T>() {
-    return pipe(publishReplay(), (x : any) => {
+export const publishReplayAutoConnect = function <T>() {
+    return pipe(publishReplay(), (x: any) => {
         x.connect();
         return x;
     }) as UnaryFunction<Observable<T>, Observable<T>>;
 };
 /**@internal*/
-export const publishAutoConnect = function<T>() {
+export const publishAutoConnect = function <T>() {
     return pipe(publish(), x => {
         x.connect();
         return x;
     }) as UnaryFunction<Observable<T>, Observable<T>>;
 };
 /**@internal*/
-export const choose = function<T, S>(projection : (x : T) => S | undefined) {
-    return pipe(map(projection), filter(x => x !== undefined))
+export const choose = function <T, S>(projection: (x: T) => S | undefined) {
+    return pipe(map(projection), filter(x => x !== undefined));
 };

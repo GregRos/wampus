@@ -1,10 +1,12 @@
 import {Serializer} from "./serializer";
+
 declare type Blob = any;
+
 export class JsonSerializer implements Serializer {
     readonly id = "json";
 
     deserialize(buffer: Buffer | string | ArrayBuffer): object {
-        let str : string;
+        let str: string;
         if (typeof buffer === "string") {
             str = buffer;
         } else if (buffer instanceof Buffer) {
@@ -16,7 +18,7 @@ export class JsonSerializer implements Serializer {
     }
 
     serialize(msg: object): Buffer | ArrayBuffer | string {
-        let str =  JSON.stringify(msg);
+        let str = JSON.stringify(msg);
         return Buffer.from(str, "utf8");
     }
 

@@ -1,18 +1,17 @@
 import * as template from "string-template";
-import {WampArray, WampMessage, WampObject} from "../protocol/messages";
-import {
-	ObjectHelpers
-} from "../../utils/object";
+import {WampArray, WampObject} from "../protocol/messages";
+import {ObjectHelpers} from "../../utils/object";
 
 /**
  * The base class for errors thrown by the Wampus library.
  */
 export abstract class WampusError extends Error {
     name = this.constructor.name;
+
     constructor(message: string, props: object) {
         super(template(message, props || {}));
-	    ObjectHelpers.assignKeepDescriptor(this, props);
-	    ObjectHelpers.makeNonEnumerable(this, "name");
+        ObjectHelpers.assignKeepDescriptor(this, props);
+        ObjectHelpers.makeNonEnumerable(this, "name");
     }
 }
 
@@ -20,9 +19,9 @@ export abstract class WampusError extends Error {
  * Thrown when an argument supplied to a function was invalid.
  */
 export class WampusInvalidArgument extends WampusError {
-	constructor(message : string, props : object) {
-		super(message, props)
-	}
+    constructor(message: string, props: object) {
+        super(message, props);
+    }
 }
 
 /**
@@ -52,12 +51,13 @@ export class WampusIllegalOperationError extends WampusError {
  * Thrown when a WAMP operation succeeds with an error state, such as if the target of an RPC call threw an exception or was cancelled.
  */
 export class WampusInvocationError extends WampusError {
-	args : WampArray;
-	kwargs : WampObject;
-	error : string;
-	details : any;
+    args: WampArray;
+    kwargs: WampObject;
+    error: string;
+    details: any;
 
 }
+
 ObjectHelpers.makeEverythingNonEnumerableExcept(WampusInvocationError.prototype, "kwargs", "args", "details");
 
 /**

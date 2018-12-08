@@ -1,18 +1,16 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
-import {Rxjs} from "../../../helpers/observable-monitor";
-import {Operators} from "promise-stuff";
 import {MatchError} from "../../../helpers/errors";
-import {BrokerFeatures, PublisherFeatures, WampPublishOptions} from "../../../../lib/core/protocol/options";
+import {BrokerFeatures, WampPublishOptions} from "../../../../lib/core/protocol/options";
 
 
-function testUsingUnsupportedPublishOption(option : keyof WampPublishOptions, feature : keyof BrokerFeatures, featureName : string, value = true) {
+function testUsingUnsupportedPublishOption(option: keyof WampPublishOptions, feature: keyof BrokerFeatures, featureName: string, value = true) {
     test(`using publish option ${option} when unsupported throws error about ${featureName}`, async t => {
-        let {session,server} = await SessionStages.handshaken("a");
+        let {session, server} = await SessionStages.handshaken("a");
         await t.throws(session.publish({
-            name : "a",
-            options : {
-                [option] : value
+            name: "a",
+            options: {
+                [option]: value
             }
         }), MatchError.illegalOperation(featureName));
     });

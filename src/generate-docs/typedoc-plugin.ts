@@ -8,7 +8,7 @@ import _ = require("lodash");
 export class WampusCustomizationPlugin extends ConverterComponent {
     initialize() {
         this.listenTo(this.owner, {
-            [Converter.EVENT_RESOLVE_BEGIN]: this._onBeginResolve,
+            [Converter.EVENT_RESOLVE_BEGIN]: this._onBeginResolve
         });
     }
 
@@ -27,7 +27,7 @@ export class WampusCustomizationPlugin extends ConverterComponent {
             if (remove) {
                 CommentPlugin.removeReflection(context.project, x);
             }
-        })
+        });
 
 
     }

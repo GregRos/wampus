@@ -1,16 +1,16 @@
 import {WampType} from "./message.type";
 import {
-	HelloDetails,
-	WampCallOptions,
-	WampCancelOptions,
-	WampEventOptions,
-	WampInvocationOptions,
-	WampPublishOptions,
-	WampRegisterOptions,
-	WampResultOptions,
-	WampSubscribeOptions,
-	WampYieldOptions,
-	WelcomeDetails
+    HelloDetails,
+    WampCallOptions,
+    WampCancelOptions,
+    WampEventOptions,
+    WampInvocationOptions,
+    WampPublishOptions,
+    WampRegisterOptions,
+    WampResultOptions,
+    WampSubscribeOptions,
+    WampYieldOptions,
+    WelcomeDetails
 } from "./options";
 
 /**
@@ -45,19 +45,19 @@ export type WampRawMessage = WampArray;
  * An abstract interface for WAMP message classes to implement.
  */
 export interface WampMessage {
-	/**
-	 * The type of the WAMP message.
-	 */
-	type : WampType;
+    /**
+     * The type of the WAMP message.
+     */
+    type: WampType;
 
-	/**
-	 * Transforms the WAMP message object to raw array format.
-	 */
-	toTransportFormat() : WampRawMessage;
+    /**
+     * Transforms the WAMP message object to raw array format.
+     */
+    toTransportFormat(): WampRawMessage;
 }
 
 
-function argsKwargsArray(args : any[], kwargs : any) {
+function argsKwargsArray(args: any[], kwargs: any) {
     let hasKwargs = kwargs && Object.keys(kwargs).length > 0;
     let hasArgs = args && args.length > 0;
     if (!hasArgs && !hasKwargs) {
@@ -78,13 +78,14 @@ export module WampMessage {
     /**
      * A class representing the CALL message.
      */
-    export class Call implements WampMessage{
+    export class Call implements WampMessage {
         type = WampType.CALL;
-        constructor(public requestId : WampId, public options : WampCallOptions, public procedure : WampUriString, public args ?: WampArray, public kwargs ?: WampObject) {
+
+        constructor(public requestId: WampId, public options: WampCallOptions, public procedure: WampUriString, public args ?: WampArray, public kwargs ?: WampObject) {
         }
 
         toTransportFormat() {
-            let {args,kwargs} = this;
+            let {args, kwargs} = this;
             return [this.type, this.requestId, this.options || {}, this.procedure, ...argsKwargsArray(args, kwargs)];
         }
     }
@@ -94,7 +95,8 @@ export module WampMessage {
      */
     export class Error implements WampMessage {
         type = WampType.ERROR;
-        constructor(public errSourceType : WampType, public errSourceId : WampId, public details : WampObject, public error : WampUriString, public args ?: WampArray, public kwargs ?: WampObject) {
+
+        constructor(public errSourceType: WampType, public errSourceId: WampId, public details: WampObject, public error: WampUriString, public args ?: WampArray, public kwargs ?: WampObject) {
 
         }
 
@@ -108,7 +110,8 @@ export module WampMessage {
      */
     export class Hello implements WampMessage {
         type = WampType.HELLO;
-        constructor(public realm : string, public details : HelloDetails) {
+
+        constructor(public realm: string, public details: HelloDetails) {
 
         }
 
@@ -122,7 +125,8 @@ export module WampMessage {
      */
     export class Abort implements WampMessage {
         type = WampType.ABORT;
-        constructor(public details : WampObject, public reason : WampUriString) {
+
+        constructor(public details: WampObject, public reason: WampUriString) {
 
         }
 
@@ -136,7 +140,8 @@ export module WampMessage {
      */
     export class Goodbye implements WampMessage {
         type = WampType.GOODBYE;
-        constructor(public details : WampObject, public reason : WampUriString) {
+
+        constructor(public details: WampObject, public reason: WampUriString) {
 
         }
 
@@ -150,7 +155,8 @@ export module WampMessage {
      */
     export class Publish implements WampMessage {
         type = WampType.PUBLISH;
-        constructor(public requestId : WampId, public options : WampPublishOptions, public topic : WampUriString, public args ?: WampArray, public kwargs ?: WampObject) {
+
+        constructor(public requestId: WampId, public options: WampPublishOptions, public topic: WampUriString, public args ?: WampArray, public kwargs ?: WampObject) {
 
         }
 
@@ -164,9 +170,11 @@ export module WampMessage {
      */
     export class Subscribe implements WampMessage {
         type = WampType.SUBSCRIBE;
-        constructor(public requestId : WampId, public options : WampSubscribeOptions, public topic : WampUriString) {
+
+        constructor(public requestId: WampId, public options: WampSubscribeOptions, public topic: WampUriString) {
 
         }
+
         toTransportFormat() {
             return [this.type, this.requestId, this.options, this.topic];
         }
@@ -177,9 +185,11 @@ export module WampMessage {
      */
     export class Unsubscribe implements WampMessage {
         type = WampType.UNSUBSCRIBE;
-        constructor(public requestId : WampId, public subscription : WampId) {
+
+        constructor(public requestId: WampId, public subscription: WampId) {
 
         }
+
         toTransportFormat() {
             return [this.type, this.requestId, this.subscription];
         }
@@ -188,10 +198,10 @@ export module WampMessage {
     /**
      * A class representing the REGISTER message.
      */
-    export class Register  {
+    export class Register {
         type = WampType.REGISTER;
 
-        constructor(public requestId : WampId, public options : WampRegisterOptions, public procedure : WampUriString) {
+        constructor(public requestId: WampId, public options: WampRegisterOptions, public procedure: WampUriString) {
 
         }
 
@@ -205,22 +215,23 @@ export module WampMessage {
      */
     export class Unknown {
         type = WampType._Unknown;
-        constructor(public raw : WampRawMessage) {
+
+        constructor(public raw: WampRawMessage) {
 
         }
 
         toTransportFormat() {
-        	return this.raw;
+            return this.raw;
         }
     }
 
     /**
      * A class representing the UNREGISTER message.
      */
-    export class Unregister  {
+    export class Unregister {
         type = WampType.UNREGISTER;
 
-        constructor(public requestId : WampId, public registration : WampId) {
+        constructor(public requestId: WampId, public registration: WampId) {
 
         }
 
@@ -235,7 +246,7 @@ export module WampMessage {
     export class Yield implements WampMessage {
         type = WampType.YIELD;
 
-        constructor(public invocationId : WampId, public options : WampYieldOptions, public args ?: WampArray, public kwargs ?: WampObject) {
+        constructor(public invocationId: WampId, public options: WampYieldOptions, public args ?: WampArray, public kwargs ?: WampObject) {
 
         }
 
@@ -250,12 +261,12 @@ export module WampMessage {
     export class Welcome implements WampMessage {
         type = WampType.WELCOME;
 
-        constructor(public sessionId : WampId, public details : WelcomeDetails) {
+        constructor(public sessionId: WampId, public details: WelcomeDetails) {
 
         }
 
         toTransportFormat() {
-        	return [WampType.WELCOME, this.sessionId, this.details];
+            return [WampType.WELCOME, this.sessionId, this.details];
         }
     }
 
@@ -265,12 +276,12 @@ export module WampMessage {
     export class Published implements WampMessage {
         type = WampType.PUBLISHED;
 
-        constructor(public publishReqId : WampId, public publicationId : WampId) {
+        constructor(public publishReqId: WampId, public publicationId: WampId) {
 
         }
 
         toTransportFormat() {
-        	return [WampType.PUBLISHED, this.publishReqId, this.publicationId];
+            return [WampType.PUBLISHED, this.publishReqId, this.publicationId];
         }
     }
 
@@ -280,12 +291,12 @@ export module WampMessage {
     export class Subscribed implements WampMessage {
         type = WampType.SUBSCRIBED;
 
-        constructor(public subscribeReqId : WampId, public subscriptionId : WampId) {
+        constructor(public subscribeReqId: WampId, public subscriptionId: WampId) {
 
         }
 
         toTransportFormat() {
-        	return [WampType.SUBSCRIBED, this.subscribeReqId, this.subscriptionId]
+            return [WampType.SUBSCRIBED, this.subscribeReqId, this.subscriptionId];
         }
     }
 
@@ -295,12 +306,12 @@ export module WampMessage {
     export class Unsubscribed implements WampMessage {
         type = WampType.UNSUBSCRIBED;
 
-        constructor(public unsubscribeReqId : WampId) {
+        constructor(public unsubscribeReqId: WampId) {
 
         }
 
         toTransportFormat() {
-        	return [WampType.UNSUBSCRIBED, this.unsubscribeReqId];
+            return [WampType.UNSUBSCRIBED, this.unsubscribeReqId];
         }
     }
 
@@ -310,13 +321,13 @@ export module WampMessage {
     export class Event implements WampMessage {
         type = WampType.EVENT;
 
-        constructor(public subscriptionId : WampId, public publicationId : WampId, public details : WampEventOptions, public args ?: WampArray, public kwargs ?: WampObject) {
+        constructor(public subscriptionId: WampId, public publicationId: WampId, public details: WampEventOptions, public args ?: WampArray, public kwargs ?: WampObject) {
             this.args = this.args || [];
             this.kwargs = this.kwargs || {};
         }
 
         toTransportFormat() {
-        	return [WampType.EVENT, this.subscriptionId, this.publicationId, this.details, ...argsKwargsArray(this.args, this.kwargs)]
+            return [WampType.EVENT, this.subscriptionId, this.publicationId, this.details, ...argsKwargsArray(this.args, this.kwargs)];
         }
     }
 
@@ -326,12 +337,12 @@ export module WampMessage {
     export class Result implements WampMessage {
         type = WampType.RESULT;
 
-        constructor(public callReqId : WampId, public details : WampResultOptions, public args ?: WampArray, public kwargs ?: WampObject) {
+        constructor(public callReqId: WampId, public details: WampResultOptions, public args ?: WampArray, public kwargs ?: WampObject) {
 
         }
 
         toTransportFormat() {
-        	return [WampType.RESULT, this.callReqId, this.details, ...argsKwargsArray(this.args, this.kwargs)]
+            return [WampType.RESULT, this.callReqId, this.details, ...argsKwargsArray(this.args, this.kwargs)];
         }
     }
 
@@ -341,12 +352,12 @@ export module WampMessage {
     export class Registered implements WampMessage {
         type = WampType.REGISTERED;
 
-        constructor(public registerReqId : WampId, public registrationId : WampId) {
+        constructor(public registerReqId: WampId, public registrationId: WampId) {
 
         }
 
         toTransportFormat() {
-        	return [WampType.REGISTERED, this.registerReqId, this.registrationId];
+            return [WampType.REGISTERED, this.registerReqId, this.registrationId];
         }
     }
 
@@ -356,27 +367,27 @@ export module WampMessage {
     export class Unregistered implements WampMessage {
         type = WampType.UNREGISTERED;
 
-        constructor(public unregisterReqId : WampId) {
+        constructor(public unregisterReqId: WampId) {
 
         }
 
         toTransportFormat() {
-        	return [WampType.UNREGISTERED, this.unregisterReqId];
+            return [WampType.UNREGISTERED, this.unregisterReqId];
         }
     }
 
     /**
      * A class representing the INVOCATION message.
      */
-    export class Invocation implements WampMessage{
+    export class Invocation implements WampMessage {
         type = WampType.INVOCATION;
 
-        constructor(public requestId : WampId, public registrationId : WampId, public options : WampInvocationOptions, public args ?: WampArray, public kwargs ?: WampObject) {
+        constructor(public requestId: WampId, public registrationId: WampId, public options: WampInvocationOptions, public args ?: WampArray, public kwargs ?: WampObject) {
 
         }
 
         toTransportFormat() {
-        	return [WampType.INVOCATION, this.requestId, this.registrationId, this.options, ...argsKwargsArray(this.args, this.kwargs)];
+            return [WampType.INVOCATION, this.requestId, this.registrationId, this.options, ...argsKwargsArray(this.args, this.kwargs)];
         }
     }
 
@@ -386,12 +397,12 @@ export module WampMessage {
     export class Challenge implements WampMessage {
         type = WampType.CHALLENGE;
 
-        constructor(public authMethod : string, public extra : WampObject) {
+        constructor(public authMethod: string, public extra: WampObject) {
 
         }
 
         toTransportFormat() {
-        	return [WampType.CHALLENGE, this.authMethod, this.extra];
+            return [WampType.CHALLENGE, this.authMethod, this.extra];
         }
     }
 
@@ -401,7 +412,7 @@ export module WampMessage {
     export class Cancel implements WampMessage {
         type = WampType.CANCEL;
 
-        constructor(public callRequestId : WampId, public options : WampCancelOptions) {
+        constructor(public callRequestId: WampId, public options: WampCancelOptions) {
 
         }
 
@@ -416,12 +427,12 @@ export module WampMessage {
     export class Interrupt implements WampMessage {
         type = WampType.INTERRUPT;
 
-        constructor(public callRequestId : WampId, public options : WampObject) {
+        constructor(public callRequestId: WampId, public options: WampObject) {
 
         }
 
         toTransportFormat() {
-        	return [WampType.INTERRUPT, this.callRequestId, this.options];
+            return [WampType.INTERRUPT, this.callRequestId, this.options];
         }
     }
 
@@ -431,7 +442,7 @@ export module WampMessage {
     export class Authenticate implements WampMessage {
         type = WampType.AUTHENTICATE;
 
-        constructor(public signature : string, public extra : WampObject) {
+        constructor(public signature: string, public extra: WampObject) {
 
         }
 
@@ -443,6 +454,31 @@ export module WampMessage {
     /**
      * A union representing any specific WAMP protocol message.
      */
-    export type Any = Cancel | Unknown  | Interrupt | Authenticate | Challenge | Hello | Welcome | Abort | Goodbye | Error | Publish | Published | Subscribe | Subscribed | Unsubscribe | Unsubscribed | Event | Call | Result | Register | Registered | Unregister | Unregistered | Invocation | Yield;
+    export type Any =
+        Cancel
+        | Unknown
+        | Interrupt
+        | Authenticate
+        | Challenge
+        | Hello
+        | Welcome
+        | Abort
+        | Goodbye
+        | Error
+        | Publish
+        | Published
+        | Subscribe
+        | Subscribed
+        | Unsubscribe
+        | Unsubscribed
+        | Event
+        | Call
+        | Result
+        | Register
+        | Registered
+        | Unregister
+        | Unregistered
+        | Invocation
+        | Yield;
 }
 

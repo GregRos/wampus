@@ -1,13 +1,12 @@
-import {WampArray, WampMessage, WampObject} from "../protocol/messages";
+import {WampArray, WampObject} from "../protocol/messages";
 import {
-	CancelMode,
-	WampCallOptions,
-	WampEventOptions,
-	WampInvocationOptions,
-	WampResultOptions
+    CancelMode,
+    WampCallOptions,
+    WampEventOptions,
+    WampInvocationOptions,
+    WampResultOptions
 } from "../protocol/options";
 import {
-    WampusCallArguments,
     WampusRegisterArguments,
     WampusSendErrorArguments,
     WampusSendResultArguments,
@@ -20,35 +19,35 @@ import {WampResult} from "../basics";
  * Core ticket.
  */
 export interface Ticket {
-    close(): Promise<void>;
-
     readonly isOpen: boolean;
+
+    close(): Promise<void>;
 }
 
 export interface CallTicketInfo {
-	/**
-	 * The WAMP protocol options this call was made with.
-	 */
-	readonly options : WampCallOptions;
+    /**
+     * The WAMP protocol options this call was made with.
+     */
+    readonly options: WampCallOptions;
 
-	/**
-	 * The name of the procedure being invoked.
-	 */
-	readonly name : string;
+    /**
+     * The name of the procedure being invoked.
+     */
+    readonly name: string;
 
-	/**
-	 * The WAMP protocol ID of the call.
-	 */
-	readonly callId: number;
+    /**
+     * The WAMP protocol ID of the call.
+     */
+    readonly callId: number;
 }
 
 /**
  * Core call ticket with minimal functionality returned by the CoreWampusSession.
  */
 export interface CallTicket extends Ticket {
-    readonly info:CallTicketInfo;
+    readonly info: CallTicketInfo;
 
-	readonly progress: Observable<CallResultData>;
+    readonly progress: Observable<CallResultData>;
 
     close(cancelMode ?: CancelMode): Promise<void>;
 }
@@ -107,7 +106,7 @@ export interface EventData extends WampResult {
  */
 export interface CancellationToken {
 
-	readonly type : "timeout" | "cancel";
+    readonly type: "timeout" | "cancel";
 
     readonly source: InvocationTicket;
 
@@ -120,7 +119,7 @@ export interface CancellationToken {
  * Core invocation ticket for a procedure invocation.
  */
 export interface InvocationTicket extends WampResult {
-    readonly source : RegistrationTicket;
+    readonly source: RegistrationTicket;
 
     readonly args: WampArray;
 
@@ -133,12 +132,11 @@ export interface InvocationTicket extends WampResult {
     readonly invocationId: number;
 
     readonly isHandled: boolean;
+    readonly cancellation: Observable<CancellationToken>;
 
     return(args: WampusSendResultArguments): Promise<void>;
 
     progress(args: WampusSendResultArguments): Promise<void>;
 
     error({args, details, kwargs, error}: WampusSendErrorArguments): Promise<void>;
-
-    readonly cancellation: Observable<CancellationToken>;
 }

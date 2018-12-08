@@ -1,20 +1,33 @@
 import {Observable, Subscription} from "rxjs";
 import {EventEmitter} from "events";
-import {Errs} from "../core/errors/errors";
 import {Errors} from "../wrappers/errors";
+
 /**@internal*/
 export interface EventEmitted {
-    name : string;
-    arg : any;
+    name: string;
+    arg: any;
 }
 
 
 /**@internal*/
-export class RxjsEventAdapter<T> {
-    private _sub : Subscription;
-    private _emitter : EventEmitter;
-    constructor(private _source : Observable<T>, private _selector : (x : T) => EventEmitted, private _events : string[]) {
+export class RxjsEventAdapter {
+    private _sub: Subscription;
+    private _emitter: EventEmitter;
 
+    constructor(private _source: Observable<any>, private _selector: (x: any) => EventEmitted, private _events: string[]) {
+
+    }
+
+    on(name: string, handler: (x: any) => void) {
+        if (this._events.indexOf(name) < 0) {
+            throw Errors.unknownEvent(name);
+        }
+        this._initEmitter();
+        this._emitter.addListener(name, handler);
+    }
+
+    off(name: string, handler: any) {
+        this._emitter.removeListener(name, handler);
     }
 
     private _initEmitter() {
@@ -24,18 +37,5 @@ export class RxjsEventAdapter<T> {
             let event = this._selector(data);
             this._emitter.emit(event.name, event.arg);
         });
-    }
-
-
-    on(name : string, handler : (x : any) => void) {
-        if (this._events.indexOf(name) < 0) {
-            throw Errors.unknownEvent(name);
-        }
-        this._initEmitter();
-        this._emitter.addListener(name, handler);
-    }
-
-    off(name : string, handler : any) {
-        this._emitter.removeListener(name, handler);
     }
 }

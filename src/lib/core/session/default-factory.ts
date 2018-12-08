@@ -1,4 +1,5 @@
 import {MessageFactory} from "../protocol/factory";
+
 /**@internal*/
 export const DefaultMessageFactory = new MessageFactory({
     requestId() {

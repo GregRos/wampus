@@ -1,10 +1,10 @@
 import {Notification, Observable, Subscription, timer} from "rxjs";
 import {dematerialize, materialize, takeUntil, toArray} from "rxjs/operators";
-import _ = require("lodash");
 import {MyPromise} from "../../lib/utils/ext-promise";
+import _ = require("lodash");
 
 export module Rxjs {
-    export function monitor<T>(source : Observable<T>) : ObservableMonitor<T> {
+    export function monitor<T>(source: Observable<T>): ObservableMonitor<T> {
         return new ObservableMonitor<T>(source);
     }
 }
@@ -30,6 +30,53 @@ export class ObservableMonitor<T> {
                 this._unclaimed.push(x);
             }
         });
+    }
+
+    get isComplete() {
+        return this._sub.closed;
+    }
+
+    next$(count = 1): Observable<T> {
+        return Observable.create(sub => {
+            let i = 0;
+            let unreg = this._register(({data, unregister}) => {
+                sub.next(data);
+                i++;
+                if (i >= count) {
+                    unregister();
+                }
+            });
+            return {
+                unsubscribe() {
+                    unreg();
+                }
+            };
+        }).pipe(dematerialize());
+    }
+
+    async next() {
+        return await this.next$().toPromise();
+    }
+
+    async nextK(count: number) {
+        return await this.next$(count).pipe(toArray()).toPromise();
+    }
+
+    async nextWithin(time: number) {
+        return await this.next$().pipe(takeUntil(timer(time))).toPromise();
+    }
+
+    async rest() {
+        return await this.next$(1000).pipe(toArray()).toPromise();
+    }
+
+    async clefar() {
+        await MyPromise.wait(20);
+        this._unclaimed = [];
+    }
+
+    close() {
+        this._sub.unsubscribe();
     }
 
     private _register(action: (x: { data: Notification<T>, unregister(): void }) => void) {
@@ -62,53 +109,6 @@ export class ObservableMonitor<T> {
             }
         }
         return unregister;
-    }
-
-    next$(count = 1): Observable<T> {
-        return Observable.create(sub => {
-            let i = 0;
-            let unreg = this._register(({data, unregister}) => {
-                sub.next(data);
-                i++;
-                if (i >= count) {
-                    unregister();
-                }
-            });
-            return {
-                unsubscribe() {
-                    unreg();
-                }
-            }
-        }).pipe(dematerialize());
-    }
-
-    async next() {
-        return await this.next$().toPromise();
-    }
-
-    async nextK(count: number) {
-        return await this.next$(count).pipe(toArray()).toPromise();
-    }
-
-    async nextWithin(time: number) {
-        return await this.next$().pipe(takeUntil(timer(time))).toPromise();
-    }
-
-    async rest() {
-        return await this.next$(1000).pipe(toArray()).toPromise();
-    }
-
-    async clefar() {
-        await MyPromise.wait(20);
-        this._unclaimed = [];
-    }
-
-    close() {
-        this._sub.unsubscribe();
-    }
-
-    get isComplete() {
-        return this._sub.closed;
     }
 
 }

@@ -1,5 +1,4 @@
-import test, {GenericTest, GenericTestContext} from "ava";
-import {first} from "rxjs/operators";
+import test, {GenericTestContext} from "ava";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {MatchError} from "../../../helpers/errors";
@@ -11,19 +10,19 @@ import {MessageFactory} from "../../../../lib/core/protocol/factory";
 import {Operators} from "promise-stuff";
 
 
-async function isSessionClosed<T>(t : GenericTestContext<T>, session : WampusCoreSession) {
+async function isSessionClosed<T>(t: GenericTestContext<T>, session: WampusCoreSession) {
     t.is(session.isActive, false);
-    await t.throws(session.call({name : "ab"}).progress.toPromise(), MatchError.network("closed"));
-    await t.throws(session.register({name : "ab"}), MatchError.network("closed"));
-    await t.throws(session.topic({name : "ab"}), MatchError.network("closed"));
-    await t.throws(session.publish({name : "ab"}), MatchError.network("closed"));
+    await t.throws(session.call({name: "ab"}).progress.toPromise(), MatchError.network("closed"));
+    await t.throws(session.register({name: "ab"}), MatchError.network("closed"));
+    await t.throws(session.topic({name: "ab"}), MatchError.network("closed"));
+    await t.throws(session.publish({name: "ab"}), MatchError.network("closed"));
 
     //closing okay should be fine:
     await t.notThrows(session.close());
 }
 
 test("when goodbye received, should disconnect and close", async t => {
-    let {session,server} = await SessionStages.handshaken("a");
+    let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     let pGoodbye = session.close();
     let nextMessage = await sbs.next();
@@ -35,7 +34,7 @@ test("when goodbye received, should disconnect and close", async t => {
 });
 
 test("will allow abrupt disconnect during goodbye", async t => {
-    let {session,server} = await SessionStages.handshaken("a");
+    let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     let pGoodbye = session.close();
     await MyPromise.wait(100);
@@ -49,7 +48,7 @@ const factory = new MessageFactory({
     }
 });
 test("random messages should be allowed during goodbye", async t => {
-    let {session,server} = await SessionStages.handshaken("a");
+    let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     let pGoodbye = session.close();
     await MyPromise.wait(20);
@@ -61,7 +60,7 @@ test("random messages should be allowed during goodbye", async t => {
 
 test("when abort received, should disconnect and close", async t => {
     //TODO: Do something when goodbye violates protocol
-    let {session,server} = await SessionStages.handshaken("a");
+    let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     let pGoodbye = session.close();
     await sbs.next();
@@ -73,7 +72,7 @@ test("when abort received, should disconnect and close", async t => {
 
 test("when abort received, should disconnect and close", async t => {
     //TODO: Do something when goodbye violates protocol
-    let {session,server} = await SessionStages.handshaken("a");
+    let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     let pGoodbye = session.close();
     await sbs.next();
@@ -85,7 +84,7 @@ test("when abort received, should disconnect and close", async t => {
 
 test("when nothing received after timeout, should disconnect and close", async t => {
     //TODO: Do something when goodbye violates protocol
-    let {session,server} = await SessionStages.handshaken("a");
+    let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     session.close();
     let goodbye = await sbs.next();
@@ -95,7 +94,7 @@ test("when nothing received after timeout, should disconnect and close", async t
 
 test("when server disconnects abruptly, should close", async t => {
     //TODO: Do something when goodbye violates protocol
-    let {session,server} = await SessionStages.handshaken("a");
+    let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     let p = session.close();
     let goodbye = await sbs.next();
@@ -105,7 +104,7 @@ test("when server disconnects abruptly, should close", async t => {
 });
 
 test("when server errors, should close", async t => {
-    let {session,server} = await SessionStages.handshaken("a");
+    let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     let closing = session.close();
     let goodbye = await sbs.next();

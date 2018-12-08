@@ -18,7 +18,7 @@ async function run() {
     await execa.shell("rm -rf docs/");
     app.converter.addComponent("test", WampusCustomizationPlugin);
 
-    app.generateDocs(files, "docs")
+    app.generateDocs(files, "docs");
 }
 
 run();

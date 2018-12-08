@@ -1,20 +1,22 @@
 import {fromEvent, Observable} from "rxjs";
-import WebSocket = require("ws");
 import {map, take, takeUntil} from "rxjs/operators";
 import {WebsocketTransport} from "../../lib/core/transport/websocket";
 import {JsonSerializer} from "../../lib/core/serializer/json";
+import WebSocket = require("ws");
 
 
 export class RxjsWsServer {
-    public _innerServer : WebSocket.Server;
-    private _port : number;
+    public _innerServer: WebSocket.Server;
+    private _port: number;
+
     get url() {
         return `ws://localhost:${this._port}`;
     }
-    static async create(port : number) {
+
+    static async create(port: number) {
         let createServer$ = Observable.create((sub) => {
             let server = new WebSocket.Server({
-                port : port
+                port: port
             }, () => {
                 sub.next(server);
             });
@@ -30,8 +32,7 @@ export class RxjsWsServer {
     }
 
 
-
-    getConnectionFromServerSide(protocol : string) {
+    getConnectionFromServerSide(protocol: string) {
         return [...this._innerServer.clients].find(x => x.protocol === protocol);
     }
 }
@@ -44,16 +45,16 @@ export async function getTransportAndServerConn() {
     let client = await WebsocketTransport.create({
         url: srv.url,
         serializer: new JsonSerializer(),
-        forceProtocol : rnd
+        forceProtocol: rnd
     });
     let server = srv.getConnectionFromServerSide(rnd);
     return {
         client: client,
         server: server
-    }
+    };
 }
 
-export function sendVia(server : WebSocket, data : any) : Promise<void> {
+export function sendVia(server: WebSocket, data: any): Promise<void> {
     return Observable.create(sub => {
         server.send(JSON.stringify(data), err => {
             if (err) {
@@ -64,9 +65,9 @@ export function sendVia(server : WebSocket, data : any) : Promise<void> {
     }).toPromise();
 }
 
-export function receiveObjects$(server : WebSocket) : Observable<any>{
+export function receiveObjects$(server: WebSocket): Observable<any> {
     let wsClose = fromEvent(server, "close");
-    return fromEvent(server, "message").pipe(map((x : any) => {
+    return fromEvent(server, "message").pipe(map((x: any) => {
         let parsed = JSON.parse(x.data as any);
         return parsed;
     }), takeUntil(wsClose));

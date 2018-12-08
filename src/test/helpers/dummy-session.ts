@@ -23,17 +23,17 @@ export module SessionStages {
         };
     }
 
-    export async function handshaken(realm : string, feats ?: {dealer ?: Partial<DealerFeatures>, broker ?: Partial<BrokerFeatures>}) {
+    export async function handshaken(realm: string, feats ?: { dealer?: Partial<DealerFeatures>, broker?: Partial<BrokerFeatures> }) {
         let {server, session} = fresh(realm);
         let hello = await server.messages.pipe(first()).toPromise();
         feats = feats || {};
         let wDetails = {
-            roles : {
-                broker : {
-                    features : feats.broker || {}
+            roles: {
+                broker: {
+                    features: feats.broker || {}
                 },
-                dealer : {
-                    features : feats.dealer || {}
+                dealer: {
+                    features: feats.dealer || {}
                 }
             }
         };
@@ -42,15 +42,6 @@ export module SessionStages {
             server,
             session: await session
         };
-    }
-
-    export async function wrappedShaken(realm : string) {
-    	let {server,session} = await handshaken(realm);
-
-    	return {
-    		server : new HigherLevelDummyServer(server),
-		    session : new WampusSession(session, () => {})
-	    }
     }
 }
 

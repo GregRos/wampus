@@ -1,44 +1,19 @@
 import test from "ava";
-
-import {WebsocketTransport} from "../../../../lib/core/transport/websocket";
-import {JsonSerializer} from "../../../../lib/core/serializer/json";
-import * as ws from "ws";
 import {MatchError} from "../../../helpers/errors";
-import {concat, defer, fromEvent, merge, NEVER, Observable, range, timer, zip} from "rxjs";
-import {
-    buffer,
-    bufferCount,
-    delay, filter,
-    first,
-    flatMap,
-    map,
-    mapTo,
-    take,
-    takeUntil,
-    takeWhile,
-    tap,
-    timeout
-} from "rxjs/operators";
-import {ServerOptions} from "ws";
-import {Server} from "ws";
-import {IncomingMessage} from "http";
-import WebSocket = require("ws");
-import {WampusError, WampusNetworkError} from "../../../../lib/core/errors/types";
-import {TransportEvent} from "../../../../lib/core/transport/transport";
-import {fromPromise} from "rxjs/internal-compatibility";
-import {getTransportAndServerConn, receiveObjects$, rxjsWsServer, sendVia} from "../../../helpers/ws-server";
+import {take} from "rxjs/operators";
+import {getTransportAndServerConn} from "../../../helpers/ws-server";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
-import _ = require("lodash");
 import {choose} from "../../../../lib/utils/rxjs-operators";
+import WebSocket = require("ws");
 
 test("acuire", async t => {
-    let {server,client} = await getTransportAndServerConn();
+    let {server, client} = await getTransportAndServerConn();
     t.is(server.readyState, WebSocket.OPEN);
 });
 
 
 test("stays open", async t => {
-    let {server,client} = await getTransportAndServerConn();
+    let {server, client} = await getTransportAndServerConn();
     await MyPromise.wait(1000);
     t.is(server.readyState, WebSocket.OPEN);
 });

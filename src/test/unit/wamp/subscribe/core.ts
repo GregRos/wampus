@@ -1,37 +1,35 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
-import _ = require("lodash");
 import {WampType} from "../../../../lib/core/protocol/message.type";
 import {MatchError} from "../../../helpers/errors";
-import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {Operators} from "promise-stuff";
-import {take} from "rxjs/operators";
 import {WampUri} from "../../../../lib/core/protocol/uris";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
+import _ = require("lodash");
 
 test("sends SUBSCRIBE", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    session.topic({name : "hi"});
+    session.topic({name: "hi"});
     let subscribeMsg = await serverMonitor.next();
     t.true(_.isMatch(subscribeMsg, {
-        0 : 32,
-        2 : {},
-        3 : "hi"
+        0: 32,
+        2: {},
+        3: "hi"
     }));
 });
 
 test("topic() waits for reply", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    await t.throws(Operators.timeout(session.topic({name : "x"}), 20));
+    await t.throws(Operators.timeout(session.topic({name: "x"}), 20));
 });
 
 test("topic() waits for SUBSCRIBED, EventSubscription basic tests", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.topic({name : "hi"});
+    let pendingSub = session.topic({name: "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let subscription = await pendingSub;
@@ -46,13 +44,13 @@ test("topic() on closed session throws", async t => {
     server.send([3, {}, "no"]);
     await session.close();
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.topic({name : "hi"});
+    let pendingSub = session.topic({name: "hi"});
     await t.throws(pendingSub, MatchError.network("subscribing"));
 });
 
 test("topic() on a closing session throws", async t => {
     let {session, server} = await SessionStages.handshaken("a");
-    let throwSub =  t.throws(session.topic({name : "hi"}), MatchError.network("subscribing"));
+    let throwSub = t.throws(session.topic({name: "hi"}), MatchError.network("subscribing"));
     await MyPromise.wait(10);
     server.send([3, {}, "no"]);
     await session.close();
@@ -62,7 +60,7 @@ test("topic() on a closing session throws", async t => {
 test("after topic(), session closing closes subscription", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.topic({name : "hi"});
+    let pendingSub = session.topic({name: "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let subscription = await pendingSub;
@@ -77,17 +75,17 @@ test("after topic(), session closing closes subscription", async t => {
 test("send EVENT, verify EventArgs properties", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.topic({name : "hi"});
+    let pendingSub = session.topic({name: "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
     let eventMonitor = Rxjs.monitor(sub.events);
-    server.send([36, sub.info.subscriptionId, 201, {}, ["a"], {a : 1}]);
+    server.send([36, sub.info.subscriptionId, 201, {}, ["a"], {a: 1}]);
     let event = await eventMonitor.next();
     t.true(_.isMatch(event, {
-        kwargs : {a : 1},
-        args : ["a"],
-        details : {}
+        kwargs: {a: 1},
+        args: ["a"],
+        details: {}
     }));
     t.true(!eventMonitor.isComplete);
 });
@@ -95,50 +93,50 @@ test("send EVENT, verify EventArgs properties", async t => {
 test("send EVENT twice, observable emits two EventArgs", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.topic({name : "hi"});
+    let pendingSub = session.topic({name: "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
     let eventMonitor = Rxjs.monitor(sub.events);
-    server.send([36, sub.info.subscriptionId, 201, {}, ["a"], {a : 1}]);
-    server.send([36, sub.info.subscriptionId, 201, {}, ["a"], {a : 2}]);
+    server.send([36, sub.info.subscriptionId, 201, {}, ["a"], {a: 1}]);
+    server.send([36, sub.info.subscriptionId, 201, {}, ["a"], {a: 2}]);
     let event = await eventMonitor.next();
-    t.deepEqual(event.kwargs, { a : 1});
-    t.deepEqual((await eventMonitor.next()).kwargs, {a : 2});
+    t.deepEqual(event.kwargs, {a: 1});
+    t.deepEqual((await eventMonitor.next()).kwargs, {a: 2});
 });
 
-function testSubscribeReceiveError(o : {errorName : string, errMatch : (err : Error) => boolean, title : string}) {
+function testSubscribeReceiveError(o: { errorName: string, errMatch: (err: Error) => boolean, title: string }) {
     test(o.title, async t => {
-        let {session,server} = await SessionStages.handshaken("a");
+        let {session, server} = await SessionStages.handshaken("a");
         let serverMonitor = Rxjs.monitor(server.messages);
         let subbing = session.topic({
-            name : "a"
+            name: "a"
         });
         let next = await serverMonitor.next();
-        server.send([WampType.ERROR, WampType.SUBSCRIBE, next[1], {}, o.errorName, ["a"], {a : 1}]);
+        server.send([WampType.ERROR, WampType.SUBSCRIBE, next[1], {}, o.errorName, ["a"], {a: 1}]);
         await t.throws(subbing, o.errMatch);
         t.falsy(await serverMonitor.nextWithin(10), "sent extra message");
     });
 }
 
 testSubscribeReceiveError({
-    errorName : "wamp.error.invalid_uri",
+    errorName: "wamp.error.invalid_uri",
     //TODO: Better error verification
-    errMatch : MatchError.illegalOperation("URI"),
-    title : "send SUBSCRIBE, receive ERROR(invalid_uri), throw "
+    errMatch: MatchError.illegalOperation("URI"),
+    title: "send SUBSCRIBE, receive ERROR(invalid_uri), throw "
 });
 
 testSubscribeReceiveError({
-    errorName : "wamp.error.blah",
+    errorName: "wamp.error.blah",
     //TODO: Better error verification
-    errMatch : MatchError.illegalOperation("ERROR"),
-    title : "send SUBSCRIBE, receive ERROR(custom), throw "
+    errMatch: MatchError.illegalOperation("ERROR"),
+    title: "send SUBSCRIBE, receive ERROR(custom), throw "
 });
 
 test("close() sends UNSUBSCRIBE, expects reply", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.topic({name : "hi"});
+    let pendingSub = session.topic({name: "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
@@ -146,8 +144,8 @@ test("close() sends UNSUBSCRIBE, expects reply", async t => {
     let unsubbing = sub.close();
     let unsubMsg = await serverMonitor.next();
     t.true(_.isMatch(unsubMsg, {
-        0 : 34,
-        2 : sub.info.subscriptionId
+        0: 34,
+        2: sub.info.subscriptionId
     }));
     await t.throws(Operators.timeout(unsubbing, 20));
 });
@@ -155,14 +153,14 @@ test("close() sends UNSUBSCRIBE, expects reply", async t => {
 test("receives UNSUBSCRIBED, events complete", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.topic({name : "hi"});
+    let pendingSub = session.topic({name: "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
     let eventMonitor = Rxjs.monitor(sub.events);
     let unsubbing = sub.close();
     let unsubMsg = await serverMonitor.next();
-    server.send([35,unsubMsg[1]]);
+    server.send([35, unsubMsg[1]]);
     await t.notThrows(unsubbing);
     t.true(eventMonitor.isComplete);
     await t.notThrows(sub.events.toPromise());
@@ -172,7 +170,7 @@ test("receives UNSUBSCRIBED, events complete", async t => {
 test("close() subscription, session closes instead of UNSUBSCRIBE, subscription still closes", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.topic({name : "hi"});
+    let pendingSub = session.topic({name: "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
@@ -187,11 +185,11 @@ test("close() subscription, session closes instead of UNSUBSCRIBE, subscription 
     t.false(sub.isOpen);
 });
 
-function testUnsubscribeReceiveError(o : {errorName : string, errMatch : (err : Error) => boolean, title : string}) {
+function testUnsubscribeReceiveError(o: { errorName: string, errMatch: (err: Error) => boolean, title: string }) {
     test(o.title, async t => {
         let {session, server} = await SessionStages.handshaken("a");
         let serverMonitor = Rxjs.monitor(server.messages);
-        let pendingSub = session.topic({name : "hi"});
+        let pendingSub = session.topic({name: "hi"});
         let subscribeMsg = await serverMonitor.next();
         server.send([33, subscribeMsg[1], 101]);
         let sub = await pendingSub;
@@ -199,26 +197,26 @@ function testUnsubscribeReceiveError(o : {errorName : string, errMatch : (err : 
         let unsubbing1 = sub.close();
         let unsubMsg = await serverMonitor.next();
         server.send([WampType.ERROR, WampType.UNSUBSCRIBE, unsubMsg[1], {}, o.errorName]);
-        await t.throws(unsubbing1, o.errMatch)
+        await t.throws(unsubbing1, o.errMatch);
     });
 }
 
 testUnsubscribeReceiveError({
-    title : "after UNREGISTER, receive ERROR(no_such_subscription), throw",
-    errMatch : MatchError.illegalOperation("subscription"),
-    errorName : WampUri.Error.NoSuchSubscription
+    title: "after UNREGISTER, receive ERROR(no_such_subscription), throw",
+    errMatch: MatchError.illegalOperation("subscription"),
+    errorName: WampUri.Error.NoSuchSubscription
 });
 
 testUnsubscribeReceiveError({
-    title : "after UNREGISTER, receive ERROR(custom), throw",
-    errMatch : MatchError.illegalOperation("error.custom"),
-    errorName : "error.custom"
+    title: "after UNREGISTER, receive ERROR(custom), throw",
+    errMatch: MatchError.illegalOperation("error.custom"),
+    errorName: "error.custom"
 });
 
 test("calling close() a 2nd time returns the same promise", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    let pendingSub = session.topic({name : "hi"});
+    let pendingSub = session.topic({name: "hi"});
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;

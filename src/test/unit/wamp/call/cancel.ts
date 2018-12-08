@@ -10,7 +10,7 @@ import {Operators} from "promise-stuff";
 async function cancelSession() {
     return await SessionStages.handshaken("a", {
             dealer: {
-                call_canceling : true
+                call_canceling: true
             }
         }
     );
@@ -36,10 +36,10 @@ test("should send CANCEL", async t => {
     });
     //don't await close(), because it will expect a RESULT or ERROR from server.
     prog.close();
-    let a  = await serverMonitor.next();
+    let a = await serverMonitor.next();
     let expectCancel = await serverMonitor.next();
     t.deepEqual(expectCancel, [49, prog.info.callId, {
-        mode : "kill"
+        mode: "kill"
     }]);
 });
 
@@ -72,11 +72,11 @@ test("reply with RESULT(final), close() should resolve and progress should compl
 
     // skip CALL and CANCEL
     await serverMonitor.nextK(2);
-    server.send([WampType.RESULT, prog.info.callId, {}, [], {a : 1}]);
+    server.send([WampType.RESULT, prog.info.callId, {}, [], {a: 1}]);
     await t.notThrows(closing);
-    t.deepEqual((await progress).kwargs, {a : 1});
+    t.deepEqual((await progress).kwargs, {a: 1});
     await Promise.all([
-        t.notThrows(closing),
+        t.notThrows(closing)
 
     ]);
 });
@@ -91,8 +91,8 @@ test("reply with RESULT(progress), close() should not resolve and progress shoul
     let closing = prog.close();
     // skip CALL and CANCEL
     await serverMonitor.nextK(2);
-    server.send([WampType.RESULT, prog.info.callId, {progress : true}, [], {a : 1}]);
-    t.deepEqual((await progressMonitor.next()).kwargs, {a : 1});
+    server.send([WampType.RESULT, prog.info.callId, {progress: true}, [], {a: 1}]);
+    t.deepEqual((await progressMonitor.next()).kwargs, {a: 1});
     await t.throws(Operators.timeout(closing, 10, () => Promise.reject("error")));
 });
 
@@ -118,7 +118,7 @@ test("cancel is no-op in resolved call", async t => {
     });
     await serverMonitor.next();
     let progress = prog.progress.toPromise();
-    server.send([WampType.RESULT, prog.info.callId, {}, [], {a : 1}]);
+    server.send([WampType.RESULT, prog.info.callId, {}, [], {a: 1}]);
     await t.notThrows(progress);
     await MyPromise.wait(10);
     await t.notThrows(prog.close());
@@ -135,7 +135,7 @@ test("cancel is no-op in rejected call", async t => {
     await serverMonitor.next();
     let progress = prog.progress.toPromise();
 
-    server.send([WampType.ERROR, WampType.CALL, prog.info.callId, {}, "wamp.error.runtime_error", [], {a : 1}]);
+    server.send([WampType.ERROR, WampType.CALL, prog.info.callId, {}, "wamp.error.runtime_error", [], {a: 1}]);
     await t.throws(progress);
     await t.notThrows(prog.close());
     t.falsy(await serverMonitor.nextWithin(10));
@@ -157,8 +157,8 @@ test("2nd call to cancel is no-op, returns the same promise", async t => {
 
 test("try to cancel call on a closed session should be a no-op", async t => {
     let {server, session} = await SessionStages.handshaken("a", {
-        dealer : {
-            call_canceling : true
+        dealer: {
+            call_canceling: true
         }
     });
     let sbs = Rxjs.monitor(server.messages);
@@ -173,8 +173,8 @@ test("try to cancel call on a closed session should be a no-op", async t => {
 
 test("close session while cancelling should be a no-op", async t => {
     let {server, session} = await SessionStages.handshaken("a", {
-        dealer : {
-            call_canceling : true
+        dealer: {
+            call_canceling: true
         }
     });
     let sbs = Rxjs.monitor(server.messages);

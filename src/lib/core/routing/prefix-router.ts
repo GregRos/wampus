@@ -1,4 +1,4 @@
-import {WampArray, WampMessage, WampPrimitive} from "../protocol/messages";
+import {WampPrimitive} from "../protocol/messages";
 import {WampType} from "../protocol/message.type";
 import _ = require("lodash");
 
@@ -28,27 +28,27 @@ import _ = require("lodash");
  * A route registration.
  */
 export type PrefixRoute<T> = {
-	/**
-	 * The prefix key for matching the route.
-	 */
-	readonly key : WampPrimitive[];
+    /**
+     * The prefix key for matching the route.
+     */
+    readonly key: WampPrimitive[];
 
-	/**
-	 * Used to notify a route a message matching its key has been received.
-	 * @param x The argument.
-	 */
+    /**
+     * Used to notify a route a message matching its key has been received.
+     * @param x The argument.
+     */
     next?(x: T): void;
 
-	/**
-	 * Notifies a route it should complete.
-	 */
-	complete?() : void;
+    /**
+     * Notifies a route it should complete.
+     */
+    complete?(): void;
 
-	/**
-	 * Notifies a route it should error.
-	 * @param err The error to error with.
-	 */
-    error?(err : Error) : void;
+    /**
+     * Notifies a route it should error.
+     * @param err The error to error with.
+     */
+    error?(err: Error): void;
 }
 
 /**
@@ -56,15 +56,15 @@ export type PrefixRoute<T> = {
  * Used to invoke routes matching a key.
  */
 interface RouteIndex<T> {
-	/**
-	 * The bucket of routes matching the key so far.
-	 */
+    /**
+     * The bucket of routes matching the key so far.
+     */
     match?: PrefixRoute<T>[];
 
-	/**
-	 * A dictionary of route indexes based on the next key component.
-	 */
-	next?: Map<any, RouteIndex<T>>;
+    /**
+     * A dictionary of route indexes based on the next key component.
+     */
+    next?: Map<any, RouteIndex<T>>;
 }
 
 /**
@@ -73,31 +73,32 @@ interface RouteIndex<T> {
 export class PrefixRouter<T> {
     private _root: RouteIndex<T> = null;
 
-	/**
-	 * Returns the total number of registered routes.
-	 */
-	count() {
+    /**
+     * Returns the total number of registered routes.
+     */
+    count() {
         if (!this._root) return 0;
-        let rec = (x : RouteIndex<T>) => {
+        let rec = (x: RouteIndex<T>) => {
             return x.match.length + Array.from(x.next.values()).reduce((tot, cur) => tot + rec(cur), 0);
         };
         return rec(this._root);
     }
 
-	/**
-	 * Returns all routes.
-	 */
-	matchAll() {
+    /**
+     * Returns all routes.
+     */
+    matchAll() {
         return this.reverseMatch([]);
     }
 
-	/**
-	 * Matches routes where the given key is a prefix of the route's key. Reverse matching.
-	 * @param key The given key to match against the routes.
-	 */
-	reverseMatch(key : WampPrimitive[]) {
+    /**
+     * Matches routes where the given key is a prefix of the route's key. Reverse matching.
+     * @param key The given key to match against the routes.
+     */
+    reverseMatch(key: WampPrimitive[]) {
         let routes = [];
-        function rec(cur : RouteIndex<T>, index : number) {
+
+        function rec(cur: RouteIndex<T>, index: number) {
             if (!cur) return;
             if (index >= key.length) {
                 routes.push(...cur.match);
@@ -109,15 +110,16 @@ export class PrefixRouter<T> {
                 }
             }
         }
+
         rec(this._root, 0);
         return routes;
     }
 
-	/**
-	 * Matches all routes where the route's key is a prefix of the given key.
-	 * @param keys
-	 */
-	match(keys: WampPrimitive[]) {
+    /**
+     * Matches all routes where the route's key is a prefix of the given key.
+     * @param keys
+     */
+    match(keys: WampPrimitive[]) {
         if (keys[0] === WampType.INVOCATION) {
             //ugly but works
             let a = keys[2];
@@ -142,16 +144,19 @@ export class PrefixRouter<T> {
         return routes;
     }
 
-	/**
-	 * Inserts route into the router.
-	 * @param target The prefix route.
-	 */
-	insertRoute(target: PrefixRoute<T>) {
+    /**
+     * Inserts route into the router.
+     * @param target The prefix route.
+     */
+    insertRoute(target: PrefixRoute<T>) {
         let keys = target.key;
         _.defaults(target, {
-            error() {},
-            next() {},
-            complete() {}
+            error() {
+            },
+            next() {
+            },
+            complete() {
+            }
         });
         let rec = (cur: RouteIndex<T>, index: number) => {
             if (!cur) {
