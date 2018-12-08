@@ -31,7 +31,7 @@ test("receive PUBLISHED, resolve", async t => {
 });
 
 
-function testPublishError(o: { errId: string, errMatch: (x: any) => boolean, title: string }) {
+function testPublishError(o: { errId: string, errMatch(x: any): boolean, title: string }) {
     test(o.title, async t => {
         let {session, server} = await SessionStages.handshaken("a");
         let serverMonitor = Rxjs.monitor(server.messages);

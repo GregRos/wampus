@@ -35,7 +35,7 @@ test("two transforms", async t => {
 test("one transform, with recurse", async t => {
     let one = Transformation.compile((v, ctx) => {
         if (v < 5) {
-            return "" + v;
+            return `${v}`;
         } else {
             return ctx.recurse(v % 5);
         }

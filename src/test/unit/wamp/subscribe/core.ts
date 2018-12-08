@@ -105,7 +105,7 @@ test("send EVENT twice, observable emits two EventArgs", async t => {
     t.deepEqual((await eventMonitor.next()).kwargs, {a: 2});
 });
 
-function testSubscribeReceiveError(o: { errorName: string, errMatch: (err: Error) => boolean, title: string }) {
+function testSubscribeReceiveError(o: { errorName: string, errMatch(err: Error): boolean, title: string }) {
     test(o.title, async t => {
         let {session, server} = await SessionStages.handshaken("a");
         let serverMonitor = Rxjs.monitor(server.messages);
@@ -185,7 +185,7 @@ test("close() subscription, session closes instead of UNSUBSCRIBE, subscription 
     t.false(sub.isOpen);
 });
 
-function testUnsubscribeReceiveError(o: { errorName: string, errMatch: (err: Error) => boolean, title: string }) {
+function testUnsubscribeReceiveError(o: { errorName: string, errMatch(err: Error): boolean, title: string }) {
     test(o.title, async t => {
         let {session, server} = await SessionStages.handshaken("a");
         let serverMonitor = Rxjs.monitor(server.messages);

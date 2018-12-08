@@ -3,7 +3,12 @@
     "tslint-consistent-codestyle"
   ],
   "rules": {
-    "ban-comma-operator": true,
+	"indent": [true, "spaces", 4],
+	"adjacent-overload-signatures": true,
+	"curly": [true, "ignore-same-line"],
+	"space-within-parens": false,
+	"array-type": false,
+	"ban-comma-operator": true,
     "forin": true,
     "typeof-compare": true,
     "triple-equals": [

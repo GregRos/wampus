@@ -28,5 +28,6 @@ export enum WampType {
     CHALLENGE = 4,
     AUTHENTICATE = 5,
     INTERRUPT = 69,
+    // tslint:disable-next-line
     _Unknown = -1
 }

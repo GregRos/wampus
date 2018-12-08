@@ -92,7 +92,7 @@ export class InvocationTicket {
         let ticket = this;
         let handleError = async (err) => {
             if (this._services.stackTraceService.enabled) {
-                err.stack = err.stack + "\n(Wampus Registered At)" + this._services.stackTraceService.format("" as any, this.source.trace.created);
+                err.stack = `${err.stack}\n(Wampus Registered At)${this._services.stackTraceService.format("" as any, this.source.trace.created)}`;
             }
             let errResponse = ticket._services.transforms.errorToErrorResponse.transform(err);
             if (!this.isHandled) {

@@ -92,7 +92,7 @@ test("make 2 different calls, receive RESULTs, verify progress streams", async t
     t.deepEqual(await pr2, [{a: 2}]);
 });
 
-function sendCallReceiveErrorMacro(o: { title: string, errId: string, errMatch: (x: any) => boolean }) {
+function sendCallReceiveErrorMacro(o: { title: string, errId: string, errMatch(x: any): boolean }) {
     test(o.title, async (t: GenericTestContext<any>) => {
         let {server, session} = await SessionStages.handshaken("a");
         let sbs = Rxjs.monitor(server.messages);

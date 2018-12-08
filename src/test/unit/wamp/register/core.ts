@@ -25,7 +25,7 @@ test("sends REGISTER", async t => {
     t.falsy(await serverMonitor.nextWithin(10), "sent extra message");
 });
 
-function testRegisterReceiveError(o: { errorName: string, errMatch: (err: Error) => boolean, title: string }) {
+function testRegisterReceiveError(o: { errorName: string, errMatch(err: Error): boolean, title: string }) {
     test(o.title, async t => {
         let {session, server} = await SessionStages.handshaken("a");
         let serverMonitor = Rxjs.monitor(server.messages);
@@ -221,7 +221,7 @@ test("closing 2nd time returns the same promise", async t => {
     t.is(unregistering1, unregistering2);
 });
 
-function testUnregisterReceiveError(o: { errorName: string, errMatch: (err: Error) => boolean, title: string }) {
+function testUnregisterReceiveError(o: { errorName: string, errMatch(err: Error): boolean, title: string }) {
     test(o.title, async t => {
         let {session, server} = await SessionStages.handshaken("a");
         let registration = await getRegistration({session, server});
