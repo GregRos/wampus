@@ -6,11 +6,11 @@ import {AuthenticatorFunction} from "../../lib/core/session/authentication";
 import {WampusSession} from "../../lib";
 
 
-export module SessionStages {
+export namespace SessionStages {
     export function fresh(realm: string, authenticator ?: AuthenticatorFunction) {
         let {client, server} = dummyTransport();
         let session = WampusCoreSession.create({
-            realm: realm,
+            realm,
             timeout: 1000,
             transport() {
                 return client;

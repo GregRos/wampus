@@ -7,7 +7,7 @@ import {SerializerDeclaration, TransportDeclaration} from "./wampus";
 /**
  * @internal
  */
-export module DependencyDeclarations {
+export namespace DependencyDeclarations {
 
     export function serializer(declr: SerializerDeclaration) {
         if (declr === "json") {

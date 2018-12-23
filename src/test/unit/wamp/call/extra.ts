@@ -39,4 +39,3 @@ test("progressive call results request fails when feature not declared", async t
     await t.throws(prog.progress.toPromise(), MatchError.illegalOperation(AdvProfile.Call.ProgressReports));
 });
 
-

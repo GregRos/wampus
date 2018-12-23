@@ -59,7 +59,7 @@ export interface RegistrationTicket extends Ticket {
     readonly invocations: Observable<InvocationTicket>;
     readonly info: WampusRegisterArguments & {
         readonly registrationId: number;
-    }
+    };
 }
 
 /**
@@ -69,7 +69,7 @@ export interface SubscriptionTicket extends Ticket {
     readonly events: Observable<EventData>;
     readonly info: WampusSubcribeArguments & {
         readonly subscriptionId: number;
-    }
+    };
 }
 
 

@@ -14,9 +14,9 @@ export class RxjsWsServer {
     }
 
     static async create(port: number) {
-        let createServer$ = Observable.create((sub) => {
+        let createServer$ = Observable.create(sub => {
             let server = new WebSocket.Server({
-                port: port
+                port
             }, () => {
                 sub.next(server);
             });
@@ -49,8 +49,8 @@ export async function getTransportAndServerConn() {
     });
     let server = srv.getConnectionFromServerSide(rnd);
     return {
-        client: client,
-        server: server
+        client,
+        server
     };
 }
 

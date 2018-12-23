@@ -38,7 +38,7 @@ export interface WebsocketTransportConfig {
 /**
  * An object describing what transport to use, or a factory for transport objects.
  */
-export type TransportDeclaration = TransportFactory | WebsocketTransportConfig
+export type TransportDeclaration = TransportFactory | WebsocketTransportConfig;
 
 /**
  * Specifies the transport, realm, authenticator, and services for use by a Wampus session.
@@ -67,13 +67,13 @@ export interface WampusConfig {
     /**
      * A set of services that provide additional functionalty to the session.
      */
-    services?: NewObjectInitializer<AbstractWampusSessionServices>
+    services?: NewObjectInitializer<AbstractWampusSessionServices>;
 }
 
 /**
  * Creates Wampus sessions.
  */
-export module Wampus {
+export namespace Wampus {
     export async function connect(config: WampusConfig) {
         let transportFactory = DependencyDeclarations.transport(config.transport);
         let coreSession = await WampusCoreSession.create({

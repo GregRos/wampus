@@ -5,7 +5,7 @@ import _ = require("lodash");
 
 function getRoute<T>(key: any[], tag ?: string) {
     return Object.assign(new Subject(), {
-        key: key,
+        key,
         tag
     });
 }

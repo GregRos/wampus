@@ -2,12 +2,12 @@
 import {WampusInvalidArgument} from "../core/errors/types";
 
 /**@internal*/
-export module Errors {
+export namespace Errors {
     export function unknownEvent(name: string) {
         return new Error(`Unknown event name ${name}.`);
     }
 
-    export module Creation {
+    export namespace Creation {
         export function unknownSerializerName(object: any) {
             return new WampusInvalidArgument("Unknown serializer name '{name}'.", {
                 name: object

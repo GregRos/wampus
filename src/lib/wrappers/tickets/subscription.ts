@@ -39,7 +39,7 @@ export class SubscriptionTicket extends Ticket {
             ObjectHelpers.makeEverythingNonEnumerableExcept(data, "args", "kwargs", "details");
             return data;
         }));
-    };
+    }
 
     /**
      * Info about this subscription.

@@ -15,7 +15,7 @@ export interface SubscriberFeatures {
     pattern_based_subscription: boolean;
     shareded_subscriptions: boolean;
     event_history: boolean;
-    publisher_identification: boolean
+    publisher_identification: boolean;
     publication_trustlevels: boolean;
 }
 
@@ -68,7 +68,7 @@ export interface HelloDetails {
         callee?: {
             features?: Partial<CalleeFeatures>;
         };
-    }
+    };
 }
 
 /**

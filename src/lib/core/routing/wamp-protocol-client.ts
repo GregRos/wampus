@@ -19,7 +19,7 @@ export class WampProtocolClient<T> {
         error(err) {
             console.error(err);
         },
-        next: (x) => {
+        next:x => {
             this._onUnknownMessage.next(x);
         }
     };
@@ -162,7 +162,7 @@ export class WampProtocolClient<T> {
             complete: () => {
 
             },
-            error: (err) => {
+            error:err => {
                 this._defaultRoute.error(err);
             }
         });

@@ -30,7 +30,7 @@ test("pattern_based_subscription", async t => {
             options: {
                 exclude_me: false
             },
-            name: name
+            name
         });
     }
 

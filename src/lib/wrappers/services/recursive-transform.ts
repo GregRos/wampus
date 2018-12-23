@@ -13,9 +13,9 @@ export interface TransformStep<TIn, TOut> {
     (value: TIn, ctx: TransformerControl<TIn, TOut>): TOut;
 }
 
-export module Transformation {
-    export function compile<TIn = any, TOut = any>(...steps: TransformStep<TIn, TOut>[]): (x: TIn) => TOut
-    export function compile<TIn = any, TOut = any>(steps: TransformStep<TIn, TOut>[]): (x: TIn) => TOut
+export namespace Transformation {
+    export function compile<TIn = any, TOut = any>(...steps: TransformStep<TIn, TOut>[]): (x: TIn) => TOut;
+    export function compile<TIn = any, TOut = any>(steps: TransformStep<TIn, TOut>[]): (x: TIn) => TOut;
     export function compile<TIn, TOut>(arg1 ?: any, ...args: any[]): (x: TIn) => TOut {
         type MyTransform = TransformStep<TIn, TOut>;
         type MyRecursionControl = TransformerControl<TIn, TOut>;
@@ -33,7 +33,7 @@ export module Transformation {
         for (let i = 0; i < steps.length; i++) {
             let z = i;
             let lastNext = curSkip;
-            curSkip = function (this: MyRecursionControl, value: any) {
+            curSkip = function(this: MyRecursionControl, value: any) {
                 let step = steps[z];
                 this.next = lastNext;
                 return step(value, this);
@@ -65,7 +65,7 @@ export module Transformation {
 
         };
 
-        return (x) => {
+        return x => {
             let ctx = createTransformCtx(new Set());
             return ctx.next(x);
         };

@@ -1,6 +1,6 @@
 import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
-import {WampusSession} from "../../../lib/index";
+import {WampusSession} from "../../../lib";
 import {take, toArray} from "rxjs/operators";
 import {merge} from "rxjs";
 import _ = require("lodash");

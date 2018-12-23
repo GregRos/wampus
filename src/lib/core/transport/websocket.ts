@@ -136,7 +136,7 @@ export class WebsocketTransport implements Transport {
         }
         this._expectingClose = new MyPromise((resolve, reject) => {
             if (this._ws.readyState === this._ws.CLOSED) resolve();
-            this._ws.once("close", (msg) => {
+            this._ws.once("close",msg => {
                 resolve();
             });
             if (this._ws.readyState !== this._ws.CLOSING) {

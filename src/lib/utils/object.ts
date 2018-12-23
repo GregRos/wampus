@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 /**@internal*/
 
-export module ObjectHelpers {
+export namespace ObjectHelpers {
     export function makeNonEnumerable<T>(obj: T, ...names: (keyof T | string)[]) {
         for (let name of names) {
             let desc = Object.getOwnPropertyDescriptor(obj, name);
@@ -37,7 +37,4 @@ export module ObjectHelpers {
     }
 
 }
-
-
-
 

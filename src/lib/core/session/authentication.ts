@@ -19,4 +19,4 @@ export interface ChallengeResponse {
 /**
  * Authenticates the client. Given a challenge event sent by the router, this function will generate a response.
  */
-export type AuthenticatorFunction = (events: ChallengeEvent) => Promise<ChallengeResponse> | ChallengeResponse
+export type AuthenticatorFunction = (events: ChallengeEvent) => Promise<ChallengeResponse> | ChallengeResponse;

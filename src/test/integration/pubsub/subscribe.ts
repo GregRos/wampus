@@ -1,6 +1,6 @@
 import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
-import {WampusSession} from "../../../lib/index";
+import {WampusSession} from "../../../lib";
 import {MatchingPolicy, WampSubscribeOptions} from "../../../lib/core/protocol/options";
 import _ = require("lodash");
 

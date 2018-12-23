@@ -27,7 +27,7 @@ async function allWithCleanup<T>(promises: PromiseLike<T>[], cleanup: (x: T) => 
         });
     });
 
-    let all = Operators.and(promises[0], ...promises.slice(1)).then(undefined, (err) => {
+    let all = Operators.and(promises[0], ...promises.slice(1)).then(undefined,err => {
         failed = true;
         for (let x of resolved) {
             cleanup(x);
@@ -126,7 +126,7 @@ export class WampusSession extends Ticket {
             args: wArgs.args ? wArgs.args.map(this._services.transforms.objectToJson.transform) : wArgs.args
         };
         return CallTicket.create(this._core.call(wArgs), this._services);
-    };
+    }
 
     /**
      * Registers a procedure via the WAMP protocol.
@@ -138,7 +138,7 @@ export class WampusSession extends Ticket {
         let ticket = await RegistrationTicket.create(coreRegTicket, this._services);
         ticket._handle(wArgs.called);
         return ticket;
-    };
+    }
 
     /**
      * Registers multiple procedures based on an object specification.
@@ -202,5 +202,5 @@ export class WampusSession extends Ticket {
             args: wArgs.args ? wArgs.args.map(this._services.transforms.objectToJson.transform) : wArgs.args
         };
         return this._core.publish(wArgs);
-    };
+    }
 }

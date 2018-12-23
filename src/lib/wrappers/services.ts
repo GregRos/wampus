@@ -15,17 +15,14 @@ export class TransformSet {
 }
 
 
-export type StackTraceService = {
+export interface StackTraceService {
     enabled: boolean;
     capture(ctor: Function): CallSite[];
     format(err: Error, callSites: CallSite[]): string;
-};
+}
 
 export interface AbstractWampusSessionServices {
     transforms?: TransformSet;
     stackTraceService?: StackTraceService;
 }
-
-
-
 

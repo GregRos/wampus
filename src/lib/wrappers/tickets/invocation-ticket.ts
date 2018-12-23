@@ -90,7 +90,7 @@ export class InvocationTicket {
      */
     _handle(handler: ProcedureHandler): void {
         let ticket = this;
-        let handleError = async (err) => {
+        let handleError = async err => {
             if (this._services.stackTraceService.enabled) {
                 err.stack = `${err.stack}\n(Wampus Registered At)${this._services.stackTraceService.format("" as any, this.source.trace.created)}`;
             }
@@ -149,4 +149,4 @@ export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;
 }
 
-export type ProcedureHandler = (ticket: InvocationTicket) => Promise<WampusSendResultArguments>
+export type ProcedureHandler = (ticket: InvocationTicket) => Promise<WampusSendResultArguments>;

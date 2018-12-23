@@ -8,7 +8,7 @@ function partialMatchText(haystack, needles: string[]) {
     return needles.every(s => haystack.toLowerCase().includes(s.toLowerCase()));
 }
 
-export module MatchError {
+export namespace MatchError {
     export function network(...msgSubstring: string[]) {
         return err => err instanceof WampusNetworkError && partialMatchText(err.message, msgSubstring);
     }
@@ -21,7 +21,3 @@ export module MatchError {
         return err => err instanceof WampusInvocationCanceledError;
     }
 }
-
-
-
-

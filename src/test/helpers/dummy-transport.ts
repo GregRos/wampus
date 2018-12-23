@@ -105,6 +105,6 @@ export function dummyTransport() {
                 return isActive;
             }
         } as Transport,
-        server: server
+        server
     };
 }

@@ -547,8 +547,8 @@ export class WampusCoreSession {
                 events: expectEvents$.pipe(mapToLibraryEvent).pipe(takeUntil(closeSignal), publishAutoConnect()),
                 info: {
                     subscriptionId: subscribed.subscriptionId,
-                    name: name,
-                    options: options
+                    name,
+                    options
                 },
                 get isOpen() {
                     return !closing && !self._isClosing;
@@ -629,7 +629,7 @@ export class WampusCoreSession {
                     kwargs: x.kwargs,
                     isProgress: x.details.progress || false,
                     details: x.details,
-                    name: name,
+                    name,
                     source: callTicket
                 } as CallResultData;
             });

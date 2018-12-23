@@ -4,7 +4,7 @@ let randomRealm = () => {
     return (Math.random() * 100000).toString(36);
 };
 
-export module RealSessions {
+export namespace RealSessions {
     export function session(stuff ?: Partial<WampusConfig>) {
         return Wampus.connect({
             realm: randomRealm(),

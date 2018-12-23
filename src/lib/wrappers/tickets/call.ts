@@ -1,5 +1,4 @@
 import * as Core from "../../core/session/ticket";
-import {CallTicketInfo} from "../../core/session/ticket";
 import {AbstractWampusSessionServices} from "../services";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {catchError, map} from "rxjs/operators";
@@ -35,7 +34,7 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
     /**
      * Provides info about this RPC call.
      */
-    get info(): CallTicketInfo {
+    get info(): Core.CallTicketInfo {
         return this._base.info;
     }
 

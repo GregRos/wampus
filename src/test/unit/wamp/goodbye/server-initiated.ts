@@ -33,4 +33,3 @@ test("when received sudden disconnect, should close", async t => {
 
 //TODO: Some kind of test for connections that error
 
-

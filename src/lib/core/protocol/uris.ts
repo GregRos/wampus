@@ -1,7 +1,7 @@
 /**
  * Set of URIs mentioned by the WAMP protocol.
  */
-export module WampUri {
+export namespace WampUri {
     /**
      * Standard error URIs.
      */
@@ -36,8 +36,8 @@ export module WampUri {
         CloseRealm = "wamp.close.close_realm"
     }
 
-    export module MetaApi {
-        export module Registration {
+    export namespace MetaApi {
+        export namespace Registration {
             export enum Event {
                 OnRegister = "wamp.registration.on_register",
                 OnUnregister = "wamp.registration.on_unregister",
@@ -53,7 +53,7 @@ export module WampUri {
                 CountCallees = "wamp.registration.count_callees",
             }
         }
-        export module Subscription {
+        export namespace Subscription {
             export enum Procedure {
                 List = "wamp.subscription.list",
                 Lookup = "wamp.subscription.lookup",
@@ -70,14 +70,14 @@ export module WampUri {
             }
         }
 
-        export module History {
+        export namespace History {
             export enum Procedures {
                 Last = "wamp.topic.history.last",
                 Since = "wamp.topic.history.since",
                 After = "wamp.topic.history.after"
             }
         }
-        export module Session {
+        export namespace Session {
             export enum Events {
                 OnJoin = "wamp.session.on_join",
                 OnLeave = "wamp.session.on_leave",
@@ -93,8 +93,8 @@ export module WampUri {
     }
 }
 
-export module AdvProfile {
-    export module Call {
+export namespace AdvProfile {
+    export namespace Call {
         export const ProgressReports = "ProgressiveCallResults";
         export const CallTimeouts = "CallTimeout";
         export const CallCancelling = "CallCancelling";
@@ -104,7 +104,7 @@ export module AdvProfile {
         export const SharedRegistration = "SharedRegistration";
     }
 
-    export module Subscribe {
+    export namespace Subscribe {
         export const SubscriberBlackWhiteListing = "SubscriberBlackWhiteListing";
         export const PublisherIdentification = "PublisherIdentification";
         export const PublisherExclusion = "PublisherExclusion";

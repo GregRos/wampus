@@ -3,7 +3,7 @@ import {dematerialize, materialize, takeUntil, toArray} from "rxjs/operators";
 import {MyPromise} from "../../lib/utils/ext-promise";
 import _ = require("lodash");
 
-export module Rxjs {
+export namespace Rxjs {
     export function monitor<T>(source: Observable<T>): ObservableMonitor<T> {
         return new ObservableMonitor<T>(source);
     }
@@ -55,19 +55,19 @@ export class ObservableMonitor<T> {
     }
 
     async next() {
-        return await this.next$().toPromise();
+        return this.next$().toPromise();
     }
 
     async nextK(count: number) {
-        return await this.next$(count).pipe(toArray()).toPromise();
+        return this.next$(count).pipe(toArray()).toPromise();
     }
 
     async nextWithin(time: number) {
-        return await this.next$().pipe(takeUntil(timer(time))).toPromise();
+        return this.next$().pipe(takeUntil(timer(time))).toPromise();
     }
 
     async rest() {
-        return await this.next$(1000).pipe(toArray()).toPromise();
+        return this.next$(1000).pipe(toArray()).toPromise();
     }
 
     async clefar() {

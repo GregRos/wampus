@@ -27,7 +27,7 @@ import _ = require("lodash");
 /**
  * A route registration.
  */
-export type PrefixRoute<T> = {
+export interface PrefixRoute<T> {
     /**
      * The prefix key for matching the route.
      */
@@ -127,7 +127,7 @@ export class PrefixRouter<T> {
             keys[1] = a;
         }
         let routes = [] as PrefixRoute<T>[];
-        let rec = function (cur: RouteIndex<T>, index: number) {
+        let rec = function(cur: RouteIndex<T>, index: number) {
             if (!cur) return;
             for (let target of cur.match) {
                 routes.push(target);

@@ -8,7 +8,7 @@ import {Operators} from "promise-stuff";
 
 
 async function cancelSession() {
-    return await SessionStages.handshaken("a", {
+    return SessionStages.handshaken("a", {
             dealer: {
                 call_canceling: true
             }

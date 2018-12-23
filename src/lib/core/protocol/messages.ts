@@ -74,7 +74,7 @@ function argsKwargsArray(args: any[], kwargs: any) {
 /**
  * Namespace for all WAMP protocol message objects.
  */
-export module WampMessage {
+export namespace WampMessage {
     /**
      * A class representing the CALL message.
      */

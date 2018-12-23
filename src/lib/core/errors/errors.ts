@@ -66,7 +66,7 @@ function getDescriptionByMessage(source: WM.Any) {
 }
 
 /**@internal*/
-export module Errs {
+export namespace Errs {
 
     export function receivedProtocolViolation(source: WM.Any, error: WampMessage.Abort) {
         return new WampusNetworkError("Received protocol violation during handshake.", getWampAbortBasedMembers(error));
@@ -89,7 +89,7 @@ export module Errs {
         return x;
     }
 
-    export module Handshake {
+    export namespace Handshake {
 
         export function noAuthenticator(challenge: WampMessage.Challenge) {
             return new WampusNetworkError("During handshake, the router sent a CHALLENGE authentication message, but no authenticator was configured.", {
@@ -120,7 +120,7 @@ export module Errs {
         }
     }
 
-    export module Unregister {
+    export namespace Unregister {
         export function registrationDoesntExist(procedure: string, err: WampMessage.Error) {
             return new WampusIllegalOperationError(`Tried to unregister procedure ${procedure}, but the registration did not exist. This is probably a bug. Going to assume it has been closed.`, getWampErrorReplyBasedMembers(err));
         }
@@ -130,7 +130,7 @@ export module Errs {
         }
     }
 
-    export module Register {
+    export namespace Register {
         export function procedureAlreadyExists(name: string, err: WampMessage.Error) {
             return new WampusIllegalOperationError(`Tried to register procedure ${name}, but a procedure with this name is already registered.`, getWampErrorReplyBasedMembers(err));
         }
@@ -156,7 +156,7 @@ export module Errs {
     }
 
 
-    export module Subscribe {
+    export namespace Subscribe {
         export function other(name: string, err: WampMessage.Error) {
             return new WampusIllegalOperationError(`Tried to subscribe to ${name}, but received an ERROR response (${err.error}).`, getWampErrorReplyBasedMembers(err));
         }
@@ -164,7 +164,7 @@ export module Errs {
     }
 
 
-    export module Unsubscribe {
+    export namespace Unsubscribe {
         export function subDoesntExist(msg: WampMessage.Error, event: string) {
             return new WampusIllegalOperationError(`Tried to unsubscribe from ${event}, but the subscription did not exist. This is probably a bug. Going to assume the subscription is closed.`,
                 getWampErrorReplyBasedMembers(msg)
@@ -176,7 +176,7 @@ export module Errs {
         }
     }
 
-    export module Leave {
+    export namespace Leave {
         export function networkErrorOnAbort(err: WampusNetworkError) {
             return new WampusNetworkError("While trying to ABORT, received a network error. Going to terminate connection anyway.", {
                 innerError: err
@@ -190,13 +190,13 @@ export module Errs {
 
     }
 
-    export module Publish {
+    export namespace Publish {
         export function unknown(topic: string, err: WM.Error) {
             return new WampusIllegalOperationError(`Tried to publish topic ${topic}, but received an error response (${err.error})`, getWampErrorReplyBasedMembers(err));
         }
     }
 
-    export module Call {
+    export namespace Call {
         export function noSuchProcedure(name: string, err: WM.Error) {
             return new WampusIllegalOperationError(`Tried to call procedure ${name}, but it did not exist.`, getWampErrorReplyBasedMembers(err));
         }

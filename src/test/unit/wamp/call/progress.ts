@@ -6,7 +6,7 @@ import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
 
 async function getProgressSession() {
-    return await SessionStages.handshaken("a", {
+    return SessionStages.handshaken("a", {
         dealer: {
             progressive_call_results: true
         }
@@ -15,7 +15,7 @@ async function getProgressSession() {
 
 async function makeProgressiveCall(session: WampusCoreSession, name: string) {
     return session.call({
-        name: name,
+        name,
         options: {
             receive_progress: true
         }

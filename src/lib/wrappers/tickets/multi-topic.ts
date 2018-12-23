@@ -26,7 +26,6 @@ export class MultiSubscriptionTicket<T extends string> extends Ticket {
         this.topic = topics;
         this.infos = info;
 
-
         this._emitter = new RxjsEventAdapter(merge(..._.values(topics)), x => ({
             name: x.source.info.name,
             arg: x

@@ -5,7 +5,7 @@ import {WampType} from "../protocol/message.type";
  * @see [WAMP Basic Profile]{@link https://wamp-proto.org/_static/wamp_latest.html#message-definitions}
  * @see [WAMP Advanced Profile]{@link https://wamp-proto.org/_static/wamp_latest.html#message-definitions-0}
  */
-export module Routes {
+export namespace Routes {
 
     export const goodbye = [WampType.GOODBYE];
 
