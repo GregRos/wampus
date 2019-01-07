@@ -6,7 +6,7 @@ import {
     WampusInvocationError,
     WampusNetworkError
 } from "./types";
-import {ObjectHelpers} from "../../utils/object";
+import objy = require("objectology");
 
 /**@internal*/
 function getWampErrorReplyBasedMembers(err: WampMessage.Error) {
@@ -21,7 +21,11 @@ function getWampErrorReplyBasedMembers(err: WampMessage.Error) {
     if ("kwargs" in err) {
         members.kwargs = err.kwargs;
     }
-    ObjectHelpers.makeEverythingNonEnumerableExcept(members, "kwargs", "args", "details", "error");
+
+    objy.configureDescriptorsOwn(members, (x, k) => {
+        x.enumerable = ["kwargs", "args", "details", "error"].includes(k as any);
+    });
+
     return members;
 }
 
@@ -31,7 +35,10 @@ function getWampAbortBasedMembers(abort: WampMessage.Abort) {
         details: abort.details,
         reason: abort.reason
     };
-    ObjectHelpers.makeNonEnumerable(members, "_originalWampMessage");
+    objy.configureDescriptorsOwn(members, {
+        _originalWampMessage: ["no-enum"]
+    });
+
     return members;
 }
 

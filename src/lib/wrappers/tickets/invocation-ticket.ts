@@ -5,12 +5,12 @@ import {WampusSendErrorArguments, WampusSendResultArguments} from "../../core/se
 import {AbstractWampusSessionServices} from "../services";
 import {map, takeUntil} from "rxjs/operators";
 import {RegistrationTicket} from "./registration-ticket";
-import {ObjectHelpers} from "../../utils/object";
 import {WampInvocationOptions} from "../../core/protocol/options";
 import {WampusInvocationCanceledError} from "../../core/errors/types";
 import {WampArray, WampObject} from "../../core/protocol/messages";
 import _ = require("lodash");
 
+import objy = require("objectology");
 
 /**
  * A ticket for the invocation of a procedure, on the callee's side.
@@ -50,7 +50,10 @@ export class InvocationTicket {
         this.options = _base.options;
         this.name = _base.name;
         this.invocationId = _base.invocationId;
-        ObjectHelpers.makeEverythingNonEnumerableExcept(this, "args", "kwargs", "options", "name", "invocationId");
+
+        objy.configureDescriptorsOwn(this, (x,k) => {
+            x.enumerable = ["args", "kwargs", "options", "name", "invocationId"].includes(k as string);
+        });
     }
 
     /**
@@ -143,7 +146,9 @@ export class InvocationTicket {
     }
 }
 
-ObjectHelpers.makeEverythingNonEnumerableExcept(InvocationTicket.prototype);
+objy.configureDescriptorsOwn(InvocationTicket.prototype, x => {
+    x.enumerable = false;
+});
 
 export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;

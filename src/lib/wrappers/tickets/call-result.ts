@@ -1,9 +1,8 @@
 import * as Core from "../../core/session/ticket";
 import {WampArray, WampObject} from "../../core/protocol/messages";
 import {WampResultOptions} from "../../core/protocol/options";
-import {ObjectHelpers} from "../../utils/object";
 import {CallTicket} from "./call";
-
+import objy = require("objectology");
 export class CallResultData implements Core.CallResultData {
     /**
      * The ordered arguments of the call result.
@@ -24,7 +23,9 @@ export class CallResultData implements Core.CallResultData {
         this.kwargs = _base.kwargs;
         this.args = _base.args;
         this.details = _base.details;
-        ObjectHelpers.makeEverythingNonEnumerableExcept(this, "kwargs", "args", "details");
+        objy.configureDescriptorsOwn(this, (x, k) => {
+            x.enumerable = ["kwargs", "args", "details"].includes(k as string);
+        });
     }
 
     /**

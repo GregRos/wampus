@@ -3,9 +3,8 @@ import {AbstractWampusSessionServices} from "../services";
 import {map} from "rxjs/operators";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {Ticket} from "./ticket";
-import {ObjectHelpers} from "../../utils/object";
 import CallSite = NodeJS.CallSite;
-
+import objy = require("objectology");
 export interface EventInvocation extends Core.EventData {
     readonly source: SubscriptionTicket;
 }
@@ -36,7 +35,9 @@ export class SubscriptionTicket extends Ticket {
                 details: x.details,
                 source: this
             } as EventInvocation;
-            ObjectHelpers.makeEverythingNonEnumerableExcept(data, "args", "kwargs", "details");
+            objy.configureDescriptorsOwn(data, (x,k) => {
+                x.enumerable = ["args", "kwargs", "details"].includes(k as any);
+            });
             return data;
         }));
     }
@@ -76,7 +77,10 @@ export class SubscriptionTicket extends Ticket {
                 arg: x
             };
         }, ["event"]);
-        ObjectHelpers.makeEverythingNonEnumerableExcept(ticket);
+        objy.configureDescriptorsOwn(ticket, (x,k) => {
+            x.enumerable = false;
+        });
+
         return ticket;
     }
 
@@ -107,4 +111,6 @@ export class SubscriptionTicket extends Ticket {
 
 }
 
-ObjectHelpers.makeEverythingNonEnumerableExcept(SubscriptionTicket.prototype, "info");
+objy.configureDescriptorsOwn(SubscriptionTicket.prototype, (x, k) => {
+    x.enumerable = k === "info";
+});

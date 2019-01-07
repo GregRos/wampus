@@ -6,10 +6,10 @@ import {CancelMode} from "../../core/protocol/options";
 import {Observable} from "rxjs";
 import {publishReplayAutoConnect} from "../../utils/rxjs-operators";
 import {Ticket} from "./ticket";
-import {ObjectHelpers} from "../../utils/object";
 import {WampusInvocationError} from "../../core/errors/types";
 import {CallResultData} from "./call-result";
 import CallSite = NodeJS.CallSite;
+import objy = require("objectology");
 
 /**
  * An in-progress RPC call via the WAMP protocol.
@@ -96,7 +96,9 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
                 arg: x
             };
         }, ["data"]);
-        ObjectHelpers.makeEverythingNonEnumerableExcept(ticket, "info");
+        objy.configureDescriptorsOwn(ticket, (x,k) => {
+            x.enumerable = k === "info";
+        });
         return ticket;
     }
 
@@ -146,5 +148,7 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
     }
 }
 
-ObjectHelpers.makeEverythingNonEnumerableExcept(CallTicket.prototype, "info");
+objy.configureDescriptorsOwn(CallTicket.prototype, (x,k) => {
+    x.enumerable = k === "info";
+})
 

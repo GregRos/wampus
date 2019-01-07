@@ -3,9 +3,8 @@ import {catchError, map} from "rxjs/operators";
 import {AbstractWampusSessionServices} from "../services";
 import {InvocationTicket, ProcedureHandler} from "./invocation-ticket";
 import {Ticket} from "./ticket";
-import {ObjectHelpers} from "../../utils/object";
 import CallSite = NodeJS.CallSite;
-
+import objy = require("objectology");
 /**
  * A ticket for a procedure registration.
  */
@@ -61,7 +60,9 @@ export class RegistrationTicket extends Ticket {
         ticket.trace.created = trace;
         ticket._base = coreTicket;
         ticket._services = services;
-        ObjectHelpers.makeEverythingNonEnumerableExcept(ticket);
+        objy.configureDescriptorsOwn(ticket, x => {
+            x.enumerable = false;
+        });
         return ticket;
     }
 
@@ -84,5 +85,7 @@ export class RegistrationTicket extends Ticket {
     }
 }
 
-ObjectHelpers.makeEverythingNonEnumerableExcept(InvocationTicket.prototype, "info");
+objy.configureDescriptorsOwn(InvocationTicket.prototype, (x, k) => {
+    x.enumerable = k === "info";
+});
 

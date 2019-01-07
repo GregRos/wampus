@@ -1,7 +1,6 @@
 import * as template from "string-template";
 import {WampArray, WampObject} from "../protocol/messages";
-import {ObjectHelpers} from "../../utils/object";
-
+import objy = require("objectology");
 /**
  * The base class for errors thrown by the Wampus library.
  */
@@ -10,8 +9,7 @@ export abstract class WampusError extends Error {
 
     constructor(message: string, props: object) {
         super(template(message, props || {}));
-        ObjectHelpers.assignKeepDescriptor(this, props);
-        ObjectHelpers.makeNonEnumerable(this, "name");
+        objy.mixin(this, props);
     }
 }
 
@@ -58,7 +56,9 @@ export class WampusInvocationError extends WampusError {
 
 }
 
-ObjectHelpers.makeEverythingNonEnumerableExcept(WampusInvocationError.prototype, "kwargs", "args", "details");
+objy.configureDescriptorsOwn(WampusInvocationError.prototype, (x, k) => {
+    x.enumerable = ["kwargs", "args", "details"].includes(k as any);
+});
 
 /**
  * Thrown when a WAMP RPC call is canceled.
