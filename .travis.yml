@@ -8,7 +8,6 @@ cache:
     - node_modules
 install:
   - yarn install
-  - yarn add rxjs
   - eval "$(gimme 1.11.1)"
   - bash ./test_scripts/install_router.sh
 script:
