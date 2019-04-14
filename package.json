@@ -1,6 +1,6 @@
 {
   "name": "wampus",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "description": "WAMP client for JavaScript",
   "main": "index.js",
   "repository": "https://github.com/GregRos/wampus",
@@ -57,7 +57,7 @@
   "dependencies": {
     "isomorphic-ws": "^4.0.1",
     "lodash": "^4.17.11",
-    "objectology": "^0.0.1",
+    "objectology": "^0.0.5",
     "promise-stuff": "^0.3.6",
     "string-template": "^1.0.0",
     "ws": "^5.2.1"
