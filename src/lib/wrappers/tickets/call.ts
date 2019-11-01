@@ -150,5 +150,5 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
 
 objy.configureDescriptorsOwn(CallTicket.prototype, (x,k) => {
     x.enumerable = k === "info";
-})
+});
 

@@ -34,7 +34,7 @@ test("should send CANCEL", async t => {
     let prog = session.call({
         name: "a"
     });
-    //don't await close(), because it will expect a RESULT or ERROR from server.
+    // don't await close(), because it will expect a RESULT or ERROR from server.
     prog.close();
     let a = await serverMonitor.next();
     let expectCancel = await serverMonitor.next();
@@ -106,7 +106,7 @@ test("reply with ERROR(non-cancel), close() should reject", async t => {
     let closing = prog.close();
     await serverMonitor.next();
     server.send([WampType.ERROR, WampType.CALL, prog.info.callId, {}, "wamp.error.whatever"]);
-    //TODO: Validate error details
+    // TODO: Validate error details
     await Promise.all([t.throws(progress), t.notThrows(closing)]);
 });
 

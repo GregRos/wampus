@@ -8,7 +8,7 @@ import {fromEvent, merge, NEVER, Observable, of, race, throwError} from "rxjs";
 import {delay, map, take} from "rxjs/operators";
 import {skipAfter} from "../../utils/rxjs-operators";
 
-const WebSocket = require("isomorphic-ws") as typeof ws;
+const WebSocket = require("isomorphic-ws");
 
 export interface WebsocketTransportConfig {
     url: string;
@@ -134,7 +134,7 @@ export class WebsocketTransport implements Transport {
         if (this._expectingClose) {
             return this._expectingClose;
         }
-        this._expectingClose = new MyPromise((resolve, reject) => {
+        this._expectingClose = new Promise((resolve, reject) => {
             if (this._ws.readyState === this._ws.CLOSED) resolve();
             this._ws.once("close",msg => {
                 resolve();

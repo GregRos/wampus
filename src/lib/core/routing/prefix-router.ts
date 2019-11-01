@@ -121,7 +121,7 @@ export class PrefixRouter<T> {
      */
     match(keys: WampPrimitive[]) {
         if (keys[0] === WampType.INVOCATION) {
-            //ugly but works
+            // ugly but works
             let a = keys[2];
             keys[2] = keys[1];
             keys[1] = a;

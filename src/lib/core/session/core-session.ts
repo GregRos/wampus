@@ -860,7 +860,7 @@ export class WampusCoreSession {
 
         let failOnError = map((x: WM.Any) => {
             if (x instanceof WampMessage.Goodbye) {
-                return x as WampMessage.Goodbye;
+                return x;
             }
         });
 
@@ -907,7 +907,7 @@ export class WampusCoreSession {
             if (!(msg instanceof WM.Welcome)) {
                 throw Errs.Handshake.unexpectedMessage(msg);
             }
-            return msg as WM.Welcome;
+            return msg;
         });
 
         let sendHello$ = messenger.send$(hello);

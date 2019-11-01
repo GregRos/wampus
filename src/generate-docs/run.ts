@@ -1,9 +1,14 @@
-import {Application} from "typedoc";
-import {WampusCustomizationPlugin} from "./typedoc-plugin";
-import * as execa from "execa";
-import globby = require("globby");
+import {Application, ReflectionFlag, ReflectionKind} from "typedoc";
+import globby from "globby";
+import {exec} from "shelljs";
+
+import {CommentPlugin} from "typedoc/dist/lib/converter/plugins";
 
 async function run() {
+    let files = await globby(["./src/lib/**/*.ts", "./src/lib/*.ts", "!**/*.ranges.ts"], {
+        absolute: true
+    });
+
     let app = new Application({
         module: "commonjs",
         target: "es6",
@@ -11,14 +16,33 @@ async function run() {
             "typedoc-plugin-external-module-name",
             "typedoc-plugin-internal-external",
             "typedoc-plugin-example-tag"
-        ]
+        ],
+        excludePrivate: true,
+        excludeExternals: true,
+        esModuleInterop: true,
+        files
     });
 
-    let files = await globby(["./src/lib/**/*.ts", "./src/lib/*.ts"]);
-    await execa.shell("rm -rf docs/");
-    app.converter.addComponent("test", WampusCustomizationPlugin);
+    let rs = app.convert(files)!;
+    rs.files.forEach(file => {
+        file.reflections.slice().forEach(r => {
 
-    app.generateDocs(files, "docs");
+            if (r.flags.hasFlag(ReflectionFlag.External)) {
+                console.log(r.name);
+                CommentPlugin.removeReflection(rs, r);
+            }
+            if (r.kind === ReflectionKind.Global) {
+                CommentPlugin.removeReflection(rs, r);
+            }
+        });
+    });
+
+
+    console.log(rs.getReflectionsByKind(ReflectionKind.SomeModule).map(x => x.name));
+    exec("rm -rf docs/");
+    app.generateDocs(rs, "docs");
+
 }
 
 run();
+

@@ -15,7 +15,7 @@ test("when receive goodbye, send goodbye and close+disconnect", async t => {
 });
 
 test("when received abort, close+disconnect", async t => {
-    //TODO: Do something when ABORT received
+    // TODO: Do something when ABORT received
     let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     server.send([3, {}, "wamp.close.goodbye_and_out"]);
@@ -24,12 +24,12 @@ test("when received abort, close+disconnect", async t => {
 });
 
 test("when received sudden disconnect, should close", async t => {
-    //TODO: Do something when ABORT received
+    // TODO: Do something when ABORT received
     let {session, server} = await SessionStages.handshaken("a");
     server.close();
     await MyPromise.wait(30);
     t.is(session.isActive, false);
 });
 
-//TODO: Some kind of test for connections that error
+// TODO: Some kind of test for connections that error
 

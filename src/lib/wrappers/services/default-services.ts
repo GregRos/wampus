@@ -22,7 +22,7 @@ export const createDefaultServices = () => {
                     Error.prepareStackTrace = (err, stack) => ({err, stack});
                     let obj = {stack: null};
                     Error.captureStackTrace(obj, ctor);
-                    let {stack, err} = obj.stack as any;
+                    let {stack, err} = obj.stack;
                     Error.prepareStackTrace = origTrace;
                     return stack;
                 }

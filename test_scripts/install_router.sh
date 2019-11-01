@@ -7,7 +7,7 @@ cd .tmp/wamp_router
 
 echo "Cloning nexus wamp_router"
 go get github.com/gammazero/nexus
-cd $GOPATH/src/github.com/gammazero/nexus/nexusd
+cd "$GOPATH/src/github.com/gammazero/nexus/nexusd"
 
 echo "Building go"
 go build

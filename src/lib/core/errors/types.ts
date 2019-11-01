@@ -1,4 +1,4 @@
-import * as template from "string-template";
+import template from "string-template";
 import {WampArray, WampObject} from "../protocol/messages";
 import objy = require("objectology");
 /**

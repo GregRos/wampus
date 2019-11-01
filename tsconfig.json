@@ -1,22 +1,25 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es2017",
+    "target": "es6",
     "noImplicitAny": false,
-    "inlineSourceMap": true,
-    "inlineSources": true,
+	"sourceMap": true,
     "allowUnreachableCode": true,
 	"experimentalDecorators": true,
 	"lib": [
       "es6",
-      "es2015.collection",
       "es2016.array.include",
       "dom"
     ],
     "declaration": true,
     "outDir": "dist",
-	"stripInternal": true
+	"allowSyntheticDefaultImports": true,
+	"esModuleInterop": true,
+	"moduleResolution": "node"
   },
+  "include": [
+	"src/**/*.ts"
+  ],
   "exclude": [
     "dist",
     "node_modules"

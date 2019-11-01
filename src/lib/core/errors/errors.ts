@@ -8,7 +8,10 @@ import {
 } from "./types";
 import objy = require("objectology");
 
-/**@internal*/
+/**
+ * Returns only the error information properties from an Error message.
+ * @param err
+ */
 function getWampErrorReplyBasedMembers(err: WampMessage.Error) {
     let members = {} as any;
 
@@ -29,6 +32,10 @@ function getWampErrorReplyBasedMembers(err: WampMessage.Error) {
     return members;
 }
 
+/**
+ * Returns the error information properties from an ABORT message.
+ * @param abort The ABORT message.
+ */
 function getWampAbortBasedMembers(abort: WampMessage.Abort) {
     let members = {
         _originalWampMessage: abort,

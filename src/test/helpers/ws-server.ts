@@ -68,7 +68,7 @@ export function sendVia(server: WebSocket, data: any): Promise<void> {
 export function receiveObjects$(server: WebSocket): Observable<any> {
     let wsClose = fromEvent(server, "close");
     return fromEvent(server, "message").pipe(map((x: any) => {
-        let parsed = JSON.parse(x.data as any);
+        let parsed = JSON.parse(x.data);
         return parsed;
     }), takeUntil(wsClose));
 }

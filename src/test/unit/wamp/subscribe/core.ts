@@ -121,14 +121,14 @@ function testSubscribeReceiveError(o: { errorName: string, errMatch(err: Error):
 
 testSubscribeReceiveError({
     errorName: "wamp.error.invalid_uri",
-    //TODO: Better error verification
+    // TODO: Better error verification
     errMatch: MatchError.illegalOperation("URI"),
     title: "send SUBSCRIBE, receive ERROR(invalid_uri), throw "
 });
 
 testSubscribeReceiveError({
     errorName: "wamp.error.blah",
-    //TODO: Better error verification
+    // TODO: Better error verification
     errMatch: MatchError.illegalOperation("ERROR"),
     title: "send SUBSCRIBE, receive ERROR(custom), throw "
 });

@@ -17,7 +17,7 @@ async function isSessionClosed<T>(t: GenericTestContext<T>, session: WampusCoreS
     await t.throws(session.topic({name: "ab"}), MatchError.network("closed"));
     await t.throws(session.publish({name: "ab"}), MatchError.network("closed"));
 
-    //closing okay should be fine:
+    // closing okay should be fine:
     await t.notThrows(session.close());
 }
 
@@ -59,7 +59,7 @@ test("random messages should be allowed during goodbye", async t => {
 });
 
 test("when abort received, should disconnect and close", async t => {
-    //TODO: Do something when goodbye violates protocol
+    // TODO: Do something when goodbye violates protocol
     let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     let pGoodbye = session.close();
@@ -71,7 +71,7 @@ test("when abort received, should disconnect and close", async t => {
 });
 
 test("when abort received, should disconnect and close", async t => {
-    //TODO: Do something when goodbye violates protocol
+    // TODO: Do something when goodbye violates protocol
     let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     let pGoodbye = session.close();
@@ -83,7 +83,7 @@ test("when abort received, should disconnect and close", async t => {
 });
 
 test("when nothing received after timeout, should disconnect and close", async t => {
-    //TODO: Do something when goodbye violates protocol
+    // TODO: Do something when goodbye violates protocol
     let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     session.close();
@@ -93,7 +93,7 @@ test("when nothing received after timeout, should disconnect and close", async t
 });
 
 test("when server disconnects abruptly, should close", async t => {
-    //TODO: Do something when goodbye violates protocol
+    // TODO: Do something when goodbye violates protocol
     let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     let p = session.close();
@@ -108,7 +108,7 @@ test("when server errors, should close", async t => {
     let sbs = Rxjs.monitor(server.events);
     let closing = session.close();
     let goodbye = await sbs.next();
-    //TODO: Do something with an error in closing process
+    // TODO: Do something with an error in closing process
     server.error(new WampusNetworkError("Blah!"));
     await t.notThrows(closing);
 });
