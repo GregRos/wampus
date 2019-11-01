@@ -11,7 +11,7 @@ import {Ticket} from "./tickets/ticket";
 import {createDefaultServices} from "./services/default-services";
 import {MultiSubscriptionTicket} from "./tickets/multi-topic";
 import {Operators} from "promise-stuff";
-import _ = require("lodash");
+import {forIn, isFunction} from "lodash";
 
 async function allWithCleanup<T>(promises: PromiseLike<T>[], cleanup: (x: T) => void) {
     if (promises.length === 0) return [];
@@ -147,13 +147,13 @@ export class WampusSession extends Ticket {
      */
     async procedures(procedures: WampusProcedureDefinitions): Promise<Ticket> {
         let tickets = [] as Promise<RegistrationTicket>[];
-        _.forIn(procedures, (v, k) => {
+        forIn(procedures, (v, k) => {
             let obj = {
                 name: k,
                 options: {},
                 called: null
             };
-            if (_.isFunction(v)) {
+            if (isFunction(v)) {
                 obj.called = v;
             } else {
                 obj.options = v.options || {};

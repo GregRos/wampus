@@ -2,7 +2,7 @@ import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {MatchError} from "../../../helpers/errors";
-import _ = require("lodash");
+import {isMatch} from "lodash";
 
 test("should send PUBLISH", async t => {
     let {server, session} = await SessionStages.handshaken("a");
@@ -15,7 +15,7 @@ test("should send PUBLISH", async t => {
         }
     });
     let msg = await serverMonitor.next();
-    t.true(_.isMatch(msg, {
+    t.true(isMatch(msg, {
         0: 16,
         2: {},
         3: "a",

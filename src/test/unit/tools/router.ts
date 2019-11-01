@@ -1,7 +1,7 @@
 import test from "ava";
 import {Subject} from "rxjs";
 import {PrefixRouter} from "../../../lib/core/routing/prefix-router";
-import _ = require("lodash");
+import {isEqual} from "lodash";
 
 function getRoute<T>(key: any[], tag ?: string) {
     return Object.assign(new Subject(), {
@@ -12,7 +12,7 @@ function getRoute<T>(key: any[], tag ?: string) {
 
 
 function setEqual(a: any[], b: any[]) {
-    return _.isEqual(new Set(a), new Set(b));
+    return isEqual(new Set(a), new Set(b));
 }
 
 test("should fulfill empty invariants", t => {

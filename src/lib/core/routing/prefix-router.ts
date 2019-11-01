@@ -1,6 +1,6 @@
 import {WampPrimitive} from "../protocol/messages";
 import {WampType} from "../protocol/message.type";
-import _ = require("lodash");
+import {defaults} from "lodash";
 
 
 /*
@@ -150,7 +150,7 @@ export class PrefixRouter<T> {
      */
     insertRoute(target: PrefixRoute<T>) {
         let keys = target.key;
-        _.defaults(target, {
+        defaults(target, {
             error() {
             },
             next() {

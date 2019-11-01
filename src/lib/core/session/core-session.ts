@@ -71,7 +71,7 @@ export interface CoreSessionConfig {
     helloDetails?(defaults: HelloDetails): void;
 }
 
-import _ = require("lodash");
+import {cloneDeep, defaults} from "lodash";
 import WM = WampMessage;
 
 let factory = DefaultMessageFactory;
@@ -570,7 +570,7 @@ export class WampusCoreSession {
             let features = this._welcomeDetails.roles.dealer.features;
 
             // Wampus calls support progress by default
-            options = _.defaults(options, {
+            options = defaults(options, {
                 receive_progress: features.progressive_call_results
             });
             let msg = factory.call(options, name, args, kwargs);
@@ -870,7 +870,7 @@ export class WampusCoreSession {
     private _handshake$(authenticator: AuthenticatorFunction): Observable<WM.Welcome> {
         let messenger = this.protocol;
         let config = this.config;
-        let helloDetails = _.cloneDeep(wampusHelloDetails);
+        let helloDetails = cloneDeep(wampusHelloDetails);
         if (config.helloDetails) {
             config.helloDetails(helloDetails);
         }

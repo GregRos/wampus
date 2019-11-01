@@ -8,7 +8,7 @@ import {RegistrationTicket} from "./registration-ticket";
 import {WampInvocationOptions} from "../../core/protocol/options";
 import {WampusInvocationCanceledError} from "../../core/errors/types";
 import {WampArray, WampObject} from "../../core/protocol/messages";
-import _ = require("lodash");
+import {clone} from "lodash";
 
 import objy = require("objectology");
 
@@ -129,10 +129,10 @@ export class InvocationTicket {
     }
 
     private _applyOutputTransforms<T extends WampResult>(obj: T) {
-        let clone = _.clone(obj);
-        clone.args = clone.args ? clone.args.map(this._services.transforms.objectToJson.transform) : clone.args;
-        clone.kwargs = this._services.transforms.objectToJson.transform(clone.kwargs);
-        return clone;
+        let cln = clone(obj);
+        cln.args = cln.args ? cln.args.map(this._services.transforms.objectToJson.transform) : cln.args;
+        cln.kwargs = this._services.transforms.objectToJson.transform(cln.kwargs);
+        return cln;
     }
 
     private async _error(msg: WampusSendErrorArguments): Promise<void> {

@@ -3,7 +3,7 @@ import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {MatchError} from "../../../helpers/errors";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
-import _ = require("lodash");
+import {isMatch} from "lodash";
 
 
 async function getRegistration({session, server}: { session: WampusCoreSession, server: any }) {
@@ -28,7 +28,7 @@ test("progress() sends YIELD(progress)", async t => {
         kwargs: {a: 1}
     });
     let msgYield = await serverMonitor.next();
-    t.true(_.isMatch(msgYield, {
+    t.true(isMatch(msgYield, {
         0: 70,
         1: next.invocationId,
         2: {

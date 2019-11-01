@@ -6,7 +6,7 @@ import {MatchError} from "../../../helpers/errors";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {Operators} from "promise-stuff";
 import {WampUri} from "../../../../lib/core/protocol/uris";
-import _ = require("lodash");
+import {isMatch} from "lodash";
 
 test("sends REGISTER", async t => {
     let {session, server} = await SessionStages.handshaken("a");
@@ -16,7 +16,7 @@ test("sends REGISTER", async t => {
     });
     let next = await serverMonitor.next();
 
-    t.true(_.isMatch(next, {
+    t.true(isMatch(next, {
         0: 64,
         2: {},
         3: "a"
@@ -88,7 +88,7 @@ test("after registered, receive INVOCATION, observable fires", async t => {
     let serverMonitor = Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
-    t.true(_.isMatch(next, {
+    t.true(isMatch(next, {
         kwargs: {a: 1},
         args: ["a"],
         options: {},
@@ -123,7 +123,7 @@ test("after INVOCATION, return sends YIELD(final), no need for reply", async t =
         }
     });
     let ret = await serverMonitor.next();
-    t.true(_.isMatch(ret, {
+    t.true(isMatch(ret, {
         0: 70,
         1: next.invocationId,
         2: {},
@@ -148,7 +148,7 @@ test("after INVOCATION, error sends ERROR, no need for reply", async t => {
         error: "custom.error"
     });
     let ret = await serverMonitor.next();
-    t.true(_.isMatch(ret, {
+    t.true(isMatch(ret, {
         0: 8,
         1: WampType.INVOCATION,
         2: next.invocationId,
@@ -192,7 +192,7 @@ test("registration.close() sends UNREGISTER, expects reply", async t => {
     let serverMonitor = Rxjs.monitor(server.messages);
     let unregistering = registration.close();
     let unregisterMsg = await serverMonitor.next();
-    t.true(_.isMatch(unregisterMsg, {
+    t.true(isMatch(unregisterMsg, {
         0: 66,
         2: registration.info.registrationId
     }));
@@ -273,12 +273,12 @@ test("after UNREGISTERED, handle pending invocations", async t => {
     await invocation1.return({kwargs: {a: 1}});
     await invocation2.error({error: "hi"});
     let retMsg = await serverMonitor.next();
-    t.true(_.isMatch(retMsg, {
+    t.true(isMatch(retMsg, {
         0: WampType.YIELD,
         4: {a: 1}
     }));
     let errMsg = await serverMonitor.next();
-    t.true(_.isMatch(errMsg, {
+    t.true(isMatch(errMsg, {
         0: WampType.ERROR,
         1: WampType.INVOCATION,
         4: "hi"

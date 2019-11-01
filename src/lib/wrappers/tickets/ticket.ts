@@ -1,9 +1,9 @@
-import _ = require("lodash");
+import {flatMap} from "lodash";
 
 
 export abstract class Ticket {
     static combine(tickets: Ticket[]) {
-        let flattenedOthers = _.flatMap(tickets, x => x instanceof CompoundTicket ? x._inner : [x]);
+        let flattenedOthers = flatMap(tickets, x => x instanceof CompoundTicket ? x._inner : [x]);
         return new CompoundTicket(flattenedOthers);
     }
 

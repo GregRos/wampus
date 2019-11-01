@@ -3,7 +3,7 @@ import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
 import {take, toArray} from "rxjs/operators";
 import {merge} from "rxjs";
-import _ = require("lodash");
+import {isMatch, range, map} from "lodash";
 
 test.beforeEach(async t => {
     t.context = {
@@ -37,7 +37,7 @@ test("verify event ticket", async t => {
     let oneEvent = await justOneEvent;
 
     t.is(oneEvent.source, ticket);
-    t.true(_.isMatch(oneEvent, {
+    t.true(isMatch(oneEvent, {
         args: [1, 2],
         kwargs: {
             a: 1
@@ -54,7 +54,7 @@ test("verify multiple events via topic", async t => {
 
     let threeEvents = ticket.events.pipe(take(3), toArray()).toPromise();
 
-    for (let x of _.range(0, 10)) {
+    for (let x of range(0, 10)) {
         await session.publish({
             name: ticket.info.name,
             options: {
@@ -87,7 +87,7 @@ test("event data via event", async t => {
 
     ticket.on("event", onEvent);
 
-    for (let x of _.range(0, 10)) {
+    for (let x of range(0, 10)) {
         await session.publish({
             name: ticket.info.name,
             options: {
@@ -151,7 +151,7 @@ test("publish and receive in multi-topic ticket via event", async t => {
     }));
 
 
-    await merge(..._.map(ticket.topic, x => x)).pipe(take(3)).toPromise();
+    await merge(...map(ticket.topic, x => x)).pipe(take(3)).toPromise();
 
     t.deepEqual(new Set(results), new Set(keys.map(x => [x, [x]])));
 });

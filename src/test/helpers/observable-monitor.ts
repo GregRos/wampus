@@ -1,7 +1,7 @@
 import {Notification, Observable, Subscription, timer} from "rxjs";
 import {dematerialize, materialize, takeUntil, toArray} from "rxjs/operators";
 import {MyPromise} from "../../lib/utils/ext-promise";
-import _ = require("lodash");
+import {pull} from "lodash";
 
 export namespace Rxjs {
     export function monitor<T>(source: Observable<T>): ObservableMonitor<T> {
@@ -86,7 +86,7 @@ export class ObservableMonitor<T> {
         function unregister() {
             if (!registered) return;
             registered = false;
-            _.pull(self._registrations, callback);
+            pull(self._registrations, callback);
             callback(new Notification("C"));
         }
 

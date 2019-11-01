@@ -3,7 +3,7 @@ import {Wampus} from "../../../lib";
 import {WebsocketTransport} from "../../../lib/core/transport/websocket";
 import {JsonSerializer} from "../../../lib/core/serializer/json";
 import {Operators} from "promise-stuff";
-import _ = require("lodash");
+import {isInteger} from "lodash";
 
 test.afterEach(async t => {
     if (!t.context.session) return;
@@ -36,7 +36,7 @@ test("verify session details", async t => {
         realm: "hi"
     });
 
-    t.true(_.isInteger(session.sessionId));
+    t.true(isInteger(session.sessionId));
     t.true(session.isActive);
 
 });

@@ -6,7 +6,7 @@ import {Observable} from "rxjs";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {MatchError} from "../../../helpers/errors";
 import {WampusInvocationError} from "../../../../lib/core/errors/types";
-import _ = require("lodash");
+import {isMatch} from "lodash";
 
 test("call sends CALL message", async t => {
     let {server, session} = await SessionStages.handshaken("a");
@@ -18,7 +18,7 @@ test("call sends CALL message", async t => {
             a: 5
         }
     });
-    t.true(_.isMatch(await sbs.next(), {
+    t.true(isMatch(await sbs.next(), {
         0: WampType.CALL,
         1: cr.info.callId,
         2: {},
@@ -46,7 +46,7 @@ test("send CALL, receive final RESULT, report result to caller, verify progress 
     await sbs.next();
     server.send([WampType.RESULT, cp.info.callId, {}, ["a"], {a: 5}]);
     let allProgress = await cp.progress.pipe(toArray()).toPromise();
-    t.true(_.isMatch(allProgress, [{
+    t.true(isMatch(allProgress, [{
         isProgress: false,
         kwargs: {a: 5},
         args: ["a"]
@@ -142,7 +142,7 @@ sendCallReceiveErrorMacro({
 });
 
 sendCallReceiveErrorMacro({
-    errMatch: err => err instanceof WampusInvocationError && _.isMatch(err, {
+    errMatch: err => err instanceof WampusInvocationError && isMatch(err, {
         args: ["a"],
         kwargs: {a: 1}
     }),
@@ -151,7 +151,7 @@ sendCallReceiveErrorMacro({
 });
 
 sendCallReceiveErrorMacro({
-    errMatch: err => err instanceof WampusInvocationError && _.isMatch(err, {
+    errMatch: err => err instanceof WampusInvocationError && isMatch(err, {
         args: ["a"],
         kwargs: {a: 1},
         error: "custom.error"

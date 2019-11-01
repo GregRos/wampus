@@ -2,7 +2,7 @@ import test from "ava";
 import {getTransportAndServerConn, sendVia} from "../../../helpers/ws-server";
 import {bufferCount, filter, flatMap, map, take} from "rxjs/operators";
 import {fromArray} from "rxjs/internal/observable/fromArray";
-import _ = require("lodash");
+import {range} from "lodash";
 
 test("just one", async t => {
     let {server, client} = await getTransportAndServerConn();
@@ -17,7 +17,7 @@ test("just one", async t => {
 
 test("many", async t => {
     let {server, client} = await getTransportAndServerConn();
-    let sent = _.range(0, 10).map(i => ({a: i}));
+    let sent = range(0, 10).map(i => ({a: i}));
 
     let receive10 = client.events$.pipe(
         filter(x => x.type === "message"),

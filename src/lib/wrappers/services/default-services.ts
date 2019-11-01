@@ -1,7 +1,7 @@
 import {AbstractWampusSessionServices, TransformSet} from "../services";
 import {WampUri} from "../../core/protocol/uris";
 import {WampusInvocationCanceledError} from "../../core/errors/types";
-import _ = require("lodash");
+import {mapValues, pick} from "lodash";
 import CallSite = NodeJS.CallSite;
 
 export const createDefaultServices = () => {
@@ -38,7 +38,7 @@ export const createDefaultServices = () => {
         if (Array.isArray(x)) {
             return x.map(x => ctrl.recurse(x));
         }
-        let res = _.mapValues(x, v => ctrl.recurse(v));
+        let res = mapValues(x, v => ctrl.recurse(v));
         return res;
     });
 
@@ -47,7 +47,7 @@ export const createDefaultServices = () => {
         if (Array.isArray(x)) {
             return x.map(x => ctrl.recurse(x));
         }
-        let res = _.mapValues(x, v => ctrl.recurse(v));
+        let res = mapValues(x, v => ctrl.recurse(v));
         return res;
     });
 
@@ -66,7 +66,7 @@ export const createDefaultServices = () => {
             details: {
                 message: err.message
             },
-            kwargs: _.pick(err, ["message", "name", "stack", ...Object.keys(err)])
+            kwargs: pick(err, ["message", "name", "stack", ...Object.keys(err)])
         };
     });
 

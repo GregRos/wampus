@@ -8,7 +8,7 @@ import {WampusNetworkError} from "../../../lib/core/errors/types";
 import {MatchError} from "../../helpers/errors";
 import {Operators} from "promise-stuff";
 import {Rxjs} from "../../helpers/observable-monitor";
-import _ = require("lodash");
+import {isMatch as _isMatch, range} from "lodash";
 
 function createPair() {
     let {server, client} = dummyTransport();
@@ -17,7 +17,7 @@ function createPair() {
 }
 
 function isMatch<A>(a: A, b: Partial<A>) {
-    return _.isMatch(a as any, b as any);
+    return _isMatch(a as any, b as any);
 }
 
 test("define one route and then invoke it exactly", async t => {
@@ -91,7 +91,7 @@ test("invalidate route works with no routes", async t => {
 test("invalidate route invalidates 5 routes", async t => {
     let {messenger, server} = createPair();
     t.plan(5);
-    let routes = _.range(0, 5).map(i => messenger.expect$([i]).toPromise());
+    let routes = range(0, 5).map(i => messenger.expect$([i]).toPromise());
     messenger.invalidateAllRoutes(new WampusNetworkError("HA!"));
     let prs = await Promise.all(routes.map(p => t.throws(p, MatchError.network("HA!"))));
 });

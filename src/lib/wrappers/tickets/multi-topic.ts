@@ -6,7 +6,7 @@ import {EventInvocation, SubscriptionTicket} from "./subscription";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {WampusSubcribeArguments} from "../../core/session/message-arguments";
 import {Ticket} from "./ticket";
-import _ = require("lodash");
+import {values, keys} from "lodash";
 
 export class MultiSubscriptionTicket<T extends string> extends Ticket {
     readonly topic: Record<T, Observable<EventInvocation>>;
@@ -26,10 +26,10 @@ export class MultiSubscriptionTicket<T extends string> extends Ticket {
         this.topic = topics;
         this.infos = info;
 
-        this._emitter = new RxjsEventAdapter(merge(..._.values(topics)), x => ({
+        this._emitter = new RxjsEventAdapter(merge(...values(topics)), x => ({
             name: x.source.info.name,
             arg: x
-        }), _.keys(topics));
+        }), keys(topics));
     }
 
     get isOpen() {

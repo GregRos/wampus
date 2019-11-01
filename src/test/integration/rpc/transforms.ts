@@ -1,6 +1,6 @@
 import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
-import _ = require("lodash");
+import {isMatch} from "lodash";
 
 test.afterEach(async t => {
     await t.context.session.close();
@@ -25,7 +25,7 @@ test("call input, invocation output", async t => {
     let ticket = await session.procedure({
         name: "wampus.example",
         async called(x) {
-            t.true(_.isMatch(x, {
+            t.true(isMatch(x, {
                 kwargs: {
                     arr: 2,
                     str: "modified"
@@ -53,7 +53,7 @@ test("call input, invocation output", async t => {
         args: [new Token(), {}]
     });
 
-    t.true(_.isMatch(result, {
+    t.true(isMatch(result, {
         kwargs: {
             a: {
                 x: "modified",
@@ -84,7 +84,7 @@ test("call output, invocation input", async t => {
     let ticket = await session.procedure({
         name: "wampus.example",
         async called(x) {
-            t.true(_.isMatch(x, {
+            t.true(isMatch(x, {
                 args: ["original2"],
                 kwargs: {
                     a: "original2",
@@ -112,7 +112,7 @@ test("call output, invocation input", async t => {
         }
     });
 
-    t.true(_.isMatch(result, {
+    t.true(isMatch(result, {
         args: ["original2", {}],
         kwargs: {
             a: {

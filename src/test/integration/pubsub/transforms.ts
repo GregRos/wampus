@@ -1,7 +1,7 @@
 import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {take} from "rxjs/operators";
-import _ = require("lodash");
+import {isMatch} from "lodash";
 
 test.afterEach(async t => {
     await t.context.session.close();
@@ -44,7 +44,7 @@ test("publish input, event output", async t => {
 
     let x = await justOne;
 
-    t.true(_.isMatch(x, {
+    t.true(isMatch(x, {
         args: ["modified"],
         kwargs: {
             a: 2,
@@ -90,7 +90,7 @@ test("publish output, event input", async t => {
 
     let event = await justOne;
 
-    t.true(_.isMatch(event, {
+    t.true(isMatch(event, {
         args: ["original2", {}],
         kwargs: {
             a: "original2",

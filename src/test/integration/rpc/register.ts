@@ -2,7 +2,7 @@ import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
 import {InvocationPolicy, MatchingPolicy, WampRegisterOptions} from "../../../lib/core/protocol/options";
-import _ = require("lodash");
+import {isMatch} from "lodash";
 
 test.beforeEach(async t => {
     t.context = {
@@ -44,7 +44,7 @@ test("close registration, try to call to make sure", async t => {
     let r = await session.call({
         name: ticket.info.name
     });
-    t.true(_.isMatch(r, {
+    t.true(isMatch(r, {
         args: [],
         kwargs: {}
     }));
@@ -65,7 +65,7 @@ test("close registration, closed registration can be closed again and inspected"
     });
     await ticket.close();
     await t.notThrows(() => ticket.close());
-    t.true(_.isMatch(ticket.info, {
+    t.true(isMatch(ticket.info, {
         name: "wampus.example",
         options: {}
     }));

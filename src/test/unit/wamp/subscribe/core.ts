@@ -6,14 +6,14 @@ import {MatchError} from "../../../helpers/errors";
 import {Operators} from "promise-stuff";
 import {WampUri} from "../../../../lib/core/protocol/uris";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
-import _ = require("lodash");
+import {isMatch} from "lodash";
 
 test("sends SUBSCRIBE", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
     session.topic({name: "hi"});
     let subscribeMsg = await serverMonitor.next();
-    t.true(_.isMatch(subscribeMsg, {
+    t.true(isMatch(subscribeMsg, {
         0: 32,
         2: {},
         3: "hi"
@@ -82,7 +82,7 @@ test("send EVENT, verify EventArgs properties", async t => {
     let eventMonitor = Rxjs.monitor(sub.events);
     server.send([36, sub.info.subscriptionId, 201, {}, ["a"], {a: 1}]);
     let event = await eventMonitor.next();
-    t.true(_.isMatch(event, {
+    t.true(isMatch(event, {
         kwargs: {a: 1},
         args: ["a"],
         details: {}
@@ -143,7 +143,7 @@ test("close() sends UNSUBSCRIBE, expects reply", async t => {
     let eventMonitor = Rxjs.monitor(sub.events);
     let unsubbing = sub.close();
     let unsubMsg = await serverMonitor.next();
-    t.true(_.isMatch(unsubMsg, {
+    t.true(isMatch(unsubMsg, {
         0: 34,
         2: sub.info.subscriptionId
     }));

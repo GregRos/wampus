@@ -8,7 +8,7 @@ import {WampusSendResultArguments} from "../../../lib/core/session/message-argum
 import {WampusInvocationError} from "../../../lib/core/errors/types";
 import {MatchError} from "../../helpers/errors";
 import {MyPromise} from "../../../lib/utils/ext-promise";
-import _ = require("lodash");
+import {isMatch} from "lodash";
 
 test.beforeEach(async t => {
     t.context = {
@@ -39,7 +39,7 @@ test("verify call ticket", async t => {
         options: copts
     });
 
-    t.true(_.isMatch(ct.info, {
+    t.true(isMatch(ct.info, {
         options: copts,
         name: ticket.info.name
     }));
@@ -65,7 +65,7 @@ test("verify invocation ticket", async t => {
     t.is(lastInvocation.name, ticket.info.name);
     t.deepEqual(lastInvocation.args, []);
     t.deepEqual(lastInvocation.kwargs, {});
-    t.true(_.isMatch(lastInvocation.options, {
+    t.true(isMatch(lastInvocation.options, {
         receive_progress: true
     }));
 });
@@ -121,7 +121,7 @@ test("throw in handler translates to error response", async t => {
     t.is(err.error, "wamp.error.runtime_error");
     t.is(err.details.message, "AnError");
     t.deepEqual(err.args, []);
-    t.true(_.isMatch(err.kwargs, {
+    t.true(isMatch(err.kwargs, {
         message: "AnError",
         name: "Error",
         a: 1,
@@ -158,7 +158,7 @@ test("send progress", async t => {
     }).progress.pipe(toArray()).toPromise();
 
     function matchProgress(obj, num) {
-        t.true(_.isMatch(obj, {
+        t.true(isMatch(obj, {
             args: [num],
             kwargs: {
                 a: num
