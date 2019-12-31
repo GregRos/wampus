@@ -1,13 +1,10 @@
 /**
  * @module core
  */
-import {Wamp, WampObject, WampUriString} from "../protocol/messages";
-import {WampType} from "../protocol/message.type";
+import {Wamp, WampObject, WampUriString, WampType, Feature, WampUri, CancelMode, HelloDetails, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "typed-wamp";
 import {Errs} from "../errors/errors";
-import {AdvProfile, WampUri} from "../protocol/uris";
 import {WampusNetworkError} from "../errors/types";
 import {Routes} from "../routing/routes";
-import {CancelMode, HelloDetails, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "../protocol/options";
 import {WampProtocolClient} from "../routing/wamp-protocol-client";
 import {
     CallResultData,
@@ -56,7 +53,6 @@ import {MyPromise} from "../../utils/ext-promise";
 import {publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../../utils/rxjs-operators";
 import {TransportFactory} from "../transport/transport";
 import {wampusHelloDetails} from "../hello-details";
-import {MessageReader} from "../protocol/reader";
 import {DefaultMessageFactory} from "./default-factory";
 import {AuthenticatorFunction, ChallengeEvent} from "./authentication";
 import {fromPromise} from "rxjs/internal-compatibility";
@@ -110,8 +106,7 @@ export class WampusCoreSession {
         // 3. Wait until session closed:
         //      On close: Initiate goodbye sequence.
         let transport = await config.transport();
-        let reader = new MessageReader();
-        let messenger = WampProtocolClient.create<Wamp.Any>(transport, x => reader.parse(x));
+        let messenger = WampProtocolClient.create<Wamp.Any>(transport, x => Wamp.parse(x));
         let session = new WampusCoreSession(null as never);
         session.config = config;
         session.protocol = messenger;
@@ -149,20 +144,20 @@ export class WampusCoreSession {
         let features = _welcomeDetails.roles.dealer.features;
         // Make sure the router's WELCOME message supports all the features specified in options and throw an error otherwise.
         if (options.disclose_caller && !features.caller_identification) {
-            throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Call.CallerIdentification);
+            throw Errs.routerDoesNotSupportFeature(msg, Feature.Call.CallerIdentification);
         }
         if (options.match && !features.pattern_based_registration) {
-            throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Call.PatternRegistration);
+            throw Errs.routerDoesNotSupportFeature(msg, Feature.Call.PatternRegistration);
         }
-        if (options.invoke && options.invoke !== InvocationPolicy.Single && !features.shared_registration) {
-            throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Call.SharedRegistration);
+        if (options.invoke && options.invoke !== "single" && !features.shared_registration) {
+            throw Errs.routerDoesNotSupportFeature(msg, Feature.Call.SharedRegistration);
         }
         let sending$ = this.protocol.send$(msg).pipe(mergeMapTo(EMPTY));
 
         // Expect a [REGISTERED] or [ERROR, REGISTER] message
         let expectRegisteredOrError$ = this.protocol.expectAny$(
-            Routes.registered(msg.requestId),
-            Routes.error(WampType.REGISTER, msg.requestId)
+            Routes.registered(msg.reqId),
+            Routes.error(WampType.REGISTER, msg.reqId)
         ).pipe(catchError(err => {
             if (err instanceof WampusRouteCompletion) {
                 throw Errs.sessionIsClosing(msg);
@@ -171,7 +166,7 @@ export class WampusCoreSession {
         }));
 
         // Operator - in case of an ERROR message, throw an exception.
-        let failOnError = map((x: Wamp) => {
+        let failOnError = map((x: Wamp.Any) => {
             if (x instanceof Wamp.Error) {
                 this._throwCommonError(msg, x);
                 switch (x.error) {
@@ -203,7 +198,7 @@ export class WampusCoreSession {
                 let sendingUnregister$ = this.protocol.send$(unregisterMsg);
 
                 // Wait for a UNREGISTERED or ERROR;UNREGISTER message.
-                let receivedUnregistered$ = this.protocol.expectAny$(Routes.unregistered(unregisterMsg.requestId), Routes.error(WampType.UNREGISTER, unregisterMsg.requestId));
+                let receivedUnregistered$ = this.protocol.expectAny$(Routes.unregistered(unregisterMsg.reqId), Routes.error(WampType.UNREGISTER, unregisterMsg.reqId));
                 let failOnUnregisterError = map((x: WM.Any) => {
                     signalUnregistered.next();
 
@@ -233,7 +228,7 @@ export class WampusCoreSession {
             let whenInvocationReceived = map((invocationMsg: WM.Invocation) => {
                 // Expect INTERRUPT message for cancellation
                 let completeInterrupt = new Subject();
-                let interruptRequest$ = this.protocol.expectAny$([WampType.INTERRUPT, invocationMsg.requestId])
+                let interruptRequest$ = this.protocol.expectAny$([WampType.INTERRUPT, invocationMsg.reqId])
                 .pipe(map(x => x as WM.Interrupt), map(x => {
                     return {
                         received: new Date(),
@@ -244,7 +239,7 @@ export class WampusCoreSession {
                 }));
 
                 // Fabricate a cancellation token if the timeout is elapsed.
-                let timeout = invocationMsg.options.timeout >= 0 ? timer(invocationMsg.options.timeout) : NEVER;
+                let timeout = invocationMsg.details.timeout >= 0 ? timer(invocationMsg.details.timeout) : NEVER;
                 let timeoutEvent$ = timeout.pipe(map(() => {
                     return {
                         received: new Date(),
@@ -271,7 +266,7 @@ export class WampusCoreSession {
 
                     // If the message is progress, make sure this invocation supports progress
                     if (msg instanceof Wamp.Yield && msg.options.progress) {
-                        if (!invocationMsg.options.receive_progress) {
+                        if (!invocationMsg.details.receive_progress) {
                             return throwError(Errs.Register.doesNotSupportProgressReports(name));
                         }
                     }
@@ -296,14 +291,14 @@ export class WampusCoreSession {
                             throw Errs.Register.resultIncorrectFormat(name, err);
                         }
                         let {args, error, kwargs, details} = err;
-                        return send$(factory.error(WampType.INVOCATION, invocationMsg.requestId, details, error, args, kwargs)).toPromise();
+                        return send$(factory.error(WampType.INVOCATION, invocationMsg.reqId, details, error, args, kwargs)).toPromise();
                     },
                     return(obj: WampusSendResultArguments) {
                         if (typeof obj !== "object") {
                             throw Errs.Register.resultIncorrectFormat(name, obj);
                         }
                         let {args, kwargs, options} = obj;
-                        return send$(factory.yield(invocationMsg.requestId, options, args, kwargs)).toPromise();
+                        return send$(factory.yield(invocationMsg.reqId, options, args, kwargs)).toPromise();
                     },
                     progress(args) {
                         args.options = args.options || {};
@@ -318,9 +313,9 @@ export class WampusCoreSession {
                     },
                     args: invocationMsg.args,
                     kwargs: invocationMsg.kwargs,
-                    options: invocationMsg.options,
-                    name: invocationMsg.options.procedure || name,
-                    invocationId: invocationMsg.requestId
+                    options: invocationMsg.details,
+                    name: invocationMsg.details.procedure || name,
+                    invocationId: invocationMsg.reqId
                 };
                 return procInvocationTicket;
             });
@@ -371,14 +366,14 @@ export class WampusCoreSession {
         // Make sure the event's options are supported by the broker
         if ((options.eligible || options.eligible_authid || options.eligible_authrole
             || options.exclude || options.exclude_authid || options.exclude_authrole) && !features.subscriber_blackwhite_listing) {
-            throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Subscribe.SubscriberBlackWhiteListing);
+            throw Errs.routerDoesNotSupportFeature(msg, Feature.Subscribe.SubscriberBlackWhiteListing);
         }
         /* tslint:disable:no-boolean-literal-compare*/
         if (options.disclose_me === true && !features.publisher_identification) {
-            throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Subscribe.PublisherIdentification);
+            throw Errs.routerDoesNotSupportFeature(msg, Feature.Subscribe.PublisherIdentification);
         }
         if (options.exclude_me === false && !features.publisher_exclusion) {
-            throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Subscribe.PublisherExclusion);
+            throw Errs.routerDoesNotSupportFeature(msg, Feature.Subscribe.PublisherExclusion);
         }
         /* tslint:enable:no-boolean-literal-compare*/
         return defer(() => {
@@ -387,8 +382,8 @@ export class WampusCoreSession {
             if (options.acknowledge) {
                 // Create a route for PUBLISHED | ERROR, PUBLISH
                 let expectPublishedOrError$ = this.protocol.expectAny$(
-                    Routes.published(msg.requestId),
-                    Routes.error(WampType.PUBLISH, msg.requestId)
+                    Routes.published(msg.reqId),
+                    Routes.error(WampType.PUBLISH, msg.reqId)
                 ).pipe(take(1), catchError(err => {
                     if (err instanceof WampusRouteCompletion) {
                         // If the route is completed, throw an error (the event could not be published).
@@ -441,7 +436,7 @@ export class WampusCoreSession {
         // Make sure the session supports the subscription features.
         let features = this._welcomeDetails.roles.broker.features;
         if (options.match && !features.pattern_based_subscription) {
-            throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Subscribe.PatternBasedSubscription);
+            throw Errs.routerDoesNotSupportFeature(msg, Feature.Subscribe.PatternBasedSubscription);
         }
 
         let expectSubscribedOrError$ = defer(() => {
@@ -449,8 +444,8 @@ export class WampusCoreSession {
             // Creates a expectation for the SUBSCRIBED message
 
             let expectSubscribedOrError$ = this.protocol.expectAny$(
-                Routes.subscribed(msg.requestId),
-                Routes.error(WampType.SUBSCRIBE, msg.requestId)
+                Routes.subscribed(msg.reqId),
+                Routes.error(WampType.SUBSCRIBE, msg.reqId)
             );
 
             // Throw an error if an ERROR message is received
@@ -495,8 +490,8 @@ export class WampusCoreSession {
 
                 // Create route for UNSUBSCRIBED or ERROR, UNSUBSCRIBE
                 let expectUnsubscribedOrError$ = this.protocol.expectAny$(
-                    Routes.unsubscribed(unsub.requestId),
-                    Routes.error(WampType.UNSUBSCRIBE, unsub.requestId)
+                    Routes.unsubscribed(unsub.reqId),
+                    Routes.error(WampType.UNSUBSCRIBE, unsub.reqId)
                 );
 
                 // Handle errors, if any
@@ -584,13 +579,13 @@ export class WampusCoreSession {
 
             // Check call options are compatible with the deaqler's features.
             if (options.disclose_me && !features.caller_identification) {
-                throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Call.CallerIdentification);
+                throw Errs.routerDoesNotSupportFeature(msg, Feature.Call.CallerIdentification);
             }
             if (options.receive_progress && !features.progressive_call_results) {
-                throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Call.ProgressReports);
+                throw Errs.routerDoesNotSupportFeature(msg, Feature.Call.ProgressReports);
             }
             if (options.timeout && !features.call_timeout) {
-                throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Call.CallTimeouts);
+                throw Errs.routerDoesNotSupportFeature(msg, Feature.Call.CallTimeouts);
             }
 
             // Check if this message will finish the call to mark it as non-cancellable.
@@ -639,8 +634,8 @@ export class WampusCoreSession {
             // Set up the route for (RESULT | ERROR, CALL)
             // And pass it through the operators defined above
             let expectResultOrError = self.protocol.expectAny$(
-                Routes.result(msg.requestId),
-                Routes.error(WampType.CALL, msg.requestId)
+                Routes.result(msg.reqId),
+                Routes.error(WampType.CALL, msg.reqId)
             ).pipe(maybeTooLateToCancel, catchError(err => {
                 if (err instanceof WampusRouteCompletion) {
                     // If the route is being closed, throw an error to indicate calling failed
@@ -665,8 +660,8 @@ export class WampusCoreSession {
                 // Send the CANCEL message
                 // And also create a route for (RESULT | ERROR, CALL)
                 return merge(sendCancel$, self.protocol.expectAny$(
-                    Routes.result(msg.requestId),
-                    Routes.error(WampType.CALL, msg.requestId)
+                    Routes.result(msg.reqId),
+                    Routes.error(WampType.CALL, msg.reqId)
                 ).pipe(skipAfter(x => {
                     // If canelling is successful, the route will yield ERROR, CALL so this will be used both in the regular flow
                     // and also as a response to the CANCEL message.
@@ -690,12 +685,12 @@ export class WampusCoreSession {
                 progress: progressStream,
                 close(mode ?: CancelMode) {
                     // Here we'll begin the cancelling flow
-                    let cancel = factory.cancel(msg.requestId, {
-                        mode: mode || CancelMode.Kill
+                    let cancel = factory.cancel(msg.reqId, {
+                        mode: mode || "kill"
                     });
                     // First we need to make sure cancelling is supported
                     if (!features.call_canceling) {
-                        return Promise.reject(Errs.routerDoesNotSupportFeature(cancel, AdvProfile.Call.CallCancelling));
+                        return Promise.reject(Errs.routerDoesNotSupportFeature(cancel, Feature.Call.CallCancelling));
                     }
                     // If cancelling is already being performed, just return the existing promise.
                     if (canceling) return canceling;
@@ -708,7 +703,7 @@ export class WampusCoreSession {
                     return !canceling && !self._isClosing;
                 },
                 info: {
-                    callId: msg.requestId,
+                    callId: msg.reqId,
                     name,
                     options
                 }
@@ -736,7 +731,7 @@ export class WampusCoreSession {
     }
 
     async close(): Promise<void> {
-        await this._close$({}, WampUri.CloseReason.GoodbyeAndOut, false).toPromise();
+        await this._close$({}, WampUri.Close.GoodbyeAndOut, false).toPromise();
     }
 
 
@@ -835,7 +830,7 @@ export class WampusCoreSession {
         } else {
             let echo$ = this.protocol.send$(factory.goodbye({
                 message: "Goodbye received"
-            }, WampUri.CloseReason.GoodbyeAndOut));
+            }, WampUri.Close.GoodbyeAndOut));
 
             let x = concat(echo$, this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.RouterGoodbye, msg)), defer(async () => {
                 await this.protocol.transport.close();

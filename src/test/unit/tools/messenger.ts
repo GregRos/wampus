@@ -2,7 +2,7 @@ import test from "ava";
 import {dummyTransport} from "../../helpers/dummy-transport";
 import {WampProtocolClient} from "../../../lib/core/routing/wamp-protocol-client";
 import {take} from "rxjs/operators";
-import {WampArray} from "../../../lib/core/protocol/messages";
+import {WampArray} from "typed-wamp";
 import {MyPromise} from "../../../lib/utils/ext-promise";
 import {WampusNetworkError} from "../../../lib/core/errors/types";
 import {MatchError} from "../../helpers/errors";

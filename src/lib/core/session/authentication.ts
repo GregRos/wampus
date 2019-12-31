@@ -1,4 +1,4 @@
-import {WampObject} from "../protocol/messages";
+import {WampObject} from "typed-wamp";
 
 /**
  * A challenge by the router for authentication.

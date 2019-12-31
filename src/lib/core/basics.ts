@@ -1,4 +1,4 @@
-import {WampArray, WampObject} from "./protocol/messages";
+import {WampArray, WampObject} from "typed-wamp";
 
 /**
  * Basic interface corresponding to a WAMP success or error result.

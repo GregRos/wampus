@@ -1,10 +1,9 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
-import {WampType} from "../../../../lib/core/protocol/message.type";
+import {WampType, WampUri} from "typed-wamp";
 import {MatchError} from "../../../helpers/errors";
 import {Operators} from "promise-stuff";
-import {WampUri} from "../../../../lib/core/protocol/uris";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
 import {isMatch} from "lodash";
 

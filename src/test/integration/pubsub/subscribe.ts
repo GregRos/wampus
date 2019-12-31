@@ -1,7 +1,7 @@
 import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
-import {MatchingPolicy, WampSubscribeOptions} from "../../../lib/core/protocol/options";
+import {MatchingPolicy, WampSubscribeOptions} from "typed-wamp";
 import {isMatch} from "lodash";
 
 test.beforeEach(async t => {
@@ -16,7 +16,7 @@ test.afterEach(async t => {
 test("verify subscription ticket", async t => {
     let session = t.context.session as WampusSession;
     let opts = {
-        match: MatchingPolicy.Prefix
+        match: "prefix"
     } as WampSubscribeOptions;
     let ticket = await session.topic({
         name: "wampus.example",

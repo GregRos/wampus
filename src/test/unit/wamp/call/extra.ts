@@ -1,7 +1,7 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {MatchError} from "../../../helpers/errors";
-import {AdvProfile} from "../../../../lib/core/protocol/uris";
+import {Feature} from "typed-wamp";
 
 test("disclose me fails when feature is not declared", async t => {
     let {session, server} = await SessionStages.handshaken("a");
@@ -36,6 +36,6 @@ test("progressive call results request fails when feature not declared", async t
             receive_progress: true
         }
     });
-    await t.throws(prog.progress.toPromise(), MatchError.illegalOperation(AdvProfile.Call.ProgressReports));
+    await t.throws(prog.progress.toPromise(), MatchError.illegalOperation(Feature.Call.ProgressReports));
 });
 

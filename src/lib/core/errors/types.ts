@@ -1,5 +1,5 @@
 import template from "string-template";
-import {WampArray, WampObject} from "../protocol/messages";
+import {WampArray, WampObject} from "typed-wamp";
 import objy = require("objectology");
 /**
  * The base class for errors thrown by the Wampus library.

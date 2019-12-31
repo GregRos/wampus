@@ -1,5 +1,5 @@
 import {WampusError} from "../errors/types";
-import {WampObject} from "../protocol/messages";
+import {WampObject} from "typed-wamp";
 import {Observable} from "rxjs";
 
 /**

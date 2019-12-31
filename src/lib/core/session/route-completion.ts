@@ -1,4 +1,4 @@
-import {Wamp} from "../protocol/messages";
+import {Wamp} from "typed-wamp";
 
 /**
  * Reason for a route being forced to complete. Usually the reason for the session being terminated.

@@ -1,6 +1,6 @@
 import test, {GenericTestContext} from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
-import {WampType} from "../../../../lib/core/protocol/message.type";
+import {WampType} from "typed-wamp";
 import {map, toArray} from "rxjs/operators";
 import {Observable} from "rxjs";
 import {Rxjs} from "../../../helpers/observable-monitor";
@@ -49,8 +49,8 @@ test("send CALL, receive final RESULT, report result to caller, verify progress 
     t.true(isMatch(allProgress, [{
         isProgress: false,
         kwargs: {a: 5},
-        args: ["a"]
-    }] as typeof allProgress));
+        args: ["a"],
+    }] as any));
 });
 
 test("send 2 identical calls, receive RESULTs, verify progress streams", async t => {

@@ -2,7 +2,7 @@ import * as Core from "../../core/session/ticket";
 import {AbstractWampusSessionServices} from "../services";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {catchError, map} from "rxjs/operators";
-import {CancelMode} from "../../core/protocol/options";
+import {CancelMode} from "typed-wamp";
 import {Observable} from "rxjs";
 import {publishReplayAutoConnect} from "../../utils/rxjs-operators";
 import {Ticket} from "./ticket";

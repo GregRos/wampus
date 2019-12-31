@@ -2,20 +2,19 @@ import {
     HelloDetails,
     WampCallOptions,
     WampCancelOptions,
-    WampEventOptions,
-    WampInvocationOptions,
+    WampEventDetails,
+    WampInvocationDetails,
     WampPublishOptions,
     WampRegisterOptions,
-    WampResultOptions,
+    WampResultDetails,
     WampSubscribeOptions,
     WampYieldOptions,
-    WelcomeDetails
-} from "./options";
-import {WampArray, WampId, Wamp, WampObject, WampUriString} from "./messages";
-import {WampType} from "./message.type";
+    WelcomeDetails,
+    WampArray, WampId, Wamp, WampObject, WampUriString, WampType
+} from "typed-wamp";
 
 export interface MessageFactoryConfig {
-    requestId(): number;
+    reqId(): number;
 }
 
 /**
@@ -36,23 +35,23 @@ export class MessageFactory {
     }
 
     call(options: WampCallOptions, procedure: WampUriString, args ?: WampArray, kwargs ?: any) {
-        return new Wamp.Call(this._config.requestId(), options || {}, procedure, args || [], kwargs || {});
+        return new Wamp.Call(this._config.reqId(), options || {}, procedure, args || [], kwargs || {});
     }
 
     publish(options: WampPublishOptions, topic: WampUriString, args ?: WampArray, kwargs ?: WampObject) {
-        return new Wamp.Publish(this._config.requestId(), options || {}, topic, args || [], kwargs || {});
+        return new Wamp.Publish(this._config.reqId(), options || {}, topic, args || [], kwargs || {});
     }
 
     subscribe(options: WampSubscribeOptions, topic: WampUriString) {
-        return new Wamp.Subscribe(this._config.requestId(), options || {}, topic);
+        return new Wamp.Subscribe(this._config.reqId(), options || {}, topic);
     }
 
     unsubscribe(subscription: WampId) {
-        return new Wamp.Unsubscribe(this._config.requestId(), subscription);
+        return new Wamp.Unsubscribe(this._config.reqId(), subscription);
     }
 
     register(options: WampRegisterOptions, procedure: WampUriString) {
-        return new Wamp.Register(this._config.requestId(), options || {}, procedure);
+        return new Wamp.Register(this._config.reqId(), options || {}, procedure);
     }
 
 
@@ -61,7 +60,7 @@ export class MessageFactory {
     }
 
     unregister(registration: WampId) {
-        return new Wamp.Unregister(this._config.requestId(), registration);
+        return new Wamp.Unregister(this._config.reqId(), registration);
     }
 
     yield(invocationId: WampId, options: WampYieldOptions, args ?: WampArray, kwargs ?: WampObject) {
@@ -84,12 +83,12 @@ export class MessageFactory {
         return new Wamp.Unregistered(reqId);
     }
 
-    result(callReqId: WampId, details: WampResultOptions, args ?: WampArray, kwargs ?: WampObject) {
+    result(callReqId: WampId, details: WampResultDetails, args ?: WampArray, kwargs ?: WampObject) {
         return new Wamp.Result(callReqId, details || {}, args, kwargs);
     }
 
     registered(registerReqId: WampId) {
-        return new Wamp.Registered(registerReqId, this._config.requestId());
+        return new Wamp.Registered(registerReqId, this._config.reqId());
     }
 
     challenge(authMethod: string, extra: WampObject) {
@@ -97,19 +96,19 @@ export class MessageFactory {
     }
 
     subscribed(subscribeReqId: WampId) {
-        return new Wamp.Subscribed(subscribeReqId, this._config.requestId());
+        return new Wamp.Subscribed(subscribeReqId, this._config.reqId());
     }
 
-    event(subscriptionId: WampId, details ?: WampEventOptions, args ?: WampArray, kwargs ?: WampObject) {
-        return new Wamp.Event(subscriptionId, this._config.requestId(), details || {}, args, kwargs);
+    event(subscriptionId: WampId, details ?: WampEventDetails, args ?: WampArray, kwargs ?: WampObject) {
+        return new Wamp.Event(subscriptionId, this._config.reqId(), details || {}, args, kwargs);
     }
 
-    invocation(registrationId: WampId, options ?: WampInvocationOptions, args ?: WampArray, kwargs ?: WampObject) {
-        return new Wamp.Invocation(this._config.requestId(), registrationId, options || {}, args, kwargs);
+    invocation(registrationId: WampId, options ?: WampInvocationDetails, args ?: WampArray, kwargs ?: WampObject) {
+        return new Wamp.Invocation(this._config.reqId(), registrationId, options || {}, args, kwargs);
     }
 
     welcome(details: WelcomeDetails) {
-        return new Wamp.Welcome(this._config.requestId(), details);
+        return new Wamp.Welcome(this._config.reqId(), details);
     }
 
     unsubscribed(unsubscribeReqId: WampId) {

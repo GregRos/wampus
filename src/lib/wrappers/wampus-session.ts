@@ -5,7 +5,7 @@ import {RegistrationTicket} from "./tickets/registration-ticket";
 import {CallTicket} from "./tickets/call";
 import {SubscriptionTicket} from "./tickets/subscription";
 import {ProcedureHandler} from "./tickets/invocation-ticket";
-import {WampRegisterOptions, WampSubscribeOptions} from "../core/protocol/options";
+import {WampRegisterOptions, WampSubscribeOptions} from "typed-wamp";
 import {NewObjectInitializer} from "../common/common";
 import {Ticket} from "./tickets/ticket";
 import {createDefaultServices} from "./services/default-services";

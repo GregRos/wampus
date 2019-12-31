@@ -1,11 +1,10 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
-import {WampType} from "../../../../lib/core/protocol/message.type";
+import {WampType, WampUri} from "typed-wamp";
 import {MatchError} from "../../../helpers/errors";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {Operators} from "promise-stuff";
-import {WampUri} from "../../../../lib/core/protocol/uris";
 import {isMatch} from "lodash";
 
 test("sends REGISTER", async t => {

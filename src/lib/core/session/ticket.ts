@@ -1,11 +1,10 @@
-import {WampArray, WampObject} from "../protocol/messages";
-import {
-    CancelMode,
+import {WampArray, WampObject,     CancelMode,
     WampCallOptions,
-    WampEventOptions,
-    WampInvocationOptions,
-    WampResultOptions
-} from "../protocol/options";
+    WampEventDetails,
+    WampInvocationDetails,
+    WampResultDetails
+} from "typed-wamp";
+
 import {
     WampusRegisterArguments,
     WampusSendErrorArguments,
@@ -85,7 +84,7 @@ export interface CallResultData extends WampResult {
 
     readonly isProgress: boolean;
 
-    readonly details: WampResultOptions;
+    readonly details: WampResultDetails;
 }
 
 /**
@@ -98,7 +97,7 @@ export interface EventData extends WampResult {
 
     readonly kwargs: WampObject;
 
-    readonly details: WampEventOptions;
+    readonly details: WampEventDetails;
 }
 
 /**
@@ -125,7 +124,7 @@ export interface InvocationTicket extends WampResult {
 
     readonly kwargs: WampObject;
 
-    readonly options: WampInvocationOptions;
+    readonly options: WampInvocationDetails;
 
     readonly name: string;
 

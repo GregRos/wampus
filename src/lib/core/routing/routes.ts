@@ -1,4 +1,4 @@
-import {WampType} from "../protocol/message.type";
+import {WampType} from "typed-wamp";
 
 /**
  * A set of prefix key routes used to identify common routes messages.

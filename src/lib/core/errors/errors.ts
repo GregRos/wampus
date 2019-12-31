@@ -1,5 +1,4 @@
-import {WampType} from "../protocol/message.type";
-import {Wamp} from "../protocol/messages";
+import {WampType, Wamp} from "typed-wamp";
 import {
     WampusIllegalOperationError,
     WampusInvocationCanceledError,

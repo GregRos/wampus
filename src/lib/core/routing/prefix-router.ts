@@ -1,5 +1,4 @@
-import {WampPrimitive} from "../protocol/messages";
-import {WampType} from "../protocol/message.type";
+import {WampPrimitive, WampType} from "typed-wamp";
 import {defaults} from "lodash";
 
 

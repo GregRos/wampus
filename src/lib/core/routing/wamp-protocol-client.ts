@@ -1,4 +1,4 @@
-import {WampArray, Wamp, WampPrimitive, WampRawMessage} from "../protocol/messages";
+import {WampArray, Wamp, WampPrimitive, WampRaw} from "typed-wamp";
 import {WampusNetworkError} from "../errors/types";
 import {PrefixRoute, PrefixRouter} from "./prefix-router";
 import {Transport} from "../transport/transport";
@@ -13,7 +13,7 @@ export class WampProtocolClient<T> {
     transport: Transport;
     public _router: PrefixRouter<T>;
     private _onUnknownMessage = new Subject<any>();
-    private _parser: (x: WampRawMessage) => T;
+    private _parser: (x: WampRaw.Unknown) => T;
     private _defaultRoute: PrefixRoute<any> = {
         key: [],
         error(err) {
@@ -56,7 +56,7 @@ export class WampProtocolClient<T> {
      * @param selector Used to transform messages from a raw array format to an object format.
      * @returns WampProtocolClient<T>
      */
-    static create<T>(transport: Transport, selector: (x: WampRawMessage) => T): WampProtocolClient<T> {
+    static create<T>(transport: Transport, selector: (x: WampRaw.Unknown) => T): WampProtocolClient<T> {
         let messenger = new WampProtocolClient<T>(null as never);
         messenger.transport = transport;
         messenger._parser = selector;
@@ -69,9 +69,9 @@ export class WampProtocolClient<T> {
      * Creates a cold observable that, when subscribed to, will send the given WAMP message via the transport and complete once the message has been sent.
      * @param {WampMessage.Any} msg The message to send.
      */
-    send$(msg: T & { toTransportFormat(): WampRawMessage }): Observable<any> {
+    send$(msg: Wamp.Any): Observable<any> {
         return of(null).pipe(flatMap(() => {
-            let loose = msg.toTransportFormat();
+            let loose = msg.toRaw();
             return this.transport.send$(loose);
         }));
     }

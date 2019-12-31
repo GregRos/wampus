@@ -1,7 +1,7 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {MatchError} from "../../../helpers/errors";
-import {BrokerFeatures, WampPublishOptions} from "../../../../lib/core/protocol/options";
+import {BrokerFeatures, WampPublishOptions} from "typed-wamp";
 
 
 function testUsingUnsupportedPublishOption(option: keyof WampPublishOptions, feature: keyof BrokerFeatures, featureName: string, value = true) {

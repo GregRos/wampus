@@ -1,31 +1,29 @@
 import {Transport, TransportEvent} from "../../lib/core/transport/transport";
 import {concat, defer, EMPTY, Observable, Subject, timer} from "rxjs";
-import {WampArray, Wamp, WampRawMessage} from "../../lib/core/protocol/messages";
+import {WampArray, Wamp, WampRaw} from "typed-wamp";
 import {choose} from "../../lib/utils/rxjs-operators";
 import {MyPromise} from "../../lib/utils/ext-promise";
 import {map, mergeMapTo} from "rxjs/operators";
 import {WampusNetworkError} from "../../lib/core/errors/types";
-import {MessageReader} from "../../lib/core/protocol/reader";
 import {ObservableMonitor, Rxjs} from "./observable-monitor";
 
 export interface DummyServer {
     readonly events: Observable<TransportEvent>;
-    readonly messages: Observable<WampRawMessage>;
+    readonly messages: Observable<WampRaw.Any>;
 
     error(x: WampusNetworkError): void;
 
-    send(x: WampRawMessage): void;
+    send(x: WampRaw.Unknown): void;
 
     close(): void;
 }
 
-let reader = new MessageReader();
 
 export class HigherLevelDummyServer {
     messages: ObservableMonitor<any>;
 
     constructor(private _server: DummyServer) {
-        this.messages = Rxjs.monitor(_server.messages.pipe(map(x => reader.parse(x))));
+        this.messages = Rxjs.monitor(_server.messages.pipe(map(x => Wamp.parse(x))));
     }
 
     error(x: WampusNetworkError) {
@@ -37,7 +35,7 @@ export class HigherLevelDummyServer {
     }
 
     send(x: Wamp.Any) {
-        this._server.send(x.toTransportFormat());
+        this._server.send(x.toRaw());
     }
 
 }
@@ -79,7 +77,7 @@ export function dummyTransport() {
             });
         },
         events: intoServer,
-        messages: intoServer.pipe(choose(x => x.type === "message" ? x.data as WampArray : undefined))
+        messages: intoServer.pipe(choose(x => x.type === "message" ? x.data as WampRaw.Any : undefined))
     };
     return {
         client: {

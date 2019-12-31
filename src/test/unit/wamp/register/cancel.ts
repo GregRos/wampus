@@ -3,7 +3,7 @@ import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
-import {WampType} from "../../../../lib/core/protocol/message.type";
+import {WampType} from "typed-wamp";
 
 async function getRegistration({session, server}: { session: WampusCoreSession, server: any }) {
     let serverMonitor = Rxjs.monitor(server.messages);

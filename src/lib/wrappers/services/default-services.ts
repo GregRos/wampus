@@ -1,5 +1,5 @@
 import {AbstractWampusSessionServices, TransformSet} from "../services";
-import {WampUri} from "../../core/protocol/uris";
+import {WampUri} from "typed-wamp";
 import {WampusInvocationCanceledError} from "../../core/errors/types";
 import {mapValues, pick} from "lodash";
 import CallSite = NodeJS.CallSite;

@@ -1,7 +1,7 @@
 import test from "ava";
 import {WampusSession} from "../../../lib";
 import {InvocationTicket, ProcedureHandler} from "../../../lib/wrappers/tickets/invocation-ticket";
-import {WampCallOptions} from "../../../lib/core/protocol/options";
+import {WampCallOptions} from "typed-wamp";
 import {RealSessions} from "../../helpers/real-sessions";
 import {toArray} from "rxjs/operators";
 import {WampusSendResultArguments} from "../../../lib/core/session/message-arguments";

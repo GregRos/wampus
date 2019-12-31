@@ -2,7 +2,7 @@ import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
 import {MyPromise} from "../../../lib/utils/ext-promise";
-import {MatchingPolicy} from "../../../lib/core/protocol/options";
+import {MatchingPolicy} from "typed-wamp";
 
 test.beforeEach(async t => {
     t.context = {
@@ -61,7 +61,7 @@ test("pattern registration", async t => {
     let ticket = await session.procedure({
         name: "wampus.example",
         options: {
-            match: MatchingPolicy.Prefix
+            match: "prefix"
         },
         async called(x) {
             t.is(x.options.procedure, x.args[0]);

@@ -1,6 +1,5 @@
 import * as Core from "../../core/session/ticket";
-import {WampArray, WampObject} from "../../core/protocol/messages";
-import {WampResultOptions} from "../../core/protocol/options";
+import {WampArray, WampObject, WampResultDetails} from "typed-wamp";
 import {CallTicket} from "./call";
 import objy = require("objectology");
 export class CallResultData implements Core.CallResultData {
@@ -17,7 +16,7 @@ export class CallResultData implements Core.CallResultData {
     /**
      * The WAMP protocol options of the call result.
      */
-    readonly details: WampResultOptions;
+    readonly details: WampResultDetails;
 
     constructor(private _base: Core.CallResultData, public source: CallTicket) {
         this.kwargs = _base.kwargs;

@@ -1,4 +1,4 @@
-import {HelloDetails} from "../core/protocol/options";
+import {HelloDetails} from "typed-wamp";
 import {WampusSession} from "./wampus-session";
 import {WampusCoreSession} from "../core/session/core-session";
 import {AuthenticatorFunction} from "../core/session/authentication";

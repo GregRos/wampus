@@ -1,4 +1,4 @@
-import {WampObject} from "../core/protocol/messages";
+import {WampObject} from "typed-wamp";
 import {WampusSendErrorArguments} from "../core/session/message-arguments";
 import {WampusInvocationError} from "../core/errors/types";
 import {StepByStepTransformer, TransformStep} from "./services/recursive-transform";

@@ -1,8 +1,7 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {MatchError} from "../../../helpers/errors";
-import {BrokerFeatures, WampSubscribeOptions} from "../../../../lib/core/protocol/options";
-import {AdvProfile} from "../../../../lib/core/protocol/uris";
+import {BrokerFeatures, WampSubscribeOptions, Feature} from "typed-wamp";
 
 function testUsingUnsupportedSubscribeOption(option: keyof WampSubscribeOptions, feature: keyof BrokerFeatures, featureName: string, value = true) {
     test(`using subscribe option ${option} when unsupported throws error about ${featureName}`, async t => {
@@ -16,4 +15,4 @@ function testUsingUnsupportedSubscribeOption(option: keyof WampSubscribeOptions,
     });
 }
 
-testUsingUnsupportedSubscribeOption("match", "pattern_based_subscription", AdvProfile.Subscribe.PatternBasedSubscription);
+testUsingUnsupportedSubscribeOption("match", "pattern_based_subscription", Feature.Subscribe.PatternBasedSubscription);

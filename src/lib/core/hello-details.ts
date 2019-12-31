@@ -1,4 +1,4 @@
-import {HelloDetails} from "./protocol/options";
+import {HelloDetails} from "typed-wamp";
 
 /**@internal*/
 export const wampusHelloDetails: HelloDetails = {

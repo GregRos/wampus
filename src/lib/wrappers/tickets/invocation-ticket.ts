@@ -5,9 +5,8 @@ import {WampusSendErrorArguments, WampusSendResultArguments} from "../../core/se
 import {AbstractWampusSessionServices} from "../services";
 import {map, takeUntil} from "rxjs/operators";
 import {RegistrationTicket} from "./registration-ticket";
-import {WampInvocationOptions} from "../../core/protocol/options";
+import {WampInvocationDetails, WampArray, WampObject} from "typed-wamp";
 import {WampusInvocationCanceledError} from "../../core/errors/types";
-import {WampArray, WampObject} from "../../core/protocol/messages";
 import {clone} from "lodash";
 
 import objy = require("objectology");
@@ -31,7 +30,7 @@ export class InvocationTicket {
     /**
      * The WAMP protocol options.
      */
-    readonly options: WampInvocationOptions;
+    readonly options: WampInvocationDetails;
     /**
      * The procedure name.
      */

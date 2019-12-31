@@ -1,8 +1,7 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {MatchError} from "../../../helpers/errors";
-import {DealerFeatures, WampRegisterOptions} from "../../../../lib/core/protocol/options";
-import {AdvProfile} from "../../../../lib/core/protocol/uris";
+import {DealerFeatures, WampRegisterOptions, Feature} from "typed-wamp";
 
 
 function testUsingUnsupportedRegisterOption(option: keyof WampRegisterOptions, feature: keyof DealerFeatures, featureName: string, value = true) {
@@ -17,6 +16,6 @@ function testUsingUnsupportedRegisterOption(option: keyof WampRegisterOptions, f
     });
 }
 
-testUsingUnsupportedRegisterOption("match", "pattern_based_registration", AdvProfile.Call.PatternRegistration);
-testUsingUnsupportedRegisterOption("disclose_caller", "caller_identification", AdvProfile.Call.CallerIdentification);
-testUsingUnsupportedRegisterOption("invoke", "shared_registration", AdvProfile.Call.SharedRegistration);
+testUsingUnsupportedRegisterOption("match", "pattern_based_registration", Feature.Call.PatternRegistration);
+testUsingUnsupportedRegisterOption("disclose_caller", "caller_identification", Feature.Call.CallerIdentification);
+testUsingUnsupportedRegisterOption("invoke", "shared_registration", Feature.Call.SharedRegistration);

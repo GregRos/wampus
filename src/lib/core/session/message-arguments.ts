@@ -1,11 +1,11 @@
-import {WampArray, WampObject, WampUriString} from "../protocol/messages";
 import {
     WampCallOptions,
     WampPublishOptions,
     WampRegisterOptions,
     WampSubscribeOptions,
-    WampYieldOptions
-} from "../protocol/options";
+    WampYieldOptions,
+    WampArray, WampObject, WampUriString
+} from "typed-wamp";
 
 /**
  * The info Wampus needs to call a procedure.
