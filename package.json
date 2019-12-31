@@ -58,6 +58,7 @@
     "objectology": "^0.0.5",
     "promise-stuff": "^0.3.6",
     "string-template": "^1.0.0",
+    "typed-wamp": "^0.1.2-pre",
     "ws": "^5.2.1"
   },
   "peerDependencies": {

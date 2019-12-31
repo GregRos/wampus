@@ -1,6 +1,6 @@
 import {Transport, TransportEvent} from "../../lib/core/transport/transport";
 import {concat, defer, EMPTY, Observable, Subject, timer} from "rxjs";
-import {WampArray, WampMessage, WampRawMessage} from "../../lib/core/protocol/messages";
+import {WampArray, Wamp, WampRawMessage} from "../../lib/core/protocol/messages";
 import {choose} from "../../lib/utils/rxjs-operators";
 import {MyPromise} from "../../lib/utils/ext-promise";
 import {map, mergeMapTo} from "rxjs/operators";
@@ -36,7 +36,7 @@ export class HigherLevelDummyServer {
         this._server.close();
     }
 
-    send(x: WampMessage.Any) {
+    send(x: Wamp.Any) {
         this._server.send(x.toTransportFormat());
     }
 

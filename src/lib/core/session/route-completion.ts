@@ -1,4 +1,4 @@
-import {WampMessage} from "../protocol/messages";
+import {Wamp} from "../protocol/messages";
 
 /**
  * Reason for a route being forced to complete. Usually the reason for the session being terminated.
@@ -31,7 +31,7 @@ export enum WampusCompletionReason {
  */
 export class WampusRouteCompletion extends Error {
 
-    constructor(public reason: WampusCompletionReason, public msg ?: WampMessage.Any) {
+    constructor(public reason: WampusCompletionReason, public msg ?: Wamp.Any) {
         super("Route completed");
     }
 

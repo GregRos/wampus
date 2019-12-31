@@ -1,8 +1,12 @@
-/* istanbul ignore file */
 import {WampusInvalidArgument} from "../core/errors/types";
 
-/**@internal*/
+/* tslint:disable:completed-docs */
+
+/**
+ * Common errors used by the library that are
+ */
 export namespace Errors {
+
     export function unknownEvent(name: string) {
         return new Error(`Unknown event name ${name}.`);
     }

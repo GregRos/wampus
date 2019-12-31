@@ -1,7 +1,7 @@
 /**
  * @module core
  */
-import {WampMessage, WampObject, WampUriString} from "../protocol/messages";
+import {Wamp, WampObject, WampUriString} from "../protocol/messages";
 import {WampType} from "../protocol/message.type";
 import {Errs} from "../errors/errors";
 import {AdvProfile, WampUri} from "../protocol/uris";
@@ -72,7 +72,7 @@ export interface CoreSessionConfig {
 }
 
 import {cloneDeep, defaults} from "lodash";
-import WM = WampMessage;
+import WM = Wamp;
 
 let factory = DefaultMessageFactory;
 
@@ -84,7 +84,7 @@ let factory = DefaultMessageFactory;
 export class WampusCoreSession {
     sessionId: number;
     config: CoreSessionConfig;
-    protocol: WampProtocolClient<WampMessage.Any>;
+    protocol: WampProtocolClient<Wamp.Any>;
     private _welcomeDetails: WelcomeDetails;
     private _isClosing = false;
 
@@ -111,7 +111,7 @@ export class WampusCoreSession {
         //      On close: Initiate goodbye sequence.
         let transport = await config.transport();
         let reader = new MessageReader();
-        let messenger = WampProtocolClient.create<WampMessage.Any>(transport, x => reader.parse(x));
+        let messenger = WampProtocolClient.create<Wamp.Any>(transport, x => reader.parse(x));
         let session = new WampusCoreSession(null as never);
         session.config = config;
         session.protocol = messenger;
@@ -171,8 +171,8 @@ export class WampusCoreSession {
         }));
 
         // Operator - in case of an ERROR message, throw an exception.
-        let failOnError = map((x: WampMessage) => {
-            if (x instanceof WampMessage.Error) {
+        let failOnError = map((x: Wamp) => {
+            if (x instanceof Wamp.Error) {
                 this._throwCommonError(msg, x);
                 switch (x.error) {
                     case WampUri.Error.ProcAlreadyExists:
@@ -181,7 +181,7 @@ export class WampusCoreSession {
                         throw Errs.Register.error(msg.procedure, x);
                 }
             }
-            return x as WampMessage.Registered;
+            return x as Wamp.Registered;
         });
 
         let signalUnregistered = new Subject();
@@ -207,7 +207,7 @@ export class WampusCoreSession {
                 let failOnUnregisterError = map((x: WM.Any) => {
                     signalUnregistered.next();
 
-                    if (x instanceof WampMessage.Error) {
+                    if (x instanceof Wamp.Error) {
                         this._throwCommonError(unregisterMsg, x);
                         switch (x.error) {
                             case WampUri.Error.NoSuchRegistration:
@@ -266,11 +266,11 @@ export class WampusCoreSession {
                 let isHandled = false;
 
                 // Send the selected WAMP message as a reply to the invocation
-                let send$ = (msg: WampMessage.Any) => {
+                let send$ = (msg: Wamp.Any) => {
                     if (!this.isActive) return throwError(Errs.sessionIsClosing(msg));
 
                     // If the message is progress, make sure this invocation supports progress
-                    if (msg instanceof WampMessage.Yield && msg.options.progress) {
+                    if (msg instanceof Wamp.Yield && msg.options.progress) {
                         if (!invocationMsg.options.receive_progress) {
                             return throwError(Errs.Register.doesNotSupportProgressReports(name));
                         }
@@ -281,7 +281,7 @@ export class WampusCoreSession {
                     }
                     // If this response finishes the invocation, close the route waiting for an INTERRUPT
                     // and mark handled.
-                    if (msg instanceof WampMessage.Error || msg instanceof WampMessage.Yield && !msg.options.progress) {
+                    if (msg instanceof Wamp.Error || msg instanceof Wamp.Yield && !msg.options.progress) {
                         completeInterrupt.next();
                         isHandled = true;
                     }
@@ -373,12 +373,14 @@ export class WampusCoreSession {
             || options.exclude || options.exclude_authid || options.exclude_authrole) && !features.subscriber_blackwhite_listing) {
             throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Subscribe.SubscriberBlackWhiteListing);
         }
-        if (options.disclose_me && !features.publisher_identification) {
+        /* tslint:disable:no-boolean-literal-compare*/
+        if (options.disclose_me === true && !features.publisher_identification) {
             throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Subscribe.PublisherIdentification);
         }
         if (options.exclude_me === false && !features.publisher_exclusion) {
             throw Errs.routerDoesNotSupportFeature(msg, AdvProfile.Subscribe.PublisherExclusion);
         }
+        /* tslint:enable:no-boolean-literal-compare*/
         return defer(() => {
             let expectAcknowledge$: Observable<any>;
             // If acknowledgement is enabled, we need to wait for a message...
@@ -500,7 +502,7 @@ export class WampusCoreSession {
                 // Handle errors, if any
                 let failOnUnsubscribedError = map((msg: WM.Any) => {
                     closeSignal.next();
-                    if (msg instanceof WampMessage.Error) {
+                    if (msg instanceof Wamp.Error) {
                         this._throwCommonError(unsub, msg);
                         switch (msg.error) {
                             case WampUri.Error.NoSuchSubscription:
@@ -600,7 +602,7 @@ export class WampusCoreSession {
 
             // Handle an error or continue
             let failOnError = map((x: WM.Any) => {
-                if (x instanceof WampMessage.Error) {
+                if (x instanceof Wamp.Error) {
                     this._throwCommonError(msg, x);
                     switch (x.error) {
                         case WampUri.Error.NoSuchProcedure:
@@ -738,7 +740,7 @@ export class WampusCoreSession {
     }
 
 
-    private _throwCommonError(source: WampMessage.Any, err: WampMessage.Error) {
+    private _throwCommonError(source: Wamp.Any, err: Wamp.Error) {
         switch (err.error) {
             case WampUri.Error.NotAuthorized:
                 throw Errs.notAuthorized(source, err);
@@ -819,13 +821,13 @@ export class WampusCoreSession {
     }
 
 
-    private _handleClose$(msg: WampMessage.Goodbye | WampMessage.Abort) {
+    private _handleClose$(msg: Wamp.Goodbye | Wamp.Abort) {
         // This code is for handling server-initiated closing.
         if (this._isClosing) return EMPTY;
         this._isClosing = true;
 
 
-        if (msg instanceof WampMessage.Abort) {
+        if (msg instanceof Wamp.Abort) {
             // The closing is abrupt. The server doesn't want any reply and may terminate the connection immediately.
             return concat(this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.RouterAbort, msg)), defer(async () => {
                 await this.protocol.transport.close();
@@ -859,7 +861,7 @@ export class WampusCoreSession {
         let expectingByeOrError$ = this.protocol.expectAny$(Routes.abort, Routes.goodbye);
 
         let failOnError = map((x: WM.Any) => {
-            if (x instanceof WampMessage.Goodbye) {
+            if (x instanceof Wamp.Goodbye) {
                 return x;
             }
         });

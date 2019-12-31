@@ -4785,6 +4785,11 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
   integrity sha1-WuaBd/GS1EViadEIr6k/+HQ/T2Q=
 
+typed-wamp@^0.1.2-pre:
+  version "0.1.2-pre"
+  resolved "https://registry.yarnpkg.com/typed-wamp/-/typed-wamp-0.1.2-pre.tgz#664f17ab79264c9b2fa215d658213e0ceb9251da"
+  integrity sha512-FJkN3WhqIc6SZWvajYCrAqFc/xwZnJ9ceTm40SHddrjhSESjqnueTV1zXd1zQA0nfL2tsdELBG2mo+iPg0PEyQ==
+
 typedoc-default-themes@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/typedoc-default-themes/-/typedoc-default-themes-0.6.0.tgz#7e73bf54dd9e11550dd0fb576d5176b758f8f8b5"

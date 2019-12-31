@@ -1,4 +1,4 @@
-import {WampArray, WampMessage, WampPrimitive, WampRawMessage} from "../protocol/messages";
+import {WampArray, Wamp, WampPrimitive, WampRawMessage} from "../protocol/messages";
 import {WampusNetworkError} from "../errors/types";
 import {PrefixRoute, PrefixRouter} from "./prefix-router";
 import {Transport} from "../transport/transport";
