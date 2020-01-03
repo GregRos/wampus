@@ -8,16 +8,11 @@
   "license": "MIT",
   "keywords": [
     "wamp",
-    "client",
-    "websocket",
     "rpc",
-    "async",
-    "await",
+    "promise",
     "esnext",
     "typescript",
-    "rxjs",
-    "observable",
-    "pubsub"
+    "rxjs"
   ],
   "private": false,
   "scripts": {
