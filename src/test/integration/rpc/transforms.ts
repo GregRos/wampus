@@ -1,8 +1,8 @@
-import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {isMatch} from "lodash";
+import {sessionTest} from "../../helpers/my-test-interface";
 
-test.afterEach(async t => {
+sessionTest.afterEach(async t => {
     await t.context.session.close();
 });
 
@@ -11,7 +11,7 @@ class Token {
 }
 
 
-test("call input, invocation output", async t => {
+sessionTest("call input, invocation output", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
             s.transforms.objectToJson.add((x, ctrl) => {
@@ -64,7 +64,7 @@ test("call input, invocation output", async t => {
     }));
 });
 
-test("call output, invocation input", async t => {
+sessionTest("call output, invocation input", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
             s.transforms.jsonToObject.add((x, ctrl) => {
@@ -130,7 +130,7 @@ class MySpecialError extends Error {
     optionsName: string;
 }
 
-test("invocation error to error response", async t => {
+sessionTest("invocation error to error response", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
             s.transforms.errorResponseToError.add((x, ctrl) => {

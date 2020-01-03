@@ -1,4 +1,3 @@
-import test from "ava";
 import {WampusSession} from "../../../lib";
 import {InvocationTicket, ProcedureHandler} from "../../../lib/wrappers/tickets/invocation-ticket";
 import {WampCallOptions} from "typed-wamp";
@@ -9,17 +8,18 @@ import {WampusInvocationError} from "../../../lib/core/errors/types";
 import {MatchError} from "../../helpers/errors";
 import {MyPromise} from "../../../lib/utils/ext-promise";
 import {isMatch} from "lodash";
+import {sessionTest} from "../../helpers/my-test-interface";
 
-test.beforeEach(async t => {
+sessionTest.beforeEach(async t => {
     t.context = {
         session: await RealSessions.session()
     };
 });
-test.afterEach(async t => {
+sessionTest.afterEach(async t => {
     await t.context.session.close();
 });
 
-test("verify call ticket", async t => {
+sessionTest("verify call ticket", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.procedure({
         name: "wampus.example",
@@ -46,7 +46,7 @@ test("verify call ticket", async t => {
 });
 
 
-test("verify invocation ticket", async t => {
+sessionTest("verify invocation ticket", async t => {
     let session = t.context.session as WampusSession;
     let lastInvocation = null as InvocationTicket;
     let ticket = await session.procedure({
@@ -70,7 +70,7 @@ test("verify invocation ticket", async t => {
     }));
 });
 
-test("verify result data", async t => {
+sessionTest("verify result data", async t => {
     let session = t.context.session as WampusSession;
     let result: WampusSendResultArguments = {
         args: [1, 100, 50],
@@ -100,7 +100,7 @@ test("verify result data", async t => {
 
 });
 
-test("throw in handler translates to error response", async t => {
+sessionTest("throw in handler translates to error response", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.procedure({
         name: "wampus.example",
@@ -130,7 +130,7 @@ test("throw in handler translates to error response", async t => {
     t.deepEqual(cResult.args, []);
 });
 
-test("send progress", async t => {
+sessionTest("send progress", async t => {
     let session = t.context.session as WampusSession;
 
     let ticket = await session.procedure({
@@ -171,7 +171,7 @@ test("send progress", async t => {
     matchProgress(results[2], 3);
 });
 
-test("send and receive cancel", async t => {
+sessionTest("send and receive cancel", async t => {
     let session = t.context.session as WampusSession;
 
     let ticket = await session.procedure({
@@ -197,7 +197,7 @@ test("send and receive cancel", async t => {
 
 });
 
-test("progress via event", async t => {
+sessionTest("progress via event", async t => {
     let session = t.context.session as WampusSession;
 
     let data = [];

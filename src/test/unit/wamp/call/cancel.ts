@@ -97,7 +97,7 @@ test("reply with RESULT(progress), close() should not resolve and progress shoul
     await serverMonitor.nextK(2);
     server.send([WampType.RESULT, prog.info.callId, {progress: true}, [], {a: 1}]);
     t.deepEqual((await progressMonitor.next()).kwargs, {a: 1});
-    await t.throwsAsync(Operators.timeout(closing, 10, () => Promise.reject("error")));
+    await t.throwsAsync(Operators.timeout(closing, 10, () => Promise.reject(new Error())));
 });
 
 test("reply with ERROR(non-cancel), close() should reject", async t => {

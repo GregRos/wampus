@@ -1,19 +1,19 @@
-import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
 import {MatchingPolicy, WampSubscribeOptions} from "typed-wamp";
 import {isMatch} from "lodash";
+import {sessionTest} from "../../helpers/my-test-interface";
 
-test.beforeEach(async t => {
+sessionTest.beforeEach(async t => {
     t.context = {
         session: await RealSessions.session()
     };
 });
-test.afterEach(async t => {
+sessionTest.afterEach(async t => {
     await t.context.session.close();
 });
 
-test("verify subscription ticket", async t => {
+sessionTest("verify subscription ticket", async t => {
     let session = t.context.session as WampusSession;
     let opts = {
         match: "prefix"
@@ -28,7 +28,7 @@ test("verify subscription ticket", async t => {
     t.deepEqual(ticket.info.options, opts);
 });
 
-test("close subscription, check event observable", async t => {
+sessionTest("close subscription, check event observable", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.topic({
         name: "wampus.example"
@@ -40,7 +40,7 @@ test("close subscription, check event observable", async t => {
     t.falsy(last);
 });
 
-test("close registration, closed registration can be closed again and inspected", async t => {
+sessionTest("close registration, closed registration can be closed again and inspected", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.topic({
         name: "wampus.example"
@@ -55,7 +55,7 @@ test("close registration, closed registration can be closed again and inspected"
     t.false(ticket.isOpen);
 });
 
-test("close session, subscription should also be closed", async t => {
+sessionTest("close session, subscription should also be closed", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.topic({
         name: "wampus.example"
@@ -64,7 +64,7 @@ test("close session, subscription should also be closed", async t => {
     t.false(ticket.isOpen);
 });
 
-test("verify multi-topic ticket", async t => {
+sessionTest("verify multi-topic ticket", async t => {
     let session = t.context.session as WampusSession;
     let topics = ["a.b", "c", "d"];
     let ticket = await session.topics(["a.b", "c", "d"]);

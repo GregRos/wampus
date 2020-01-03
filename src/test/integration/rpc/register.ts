@@ -1,19 +1,19 @@
-import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
 import {InvocationPolicy, MatchingPolicy, WampRegisterOptions} from "typed-wamp";
 import {isMatch} from "lodash";
+import {sessionTest} from "../../helpers/my-test-interface";
 
-test.beforeEach(async t => {
+sessionTest.beforeEach(async t => {
     t.context = {
         session: await RealSessions.session()
     };
 });
-test.afterEach(async t => {
+sessionTest.afterEach(async t => {
     await t.context.session.close();
 });
 
-test("verify registration ticket", async t => {
+sessionTest("verify registration ticket", async t => {
     let session = t.context.session as WampusSession;
     let opts = {
         disclose_caller: true,
@@ -33,7 +33,7 @@ test("verify registration ticket", async t => {
     t.deepEqual(ticket.info.options, opts);
 });
 
-test("close registration, try to call to make sure", async t => {
+sessionTest("close registration, try to call to make sure", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.procedure({
         name: "wampus.example",
@@ -55,7 +55,7 @@ test("close registration, try to call to make sure", async t => {
     }));
 });
 
-test("close registration, closed registration can be closed again and inspected", async t => {
+sessionTest("close registration, closed registration can be closed again and inspected", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.procedure({
         name: "wampus.example",
@@ -72,7 +72,7 @@ test("close registration, closed registration can be closed again and inspected"
     t.false(ticket.isOpen);
 });
 
-test("procedures", async t => {
+sessionTest("procedures", async t => {
     let session = t.context.session as WampusSession;
 
     let tickets = await session.procedures({
@@ -117,7 +117,7 @@ test("procedures", async t => {
     await t.throwsAsync(session.call({name: "wampus.a"}));
 });
 
-test("close session, registration should also be closed", async t => {
+sessionTest("close session, registration should also be closed", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.procedure({
         name: "wampus.example",

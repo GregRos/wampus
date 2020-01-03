@@ -1,20 +1,20 @@
-import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
 import {take, toArray} from "rxjs/operators";
 import {merge} from "rxjs";
 import {isMatch, range, map} from "lodash";
+import {sessionTest} from "../../helpers/my-test-interface";
 
-test.beforeEach(async t => {
+sessionTest.beforeEach(async t => {
     t.context = {
         session: await RealSessions.session()
     };
 });
-test.afterEach(async t => {
+sessionTest.afterEach(async t => {
     await t.context.session.close();
 });
 
-test("verify event ticket", async t => {
+sessionTest("verify event ticket", async t => {
     let session = t.context.session as WampusSession;
 
     let ticket = await session.topic({
@@ -45,7 +45,7 @@ test("verify event ticket", async t => {
     }));
 });
 
-test("verify multiple events via topic", async t => {
+sessionTest("verify multiple events via topic", async t => {
     let session = t.context.session as WampusSession;
 
     let ticket = await session.topic({
@@ -69,7 +69,7 @@ test("verify multiple events via topic", async t => {
     t.deepEqual(eventValues, [0, 1, 2]);
 });
 
-test("event data via event", async t => {
+sessionTest("event data via event", async t => {
     let session = t.context.session as WampusSession;
 
     let ticket = await session.topic({
@@ -105,7 +105,7 @@ test("event data via event", async t => {
 });
 
 
-test("publish and receive in multi-topic ticket", async t => {
+sessionTest("publish and receive in multi-topic ticket", async t => {
     let session = t.context.session as WampusSession;
     let topics = ["a.b", "c", "d"];
     let ticket = await session.topics(["a.b", "c", "d"]);
@@ -128,7 +128,7 @@ test("publish and receive in multi-topic ticket", async t => {
     }
 });
 
-test("publish and receive in multi-topic ticket via event", async t => {
+sessionTest("publish and receive in multi-topic ticket via event", async t => {
     let session = t.context.session as WampusSession;
     let topics = ["a.b", "c", "d"];
     let ticket = await session.topics(["a.b", "c", "d"]);

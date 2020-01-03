@@ -1,19 +1,19 @@
-import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
 import {MatchingPolicy} from "typed-wamp";
 import {take, toArray} from "rxjs/operators";
+import {sessionTest} from "../../helpers/my-test-interface";
 
-test.beforeEach(async t => {
+sessionTest.beforeEach(async t => {
     t.context = {
         session: await RealSessions.session()
     };
 });
-test.afterEach(async t => {
+sessionTest.afterEach(async t => {
     await t.context.session.close();
 });
 
-test("pattern_based_subscription", async t => {
+sessionTest("pattern_based_subscription", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.topic({
         name: "wampus.",
@@ -38,7 +38,7 @@ test("pattern_based_subscription", async t => {
     t.deepEqual(namesOfEvents, eventNames);
 });
 
-test("publisher_identification", async t => {
+sessionTest("publisher_identification", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.topic({
         name: "wampus.example",
@@ -60,7 +60,7 @@ test("publisher_identification", async t => {
     t.is(ev.details.publisher, session.sessionId);
 });
 
-test("subscriber_blackwhite_listing", async t => {
+sessionTest("subscriber_blackwhite_listing", async t => {
 
     let session = t.context.session as WampusSession;
     let ticket = await session.topic({

@@ -91,12 +91,12 @@ test("invalidate route works with no routes", async t => {
 
 test("invalidate route invalidates 5 routes", async t => {
     let {messenger, server} = createPair();
-    t.plan(5);
+    t.plan(10);
     let routes = range(0, 5).map(i => messenger.expect$([i]).toPromise());
     messenger.invalidateAllRoutes(new WampusNetworkError("HA!"));
     let prs = await Promise.all(routes.map(p => t.throwsAsync(p)));
     for (let pr of prs) {
-        t.assert(prs instanceof WampusNetworkError);
+        t.assert(pr instanceof WampusNetworkError);
     }
 });
 

@@ -46,7 +46,7 @@ test("topic() on closed session throws", async t => {
     let serverMonitor = Rxjs.monitor(server.messages);
     let pendingSub = session.topic({name: "hi"});
     let err = await t.throwsAsync(pendingSub);
-    t.true(err instanceof WampusNetworkError);
+    t.assert(err instanceof WampusNetworkError);
 });
 
 test("topic() on a closing session throws", async t => {
@@ -56,7 +56,7 @@ test("topic() on a closing session throws", async t => {
     server.send([3, {}, "no"]);
     await session.close();
     let err = await throwSub;
-    t.true(throwSub instanceof WampusNetworkError);
+    t.assert(err instanceof WampusNetworkError);
 });
 
 test("after topic(), session closing closes subscription", async t => {

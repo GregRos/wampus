@@ -1,9 +1,9 @@
-import test from "ava";
 import {RealSessions} from "../../helpers/real-sessions";
 import {take} from "rxjs/operators";
 import {isMatch} from "lodash";
+import {sessionTest} from "../../helpers/my-test-interface";
 
-test.afterEach(async t => {
+sessionTest.afterEach(async t => {
     await t.context.session.close();
 });
 
@@ -12,7 +12,7 @@ class Token {
 }
 
 
-test("publish input, event output", async t => {
+sessionTest("publish input, event output", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
             s.transforms.objectToJson.add((x, ctrl) => {
@@ -53,7 +53,7 @@ test("publish input, event output", async t => {
     }));
 });
 
-test("publish output, event input", async t => {
+sessionTest("publish output, event input", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
             s.transforms.jsonToObject.add((x, ctrl) => {

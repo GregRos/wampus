@@ -58,18 +58,6 @@ test("when abort received, should disconnect and close", async t => {
     t.is(next.type, "closed");
 });
 
-test("when abort received, should disconnect and close", async t => {
-    // TODO: Do something when goodbye violates protocol
-    let {session, server} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.events);
-    let pGoodbye = session.close();
-    await sbs.next();
-    server.send([3, {}, "waaa"]);
-    let next = await sbs.next();
-    await t.notThrowsAsync(pGoodbye);
-    t.is(next.type, "closed");
-});
-
 test("when nothing received after timeout, should disconnect and close", async t => {
     // TODO: Do something when goodbye violates protocol
     let {session, server} = await SessionStages.handshaken("a");
