@@ -5,6 +5,7 @@ import {getTransportAndServerConn} from "../../../helpers/ws-server";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
 import {choose} from "../../../../lib/utils/rxjs-operators";
 import WebSocket = require("ws");
+import {WampusNetworkError} from "../../../../lib/core/errors/types";
 
 test("acuire", async t => {
     let {server, client} = await getTransportAndServerConn();
@@ -30,7 +31,9 @@ test("sync closes from client side", async t => {
     let {server, client} = await getTransportAndServerConn();
     let p = client.close();
     t.false(client.isActive);
-    await t.throws(client.send$({}).toPromise(), MatchError.network("closed"));
+    let err = await t.throwsAsync(client.send$({}).toPromise());
+    t.assert(err instanceof WampusNetworkError);
+    t.assert(err.message.includes("closed"));
 });
 
 test("closes from server-side", async t => {

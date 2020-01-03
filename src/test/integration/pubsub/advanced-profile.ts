@@ -78,5 +78,5 @@ test("subscriber_blackwhite_listing", async t => {
         }
     });
 
-    await t.notThrows(oneEvent);
+    await t.notThrowsAsync(oneEvent);
 });

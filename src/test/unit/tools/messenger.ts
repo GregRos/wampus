@@ -69,7 +69,8 @@ test("expectNext route matches the next error", async t => {
     let {messenger, server} = createPair();
     let a = messenger.messages$.pipe(take(1)).toPromise();
     server.error(new WampusNetworkError("HA!"));
-    await t.throws(a, MatchError.network("HA!"));
+    let err = await t.throwsAsync(a);
+    t.assert(err instanceof WampusNetworkError);
 });
 
 test("two expectNext routes get called at the same time", async t => {
@@ -93,7 +94,10 @@ test("invalidate route invalidates 5 routes", async t => {
     t.plan(5);
     let routes = range(0, 5).map(i => messenger.expect$([i]).toPromise());
     messenger.invalidateAllRoutes(new WampusNetworkError("HA!"));
-    let prs = await Promise.all(routes.map(p => t.throws(p, MatchError.network("HA!"))));
+    let prs = await Promise.all(routes.map(p => t.throwsAsync(p)));
+    for (let pr of prs) {
+        t.assert(prs instanceof WampusNetworkError);
+    }
 });
 
 test("closing server pushes to onClosed and completes", async t => {

@@ -22,7 +22,7 @@ test("configure websocket transport", async t => {
         realm: "hi"
     });
 
-    await t.notThrows(session);
+    await t.notThrowsAsync(session);
 });
 
 test("verify session details", async t => {
@@ -48,7 +48,7 @@ test("invalid transport type, throws", async t => {
         } as any,
         realm: "a"
     });
-    await t.throws(session);
+    await t.throwsAsync(session);
 });
 
 test("invalid serializer type, throws", async t => {
@@ -60,7 +60,7 @@ test("invalid serializer type, throws", async t => {
         } as any,
         realm: "a"
     });
-    await t.throws(session);
+    await t.throwsAsync(session);
 });
 
 test("configure websocket transport, assign serializer", async t => {
@@ -74,7 +74,7 @@ test("configure websocket transport, assign serializer", async t => {
         realm: "hi"
     });
 
-    await t.notThrows(session);
+    await t.notThrowsAsync(session);
 });
 
 test("assign websocket transport directly", async t => {
@@ -89,6 +89,6 @@ test("assign websocket transport directly", async t => {
         realm: "hi"
     });
 
-    await t.notThrows(session);
+    await t.notThrowsAsync(session);
 });
 

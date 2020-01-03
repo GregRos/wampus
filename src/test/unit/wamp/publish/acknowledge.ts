@@ -18,7 +18,7 @@ async function publishAck(s: WampusCoreSession) {
 test("should expect reply", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let publishing = publishAck(session);
-    await t.throws(Operators.timeout(publishing, 10));
+    await t.throwsAsync(Operators.timeout(publishing, 10));
 });
 
 test("receive PUBLISHED, resolve", async t => {
@@ -27,7 +27,7 @@ test("receive PUBLISHED, resolve", async t => {
     let publishing = publishAck(session);
     let publish = await serverMonitor.next();
     server.send([17, publish[1], 100]);
-    await t.notThrows(publishing);
+    await t.notThrowsAsync(publishing);
 });
 
 
@@ -38,7 +38,8 @@ function testPublishError(o: { errId: string, errMatch(x: any): boolean, title: 
         let publishing = publishAck(session);
         let publish = await serverMonitor.next();
         server.send([8, WampType.PUBLISH, publish[1], {}, o.errId]);
-        await t.throws(publishing, o.errMatch);
+        let err = await t.throwsAsync(publishing);
+        t.true( o.errMatch(err));
     });
 }
 
@@ -51,11 +52,13 @@ testPublishError({
 test("publish on closing session", async t => {
     let {server, session} = await SessionStages.handshaken("a");
 
-    let expectThrow = t.throws(session.publish({
+    let expectThrow = t.throwsAsync(session.publish({
         name: "a",
         options: {acknowledge: true}
-    }), MatchError.network("publishing", "topic"));
+    }));
     server.send([3, {}, "no"]);
     await session.close();
-    await expectThrow;
+    let err = await expectThrow;
+    t.true(MatchError.network("publishing", "topic")(err));
+
 });

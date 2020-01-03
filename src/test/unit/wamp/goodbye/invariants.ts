@@ -2,6 +2,7 @@ import test from "ava";
 import {MatchError} from "../../../helpers/errors";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
+import {WampusNetworkError} from "../../../../lib/core/errors/types";
 
 
 async function getRegularGoodbyedSession() {
@@ -17,8 +18,19 @@ async function getRegularGoodbyedSession() {
 test("basic properties of a session in a closed state", async t => {
     let sess = await getRegularGoodbyedSession();
     t.is(sess.isActive, false);
-    await t.throws(sess.call({name: "hi"}).progress.toPromise(), MatchError.network("closed"));
-    await t.throws(sess.register({name: "hi"}), MatchError.network("closed"));
-    await t.throws(sess.publish({name: "hi"}), MatchError.network("closed"));
-    await t.throws(sess.topic({name: "hi"}), MatchError.network("closed"));
+    let err = await t.throwsAsync(sess.call({name: "hi"}).progress.toPromise());
+    t.true(err instanceof WampusNetworkError);
+    t.true(err.message.includes("closed"));
+
+    let err2 = await t.throwsAsync(sess.register({name: "hi"}));
+    t.true(err2 instanceof WampusNetworkError);
+    t.true(err2.message.includes("closed"));
+
+    let err3 = await t.throwsAsync(sess.publish({name: "hi"}));
+    t.true(err3 instanceof WampusNetworkError);
+    t.true(err3.message.includes("closed"));
+
+    let err4 = await t.throwsAsync(sess.topic({name: "hi"}));
+    t.true(err4 instanceof WampusNetworkError);
+    t.true(err4.message.includes("closed"));
 });

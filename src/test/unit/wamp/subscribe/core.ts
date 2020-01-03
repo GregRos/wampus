@@ -6,6 +6,7 @@ import {MatchError} from "../../../helpers/errors";
 import {Operators} from "promise-stuff";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
 import {isMatch} from "lodash";
+import {WampusNetworkError} from "../../../../lib/core/errors/types";
 
 test("sends SUBSCRIBE", async t => {
     let {session, server} = await SessionStages.handshaken("a");
@@ -22,7 +23,7 @@ test("sends SUBSCRIBE", async t => {
 test("topic() waits for reply", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    await t.throws(Operators.timeout(session.topic({name: "x"}), 20));
+    await t.throwsAsync(Operators.timeout(session.topic({name: "x"}), 20));
 });
 
 test("topic() waits for SUBSCRIBED, EventSubscription basic tests", async t => {
@@ -44,16 +45,18 @@ test("topic() on closed session throws", async t => {
     await session.close();
     let serverMonitor = Rxjs.monitor(server.messages);
     let pendingSub = session.topic({name: "hi"});
-    await t.throws(pendingSub, MatchError.network("subscribing"));
+    let err = await t.throwsAsync(pendingSub);
+    t.true(err instanceof WampusNetworkError);
 });
 
 test("topic() on a closing session throws", async t => {
     let {session, server} = await SessionStages.handshaken("a");
-    let throwSub = t.throws(session.topic({name: "hi"}), MatchError.network("subscribing"));
+    let throwSub = t.throwsAsync(session.topic({name: "hi"}));
     await MyPromise.wait(10);
     server.send([3, {}, "no"]);
     await session.close();
-    await throwSub;
+    let err = await throwSub;
+    t.true(throwSub instanceof WampusNetworkError);
 });
 
 test("after topic(), session closing closes subscription", async t => {
@@ -67,8 +70,8 @@ test("after topic(), session closing closes subscription", async t => {
     server.send([3, {}, "no"]);
     await session.close();
     t.is(subscription.isOpen, false);
-    await t.notThrows(subscription.events.toPromise());
-    await t.notThrows(subscription.close());
+    await t.notThrowsAsync(subscription.events.toPromise());
+    await t.notThrowsAsync(subscription.close());
 });
 
 test("send EVENT, verify EventArgs properties", async t => {
@@ -113,7 +116,8 @@ function testSubscribeReceiveError(o: { errorName: string, errMatch(err: Error):
         });
         let next = await serverMonitor.next();
         server.send([WampType.ERROR, WampType.SUBSCRIBE, next[1], {}, o.errorName, ["a"], {a: 1}]);
-        await t.throws(subbing, o.errMatch);
+        let err = await t.throwsAsync(subbing);
+        t.true(o.errMatch(err));
         t.falsy(await serverMonitor.nextWithin(10), "sent extra message");
     });
 }
@@ -146,7 +150,7 @@ test("close() sends UNSUBSCRIBE, expects reply", async t => {
         0: 34,
         2: sub.info.subscriptionId
     }));
-    await t.throws(Operators.timeout(unsubbing, 20));
+    await t.throwsAsync(Operators.timeout(unsubbing, 20));
 });
 
 test("receives UNSUBSCRIBED, events complete", async t => {
@@ -160,9 +164,9 @@ test("receives UNSUBSCRIBED, events complete", async t => {
     let unsubbing = sub.close();
     let unsubMsg = await serverMonitor.next();
     server.send([35, unsubMsg[1]]);
-    await t.notThrows(unsubbing);
+    await t.notThrowsAsync(unsubbing);
     t.true(eventMonitor.isComplete);
-    await t.notThrows(sub.events.toPromise());
+    await t.notThrowsAsync(sub.events.toPromise());
     t.false(sub.isOpen);
 });
 
@@ -178,9 +182,9 @@ test("close() subscription, session closes instead of UNSUBSCRIBE, subscription 
     let unsubMsg = await serverMonitor.next();
     server.send([3, {}, "no"]);
     await session.close();
-    await t.notThrows(unsubbing);
+    await t.notThrowsAsync(unsubbing);
     t.true(eventMonitor.isComplete);
-    await t.notThrows(sub.events.toPromise());
+    await t.notThrowsAsync(sub.events.toPromise());
     t.false(sub.isOpen);
 });
 
@@ -196,7 +200,8 @@ function testUnsubscribeReceiveError(o: { errorName: string, errMatch(err: Error
         let unsubbing1 = sub.close();
         let unsubMsg = await serverMonitor.next();
         server.send([WampType.ERROR, WampType.UNSUBSCRIBE, unsubMsg[1], {}, o.errorName]);
-        await t.throws(unsubbing1, o.errMatch);
+        let err = await t.throwsAsync(unsubbing1);
+        t.true(o.errMatch(err));
     });
 }
 

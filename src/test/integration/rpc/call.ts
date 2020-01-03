@@ -193,7 +193,7 @@ test("send and receive cancel", async t => {
     t.true(results.isOpen);
 
     await results.close();
-    await t.throws(results, MatchError.cancelled());
+    let err = await t.throwsAsync(results);
 
 });
 

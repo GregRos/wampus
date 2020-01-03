@@ -1,11 +1,11 @@
-import test, {GenericTestContext} from "ava";
+import test, {ExecutionContext} from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {WampType} from "typed-wamp";
 import {map, toArray} from "rxjs/operators";
 import {Observable} from "rxjs";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {MatchError} from "../../../helpers/errors";
-import {WampusInvocationError} from "../../../../lib/core/errors/types";
+import {WampusInvocationError, WampusNetworkError} from "../../../../lib/core/errors/types";
 import {isMatch} from "lodash";
 
 test("call sends CALL message", async t => {
@@ -93,7 +93,7 @@ test("make 2 different calls, receive RESULTs, verify progress streams", async t
 });
 
 function sendCallReceiveErrorMacro(o: { title: string, errId: string, errMatch(x: any): boolean }) {
-    test(o.title, async (t: GenericTestContext<any>) => {
+    test(o.title, async (t: ExecutionContext<any>) => {
         let {server, session} = await SessionStages.handshaken("a");
         let sbs = Rxjs.monitor(server.messages);
         let cp1 = session.call({
@@ -101,7 +101,8 @@ function sendCallReceiveErrorMacro(o: { title: string, errId: string, errMatch(x
         });
         await sbs.next();
         server.send([WampType.ERROR, WampType.CALL, cp1.info.callId, {}, o.errId, ["a"], {a: 1}]);
-        await t.throws(cp1.progress.toPromise(), o.errMatch);
+        let err = await t.throwsAsync(cp1.progress.toPromise());
+        t.true(o.errMatch(err));
     });
 }
 
@@ -169,7 +170,8 @@ test("call() on closed session", async t => {
     let cp1 = session.call({
         name: "a"
     });
-    await t.throws(cp1.progress.toPromise(), MatchError.network("session", "clos"));
+    let err = await t.throwsAsync(cp1.progress.toPromise());
+    t.assert(err instanceof WampusNetworkError);
 });
 
 test("close connection before result received", async t => {
@@ -180,10 +182,11 @@ test("close connection before result received", async t => {
         name: "a"
     });
     let finished = cp1.progress.toPromise();
-    finished = t.throws(finished, MatchError.network("session", "clos"));
+    let fin = t.throwsAsync(finished);
     server.send([3, {}, "no"]);
 
     await session.close();
-    await finished;
+    let err = await fin;
+    t.assert(err instanceof WampusNetworkError);
 });
 

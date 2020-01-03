@@ -1,4 +1,4 @@
-import test, {GenericTestContext} from "ava";
+import test from "ava";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {MatchError} from "../../../helpers/errors";
@@ -9,18 +9,6 @@ import {WampType} from "typed-wamp";
 import {MessageFactory} from "../../../../lib/core/protocol/factory";
 import {Operators} from "promise-stuff";
 
-
-async function isSessionClosed<T>(t: GenericTestContext<T>, session: WampusCoreSession) {
-    t.is(session.isActive, false);
-    await t.throws(session.call({name: "ab"}).progress.toPromise(), MatchError.network("closed"));
-    await t.throws(session.register({name: "ab"}), MatchError.network("closed"));
-    await t.throws(session.topic({name: "ab"}), MatchError.network("closed"));
-    await t.throws(session.publish({name: "ab"}), MatchError.network("closed"));
-
-    // closing okay should be fine:
-    await t.notThrows(session.close());
-}
-
 test("when goodbye received, should disconnect and close", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
@@ -29,7 +17,7 @@ test("when goodbye received, should disconnect and close", async t => {
     t.deepEqual(nextMessage.data, [6, {}, "wamp.close.goodbye_and_out"]);
     server.send([6, {}, "wamp.close.goodbye_and_out"]);
     let next = await sbs.next();
-    await t.notThrows(pGoodbye);
+    await t.notThrowsAsync(pGoodbye);
     t.is(next.type, "closed");
 });
 
@@ -39,7 +27,7 @@ test("will allow abrupt disconnect during goodbye", async t => {
     let pGoodbye = session.close();
     await MyPromise.wait(100);
     server.close();
-    await t.notThrows(pGoodbye);
+    await t.notThrowsAsync(pGoodbye);
 });
 
 const factory = new MessageFactory({
@@ -53,9 +41,9 @@ test("random messages should be allowed during goodbye", async t => {
     let pGoodbye = session.close();
     await MyPromise.wait(20);
     server.send(factory.error(WampType.INVOCATION, 0, {}, "").toRaw());
-    await t.throws(Operators.timeout(pGoodbye, 20));
+    await t.throwsAsync(Operators.timeout(pGoodbye, 20));
     server.send([3, {}, "waaa"]);
-    await t.notThrows(pGoodbye);
+    await t.notThrowsAsync(pGoodbye);
 });
 
 test("when abort received, should disconnect and close", async t => {
@@ -66,7 +54,7 @@ test("when abort received, should disconnect and close", async t => {
     await sbs.next();
     server.send([3, {}, "waaa"]);
     let next = await sbs.next();
-    await t.notThrows(pGoodbye);
+    await t.notThrowsAsync(pGoodbye);
     t.is(next.type, "closed");
 });
 
@@ -78,7 +66,7 @@ test("when abort received, should disconnect and close", async t => {
     await sbs.next();
     server.send([3, {}, "waaa"]);
     let next = await sbs.next();
-    await t.notThrows(pGoodbye);
+    await t.notThrowsAsync(pGoodbye);
     t.is(next.type, "closed");
 });
 
@@ -110,5 +98,5 @@ test("when server errors, should close", async t => {
     let goodbye = await sbs.next();
     // TODO: Do something with an error in closing process
     server.error(new WampusNetworkError("Blah!"));
-    await t.notThrows(closing);
+    await t.notThrowsAsync(closing);
 });

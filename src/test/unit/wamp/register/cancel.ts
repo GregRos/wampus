@@ -81,5 +81,5 @@ test("receive INVOCATION, session closes, interruptSignal completes", async t =>
     t.deepEqual(invocation.kwargs, {a: 1});
     server.send([3, {}, "no"]);
     await session.close();
-    await t.notThrows(invocation.cancellation.toPromise());
+    await t.notThrowsAsync(invocation.cancellation.toPromise());
 });

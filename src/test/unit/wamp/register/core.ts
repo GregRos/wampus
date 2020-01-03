@@ -6,6 +6,7 @@ import {MatchError} from "../../../helpers/errors";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {Operators} from "promise-stuff";
 import {isMatch} from "lodash";
+import {WampusIllegalOperationError, WampusNetworkError} from "../../../../lib/core/errors/types";
 
 test("sends REGISTER", async t => {
     let {session, server} = await SessionStages.handshaken("a");
@@ -33,7 +34,8 @@ function testRegisterReceiveError(o: { errorName: string, errMatch(err: Error): 
         });
         let next = await serverMonitor.next();
         server.send([WampType.ERROR, WampType.REGISTER, next[1], {}, o.errorName, ["a"], {a: 1}]);
-        await t.throws(registering, o.errMatch);
+        let err = await t.throwsAsync(registering);
+        t.true(o.errMatch(err));
         t.falsy(await serverMonitor.nextWithin(10), "sent extra message");
     });
 }
@@ -169,8 +171,10 @@ test("after INVOCATION, after error(), cannot call result() or error().", async 
     next.error({
         error: "custom.error"
     });
-    await t.throws(next.return({}), MatchError.illegalOperation("ried to yield"));
-    await t.throws(next.error({error: "hi"}), MatchError.illegalOperation("ried to yield"));
+    let err = await t.throwsAsync(next.return({}));
+    t.true(err instanceof WampusIllegalOperationError);
+    let err2 = await t.throwsAsync(next.error({error: "hi"}));
+    t.true(err2 instanceof WampusIllegalOperationError);
 });
 
 test("after INVOCATION, after return(final), cannot call result() or error().", async t => {
@@ -181,8 +185,10 @@ test("after INVOCATION, after return(final), cannot call result() or error().", 
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     next.return({});
-    await t.throws(next.return({}), MatchError.illegalOperation("a response or error"));
-    await t.throws(next.error({error: "hi"}), MatchError.illegalOperation("a response or error"));
+    let err = await t.throwsAsync(next.return({}));
+    t.true(MatchError.illegalOperation("a response or error")(err));
+    let err2 = await t.throwsAsync(next.error({error: "hi"}));
+    t.true(MatchError.illegalOperation("a response or error")(err2));
 });
 
 test("registration.close() sends UNREGISTER, expects reply", async t => {
@@ -195,7 +201,7 @@ test("registration.close() sends UNREGISTER, expects reply", async t => {
         0: 66,
         2: registration.info.registrationId
     }));
-    await t.throws(Operators.timeout(unregistering, 10));
+    await t.throwsAsync(Operators.timeout(unregistering, 10));
 });
 
 
@@ -206,9 +212,9 @@ test("while closing, receive UNREGISTERED, closing promise finishes, invocations
     let unregistering = registration.close();
     let unregisterMsg = await serverMonitor.next();
     server.send([67, unregisterMsg[1]]);
-    await t.notThrows(unregistering);
+    await t.notThrowsAsync(unregistering);
     t.false(registration.isOpen);
-    await t.notThrows(registration.invocations.toPromise());
+    await t.notThrowsAsync(registration.invocations.toPromise());
 });
 
 test("closing 2nd time returns the same promise", async t => {
@@ -228,7 +234,8 @@ function testUnregisterReceiveError(o: { errorName: string, errMatch(err: Error)
         let unregistering1 = registration.close();
         let unregister = await serverMonitor.next();
         server.send([WampType.ERROR, WampType.UNREGISTER, unregister[1], {}, o.errorName]);
-        await t.throws(unregistering1, o.errMatch);
+        let err = await t.throwsAsync(unregistering1);
+        t.true(o.errMatch(err));
     });
 }
 
@@ -251,7 +258,8 @@ test("ERROR reply to UNREGISTER throws exception", async t => {
     let unregistering1 = registration.close();
     let unregister = await serverMonitor.next();
     server.send([WampType.ERROR, WampType.UNREGISTER, unregister[1], {}, WampUri.Error.NoSuchRegistration]);
-    await t.throws(unregistering1, MatchError.illegalOperation("procedure", "exist"));
+    let err = await t.throwsAsync(unregistering1);
+    t.true(err instanceof WampusIllegalOperationError);
 });
 
 
@@ -265,7 +273,7 @@ test("after UNREGISTERED, handle pending invocations", async t => {
     let unregistering = registration.close();
     let unregisterMsg = await serverMonitor.next();
     server.send([67, unregisterMsg[1]]);
-    await t.notThrows(unregistering);
+    await t.notThrowsAsync(unregistering);
     let invocation1 = await invocationMonitor.next();
     let invocation2 = await invocationMonitor.next();
 
@@ -292,19 +300,21 @@ test("procedure() on closed session throws", async t => {
     let registering = session.register({
         name: "a"
     });
-    await t.throws(registering, MatchError.network("register", "clos"));
+    let err = await t.throwsAsync(registering);
+    t.assert(err instanceof WampusNetworkError);
 });
 
 test("procedure() on closing session throws", async t => {
     let {session, server} = await SessionStages.handshaken("a");
 
     let serverMonitor = Rxjs.monitor(server.messages);
-    let registeringThrows = t.throws(session.register({
+    let registeringThrows = t.throwsAsync(session.register({
         name: "a"
-    }), MatchError.network("register", "clos"));
+    }));
     server.send([3, {}, "no"]);
     await session.close();
-    await registeringThrows;
+    let err = await registeringThrows;
+    t.true(err instanceof WampusNetworkError);
 });
 
 test("after registration, session close causes registration to close", async t => {
@@ -316,8 +326,8 @@ test("after registration, session close causes registration to close", async t =
     server.send([3, {}, "no"]);
     await session.close();
     t.false(reg.isOpen);
-    await t.notThrows(reg.invocations.toPromise());
-    await t.notThrows(reg.close());
+    await t.notThrowsAsync(reg.invocations.toPromise());
+    await t.notThrowsAsync(reg.close());
 });
 
 test("receive INVOCATION, session closes, return() and error() throw", async t => {
@@ -333,8 +343,10 @@ test("receive INVOCATION, session closes, return() and error() throw", async t =
     t.deepEqual(invocation.kwargs, {a: 1});
     server.send([3, {}, "no"]);
     await session.close();
-    await t.throws(invocation.return({}), MatchError.network("yield", "response", "clos"));
-    await t.throws(invocation.error({error: "a"}), MatchError.network("error", "response", "clos"));
+    let err = await t.throwsAsync(invocation.return({}));
+    t.true(err instanceof WampusNetworkError);
+    let err2 = await t.throwsAsync(invocation.error({error: "a"}));
+    t.true(err2 instanceof WampusNetworkError);
 });
 
 test("while closing registration, session closes instead of UNREGISTER reply", async t => {
@@ -345,7 +357,7 @@ test("while closing registration, session closes instead of UNREGISTER reply", a
     let unregisterMsg = await serverMonitor.next();
     server.send([3, {}, "no"]);
     await session.close();
-    await t.notThrows(unregistering);
+    await t.notThrowsAsync(unregistering);
     t.false(registration.isOpen);
-    await t.notThrows(registration.invocations.toPromise());
+    await t.notThrowsAsync(registration.invocations.toPromise());
 });

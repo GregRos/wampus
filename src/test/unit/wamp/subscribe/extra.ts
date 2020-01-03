@@ -7,12 +7,13 @@ import {Feature} from "../../../../lib/core/protocol/feature-names";
 function testUsingUnsupportedSubscribeOption(option: keyof WampSubscribeOptions, feature: keyof BrokerFeatures, featureName: string, value = true) {
     test(`using subscribe option ${option} when unsupported throws error about ${featureName}`, async t => {
         let {session, server} = await SessionStages.handshaken("a");
-        await t.throws(session.topic({
+        let err = await t.throwsAsync(session.topic({
             name: "a",
             options: {
                 [option as any]: value
             }
-        }), MatchError.illegalOperation(featureName));
+        }));
+        t.true(MatchError.illegalOperation(featureName)(err));
     });
 }
 

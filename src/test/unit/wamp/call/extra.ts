@@ -2,6 +2,7 @@ import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {MatchError} from "../../../helpers/errors";
 import {Feature} from "../../../../lib/core/protocol/feature-names";
+import {WampusIllegalOperationError} from "../../../../lib/core/errors/types";
 
 test("disclose me fails when feature is not declared", async t => {
     let {session, server} = await SessionStages.handshaken("a");
@@ -12,7 +13,9 @@ test("disclose me fails when feature is not declared", async t => {
             disclose_me: true
         }
     });
-    await t.throws(prog.progress.toPromise(), MatchError.illegalOperation("CallerIdentification"));
+    let err = await t.throwsAsync(prog.progress.toPromise());
+    t.assert(err instanceof WampusIllegalOperationError);
+    t.assert(err.message.includes("CallerIdentification"));
 });
 
 test("timeout fails when feature not declared", async t => {
@@ -24,7 +27,9 @@ test("timeout fails when feature not declared", async t => {
             timeout: 5000
         }
     });
-    await t.throws(prog.progress.toPromise(), MatchError.illegalOperation("CallTimeout"));
+    let err = await t.throwsAsync(prog.progress.toPromise());
+    t.assert(err instanceof WampusIllegalOperationError);
+    t.assert(err.message.includes("CallTimeout"));
 });
 
 test("progressive call results request fails when feature not declared", async t => {
@@ -36,6 +41,8 @@ test("progressive call results request fails when feature not declared", async t
             receive_progress: true
         }
     });
-    await t.throws(prog.progress.toPromise(), MatchError.illegalOperation(Feature.Call.ProgressReports));
+    let err = await t.throwsAsync(prog.progress.toPromise());
+    t.assert(err instanceof WampusIllegalOperationError);
+    t.assert(err.message.includes(Feature.Call.ProgressReports));
 });
 

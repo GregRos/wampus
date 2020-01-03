@@ -42,7 +42,7 @@ test("no authenticator", async t => {
     };
     let {server, session} = SessionStages.fresh("a", handshaker);
     let srvMonitor = Rxjs.monitor(server.messages);
-    let eventuallySessionThrows = t.throws(session);
+    let eventuallySessionThrows = t.throwsAsync(session);
     await srvMonitor.next();
     server.send([4, "auth", {b: 1}]);
     await eventuallySessionThrows;

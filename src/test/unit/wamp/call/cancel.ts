@@ -5,6 +5,7 @@ import {WampType} from "typed-wamp";
 import {MyPromise} from "../../../../lib/utils/ext-promise";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {Operators} from "promise-stuff";
+import {WampusIllegalOperationError, WampusInvocationCanceledError} from "../../../../lib/core/errors/types";
 
 
 async function cancelSession() {
@@ -22,7 +23,8 @@ test("when cancel unsupported, throw error", async t => {
         name: "a",
         options: {}
     });
-    await t.throws(prog.close(), MatchError.illegalOperation("CallCancelling"));
+    let err = await t.throwsAsync(prog.close());
+    t.assert(err instanceof WampusIllegalOperationError);
     let pending = prog.progress.toPromise();
     server.send([WampType.RESULT, prog.info.callId, {}, [], {a: 1}]);
     t.deepEqual((await pending).kwargs, {a: 1});
@@ -55,10 +57,12 @@ test("reply with ERROR(cancel), close() should resolve and progress should error
     // skip CALL and CANCEL
     await serverMonitor.nextK(2);
     server.send([WampType.ERROR, WampType.CALL, prog.info.callId, {}, "wamp.error.canceled"]);
-    await Promise.all([
-        t.notThrows(closing),
-        t.throws(progress.toPromise(), MatchError.cancelled())
+    let [a, b] = await Promise.all([
+        t.notThrowsAsync(closing),
+        t.throwsAsync(progress.toPromise())
     ]);
+    t.assert(b instanceof WampusInvocationCanceledError);
+
 });
 
 test("reply with RESULT(final), close() should resolve and progress should complete", async t => {
@@ -73,10 +77,10 @@ test("reply with RESULT(final), close() should resolve and progress should compl
     // skip CALL and CANCEL
     await serverMonitor.nextK(2);
     server.send([WampType.RESULT, prog.info.callId, {}, [], {a: 1}]);
-    await t.notThrows(closing);
+    await t.notThrowsAsync(closing);
     t.deepEqual((await progress).kwargs, {a: 1});
     await Promise.all([
-        t.notThrows(closing)
+        t.notThrowsAsync(closing)
 
     ]);
 });
@@ -93,7 +97,7 @@ test("reply with RESULT(progress), close() should not resolve and progress shoul
     await serverMonitor.nextK(2);
     server.send([WampType.RESULT, prog.info.callId, {progress: true}, [], {a: 1}]);
     t.deepEqual((await progressMonitor.next()).kwargs, {a: 1});
-    await t.throws(Operators.timeout(closing, 10, () => Promise.reject("error")));
+    await t.throwsAsync(Operators.timeout(closing, 10, () => Promise.reject("error")));
 });
 
 test("reply with ERROR(non-cancel), close() should reject", async t => {
@@ -107,7 +111,7 @@ test("reply with ERROR(non-cancel), close() should reject", async t => {
     await serverMonitor.next();
     server.send([WampType.ERROR, WampType.CALL, prog.info.callId, {}, "wamp.error.whatever"]);
     // TODO: Validate error details
-    await Promise.all([t.throws(progress), t.notThrows(closing)]);
+    await Promise.all([t.throwsAsync(progress), t.notThrowsAsync(closing)]);
 });
 
 test("cancel is no-op in resolved call", async t => {
@@ -119,9 +123,9 @@ test("cancel is no-op in resolved call", async t => {
     await serverMonitor.next();
     let progress = prog.progress.toPromise();
     server.send([WampType.RESULT, prog.info.callId, {}, [], {a: 1}]);
-    await t.notThrows(progress);
+    await t.notThrowsAsync(progress);
     await MyPromise.wait(10);
-    await t.notThrows(prog.close());
+    await t.notThrowsAsync(prog.close());
     t.falsy(await serverMonitor.nextWithin(10));
 });
 
@@ -136,8 +140,8 @@ test("cancel is no-op in rejected call", async t => {
     let progress = prog.progress.toPromise();
 
     server.send([WampType.ERROR, WampType.CALL, prog.info.callId, {}, "wamp.error.runtime_error", [], {a: 1}]);
-    await t.throws(progress);
-    await t.notThrows(prog.close());
+    await t.throwsAsync(progress);
+    await t.notThrowsAsync(prog.close());
     t.falsy(await serverMonitor.nextWithin(10));
 });
 
@@ -168,7 +172,7 @@ test("try to cancel call on a closed session should be a no-op", async t => {
     });
     server.send([3, {}, "no"]);
     await session.close();
-    await t.notThrows(cp1.close());
+    await t.notThrowsAsync(cp1.close());
 });
 
 test("close session while cancelling should be a no-op", async t => {
@@ -186,5 +190,5 @@ test("close session while cancelling should be a no-op", async t => {
     await MyPromise.wait(100);
     server.send([3, {}, "no"]);
     await session.close();
-    await t.notThrows(cp1.close());
+    await t.notThrowsAsync(cp1.close());
 });

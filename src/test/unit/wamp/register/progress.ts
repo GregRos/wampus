@@ -63,7 +63,7 @@ test("after return(), progress() errors", async t => {
     server.send([68, 1, registration.info.registrationId, {receive_progress: true}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     await next.return({kwargs: {a: 1}});
-    await t.throws(next.progress({kwargs: {a: 2}}));
+    await t.throwsAsync(next.progress({kwargs: {a: 2}}));
 });
 
 test("progress() errors if no progress has been requested", async t => {
@@ -73,5 +73,6 @@ test("progress() errors if no progress has been requested", async t => {
     let serverMonitor = Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
-    await t.throws(next.progress({kwargs: {a: 2}}), MatchError.illegalOperation("progress"));
+    let err = await t.throwsAsync(next.progress({kwargs: {a: 2}}));
+    t.true(MatchError.illegalOperation("progress")(err));
 });

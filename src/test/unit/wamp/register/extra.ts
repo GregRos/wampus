@@ -8,12 +8,13 @@ import {Feature} from "../../../../lib/core/protocol/feature-names";
 function testUsingUnsupportedRegisterOption(option: keyof WampRegisterOptions, feature: keyof DealerFeatures, featureName: string, value = true) {
     test(`using register option ${option} when unsupported throws error about ${featureName}`, async t => {
         let {session, server} = await SessionStages.handshaken("a");
-        await t.throws(session.register({
+        let err = await t.throwsAsync(session.register({
             name: "a",
             options: {
                 [option]: value
             }
-        }), MatchError.illegalOperation(featureName));
+        }));
+        t.true(MatchError.illegalOperation(featureName)(err));
     });
 }
 

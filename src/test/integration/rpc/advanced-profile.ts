@@ -69,14 +69,14 @@ test("pattern registration", async t => {
         }
     });
 
-    await t.notThrows(session.call({
+    await t.notThrowsAsync(session.call({
         name: `${ticket.info.name}.1`,
         get args() {
             return [this.name];
         }
     }));
 
-    await t.notThrows(session.call({
+    await t.notThrowsAsync(session.call({
         name: `${ticket.info.name}.a.b.c`,
         get args() {
             return [this.name];

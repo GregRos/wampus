@@ -50,7 +50,7 @@ test("close registration, try to call to make sure", async t => {
     }));
     await ticket.close();
 
-    await t.throws(session.call({
+    await t.throwsAsync(session.call({
         name: ticket.info.name
     }));
 });
@@ -114,7 +114,7 @@ test("procedures", async t => {
     t.is(longForm2.args[0], "wampus.d.2");
     await tickets.close();
 
-    await t.throws(session.call({name: "wampus.a"}));
+    await t.throwsAsync(session.call({name: "wampus.a"}));
 });
 
 test("close session, registration should also be closed", async t => {

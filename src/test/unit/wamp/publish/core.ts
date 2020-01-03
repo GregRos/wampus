@@ -29,7 +29,7 @@ test("should send PUBLISH", async t => {
 test("should not want any reply (acknowledge=false)", async t => {
     let {server, session} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    await t.notThrows(session.publish({name: "a"}));
+    await t.notThrowsAsync(session.publish({name: "a"}));
 });
 
 test("publish on closed session.", async t => {
@@ -37,6 +37,7 @@ test("publish on closed session.", async t => {
     let serverMonitor = Rxjs.monitor(server.messages);
     server.send([3, {}, "no"]);
     await session.close();
-    await t.throws(session.publish({name: "a"}), MatchError.network("publish", "session", "closed"));
+    let err = await t.throwsAsync(session.publish({name: "a"}));
+    await t.true(MatchError.network("publish", "session", "closed")(err));
 });
 

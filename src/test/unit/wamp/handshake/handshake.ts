@@ -15,35 +15,40 @@ test("send HELLO, when received ABORT(No such realm), throw error", async t => {
     let {server, session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.send([3, {}, "wamp.error.no_such_realm"]);
-    await t.throws(session, MatchError.illegalOperation("Tried to join realm"));
+    let err = await t.throwsAsync(session);
+    t.true(MatchError.illegalOperation("Tried to join realm")(err));
 });
 
 test("sned HELLO, when received ABORT (Proto violation), throw error", async t => {
     let {server, session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.send([3, {}, "wamp.error.protocol_violation"]);
-    await t.throws(session, MatchError.network("Protocol violation"));
+    let err = await t.throwsAsync(session);
+    t.true(MatchError.network("Protocol violation")(err));
 });
 
 test("send HELLO, when received ABORT (other), throw error", async t => {
     let {server, session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.send([3, {}, "wamp.error.abc"]);
-    await t.throws(session, MatchError.illegalOperation("wamp.error.abc", "ABORT", "handshake"));
+    let err = await t.throwsAsync(session);
+    t.true(MatchError.illegalOperation("wamp.error.abc", "ABORT", "handshake")(err));
 });
 
 test("send HELLO, when received non-handshake message, throw error", async t => {
     let {server, session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.send([1, {}, "hi"]);
-    await t.throws(session, MatchError.network("During handshake", "HELLO"));
+    let err = await t.throwsAsync(session);
+    t.true(MatchError.network("During handshake", "HELLO")(err));
 });
 
 test("send hello, when received abrupt disconnect, throw error", async t => {
     let {server, session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
     server.close();
-    await t.throws(session, MatchError.network("the transport abruptly closed"));
+    let err = await t.throwsAsync(session);
+    t.true(MatchError.network("the transport abruptly closed")(err));
 });
 
 test("send hello, when received connection error, throw error", async t => {
@@ -51,7 +56,7 @@ test("send hello, when received connection error, throw error", async t => {
     await server.messages.pipe(first()).toPromise();
     let err = new WampusNetworkError("ERROR! abcd");
     server.error(err);
-    await t.throws(session, "ERROR! abcd");
+    await t.throwsAsync(session, "ERROR! abcd");
 });
 
 test("send HELLO, when receive WELCOME, session should have received data", async t => {
