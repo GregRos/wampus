@@ -21,15 +21,15 @@
   ],
   "private": false,
   "scripts": {
-	"test": "rm -rf dist/ && tsc && nyc node_modules/ava/cli.js --files='dist/test/unit/**/*.js' --files='dist/test/integration/**/*.js' --verbose",
-	"test-integration": "node node_modules/ava/cli.js --files=dist/test/integration/**/*.js --verbose",
-	"test-unit": "node node_modules/ava/cli.js --files=dist/test/unit/**/*.js --verbose",
+    "test": "rm -rf dist/ && tsc && nyc node_modules/ava/cli.js --files='dist/test/unit/**/*.js' --files='dist/test/integration/**/*.js' --verbose",
+    "test-integration": "node node_modules/ava/cli.js --files=dist/test/integration/**/*.js --verbose",
+    "test-unit": "node node_modules/ava/cli.js --files=dist/test/unit/**/*.js --verbose",
     "build": "rm -rf dist/ && tsc",
     "docs": "node dist/generate-docs/run.js",
     "do-publish": "yarn run build && node dist/publish.js && (cd .tmp/publish; yarn publish)"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.116",
+    "@types/lodash": "^4.14.149",
     "@types/mz": "^0.0.32",
     "@types/node": "^12.11.7",
     "@types/shelljs": "^0.8.5",
@@ -39,15 +39,15 @@
     "codecov": "^3.1.0",
     "globby": "^10.0.1",
     "mz": "^2.7.0",
-    "nyc": "^13.1.0",
-    "retarget-sourcemaps-after-move": "^0.1.1",
+    "nyc": "^15.0.0",
+    "retarget-sourcemaps-after-move": "^0.2.0",
     "rxjs": "^6.3.3",
     "shelljs": "^0.8.3",
     "source-map": "^0.7.3",
     "source-map-support": "^0.5.6",
-    "tslint": "^5.10.0",
+    "tslint": "^5.20.1",
     "tslint-config-gregros": "^1.2.1",
-    "typedoc": "^0.15.0",
+    "typedoc": "^0.15.6",
     "typedoc-plugin-example-tag": "^1.0.2",
     "typedoc-plugin-external-module-name": "^2.1.0",
     "typedoc-plugin-internal-external": "^2.0.2",
@@ -70,12 +70,13 @@
     "files": [
       "dist/test/unit/**/*.js"
     ],
-	"verbose": "true"
+    "verbose": "true"
   },
   "nyc": {
     "produce-source-map": true,
     "include": [
-      "dist/lib/**/*.js"
+      "dist/lib/**/*.js",
+      "src/lib/**/*.ts"
     ],
     "reporter": [
       "lcov",
