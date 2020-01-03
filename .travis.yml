@@ -8,12 +8,11 @@ cache:
     - node_modules
 install:
   - yarn install
-  - eval "$(gimme 1.11.1)"
   - bash ./test_scripts/install_router.sh
 script:
   - yarn run test
   - yarn run codecov
 go:
-  - "1.11.x"
+  - "1.13.x"
 node_js:
   - "10.13"

@@ -1,7 +1,7 @@
 /**
  * @module core
  */
-import {Wamp, WampObject, WampUriString, WampType, Feature, WampUri, CancelMode, HelloDetails, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "typed-wamp";
+import {Wamp, WampObject, WampUriString, WampType, WampUri, CancelMode, HelloDetails, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "typed-wamp";
 import {Errs} from "../errors/errors";
 import {WampusNetworkError} from "../errors/types";
 import {Routes} from "../routing/routes";
@@ -69,6 +69,7 @@ export interface CoreSessionConfig {
 
 import {cloneDeep, defaults} from "lodash";
 import WM = Wamp;
+import {Feature} from "../protocol/feature-names";
 
 let factory = DefaultMessageFactory;
 

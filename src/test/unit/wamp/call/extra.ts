@@ -1,7 +1,7 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {MatchError} from "../../../helpers/errors";
-import {Feature} from "typed-wamp";
+import {Feature} from "../../../../lib/core/protocol/feature-names";
 
 test("disclose me fails when feature is not declared", async t => {
     let {session, server} = await SessionStages.handshaken("a");
