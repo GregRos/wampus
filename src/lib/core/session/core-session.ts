@@ -58,6 +58,9 @@ import {AuthenticatorFunction, ChallengeEvent} from "./authentication";
 import {fromPromise} from "rxjs/internal-compatibility";
 import {WampusCompletionReason, WampusRouteCompletion} from "./route-completion";
 
+/**
+ * Used to configure the CoreSession object.
+ */
 export interface CoreSessionConfig {
     realm: string;
     timeout: number;

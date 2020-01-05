@@ -4,7 +4,9 @@ import {WebsocketTransport} from "../../lib/core/transport/websocket";
 import {JsonSerializer} from "../../lib/core/serializer/json";
 import WebSocket = require("ws");
 
-
+/**
+ * A websocket server used via rxjs.
+ */
 export class RxjsWsServer {
     public _innerServer: WebSocket.Server;
     private _port: number;

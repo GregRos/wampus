@@ -2,6 +2,10 @@ import * as Core from "../../core/session/ticket";
 import {WampArray, WampObject, WampResultDetails} from "typed-wamp";
 import {CallTicket} from "./call";
 import objy = require("objectology");
+
+/**
+ * A result message sent from the callee.
+ */
 export class CallResultData implements Core.CallResultData {
     /**
      * The ordered arguments of the call result.

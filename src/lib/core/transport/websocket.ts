@@ -10,6 +10,9 @@ import {skipAfter} from "../../utils/rxjs-operators";
 
 const WebSocket = require("isomorphic-ws");
 
+/**
+ * The object used to configure the {@see WebsocketTransport}.
+ */
 export interface WebsocketTransportConfig {
     url: string;
     serializer: Serializer;
@@ -17,6 +20,9 @@ export interface WebsocketTransportConfig {
     forceProtocol?: string;
 }
 
+/**
+ * The Websocket WAMP transport.
+ */
 export class WebsocketTransport implements Transport {
     events$: Observable<TransportEvent>;
     private _config: WebsocketTransportConfig;

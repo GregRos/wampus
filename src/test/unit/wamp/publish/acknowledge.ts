@@ -39,7 +39,7 @@ function testPublishError(o: { errId: string, errMatch(x: any): boolean, title: 
         let publish = await serverMonitor.next();
         server.send([8, WampType.PUBLISH, publish[1], {}, o.errId]);
         let err = await t.throwsAsync(publishing);
-        t.true( o.errMatch(err));
+        t.true(o.errMatch(err));
     });
 }
 

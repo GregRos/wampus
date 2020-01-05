@@ -78,7 +78,8 @@ function getDescriptionByMessage(source: WM.Any) {
     }
 }
 
-/**@internal*/
+// tslint:disable:completed-docs
+
 export namespace Errs {
 
     export function receivedProtocolViolation(source: WM.Any, error: Wamp.Abort) {

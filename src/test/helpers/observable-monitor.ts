@@ -3,12 +3,18 @@ import {dematerialize, materialize, takeUntil, toArray} from "rxjs/operators";
 import {MyPromise} from "../../lib/utils/ext-promise";
 import {pull} from "lodash";
 
+/**
+ * Test helpers related to rxjs.
+ */
 export namespace Rxjs {
     export function monitor<T>(source: Observable<T>): ObservableMonitor<T> {
         return new ObservableMonitor<T>(source);
     }
 }
 
+/**
+ * A helper object used to sequentially monitor the messages an observable sends out.
+ */
 export class ObservableMonitor<T> {
     private _unclaimed = [] as Notification<T>[];
     private _registrations = [] as ((x: Notification<T>) => void)[];

@@ -5,10 +5,15 @@ import {Errors} from "./errors";
 import {SerializerDeclaration, TransportDeclaration} from "./wampus";
 
 /**
- * @internal
+ * Used to resolve transports and serializers based on keywords.
+ * @private
  */
 export namespace DependencyDeclarations {
 
+    /**
+     *
+     * @param declr
+     */
     export function serializer(declr: SerializerDeclaration) {
         if (declr === "json") {
             return new JsonSerializer();

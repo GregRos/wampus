@@ -4,6 +4,7 @@ import {
     WampusNetworkError
 } from "../../lib/core/errors/types";
 
+// tslint:disable:completed-docs
 function partialMatchText(haystack, needles: string[]) {
     return needles.every(s => haystack.toLowerCase().includes(s.toLowerCase()));
 }

@@ -8,6 +8,9 @@ import {WampusSubcribeArguments} from "../../core/session/message-arguments";
 import {Ticket} from "./ticket";
 import {values, keys} from "lodash";
 
+/**
+ * Represents a subscription to multiple related topics.
+ */
 export class MultiSubscriptionTicket<T extends string> extends Ticket {
     readonly topic: Record<T, Observable<EventInvocation>>;
     readonly infos: Record<T, WampusSubcribeArguments & {

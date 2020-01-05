@@ -7,6 +7,9 @@ import {map, mergeMapTo} from "rxjs/operators";
 import {WampusNetworkError} from "../../lib/core/errors/types";
 import {ObservableMonitor, Rxjs} from "./observable-monitor";
 
+/**
+ * A mock server used to implement the mock transport.
+ */
 export interface DummyServer {
     readonly events: Observable<TransportEvent>;
     readonly messages: Observable<WampRaw.Any>;
@@ -18,28 +21,9 @@ export interface DummyServer {
     close(): void;
 }
 
-
-export class HigherLevelDummyServer {
-    messages: ObservableMonitor<any>;
-
-    constructor(private _server: DummyServer) {
-        this.messages = Rxjs.monitor(_server.messages.pipe(map(x => Wamp.parse(x))));
-    }
-
-    error(x: WampusNetworkError) {
-        this._server.error(x);
-    }
-
-    close() {
-        this._server.close();
-    }
-
-    send(x: Wamp.Any) {
-        this._server.send(x.toRaw());
-    }
-
-}
-
+/**
+ * Returns a mock transport object that gives access to the messages that go through it.
+ */
 export function dummyTransport() {
     let intoClient = new Subject<TransportEvent>();
     let intoServer = new Subject<TransportEvent>();

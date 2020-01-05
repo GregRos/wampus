@@ -3,7 +3,9 @@ import {Wampus, WampusConfig} from "../../lib";
 let randomRealm = () => {
     return (Math.random() * 100000).toString(36);
 };
-
+/**
+ * Live session factories for testing.
+ */
 export namespace RealSessions {
     export function session(stuff ?: Partial<WampusConfig>) {
         return Wampus.connect({

@@ -1,11 +1,13 @@
-import {dummyTransport, HigherLevelDummyServer} from "./dummy-transport";
+import {dummyTransport} from "./dummy-transport";
 import {WampusCoreSession} from "../../lib/core/session/core-session";
 import {first} from "rxjs/operators";
 import {BrokerFeatures, DealerFeatures} from "typed-wamp";
 import {AuthenticatorFunction} from "../../lib/core/session/authentication";
 import {WampusSession} from "../../lib";
 
-
+/**
+ * Gets different session objects for testing.
+ */
 export namespace SessionStages {
     export function fresh(realm: string, authenticator ?: AuthenticatorFunction) {
         let {client, server} = dummyTransport();

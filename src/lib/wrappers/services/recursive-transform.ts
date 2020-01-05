@@ -3,16 +3,30 @@ import {InvocationTicket} from "../tickets/invocation-ticket";
 import {CallTicket} from "../tickets/call";
 import {SubscriptionTicket} from "../tickets/subscription";
 
+/**
+ * An object used to control the transformation, such as by moving to the next step.
+ */
 export interface TransformerControl<TIn, TOut> {
     recurse(subObject: TIn): TOut;
 
     next(value: TIn): TOut;
 }
 
+/**
+ * A function used to transform a value.
+ */
 export interface TransformStep<TIn, TOut> {
+    /**
+     *
+     * @param value The value to transform.
+     * @param ctx An object used to invoke the next step in the process.
+     */
     (value: TIn, ctx: TransformerControl<TIn, TOut>): TOut;
 }
 
+/**
+ * A module for chaining {@see TransformStep} functions into a single function.
+ */
 export namespace Transformation {
     export function compile<TIn = any, TOut = any>(...steps: TransformStep<TIn, TOut>[]): (x: TIn) => TOut;
     export function compile<TIn = any, TOut = any>(steps: TransformStep<TIn, TOut>[]): (x: TIn) => TOut;
@@ -72,6 +86,9 @@ export namespace Transformation {
     }
 }
 
+/**
+ * An object used to incrementally construct a transformation.
+ */
 export class StepByStepTransformer<TIn, TOut> {
     private _transforms = [] as TransformStep<TIn, TOut>[];
     private _compiled: (x: TIn) => TOut;

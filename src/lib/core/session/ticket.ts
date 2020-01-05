@@ -1,4 +1,4 @@
-import {WampArray, WampObject,     CancelMode,
+import {WampArray, WampObject, CancelMode,
     WampCallOptions,
     WampEventDetails,
     WampInvocationDetails,
@@ -15,7 +15,7 @@ import {Observable} from "rxjs";
 import {WampResult} from "../basics";
 
 /**
- * Core ticket.
+ * A base Ticket. Tickets represent things that can be closed.
  */
 export interface Ticket {
     readonly isOpen: boolean;
@@ -23,6 +23,9 @@ export interface Ticket {
     close(): Promise<void>;
 }
 
+/**
+ * Contains information about a procedure call in progress.
+ */
 export interface CallTicketInfo {
     /**
      * The WAMP protocol options this call was made with.

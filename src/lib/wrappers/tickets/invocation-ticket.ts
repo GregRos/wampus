@@ -149,8 +149,14 @@ objy.configureDescriptorsOwn(InvocationTicket.prototype, x => {
     x.enumerable = false;
 });
 
+/**
+ * A cancellation request from the caller.
+ */
 export interface CancellationTicket extends Core.CancellationToken {
     throw(): never;
 }
 
+/**
+ * The type of function that handles a registered procedure call.
+ */
 export type ProcedureHandler = (ticket: InvocationTicket) => Promise<WampusSendResultArguments>;

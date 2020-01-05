@@ -13,7 +13,11 @@ import {
     WampArray, WampId, Wamp, WampObject, WampUriString, WampType
 } from "typed-wamp";
 
+/**
+ * Used to configure the message factory.
+ */
 export interface MessageFactoryConfig {
+    // Returns a new request ID.
     reqId(): number;
 }
 
