@@ -21,11 +21,11 @@
     "build:fresh": "npm-run-all build:clean build",
     "test:unit": "nyc ava --config ava.unit.js",
     "test:integration": "ava --config ava.integration.js",
-    "test": "npm-run-all build:fresh test:unit test:integration",
+    "test": "npm-run-all test:unit test:integration",
     "docs": "node dist/generate-docs/run.js",
     "lint": "tslint -p .",
     "lint:fix": "tslint -p . --fix",
-    "package:publish": "yarn run build && node dist/publish.js && (cd .tmp/publish; yarn publish)"
+    "package:publish": "npm-run-all lint build:fresh test && node dist/publish.js && (cd .tmp/publish; yarn publish)"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.149",
