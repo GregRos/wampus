@@ -13,6 +13,17 @@ Other examples of WAMP protocol clients:
 * [others...](https://wamp-proto.org/implementations/index.html)
 
 Wampus is currently a Node-only  client, but it will work on browsers in the future.
+
+## Installation
+
+```bash
+npm install wampus
+npm install rxjs@^6.3.3
+npm install 
+```
+
+
+
 ## Features
 
 ✓ Accurate implementation of the WAMP protocol.

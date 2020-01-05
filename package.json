@@ -1,6 +1,6 @@
 {
   "name": "wampus",
-  "version": "0.2.17",
+  "version": "0.3.0",
   "description": "WAMP client for JavaScript",
   "main": "index.js",
   "repository": "https://github.com/GregRos/wampus",
@@ -16,12 +16,16 @@
   ],
   "private": false,
   "scripts": {
-    "test": "rm -rf dist/ && tsc && nyc node_modules/ava/cli.js --files='dist/test/unit/**/*.js' --files='dist/test/integration/**/*.js' --verbose",
-    "test-integration": "node node_modules/ava/cli.js --files=dist/test/integration/**/*.js --verbose",
-    "test-unit": "node node_modules/ava/cli.js --files=dist/test/unit/**/*.js --verbose",
-    "build": "rm -rf dist/ && tsc",
+    "build:clean": "rm -rf dist/",
+    "build": "tsc",
+    "build:fresh": "npm-run-all build:clean build",
+    "test:unit": "nyc ava --config ava.unit.js",
+    "test:integration": "ava --config ava.integration.js",
+    "test": "npm-run-all build:fresh test:unit test:integration",
     "docs": "node dist/generate-docs/run.js",
-    "do-publish": "yarn run build && node dist/publish.js && (cd .tmp/publish; yarn publish)"
+    "lint": "tslint -p .",
+    "lint:fix": "tslint -p . --fix",
+    "package:publish": "yarn run build && node dist/publish.js && (cd .tmp/publish; yarn publish)"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.149",
@@ -34,6 +38,7 @@
     "codecov": "^3.1.0",
     "globby": "^10.0.1",
     "mz": "^2.7.0",
+    "npm-run-all": "^4.1.5",
     "nyc": "^15.0.0",
     "retarget-sourcemaps-after-move": "^0.2.0",
     "rxjs": "^6.3.3",
@@ -60,12 +65,6 @@
   "peerDependencies": {
     "rxjs": "^6.3.3",
     "typed-wamp": "^0.1.0"
-  },
-  "ava": {
-    "files": [
-      "dist/test/unit/**/*.js"
-    ],
-    "verbose": "true"
   },
   "nyc": {
     "produce-source-map": true,

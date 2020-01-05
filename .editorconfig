@@ -1,6 +1,12 @@
 root = true
 
-[src/**.ts]
+[*.*]
 charset = utf-8
-indent_size = 4
 indent_style = space
+end_of_line = lf
+
+[**/*.{yml, json}]
+indent_size = 2
+
+[src/**/*.ts]
+indent_size = 4
