@@ -72,7 +72,7 @@ export class InvocationTicket {
     /**
      * Checks if this call has been cancelled, and continues to wait for {{time}} milliseconds for a cancellation request.
      * @param time The time to wait for. Can be 0.
-     * @returns A promise that resolves to a {{CancellationTicket}} if one is found, or no value otherwise.
+     * @returns A promise that resolves to a {@see CancellationTicket} if one is found, or no value otherwise.
      */
     waitForCancel(time) {
         return this._base.cancellation.pipe(takeUntil(timer(time)), map(token => {
@@ -87,7 +87,6 @@ export class InvocationTicket {
 
     /**
      * @internal
-     * @param handler
      * @private
      */
     _handle(handler: ProcedureHandler): void {
