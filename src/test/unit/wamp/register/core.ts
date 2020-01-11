@@ -11,6 +11,7 @@ import {WampusIllegalOperationError, WampusNetworkError} from "../../../../lib/c
 test("sends REGISTER", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
+    // tslint:disable-next-line:no-floating-promises
     session.register({
         name: "a"
     });
@@ -168,7 +169,7 @@ test("after INVOCATION, after error(), cannot call result() or error().", async 
     let serverMonitor = Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
-    next.error({
+    await next.error({
         error: "custom.error"
     });
     let err = await t.throwsAsync(next.return({}));
@@ -184,6 +185,7 @@ test("after INVOCATION, after return(final), cannot call result() or error().", 
     let serverMonitor = Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
+    // tslint:disable-next-line:no-floating-promises
     next.return({});
     let err = await t.throwsAsync(next.return({}));
     t.true(MatchError.illegalOperation("a response or error")(err));

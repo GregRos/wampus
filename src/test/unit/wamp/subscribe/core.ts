@@ -11,6 +11,7 @@ import {WampusNetworkError} from "../../../../lib/core/errors/types";
 test("sends SUBSCRIBE", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
+    // tslint:disable-next-line:no-floating-promises
     session.topic({name: "hi"});
     let subscribeMsg = await serverMonitor.next();
     t.true(isMatch(subscribeMsg, {

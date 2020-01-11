@@ -44,5 +44,6 @@ async function run() {
 
 }
 
+// tslint:disable-next-line:no-floating-promises
 run();
 

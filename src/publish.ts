@@ -1,7 +1,7 @@
 import {retargetSourcemaps} from "retarget-sourcemaps-after-move";
 import {rm, mkdir, cp} from "shelljs";
 function run() {
-    let pub = ".tmp/publish";
+    let pub = ".publish";
     let srcRoot = "src/lib";
     rm("-rf", pub);
     mkdir("-p", pub);
@@ -10,6 +10,7 @@ function run() {
         "LICENSE.md",
         "README.md"
     ], pub);
+
     cp("-r", "dist/lib/.", pub);
     cp("-r", "src/lib/.", `${pub}/src`);
     retargetSourcemaps({
@@ -19,7 +20,7 @@ function run() {
         },
         distRoot: {
             old: "dist/lib",
-            new: ".tmp/publish"
+            new: ".publish"
         },
         distGlob: "**/*.js"
     });

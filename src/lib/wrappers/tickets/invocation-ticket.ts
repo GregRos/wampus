@@ -112,6 +112,7 @@ export class InvocationTicket {
                 });
             }
         } catch (err) {
+            // tslint:disable-next-line:no-floating-promises
             handleError(err);
         }
     }

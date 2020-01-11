@@ -1,6 +1,11 @@
-import template from "string-template";
 import {WampArray, WampObject} from "typed-wamp";
 import objy = require("objectology");
+import { template as lodashTemplate } from "lodash";
+
+const template = str => lodashTemplate(str, {
+    interpolate: /{(.*?)}/g
+});
+
 /**
  * The base class for errors thrown by the Wampus library.
  */
@@ -8,7 +13,8 @@ export abstract class WampusError extends Error {
     name = this.constructor.name;
 
     constructor(message: string, props: object) {
-        super(template(message, props || {}));
+
+        super(template(message)(props || {}));
         objy.mixin(this, props);
     }
 }

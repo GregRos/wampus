@@ -62,6 +62,7 @@ test("when nothing received after timeout, should disconnect and close", async t
     // TODO: Do something when goodbye violates protocol
     let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
+    // tslint:disable-next-line:no-floating-promises
     session.close();
     let goodbye = await sbs.next();
     await MyPromise.wait(1500);

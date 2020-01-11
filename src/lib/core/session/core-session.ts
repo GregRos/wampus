@@ -118,7 +118,7 @@ export class WampusCoreSession {
             return concat(timer(0), defer(() => {
                 messenger.invalidateAllRoutes(new WampusRouteCompletion(WampusCompletionReason.RouterDisconnect));
                 session._isClosing = true;
-                return;
+                return undefined;
             }));
         })), EMPTY);
         serverDroppedConnection$.subscribe();
@@ -197,7 +197,7 @@ export class WampusCoreSession {
             let closing: Promise<any>;
             // Finalize by closing the REGISTRATION when the outer observable is abandoned.
             let close = async () => {
-                if (this._isClosing) return;
+                if (this._isClosing) return undefined;
                 let unregisterMsg = factory.unregister(registered.registrationId);
                 let sendingUnregister$ = this.protocol.send$(unregisterMsg);
 
@@ -490,7 +490,7 @@ export class WampusCoreSession {
             // This is called when the subscription is closed.
             let close = async () => {
                 // If the session is closing, ignore this.
-                if (this._isClosing) return;
+                if (this._isClosing) return undefined;
 
                 // Create route for UNSUBSCRIBED or ERROR, UNSUBSCRIBE
                 let expectUnsubscribedOrError$ = this.protocol.expectAny$(
@@ -658,7 +658,7 @@ export class WampusCoreSession {
 
             // Start the cancelling flow
             let startCancelling = (cancel: WM.Cancel) => defer(async () => {
-                if (this._isClosing) return;
+                if (this._isClosing) return undefined;
                 let sendCancel$ = this.protocol.send$(cancel);
 
                 // Send the CANCEL message

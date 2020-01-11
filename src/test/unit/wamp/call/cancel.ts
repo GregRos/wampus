@@ -37,6 +37,7 @@ test("should send CANCEL", async t => {
         name: "a"
     });
     // don't await close(), because it will expect a RESULT or ERROR from server.
+    // tslint:disable-next-line:no-floating-promises
     prog.close();
     let a = await serverMonitor.next();
     let expectCancel = await serverMonitor.next();

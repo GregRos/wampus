@@ -7,6 +7,7 @@ import {isMatch} from "lodash";
 test("should send PUBLISH", async t => {
     let {server, session} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
+    // tslint:disable-next-line:no-floating-promises
     session.publish({
         name: "a",
         args: ["1"],

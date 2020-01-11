@@ -101,7 +101,9 @@ export class PrefixRouter<T> {
             if (!cur) return;
             if (index >= key.length) {
                 routes.push(...cur.match);
-                [...cur.next.values()].forEach(next => rec(next, index + 1));
+                for (let x of cur.next.values()) {
+                    rec(x, index + 1);
+                }
             } else {
                 let next = cur.next.get(key[index]);
                 if (next) {
@@ -127,13 +129,13 @@ export class PrefixRouter<T> {
         }
         let routes = [] as PrefixRoute<T>[];
         let rec = function(cur: RouteIndex<T>, index: number) {
-            if (!cur) return;
+            if (!cur) return undefined;
             for (let target of cur.match) {
                 routes.push(target);
             }
             if (index >= keys.length) {
 
-                return;
+                return undefined;
             }
             let next = cur.next.get(keys[index]);
             if (!next) return cur;
