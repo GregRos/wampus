@@ -11,6 +11,7 @@ install:
   - eval "$(gimme 1.13)"
   - bash ./test_scripts/install_router.sh
 script:
+  - yarn run build:clean
   - yarn run test
   - yarn run codecov
 go:
