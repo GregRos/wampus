@@ -122,8 +122,8 @@ export class WampusSession extends Ticket {
     call(wArgs: WampusCallArguments): CallTicket {
         wArgs = {
             ...wArgs,
-            kwargs: this._services.transforms.objectToJson.transform(wArgs.kwargs),
-            args: wArgs.args ? wArgs.args.map(this._services.transforms.objectToJson.transform) : wArgs.args
+            kwargs: this._services.out.json.transform(wArgs.kwargs),
+            args: wArgs.args ? wArgs.args.map(this._services.out.json.transform) : wArgs.args
         };
         return CallTicket.create(this._core.call(wArgs), this._services);
     }
@@ -198,8 +198,8 @@ export class WampusSession extends Ticket {
     publish(wArgs: WampusPublishArguments): Promise<void> {
         wArgs = {
             ...wArgs,
-            kwargs: this._services.transforms.objectToJson.transform(wArgs.kwargs),
-            args: wArgs.args ? wArgs.args.map(this._services.transforms.objectToJson.transform) : wArgs.args
+            kwargs: this._services.out.json.transform(wArgs.kwargs),
+            args: wArgs.args ? wArgs.args.map(this._services.out.json.transform) : wArgs.args
         };
         return this._core.publish(wArgs);
     }

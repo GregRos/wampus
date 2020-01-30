@@ -14,7 +14,7 @@ class Token {
 sessionTest("call input, invocation output", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
-            s.transforms.objectToJson.add((x, ctrl) => {
+            s.out.json.add((x, ctrl) => {
                 if (x instanceof Token) return "modified";
                 // This is to make sure the array in args isn't transformed:
                 if (Array.isArray(x)) return x.length;
@@ -67,13 +67,13 @@ sessionTest("call input, invocation output", async t => {
 sessionTest("call output, invocation input", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
-            s.transforms.jsonToObject.add((x, ctrl) => {
+            s.in.json.add((x, ctrl) => {
                 if (x === "modified") return "original2";
                 // This is to make sure the array in args isn't transformed:
                 if (Array.isArray(x)) return x.length;
                 return ctrl.next(x);
             });
-            s.transforms.objectToJson.add((x, ctrl) => {
+            s.out.json.add((x, ctrl) => {
                 if (x === "original") return "modified";
 
                 return ctrl.next(x);
@@ -133,7 +133,7 @@ class MySpecialError extends Error {
 sessionTest("invocation error to error response", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
-            s.transforms.errorResponseToError.add((x, ctrl) => {
+            s.in.error.add((x, ctrl) => {
                 if (x.error === "wampus.my_special_error") {
                     return Object.assign(new MySpecialError(), {
                         kwargsName: x.kwargs.name,
@@ -145,7 +145,7 @@ sessionTest("invocation error to error response", async t => {
                 return ctrl.next(x);
             });
 
-            s.transforms.errorToErrorResponse.add((x, ctrl) => {
+            s.out.error.add((x, ctrl) => {
                 if (x instanceof MySpecialError) {
                     return {
                         kwargs: {

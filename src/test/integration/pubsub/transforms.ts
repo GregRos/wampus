@@ -15,7 +15,7 @@ class Token {
 sessionTest("publish input, event output", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
-            s.transforms.objectToJson.add((x, ctrl) => {
+            s.out.json.add((x, ctrl) => {
 
                 if (x instanceof Token) return "modified";
                 // This is to make sure the array in args isn't transformed:
@@ -56,13 +56,13 @@ sessionTest("publish input, event output", async t => {
 sessionTest("publish output, event input", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
-            s.transforms.jsonToObject.add((x, ctrl) => {
+            s.out.json.add((x, ctrl) => {
                 if (x === "modified") return "original2";
                 // This is to make sure the array in args isn't transformed:
                 if (Array.isArray(x)) return x.length;
                 return ctrl.next(x);
             });
-            s.transforms.objectToJson.add((x, ctrl) => {
+            s.out.json.add((x, ctrl) => {
                 if (x === "original") return "modified";
 
                 return ctrl.next(x);

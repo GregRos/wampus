@@ -8,13 +8,16 @@ import CallSite = NodeJS.CallSite;
  * A set of standard transformations used by Wampus.
  */
 export class TransformSet {
-    objectToJson = new StepByStepTransformer<any, any>();
+    out = {
+        json: new StepByStepTransformer<any, any>(),
+        error: new StepByStepTransformer<Error, WampusSendErrorArguments>()
+    };
 
-    jsonToObject = new StepByStepTransformer<any, any>();
+    in = {
+        json: new StepByStepTransformer<any, any>(),
+        error: new StepByStepTransformer<WampusInvocationError, Error>()
+    };
 
-    errorResponseToError = new StepByStepTransformer<WampusInvocationError, Error>();
-
-    errorToErrorResponse = new StepByStepTransformer<Error, WampusSendErrorArguments>();
 }
 
 /**
@@ -22,15 +25,36 @@ export class TransformSet {
  */
 export interface StackTraceService {
     enabled: boolean;
+
     capture(ctor: Function): CallSite[];
+
     format(err: Error, callSites: CallSite[]): string;
+}
+
+export function createServices(): AbstractWampusSessionServices {
+    return {
+        out: {
+            json: new StepByStepTransformer<any, any>(),
+            error: new StepByStepTransformer<Error, WampusSendErrorArguments>()
+        },
+        in: {
+            json: new StepByStepTransformer<any, any>(),
+            error: new StepByStepTransformer<WampusInvocationError, Error>()
+        }
+    };
 }
 
 /**
  * A set of services used by this Wampus session.
  */
 export interface AbstractWampusSessionServices {
-    transforms?: TransformSet;
+    out: {
+        json: StepByStepTransformer<any, any>,
+        error: StepByStepTransformer<Error, WampusSendErrorArguments>
+    };
+    in: {
+        json: StepByStepTransformer<any, any>;
+        error: StepByStepTransformer<WampusInvocationError, Error>
+    };
     stackTraceService?: StackTraceService;
 }
-

@@ -1,12 +1,14 @@
-import {AbstractWampusSessionServices, TransformSet} from "../services";
+import {AbstractWampusSessionServices, createServices, TransformSet} from "../services";
 import {WampUri} from "typed-wamp";
 import {WampusInvocationCanceledError} from "../../core/errors/types";
 import {mapValues, pick} from "lodash";
 import CallSite = NodeJS.CallSite;
 
+
 export const createDefaultServices = () => {
+    const svcs = createServices();
     let s = {
-        transforms: new TransformSet(),
+        ...svcs,
         stackTraceService: {
             format(err, cs: CallSite[]) {
                 let formatter = Error.prepareStackTrace;
@@ -31,9 +33,8 @@ export const createDefaultServices = () => {
             enabled: true
         }
     } as AbstractWampusSessionServices;
-    let x = s.transforms;
 
-    x.jsonToObject.add((x, ctrl) => {
+    s.in.json.add((x, ctrl) => {
         if (!x || typeof x !== "object") return x;
         if (Array.isArray(x)) {
             return x.map(x => ctrl.recurse(x));
@@ -42,7 +43,7 @@ export const createDefaultServices = () => {
         return res;
     });
 
-    x.objectToJson.add((x, ctrl) => {
+    s.out.json.add((x, ctrl) => {
         if (!x || typeof x !== "object") return x;
         if (Array.isArray(x)) {
             return x.map(x => ctrl.recurse(x));
@@ -51,7 +52,7 @@ export const createDefaultServices = () => {
         return res;
     });
 
-    x.errorToErrorResponse.add((err, ctrl) => {
+    s.out.error.add((err, ctrl) => {
         if (err instanceof WampusInvocationCanceledError) {
             return {
                 error: WampUri.Error.Canceled,
@@ -70,7 +71,7 @@ export const createDefaultServices = () => {
         };
     });
 
-    x.errorResponseToError.add((err, ctrl) => {
+    s.in.error.add((err, ctrl) => {
         return err;
     });
 
