@@ -3,15 +3,15 @@ import {WebsocketTransport} from "../../../lib/core/transport/websocket";
 import {JsonSerializer} from "../../../lib/core/serializer/json";
 import {Operators} from "promise-stuff";
 import {isInteger} from "lodash";
-import {sessionTest} from "../../helpers/my-test-interface";
+import {test} from "../../helpers/my-test-interface";
 
-sessionTest.afterEach(async t => {
+test.afterEach(async t => {
     if (!t.context.session) return;
     let session = await Operators.timeout(t.context.session, 10, () => Promise.reject("")).catch(() => null);
     if (session) await session.close();
 });
 
-sessionTest("configure websocket transport", async t => {
+test("configure websocket transport", async t => {
     let session = t.context.session = Wampus.connect({
         transport: {
             serializer: "json",
@@ -25,7 +25,7 @@ sessionTest("configure websocket transport", async t => {
     await t.notThrowsAsync(session);
 });
 
-sessionTest("verify session details", async t => {
+test("verify session details", async t => {
     let session = await Wampus.connect({
         transport: {
             serializer: "json",
@@ -41,7 +41,7 @@ sessionTest("verify session details", async t => {
 
 });
 
-sessionTest("invalid transport type, throws", async t => {
+test("invalid transport type, throws", async t => {
     let session = Wampus.connect({
         transport: {
             type: "?!"
@@ -51,7 +51,7 @@ sessionTest("invalid transport type, throws", async t => {
     await t.throwsAsync(session);
 });
 
-sessionTest("invalid serializer type, throws", async t => {
+test("invalid serializer type, throws", async t => {
     let session = Wampus.connect({
         transport: {
             type: "websocket",
@@ -63,7 +63,7 @@ sessionTest("invalid serializer type, throws", async t => {
     await t.throwsAsync(session);
 });
 
-sessionTest("configure websocket transport, assign serializer", async t => {
+test("configure websocket transport, assign serializer", async t => {
     let session = t.context.session = Wampus.connect({
         transport: {
             serializer: new JsonSerializer(),
@@ -77,7 +77,7 @@ sessionTest("configure websocket transport, assign serializer", async t => {
     await t.notThrowsAsync(session);
 });
 
-sessionTest("assign websocket transport directly", async t => {
+test("assign websocket transport directly", async t => {
     let session = t.context.session = Wampus.connect({
         transport() {
             return WebsocketTransport.create({

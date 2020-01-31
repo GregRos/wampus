@@ -2,18 +2,18 @@ import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
 import {MatchingPolicy} from "typed-wamp";
 import {take, toArray} from "rxjs/operators";
-import {sessionTest} from "../../helpers/my-test-interface";
+import {test} from "../../helpers/my-test-interface";
 
-sessionTest.beforeEach(async t => {
+test.beforeEach(async t => {
     t.context = {
         session: await RealSessions.session()
     };
 });
-sessionTest.afterEach(async t => {
+test.afterEach(async t => {
     await t.context.session.close();
 });
 
-sessionTest("pattern_based_subscription", async t => {
+test("pattern_based_subscription", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.topic({
         name: "wampus.",
@@ -38,7 +38,7 @@ sessionTest("pattern_based_subscription", async t => {
     t.deepEqual(namesOfEvents, eventNames);
 });
 
-sessionTest("publisher_identification", async t => {
+test("publisher_identification", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.topic({
         name: "wampus.example",
@@ -60,7 +60,7 @@ sessionTest("publisher_identification", async t => {
     t.is(ev.details.publisher, session.sessionId);
 });
 
-sessionTest("subscriber_blackwhite_listing", async t => {
+test("subscriber_blackwhite_listing", async t => {
 
     let session = t.context.session as WampusSession;
     let ticket = await session.topic({

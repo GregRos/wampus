@@ -2,17 +2,17 @@ import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
 import {MyPromise} from "../../../lib/utils/ext-promise";
 import {MatchingPolicy} from "typed-wamp";
-import {sessionTest} from "../../helpers/my-test-interface";
+import {test} from "../../helpers/my-test-interface";
 
-sessionTest.beforeEach(async t => {
+test.beforeEach(async t => {
     t.context = {
         session: await RealSessions.session()
     };
 });
-sessionTest.afterEach(async t => {
+test.afterEach(async t => {
     await t.context.session.close();
 });
-sessionTest("call_timeout", async t => {
+test("call_timeout", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.procedure({
         name: "wampus.example",
@@ -37,7 +37,7 @@ sessionTest("call_timeout", async t => {
     t.true(result.args[0]);
 });
 
-sessionTest("caller_identification", async t => {
+test("caller_identification", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.procedure({
         name: "wampus.example",
@@ -56,7 +56,7 @@ sessionTest("caller_identification", async t => {
     });
 });
 
-sessionTest("pattern registration", async t => {
+test("pattern registration", async t => {
     let session = t.context.session as WampusSession;
     let ticket = await session.procedure({
         name: "wampus.example",

@@ -1,9 +1,9 @@
 import {RealSessions} from "../../helpers/real-sessions";
 import {take} from "rxjs/operators";
 import {isMatch} from "lodash";
-import {sessionTest} from "../../helpers/my-test-interface";
+import {test} from "../../helpers/my-test-interface";
 
-sessionTest.afterEach(async t => {
+test.afterEach(async t => {
     await t.context.session.close();
 });
 
@@ -12,7 +12,7 @@ class Token {
 }
 
 
-sessionTest("publish input, event output", async t => {
+test("publish input, event output", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
             s.out.json.add((x, ctrl) => {
@@ -53,10 +53,10 @@ sessionTest("publish input, event output", async t => {
     }));
 });
 
-sessionTest("publish output, event input", async t => {
+test("publish output, event input", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
-            s.out.json.add((x, ctrl) => {
+            s.in.json.add((x, ctrl) => {
                 if (x === "modified") return "original2";
                 // This is to make sure the array in args isn't transformed:
                 if (Array.isArray(x)) return x.length;
@@ -90,7 +90,7 @@ sessionTest("publish output, event input", async t => {
 
     let event = await justOne;
 
-    t.true(isMatch(event, {
+    t.assert(isMatch(event, {
         args: ["original2", {}],
         kwargs: {
             a: "original2",

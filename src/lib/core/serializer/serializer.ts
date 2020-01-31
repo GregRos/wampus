@@ -4,7 +4,15 @@
 export interface Serializer {
     readonly id: string;
 
+    /**
+     * Serialize an object to a string or binary form.
+     * @param msg The object.
+     */
     serialize(msg: object): Buffer | ArrayBuffer | string;
 
-    deserialize(buffer: Buffer | ArrayBuffer | string | Buffer[]): object;
+    /**
+     * Parse a buffer, string, etc into an object.
+     * @param data The data.
+     */
+    deserialize(data: Buffer | ArrayBuffer | string | Buffer[]): object;
 }

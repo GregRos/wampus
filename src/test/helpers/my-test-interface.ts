@@ -1,3 +1,6 @@
 import {default as avaTest, TestInterface} from "ava";
 
-export const sessionTest: TestInterface<{session: any}> = avaTest;
+/**
+ * We do this because at some point ava added typed contexts.
+ */
+export const test: TestInterface<{session: any}> = avaTest;
