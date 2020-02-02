@@ -1,21 +1,21 @@
 import {WampObject} from "typed-wamp";
 import {WampusSendErrorArguments} from "../core/session/message-arguments";
 import {WampusInvocationError} from "../core/errors/types";
-import {StepByStepTransformer, TransformStep} from "./services/recursive-transform";
 import CallSite = NodeJS.CallSite;
+import {Transcurse, transcurse} from "transcurse";
 
 /**
  * A set of standard transformations used by Wampus.
  */
 export class TransformSet {
     out = {
-        json: new StepByStepTransformer<any, any>(),
-        error: new StepByStepTransformer<Error, WampusSendErrorArguments>()
+        json: transcurse(),
+        error: transcurse<Error, WampusSendErrorArguments>()
     };
 
     in = {
-        json: new StepByStepTransformer<any, any>(),
-        error: new StepByStepTransformer<WampusInvocationError, Error>()
+        json: transcurse<any, any>(),
+        error: transcurse<WampusInvocationError, Error>()
     };
 
 }
@@ -33,15 +33,15 @@ export interface StackTraceService {
 
 export function createServices(): AbstractWampusSessionServices {
     return {
-        out: {
-            json: new StepByStepTransformer<any, any>(),
-            error: new StepByStepTransformer<Error, WampusSendErrorArguments>()
+        out : {
+            json: transcurse(),
+            error: transcurse<Error, WampusSendErrorArguments>()
         },
         in: {
-            json: new StepByStepTransformer<any, any>(),
-            error: new StepByStepTransformer<WampusInvocationError, Error>()
+            json: transcurse<any, any>(),
+            error: transcurse<WampusInvocationError, Error>()
         }
-    };
+    }
 }
 
 /**
@@ -49,12 +49,12 @@ export function createServices(): AbstractWampusSessionServices {
  */
 export interface AbstractWampusSessionServices {
     out: {
-        json: StepByStepTransformer<any, any>,
-        error: StepByStepTransformer<Error, WampusSendErrorArguments>
+        json: Transcurse<any, any>,
+        error: Transcurse<Error, WampusSendErrorArguments>
     };
     in: {
-        json: StepByStepTransformer<any, any>;
-        error: StepByStepTransformer<WampusInvocationError, Error>
+        json: Transcurse<any, any>;
+        error: Transcurse<WampusInvocationError, Error>
     };
     stackTraceService?: StackTraceService;
 }

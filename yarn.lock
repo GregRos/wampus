@@ -3409,6 +3409,11 @@ to-regex-range@^5.0.1:
   dependencies:
     is-number "^7.0.0"
 
+transcurse@^0.1.1-beta:
+  version "0.1.1-beta"
+  resolved "https://registry.yarnpkg.com/transcurse/-/transcurse-0.1.1-beta.tgz#dac9287e317113b28e879c01e31006d5de6cb77b"
+  integrity sha512-lYQaf5zwIJTLFEMwDqe6p6q2420UvTVPV/JaWjBnrz9xfk/mW9oasoDgjNfU9EnqSHJ/2n7+L1AuX+z78j/QbQ==
+
 trim-newlines@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/trim-newlines/-/trim-newlines-2.0.0.tgz#b403d0b91be50c331dfc4b82eeceb22c3de16d20"

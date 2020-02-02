@@ -34,8 +34,8 @@ export class SubscriptionTicket extends Ticket {
     get events() {
         return this._base.events.pipe(map(x => {
             let data = {
-                args: x.args ? x.args.map(x => this._services.in.json.transform(x)) : x.args,
-                kwargs: this._services.in.json.transform(x.kwargs),
+                args: x.args ? x.args.map(x => this._services.in.json.apply(x)) : x.args,
+                kwargs: this._services.in.json.apply(x.kwargs),
                 details: x.details,
                 source: this
             } as EventInvocation;

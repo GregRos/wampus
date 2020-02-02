@@ -3,6 +3,7 @@ import {WampUri} from "typed-wamp";
 import {WampusInvocationCanceledError} from "../../core/errors/types";
 import {mapValues, pick} from "lodash";
 import CallSite = NodeJS.CallSite;
+import {Transcurses} from "transcurse";
 
 
 export const createDefaultServices = () => {
@@ -34,25 +35,10 @@ export const createDefaultServices = () => {
         }
     } as AbstractWampusSessionServices;
 
-    s.in.json.add((x, ctrl) => {
-        if (!x || typeof x !== "object") return x;
-        if (Array.isArray(x)) {
-            return x.map(x => ctrl.recurse(x));
-        }
-        let res = mapValues(x, v => ctrl.recurse(v));
-        return res;
-    });
 
-    s.out.json.add((x, ctrl) => {
-        if (!x || typeof x !== "object") return x;
-        if (Array.isArray(x)) {
-            return x.map(x => ctrl.recurse(x));
-        }
-        let res = mapValues(x, v => ctrl.recurse(v));
-        return res;
-    });
 
-    s.out.error.add((err, ctrl) => {
+    s.out.error.pre(ctrl => {
+        const err = ctrl.val;
         if (err instanceof WampusInvocationCanceledError) {
             return {
                 error: WampUri.Error.Canceled,
@@ -71,8 +57,8 @@ export const createDefaultServices = () => {
         };
     });
 
-    s.in.error.add((err, ctrl) => {
-        return err;
+    s.in.error.pre(ctrl => {
+        return ctrl.next();
     });
 
     return s;

@@ -14,7 +14,8 @@ class Token {
 test("call input, invocation output", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
-            s.out.json.add((x, ctrl) => {
+            s.out.json.pre(ctrl => {
+                const x = ctrl.val;
                 if (x instanceof Token) return "modified";
                 // This is to make sure the array in args isn't transformed:
                 if (Array.isArray(x)) return x.length;
@@ -67,13 +68,15 @@ test("call input, invocation output", async t => {
 test("call output, invocation input", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
-            s.in.json.add((x, ctrl) => {
+            s.in.json.pre(ctrl => {
+                const x = ctrl.val;
                 if (x === "modified") return "original2";
                 // This is to make sure the array in args isn't transformed:
                 if (Array.isArray(x)) return x.length;
                 return ctrl.next(x);
             });
-            s.out.json.add((x, ctrl) => {
+            s.out.json.pre(ctrl => {
+                const x = ctrl.val;
                 if (x === "original") return "modified";
 
                 return ctrl.next(x);
@@ -133,7 +136,8 @@ class MySpecialError extends Error {
 test("invocation error to error response", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
-            s.in.error.add((x, ctrl) => {
+            s.in.error.pre(ctrl => {
+                const x = ctrl.val;
                 if (x.error === "wampus.my_special_error") {
                     return Object.assign(new MySpecialError(), {
                         kwargsName: x.kwargs.name,
@@ -145,7 +149,8 @@ test("invocation error to error response", async t => {
                 return ctrl.next(x);
             });
 
-            s.out.error.add((x, ctrl) => {
+            s.out.error.pre(ctrl => {
+                const x = ctrl.val;
                 if (x instanceof MySpecialError) {
                     return {
                         kwargs: {

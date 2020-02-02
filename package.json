@@ -55,6 +55,7 @@
     "lodash": "^4.17.15",
     "objectology": "^0.0.5",
     "promise-stuff": "^0.3.6",
+    "transcurse": "^0.1.1-beta",
     "typed-wamp": "^0.1.0",
     "ws": "^5.2.1"
   },

@@ -44,8 +44,8 @@ export class InvocationTicket {
      */
     constructor(private _base: Core.InvocationTicket, private _services: AbstractWampusSessionServices, private _source: RegistrationTicket) {
 
-        this.args = _base.args ? _base.args.map(_services.in.json.transform) : _base.args;
-        this.kwargs = _services.in.json.transform(_base.kwargs);
+        this.args = _base.args ? _base.args.map(_services.in.json.apply) : _base.args;
+        this.kwargs = _services.in.json.apply(_base.kwargs);
         this.options = _base.options;
         this.name = _base.name;
         this.invocationId = _base.invocationId;
@@ -95,7 +95,7 @@ export class InvocationTicket {
             if (this._services.stackTraceService.enabled) {
                 err.stack = `${err.stack}\n(Wampus Registered At)${this._services.stackTraceService.format("" as any, this.source.trace.created)}`;
             }
-            let errResponse = ticket._services.out.error.transform(err);
+            let errResponse = ticket._services.out.error.apply(err);
             if (!this.isHandled) {
                 await ticket._error(errResponse);
             } else {
@@ -129,8 +129,8 @@ export class InvocationTicket {
 
     private _applyOutputTransforms<T extends WampResult>(obj: T) {
         let cln = clone(obj);
-        cln.args = cln.args ? cln.args.map(this._services.out.json.transform) : cln.args;
-        cln.kwargs = this._services.out.json.transform(cln.kwargs);
+        cln.args = cln.args ? cln.args.map(this._services.out.json.apply) : cln.args;
+        cln.kwargs = this._services.out.json.apply(cln.kwargs);
         return cln;
     }
 
