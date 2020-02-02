@@ -74,7 +74,7 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
         ticket._replayProgress = call.progress.pipe(map(prog => {
             let newResult = new CallResultData({
                 details: prog.details,
-                args: prog.args ? prog.args.map(services.in.json.apply) : prog.args,
+                args: prog.args ? prog.args.map(services.in.json.apply.bind(services.in.json)) : prog.args,
                 kwargs: services.in.json.apply(prog.kwargs),
                 isProgress: prog.isProgress,
                 source: ticket
@@ -82,7 +82,7 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
             return newResult;
         }), catchError(err => {
             if (err instanceof WampusInvocationError) {
-                err.args = err.args ? err.args.map(services.in.json.apply) : err.args;
+                err.args = err.args ? err.args.map(services.in.json.apply.bind(services.in.json)) : err.args;
                 err.kwargs = services.in.json.apply(err.kwargs);
                 err = services.in.error.apply(err);
             }

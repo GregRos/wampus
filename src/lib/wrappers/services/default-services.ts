@@ -36,8 +36,11 @@ export const createDefaultServices = () => {
     } as AbstractWampusSessionServices;
 
 
+    s.in.json = s.in.json.pre(Transcurses.structural);
 
-    s.out.error.pre(ctrl => {
+    s.out.json = s.out.json.pre(Transcurses.structural);
+
+    s.out.error = s.out.error.pre(ctrl => {
         const err = ctrl.val;
         if (err instanceof WampusInvocationCanceledError) {
             return {
@@ -55,10 +58,6 @@ export const createDefaultServices = () => {
             },
             kwargs: pick(err, ["message", "name", "stack", ...Object.keys(err)])
         };
-    });
-
-    s.in.error.pre(ctrl => {
-        return ctrl.next();
     });
 
     return s;

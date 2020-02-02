@@ -44,7 +44,7 @@ export class InvocationTicket {
      */
     constructor(private _base: Core.InvocationTicket, private _services: AbstractWampusSessionServices, private _source: RegistrationTicket) {
 
-        this.args = _base.args ? _base.args.map(_services.in.json.apply) : _base.args;
+        this.args = _base.args ? _base.args.map(_services.in.json.apply.bind(_services.in.json)) : _base.args;
         this.kwargs = _services.in.json.apply(_base.kwargs);
         this.options = _base.options;
         this.name = _base.name;
@@ -129,7 +129,7 @@ export class InvocationTicket {
 
     private _applyOutputTransforms<T extends WampResult>(obj: T) {
         let cln = clone(obj);
-        cln.args = cln.args ? cln.args.map(this._services.out.json.apply) : cln.args;
+        cln.args = cln.args ? cln.args.map(this._services.out.json.apply.bind(this._services.out.json)) : cln.args;
         cln.kwargs = this._services.out.json.apply(cln.kwargs);
         return cln;
     }

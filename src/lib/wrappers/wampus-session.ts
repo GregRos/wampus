@@ -123,7 +123,7 @@ export class WampusSession extends Ticket {
         wArgs = {
             ...wArgs,
             kwargs: this._services.out.json.apply(wArgs.kwargs),
-            args: wArgs.args ? wArgs.args.map(this._services.out.json.apply) : wArgs.args
+            args: wArgs.args ? wArgs.args.map(this._services.out.json.apply.bind(this._services.out.json)) : wArgs.args
         };
         return CallTicket.create(this._core.call(wArgs), this._services);
     }
@@ -199,7 +199,7 @@ export class WampusSession extends Ticket {
         wArgs = {
             ...wArgs,
             kwargs: this._services.out.json.apply(wArgs.kwargs),
-            args: wArgs.args ? wArgs.args.map(this._services.out.json.apply) : wArgs.args
+            args: wArgs.args ? wArgs.args.map(this._services.out.json.apply.bind(this._services.out.json)) : wArgs.args
         };
         return this._core.publish(wArgs);
     }
