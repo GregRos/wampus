@@ -2,9 +2,8 @@ import {WampArray, Wamp, WampPrimitive, WampRaw} from "typed-wamp";
 import {WampusNetworkError} from "../errors/types";
 import {PrefixRoute, PrefixRouter} from "./prefix-router";
 import {Transport} from "../transport/transport";
-import {merge, Observable, of, Subject} from "rxjs";
-import {flatMap} from "rxjs/operators";
-import {MyPromise} from "../../utils/ext-promise";
+import {merge, Observable, of, Subject, timer} from "rxjs";
+import {flatMap, tap} from "rxjs/operators";
 
 /**
  * A message-based WAMP protocol client that allows sending WAMP messages and receiving them.
@@ -114,14 +113,13 @@ export class WampProtocolClient<T> {
         // The wait(0) thing is needed to prevent a bug in rxjs where it seems that
         // causing a source observable to error while in a flatMap will hang the observable
         // TODO: Report bug
-        MyPromise.wait(0).then(() => {
+        timer(0).pipe(tap(() => {
             this._onClosed.complete();
             let routes = this._router.matchAll();
             for (let route of routes) {
                 route.error(error);
             }
-        });
-
+        })).subscribe();
     }
 
     /**

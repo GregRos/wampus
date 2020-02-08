@@ -1,13 +1,13 @@
 import {Wampus} from "../../../lib";
 import {WebsocketTransport} from "../../../lib/core/transport/websocket";
 import {JsonSerializer} from "../../../lib/core/serializer/json";
-import {Operators} from "promise-stuff";
 import {isInteger} from "lodash";
 import {test} from "../../helpers/my-test-interface";
+import {timeoutPromise} from "../../helpers/promises";
 
 test.afterEach(async t => {
     if (!t.context.session) return;
-    let session = await Operators.timeout(t.context.session, 10, () => Promise.reject("")).catch(() => null);
+    let session = await timeoutPromise(t.context.session, 10, () => Promise.reject("")).catch(() => null);
     if (session) await session.close();
 });
 

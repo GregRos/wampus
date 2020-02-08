@@ -3,12 +3,13 @@ import {dummyTransport} from "../../helpers/dummy-transport";
 import {WampProtocolClient} from "../../../lib/core/routing/wamp-protocol-client";
 import {take} from "rxjs/operators";
 import {WampArray} from "typed-wamp";
-import {MyPromise} from "../../../lib/utils/ext-promise";
+
 import {WampusNetworkError} from "../../../lib/core/errors/types";
 import {MatchError} from "../../helpers/errors";
-import {Operators} from "promise-stuff";
 import {Rxjs} from "../../helpers/observable-monitor";
 import {isMatch as _isMatch, range} from "lodash";
+import {timer} from "rxjs";
+import {timeoutPromise} from "../../helpers/promises";
 
 function createPair() {
     let {server, client} = dummyTransport();
@@ -44,7 +45,7 @@ test("define two routes, and invoke each separately", async t => {
 test("close an observable to a route, check that the route was moved", async t => {
     let {messenger, server} = createPair();
     let a = messenger.expect$([1]).subscribe();
-    await MyPromise.wait(0);
+    await timer(0).toPromise();
     t.is(messenger._router.count(), 1);
     a.unsubscribe();
     t.is(messenger._router.count(), 0);
@@ -111,6 +112,6 @@ test("closing does not invalidate non-next routes", async t => {
     let {messenger, server} = createPair();
     let route = messenger.expect$([1]).toPromise();
     server.close();
-    t.deepEqual(await Operators.timeout(route, 10, () => [5]), [5]);
+    t.deepEqual(await timeoutPromise(route, 10, () => [5]), [5]);
 });
 

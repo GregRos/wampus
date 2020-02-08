@@ -2,7 +2,7 @@ import {Transport, TransportEvent} from "../../lib/core/transport/transport";
 import {concat, defer, EMPTY, Observable, Subject, timer} from "rxjs";
 import {WampArray, Wamp, WampRaw} from "typed-wamp";
 import {choose} from "../../lib/utils/rxjs-operators";
-import {MyPromise} from "../../lib/utils/ext-promise";
+
 import {map, mergeMapTo} from "rxjs/operators";
 import {WampusNetworkError} from "../../lib/core/errors/types";
 import {ObservableMonitor, Rxjs} from "./observable-monitor";
@@ -34,9 +34,10 @@ export function dummyTransport() {
     }
 
 
+    // tslint:disable:no-floating-promises
     let server: DummyServer = {
         error(x) {
-            MyPromise.soon(() => {
+            Promise.resolve().then(() => {
                 intoClient.next({
                     type: "error",
                     data: x
@@ -44,7 +45,7 @@ export function dummyTransport() {
             });
         },
         send(x) {
-            MyPromise.soon(() => {
+            Promise.resolve().then(() => {
                 intoClient.next({
                     type: "message",
                     data: x
@@ -52,7 +53,7 @@ export function dummyTransport() {
             });
         },
         close() {
-            MyPromise.soon(() => {
+            Promise.resolve().then(() => {
                 intoClient.next({
                     type: "closed",
                     data: {}

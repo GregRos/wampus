@@ -2,10 +2,11 @@ import test from "ava";
 import {MatchError} from "../../../helpers/errors";
 import {take} from "rxjs/operators";
 import {getTransportAndServerConn} from "../../../helpers/ws-server";
-import {MyPromise} from "../../../../lib/utils/ext-promise";
+
 import {choose} from "../../../../lib/utils/rxjs-operators";
 import WebSocket = require("ws");
 import {WampusNetworkError} from "../../../../lib/core/errors/types";
+import {timer} from "rxjs";
 
 test("acuire", async t => {
     let {server, client} = await getTransportAndServerConn();
@@ -15,13 +16,13 @@ test("acuire", async t => {
 
 test("stays open", async t => {
     let {server, client} = await getTransportAndServerConn();
-    await MyPromise.wait(1000);
+    await timer(1000).toPromise();
     t.is(server.readyState, WebSocket.OPEN);
 });
 
 test("closes from client-side", async t => {
     let {server, client} = await getTransportAndServerConn();
-    await MyPromise.wait(1000);
+    await timer(1000).toPromise();
     await client.close();
     t.true([WebSocket.CLOSED, WebSocket.CLOSING].includes(server.readyState));
     t.false(client.isActive);
@@ -53,7 +54,7 @@ test("close xN, get same promise", async t => {
     t.true(close1 === close2);
     await close1;
     t.is(client.isActive, false);
-    await MyPromise.wait(1000);
+    await timer(1000).toPromise();
     let close3 = client.close();
     t.true(close3 === close2);
 });

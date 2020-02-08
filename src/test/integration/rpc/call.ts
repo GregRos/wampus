@@ -6,9 +6,10 @@ import {toArray} from "rxjs/operators";
 import {WampusSendResultArguments} from "../../../lib/core/session/message-arguments";
 import {WampusInvocationError} from "../../../lib/core/errors/types";
 import {MatchError} from "../../helpers/errors";
-import {MyPromise} from "../../../lib/utils/ext-promise";
+
 import {isMatch} from "lodash";
 import {test} from "../../helpers/my-test-interface";
+import {timer} from "rxjs";
 
 test.beforeEach(async t => {
     t.context = {
@@ -177,7 +178,7 @@ test("send and receive cancel", async t => {
     let ticket = await session.procedure({
         name: "wampus.example",
         async called(x) {
-            await MyPromise.wait(500);
+            await timer(500).toPromise();
             let cancel = await x.waitForCancel(0);
             cancel.throw();
             return {};
@@ -188,7 +189,7 @@ test("send and receive cancel", async t => {
         name: ticket.info.name
     });
 
-    await MyPromise.wait(250);
+    await timer(250).toPromise();
 
     t.true(results.isOpen);
 

@@ -10,7 +10,6 @@ import {NewObjectInitializer} from "../common/common";
 import {Ticket} from "./tickets/ticket";
 import {createDefaultServices} from "./services/default-services";
 import {MultiSubscriptionTicket} from "./tickets/multi-topic";
-import {Operators} from "promise-stuff";
 import {forIn, isFunction} from "lodash";
 
 async function allWithCleanup<T>(promises: PromiseLike<T>[], cleanup: (x: T) => void) {
@@ -18,16 +17,17 @@ async function allWithCleanup<T>(promises: PromiseLike<T>[], cleanup: (x: T) => 
     let resolved = [];
     let failed = false;
     promises = promises.map(promise => {
-        return Operators.each(promise, x => {
+        return promise.then(x => {
             if (failed) {
                 cleanup(x);
             } else {
                 resolved.push(x);
             }
+            return x;
         });
     });
 
-    let all = Operators.and(promises[0], ...promises.slice(1)).then(undefined,err => {
+    let all = Promise.all(promises).then(undefined, err => {
         failed = true;
         for (let x of resolved) {
             cleanup(x);

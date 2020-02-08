@@ -3,10 +3,11 @@ import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {WampType, WampUri} from "typed-wamp";
 import {MatchError} from "../../../helpers/errors";
-import {Operators} from "promise-stuff";
-import {MyPromise} from "../../../../lib/utils/ext-promise";
+
 import {isMatch} from "lodash";
 import {WampusNetworkError} from "../../../../lib/core/errors/types";
+import {timer} from "rxjs";
+import {timeoutPromise} from "../../../helpers/promises";
 
 test("sends SUBSCRIBE", async t => {
     let {session, server} = await SessionStages.handshaken("a");
@@ -24,7 +25,7 @@ test("sends SUBSCRIBE", async t => {
 test("topic() waits for reply", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let serverMonitor = Rxjs.monitor(server.messages);
-    await t.throwsAsync(Operators.timeout(session.topic({name: "x"}), 20));
+    await t.throwsAsync(timeoutPromise(session.topic({name: "x"}), 20));
 });
 
 test("topic() waits for SUBSCRIBED, EventSubscription basic tests", async t => {
@@ -53,7 +54,7 @@ test("topic() on closed session throws", async t => {
 test("topic() on a closing session throws", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let throwSub = t.throwsAsync(session.topic({name: "hi"}));
-    await MyPromise.wait(10);
+    await timer(10).toPromise();
     server.send([3, {}, "no"]);
     await session.close();
     let err = await throwSub;
@@ -151,7 +152,7 @@ test("close() sends UNSUBSCRIBE, expects reply", async t => {
         0: 34,
         2: sub.info.subscriptionId
     }));
-    await t.throwsAsync(Operators.timeout(unsubbing, 20));
+    await t.throwsAsync(timeoutPromise(unsubbing, 20));
 });
 
 test("receives UNSUBSCRIBED, events complete", async t => {

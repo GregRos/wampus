@@ -1,6 +1,6 @@
 import {Notification, Observable, Subscription, timer} from "rxjs";
 import {dematerialize, materialize, takeUntil, toArray} from "rxjs/operators";
-import {MyPromise} from "../../lib/utils/ext-promise";
+
 import {pull} from "lodash";
 
 /**
@@ -74,11 +74,6 @@ export class ObservableMonitor<T> {
 
     async rest() {
         return this.next$(1000).pipe(toArray()).toPromise();
-    }
-
-    async clefar() {
-        await MyPromise.wait(20);
-        this._unclaimed = [];
     }
 
     close() {

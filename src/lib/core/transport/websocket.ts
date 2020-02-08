@@ -2,7 +2,6 @@ import {Transport, TransportClosed, TransportError, TransportEvent, TransportMes
 import * as ws from "ws";
 
 import {WampusInvalidArgument, WampusNetworkError} from "../errors/types";
-import {MyPromise} from "../../utils/ext-promise";
 import {Serializer} from "../serializer/serializer";
 import {fromEvent, merge, NEVER, Observable, of, race, throwError} from "rxjs";
 import {delay, map, take} from "rxjs/operators";

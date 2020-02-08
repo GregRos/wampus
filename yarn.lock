@@ -2795,11 +2795,6 @@ progress@^2.0.3:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-promise-stuff@^0.3.6:
-  version "0.3.6"
-  resolved "https://registry.yarnpkg.com/promise-stuff/-/promise-stuff-0.3.6.tgz#7e3dbde6d271185574b67b1207adde385dd5a708"
-  integrity sha512-S0sCJGceHwWZPx6ZRGntWE6EB3IsUk7k5jPzFncJLmvSvDgVbA8YoR+VAQv7QrczfMY/+xgnQ/ox3Do7fqufmw==
-
 prototyped.js@^0.10.1:
   version "0.10.1"
   resolved "https://registry.yarnpkg.com/prototyped.js/-/prototyped.js-0.10.1.tgz#b4b4301fa6a248e4872666c67290be4eeb542c9c"

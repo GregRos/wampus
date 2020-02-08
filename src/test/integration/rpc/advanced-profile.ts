@@ -1,8 +1,8 @@
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
-import {MyPromise} from "../../../lib/utils/ext-promise";
 import {MatchingPolicy} from "typed-wamp";
 import {test} from "../../helpers/my-test-interface";
+import {timer} from "rxjs";
 
 test.beforeEach(async t => {
     t.context = {
@@ -17,7 +17,7 @@ test("call_timeout", async t => {
     let ticket = await session.procedure({
         name: "wampus.example",
         async called(x) {
-            await MyPromise.wait(400);
+            await timer(400).toPromise();
 
             let token = await x.waitForCancel(0);
             if (token) {

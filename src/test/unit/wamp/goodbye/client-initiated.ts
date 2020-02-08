@@ -1,5 +1,5 @@
 import test from "ava";
-import {MyPromise} from "../../../../lib/utils/ext-promise";
+
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
 import {MatchError} from "../../../helpers/errors";
 import {WampusNetworkError} from "../../../../lib/core/errors/types";
@@ -7,7 +7,9 @@ import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {WampType} from "typed-wamp";
 import {MessageFactory} from "../../../../lib/core/protocol/factory";
-import {Operators} from "promise-stuff";
+import {throwError, timer} from "rxjs";
+import {timeout, timeoutWith} from "rxjs/operators";
+import {fromPromise} from "rxjs/internal-compatibility";
 
 test("when goodbye received, should disconnect and close", async t => {
     let {session, server} = await SessionStages.handshaken("a");
@@ -25,7 +27,7 @@ test("will allow abrupt disconnect during goodbye", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     let pGoodbye = session.close();
-    await MyPromise.wait(100);
+    await timer(100).toPromise();
     server.close();
     await t.notThrowsAsync(pGoodbye);
 });
@@ -39,9 +41,9 @@ test("random messages should be allowed during goodbye", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     let pGoodbye = session.close();
-    await MyPromise.wait(20);
+    await timer(20).toPromise();
     server.send(factory.error(WampType.INVOCATION, 0, {}, "").toRaw());
-    await t.throwsAsync(Operators.timeout(pGoodbye, 20));
+    await t.throwsAsync(fromPromise(pGoodbye).pipe(timeoutWith(20, throwError(new Error()))).toPromise());
     server.send([3, {}, "waaa"]);
     await t.notThrowsAsync(pGoodbye);
 });
@@ -65,7 +67,7 @@ test("when nothing received after timeout, should disconnect and close", async t
     // tslint:disable-next-line:no-floating-promises
     session.close();
     let goodbye = await sbs.next();
-    await MyPromise.wait(1500);
+    await timer(1500).toPromise();
     t.is((await sbs.next()).type, "closed");
 });
 

@@ -4,9 +4,9 @@ import {Rxjs} from "../../../helpers/observable-monitor";
 import {WampType, WampUri} from "typed-wamp";
 import {MatchError} from "../../../helpers/errors";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
-import {Operators} from "promise-stuff";
 import {isMatch} from "lodash";
 import {WampusIllegalOperationError, WampusNetworkError} from "../../../../lib/core/errors/types";
+import {timeoutPromise} from "../../../helpers/promises";
 
 test("sends REGISTER", async t => {
     let {session, server} = await SessionStages.handshaken("a");
@@ -203,7 +203,7 @@ test("registration.close() sends UNREGISTER, expects reply", async t => {
         0: 66,
         2: registration.info.registrationId
     }));
-    await t.throwsAsync(Operators.timeout(unregistering, 10));
+    await t.throwsAsync(timeoutPromise(unregistering, 10));
 });
 
 

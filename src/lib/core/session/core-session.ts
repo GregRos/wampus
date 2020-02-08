@@ -49,7 +49,6 @@ import {
     WampusSendResultArguments,
     WampusSubcribeArguments
 } from "./message-arguments";
-import {MyPromise} from "../../utils/ext-promise";
 import {publishAutoConnect, publishReplayAutoConnect, skipAfter} from "../../utils/rxjs-operators";
 import {TransportFactory} from "../transport/transport";
 import {wampusHelloDetails} from "../hello-details";
@@ -815,7 +814,9 @@ export class WampusCoreSession {
         return defer(async () => {
             this.protocol.invalidateAllRoutes(err);
             // We give the routes time to close before continuing
-            await MyPromise.wait(0);
+            // note that await Promise.resolve() will not do the trick, because we need to event loop to execute
+            // and Promise.resolve creates a microtask, which isn't async enough
+            await timer(0).toPromise();
         }).pipe(take(1));
     }
 

@@ -2,10 +2,11 @@ import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {MatchError} from "../../../helpers/errors";
 import {WampType} from "typed-wamp";
-import {MyPromise} from "../../../../lib/utils/ext-promise";
+
 import {Rxjs} from "../../../helpers/observable-monitor";
-import {Operators} from "promise-stuff";
 import {WampusIllegalOperationError, WampusInvocationCanceledError} from "../../../../lib/core/errors/types";
+import {timer} from "rxjs";
+import {timeoutPromise} from "../../../helpers/promises";
 
 
 async function cancelSession() {
@@ -98,7 +99,7 @@ test("reply with RESULT(progress), close() should not resolve and progress shoul
     await serverMonitor.nextK(2);
     server.send([WampType.RESULT, prog.info.callId, {progress: true}, [], {a: 1}]);
     t.deepEqual((await progressMonitor.next()).kwargs, {a: 1});
-    await t.throwsAsync(Operators.timeout(closing, 10, () => Promise.reject(new Error())));
+    await t.throwsAsync(timeoutPromise(closing, 10, () => Promise.reject(new Error())));
 });
 
 test("reply with ERROR(non-cancel), close() should reject", async t => {
@@ -125,7 +126,7 @@ test("cancel is no-op in resolved call", async t => {
     let progress = prog.progress.toPromise();
     server.send([WampType.RESULT, prog.info.callId, {}, [], {a: 1}]);
     await t.notThrowsAsync(progress);
-    await MyPromise.wait(10);
+    await timer(10).toPromise();
     await t.notThrowsAsync(prog.close());
     t.falsy(await serverMonitor.nextWithin(10));
 });
@@ -188,7 +189,7 @@ test("close session while cancelling should be a no-op", async t => {
         name: "a"
     });
     let a = cp1.close();
-    await MyPromise.wait(100);
+    await timer(100).toPromise();
     server.send([3, {}, "no"]);
     await session.close();
     await t.notThrowsAsync(cp1.close());

@@ -3,7 +3,8 @@ import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {WampType} from "typed-wamp";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
-import {MyPromise} from "../../../../lib/utils/ext-promise";
+import {timer} from "rxjs";
+
 
 async function getProgressSession() {
     return SessionStages.handshaken("a", {
@@ -42,7 +43,7 @@ test("make call, receive several RESULT(progress) messages, call doesn't finish"
     let progressMonitor = Rxjs.monitor(cp1.progress);
     await serverMonitor.nextK(1);
     server.send([WampType.RESULT, cp1.info.callId, {progress: true}, [], {a: 1}]);
-    await MyPromise.wait(1000);
+    await timer(1000).toPromise();
     let item1 = await progressMonitor.next();
     server.send([WampType.RESULT, cp1.info.callId, {progress: true}, [], {a: 2}]);
     let item2 = await progressMonitor.next();

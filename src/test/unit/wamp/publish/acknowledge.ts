@@ -3,8 +3,8 @@ import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {WampType} from "typed-wamp";
 import {WampusCoreSession} from "../../../../lib/core/session/core-session";
-import {Operators} from "promise-stuff";
 import {MatchError} from "../../../helpers/errors";
+import {timeoutPromise} from "../../../helpers/promises";
 
 async function publishAck(s: WampusCoreSession) {
     return s.publish({
@@ -18,7 +18,7 @@ async function publishAck(s: WampusCoreSession) {
 test("should expect reply", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let publishing = publishAck(session);
-    await t.throwsAsync(Operators.timeout(publishing, 10));
+    await t.throwsAsync(timeoutPromise(publishing, 10));
 });
 
 test("receive PUBLISHED, resolve", async t => {
