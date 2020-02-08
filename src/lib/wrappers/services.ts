@@ -41,7 +41,7 @@ export function createServices(): AbstractWampusSessionServices {
             json: transcurse<any, any>(),
             error: transcurse<WampusInvocationError, Error>()
         }
-    }
+    };
 }
 
 /**

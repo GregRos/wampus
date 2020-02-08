@@ -359,180 +359,31 @@ Wampus lets you revive error responses into full Error objects, and vice versa, 
 
 ## Transform Service
 
-Wampus uses a transformation system that lets you revive and flatten objects in a customizable, extensible, and powerful way.
+Wampus uses [transcurse](https://github.com/GregRos/transcurse), a recursive transformation library, for processing inputs and outputs. Four different transformations are defined:
 
-### How it works
+1. Objects received via args and kwargs, via `in.json`
+2. WAMP error responses, to instances of `Error`, via `in.error`
+3. Objects sent via args and kwargs, via `out.json`
+4. Error objects to WAMP error responses, via `out.error`.
 
-#### Step-by-step
-
-Wampus uses a `StepByStepTransformer`, which has a list of `TransformStep` objects. Each `TransformStep` object is a function that you supply. Steps are executed in LIFO order, with each step being able to control how execution continues, in the manner described below.
-
-This function looks like this:
-
-```typescript
-type TransformStep = (value : any, ctrl : TransformerControl) => any
-```
-
-The function takes two parameters, the value being transformed and a `TransformerControl` object. This object looks like this:
+You can modify the existing transformations by modifying the services.
 
 ```typescript
-type TransformerControl = {
-    next(value : any) : any;
-	recurse(value : any) : any;
-}
-```
-
-Each transformation step should be seen as expecting some kind of data. For example, one step might transform a string into a date, another might transform a plain object into an instance of a class called `Person`, and so on.
-
-The function `next` calls the next transform step in the list and returns whatever it returns. It's basically like saying "I can't handle this type of data, maybe the next transformation can." However, it also lets you change the value being transformed, and to modify the result before it's sent to the caller.
-
-Here is an example of series of transformation steps and how `.next` is used to move between them:
-
-```typescript
-steps = [
-    // It's helpful to name these steps, for debugging and informational purposes
-    function parseStringIntoObject(x, ctrl) {
-        // We only deal with strings in this step
-        if (typeof x !== "string") return ctrl.next(x);
-        
-        // Try to parse this string
-        if (someRegex.test(x)) {
-            return new ParsedObject(x);
-        }
-        
-        // This is a string we don't know how to parse, 
-        // so let's yield to the next step:
-        return ctrl.next(x);
-    },
-    
-    // But you don't have to name them.
-    (x, ctrl) => {
-        // If the value is not an object, this step will ignore it:
-        if (!x || typeof x !== "object") return ctrl.next(x);
-        
-        // This step looks for objects with type === "person"
-        // and transforms them into instances of Person
-        if (x.type === "person") {
-            return new Person(x.firstName, x.lastName);
-        }
-        
-        // If the data isn't of this type, then we can't handle it, 
-        // let's try the next step
-        return ctrl.next(x);
-    },
-]
-```
-
-Wampus will always have a final fallback transform step that will transform an object in a default way, so you don't have to write that code yourself every time. All you need to do is to yield execution to the next step until Wampus's transform is reached.
-
-#### Recursion
-
-Sometimes, you want to treat most of an object purely structurally (like flat JSON data), but there is one or more properties, somewhere deep inside the object, that need to be deserialized in a special way.
-
-```typescript
-{
-    property1 : {
-        property2 : [{
-            // Supposed to be a date:
-            date : {
-                type : "date",
-                value : "2018-11-07T21:51:42.767Z"
-            },
-            
-            // Supposed to be a regex:
-            regex :{
-                type : "regex",
-                value :  "[a-z]{3}-[0-9]{3}"
-            },
-        }]
-    }
-}
-```
-
-Somewhere deep inside these nested objects, is some value that you should transform. 
-
-You deal with this structure using the `recurse` method. This method applies the whole sequence of transformation steps all over again, starting from the first one, on a new value. Normally, this will be the value of a key or an array element, but you can do weirder things too.
-
-The benefit here over `next` is that `recurse` will apply all the steps before the current step, actually doing recursion (potentially infinitely, in fact). This is especially important in the default fallback step, because it has no next step, so it has to `recurse`.
-
-Here is how a recursive step might recurse over the components of an object:
-
-```typescript
-function structuralStep(value : any, ctrl : TransformerControl) {
-    // We don't yield to the next step, maybe because there is no next step
-	if (!value || typeof value !== "object") return value;
-	
-    // For arrays, recursively transform each element separately:
-    if (Array.isArray(value)) {
-        return value.map(x => ctrl.recurse(x));
-    }
-    
-    let clone = {};
-    
-    // For objects, recursively transform each property value
-    for (let k of Object.keys(value)) {
-        clone[k] = ctrl.recurse(value[k]);
-    }
-    return clone;
-}
-```
-
-`recurse` can cause infinite recursion, like any other form of recursion. Wampus protects against this by making sure you don't enter a cycle where you recurse into the same object more than once. So something like this:
-
-```typescript
-function infiniteRecursion(value, ctrl) {
-    return ctrl.recurse(value);
-}
-```
-
-Which would normally cause infinite recursion would just throw an error. This also means that mutating the object you're working on and then recursing into it is a bad idea.
-
-However, you can still end up with a stack overflow if you're not careful (or try to do it on purpose), such as:
-
-```typescript
-function reallyInfiniteRecursion(value, ctrl) {
-    return ctrl.recurse(value + "a");
-}
-```
-
-If you started with `""`, this would end up recursing into `a` , then `aa`, then `aaa`, and so on.
-
-Note that there is little reason to use `recurse` in the error transforms.
-
-### Adding transform steps
-
-You add transforms when you create a session. One of the session configuration parameters is the `services` function, which lets you modify the set of services. One thing you can do is add transformation steps:
-
-```typescript
-let x = Wampus.connect{
+const conn = await Wampus.connect({
     //...
     services(svcs) {
-        svcs.transforms.jsonToObject.add(function myExtraStep(value, ctrl) {
+        svcs.out.json = svcs.out.json.pre(ctrl => {
             //...
-        });
-        
+        })
     }
 })
 ```
 
-Note that transform steps are added LIFO (or maybe Last-In-First-Executed), so the initial steps will be fallbacks to steps you add later (this, again, allows Wampus to have its own fallback steps).
 
-### Transform types
 
-Wampus uses four transforms:
+### How it works
 
-1. Object transformations
-   1. `jsonToObject`
-   2. `objectToJson`
-2. Error transformations
-   1. `errorToErrorResponse`
-   2. `errorResponseToError`
 
-The transforms `jsonToObject` and `objectToJson` recursively transform all objects within `args` and `kwargs` properties in both directions. 
-
-The error transformations are applied when turning a JavaScript error into an error response, and vice versa. Before the error transformations are applied, the object transformations are first applied on the `args` and `kwargs` fields.
-
-Note that there is little reason to use recursion in the error transformations, but it's still an option.
 
 ## Stack trace service
 

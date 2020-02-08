@@ -9,10 +9,10 @@ cache:
 install:
   - yarn install
   - eval "$(gimme 1.13)"
-  - bash ./test_scripts/install_router.sh
+  - yarn run prereq:router
 script:
   - yarn run build:clean
-  - yarn run test
+  - yarn run test:fast
   - yarn run codecov
 go:
   - "1.13.x"

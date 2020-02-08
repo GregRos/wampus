@@ -14,7 +14,7 @@ echo "Building go"
 go build
 
 echo "Copying config file"
-cp -f $ORIG_DIR/test_scripts/nexus.json ./etc/nexus.json
+cp -f $ORIG_DIR/test-scripts/nexus.json ./etc/nexus.json
 
 chmod +x ./nexusd
 ./nexusd &
