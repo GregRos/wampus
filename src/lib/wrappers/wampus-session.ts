@@ -27,15 +27,13 @@ async function allWithCleanup<T>(promises: PromiseLike<T>[], cleanup: (x: T) => 
         });
     });
 
-    let all = Promise.all(promises).then(undefined, err => {
+    return Promise.all(promises).then(undefined, err => {
         failed = true;
         for (let x of resolved) {
             cleanup(x);
         }
         throw err;
     });
-
-    return all;
 }
 
 function isKeyType(x: any): x is keyof any {

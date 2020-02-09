@@ -1,6 +1,5 @@
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
-import {MatchingPolicy} from "typed-wamp";
 import {take, toArray} from "rxjs/operators";
 import {test} from "../../helpers/my-test-interface";
 

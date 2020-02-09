@@ -3,8 +3,9 @@ import {catchError, map} from "rxjs/operators";
 import {AbstractWampusSessionServices} from "../services";
 import {InvocationTicket, ProcedureHandler} from "./invocation-ticket";
 import {Ticket} from "./ticket";
-import CallSite = NodeJS.CallSite;
 import objy = require("objectology");
+import CallSite = NodeJS.CallSite;
+
 /**
  * A ticket for a procedure registration.
  */
@@ -36,8 +37,7 @@ export class RegistrationTicket extends Ticket {
     private get _invocations() {
         let myTrace = this._services.stackTraceService.capture(Object.getOwnPropertyDescriptor(RegistrationTicket.prototype, "_invocations").get);
         return this._base.invocations.pipe(map(coreTicket => {
-            let newTicket = new InvocationTicket(coreTicket, this._services, this);
-            return newTicket;
+            return new InvocationTicket(coreTicket, this._services, this);
         }), catchError(err => {
             if (myTrace) err.stack = this._services.stackTraceService.format(err, myTrace);
             throw err;

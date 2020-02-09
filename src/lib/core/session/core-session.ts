@@ -1,7 +1,17 @@
 /**
  * @module core
  */
-import {Wamp, WampObject, WampUriString, WampType, WampUri, CancelMode, HelloDetails, InvocationPolicy, WampSubscribeOptions, WelcomeDetails} from "typed-wamp";
+import {
+    CancelMode,
+    HelloDetails,
+    Wamp,
+    WampObject,
+    WampSubscribeOptions,
+    WampType,
+    WampUri,
+    WampUriString,
+    WelcomeDetails
+} from "typed-wamp";
 import {Errs} from "../errors/errors";
 import {WampusNetworkError} from "../errors/types";
 import {Routes} from "../routing/routes";
@@ -56,6 +66,8 @@ import {DefaultMessageFactory} from "./default-factory";
 import {AuthenticatorFunction, ChallengeEvent} from "./authentication";
 import {fromPromise} from "rxjs/internal-compatibility";
 import {WampusCompletionReason, WampusRouteCompletion} from "./route-completion";
+import {cloneDeep, defaults} from "lodash";
+import {Feature} from "../protocol/feature-names";
 
 /**
  * Used to configure the CoreSession object.
@@ -69,9 +81,7 @@ export interface CoreSessionConfig {
     helloDetails?(defaults: HelloDetails): void;
 }
 
-import {cloneDeep, defaults} from "lodash";
 import WM = Wamp;
-import {Feature} from "../protocol/feature-names";
 
 let factory = DefaultMessageFactory;
 
@@ -837,10 +847,9 @@ export class WampusCoreSession {
                 message: "Goodbye received"
             }, WampUri.Close.GoodbyeAndOut));
 
-            let x = concat(echo$, this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.RouterGoodbye, msg)), defer(async () => {
+            return concat(echo$, this._closeRoutes$(new WampusRouteCompletion(WampusCompletionReason.RouterGoodbye, msg)), defer(async () => {
                 await this.protocol.transport.close();
             }));
-            return x;
         }
     }
 

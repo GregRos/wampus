@@ -1,11 +1,10 @@
 import {WampusSession} from "../../../lib";
-import {InvocationTicket, ProcedureHandler} from "../../../lib/wrappers/tickets/invocation-ticket";
+import {InvocationTicket} from "../../../lib/wrappers/tickets/invocation-ticket";
 import {WampCallOptions} from "typed-wamp";
 import {RealSessions} from "../../helpers/real-sessions";
 import {toArray} from "rxjs/operators";
 import {WampusSendResultArguments} from "../../../lib/core/session/message-arguments";
 import {WampusInvocationError} from "../../../lib/core/errors/types";
-import {MatchError} from "../../helpers/errors";
 
 import {isMatch} from "lodash";
 import {test} from "../../helpers/my-test-interface";

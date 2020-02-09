@@ -13,8 +13,7 @@ async function getRegistration({session, server}: { session: WampusCoreSession, 
     });
     let next = await serverMonitor.next();
     server.send([65, next[1], 101]);
-    let registered = await registering;
-    return registered;
+    return await registering;
 }
 
 test("progress() sends YIELD(progress)", async t => {

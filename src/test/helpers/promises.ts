@@ -1,6 +1,6 @@
 import {timeoutWith} from "rxjs/operators";
 import {fromPromise} from "rxjs/internal-compatibility";
-import {defer, from, Observable, of} from "rxjs";
+import {defer, of} from "rxjs";
 
 export function timeoutPromise(promise: Promise<any>, time: number, fallback?: () => (Promise<any> | unknown)) {
     return fromPromise(promise).pipe(timeoutWith(time, defer(() => {

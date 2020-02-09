@@ -1,4 +1,4 @@
-import {WampType, Wamp} from "typed-wamp";
+import {Wamp, WampType} from "typed-wamp";
 import {
     WampusIllegalOperationError,
     WampusInvocationCanceledError,
@@ -6,6 +6,7 @@ import {
     WampusNetworkError
 } from "./types";
 import objy = require("objectology");
+import WM = Wamp;
 
 /**
  * Returns only the error information properties from an Error message.
@@ -48,7 +49,7 @@ function getWampAbortBasedMembers(abort: Wamp.Abort) {
     return members;
 }
 
-import WM = Wamp;
+
 
 function getDescriptionByMessage(source: WM.Any) {
     if (source instanceof WM.Authenticate) {
@@ -99,8 +100,7 @@ export namespace Errs {
 
     export function sessionIsClosing(source: WM.Any) {
         let operation = getDescriptionByMessage(source);
-        let x = new WampusNetworkError(`While ${operation}, the session was closed.`, {});
-        return x;
+        return new WampusNetworkError(`While ${operation}, the session was closed.`, {});
     }
 
     export namespace Handshake {
@@ -113,12 +113,11 @@ export namespace Errs {
 
         export function unexpectedMessage(message: Wamp.Any) {
             let tp = WampType[message.type];
-            let err = new WampusNetworkError(
+            return new WampusNetworkError(
                 `During handshake, expected WELCOME, ABORT, or CHALLENGE, but received an invalid message of type ${tp}. `, {
                     unexpectedMessage: message
                 }
             );
-            return err;
         }
 
         export function unrecognizedError(abort: Wamp.Abort) {

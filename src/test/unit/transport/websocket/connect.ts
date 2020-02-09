@@ -1,5 +1,4 @@
 import test from "ava";
-import {MatchError} from "../../../helpers/errors";
 import {take} from "rxjs/operators";
 import {getTransportAndServerConn} from "../../../helpers/ws-server";
 

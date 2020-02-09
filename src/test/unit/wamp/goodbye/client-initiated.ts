@@ -1,14 +1,12 @@
 import test from "ava";
 
-import {WampusCoreSession} from "../../../../lib/core/session/core-session";
-import {MatchError} from "../../../helpers/errors";
 import {WampusNetworkError} from "../../../../lib/core/errors/types";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {WampType} from "typed-wamp";
 import {MessageFactory} from "../../../../lib/core/protocol/factory";
 import {throwError, timer} from "rxjs";
-import {timeout, timeoutWith} from "rxjs/operators";
+import {timeoutWith} from "rxjs/operators";
 import {fromPromise} from "rxjs/internal-compatibility";
 
 test("when goodbye received, should disconnect and close", async t => {

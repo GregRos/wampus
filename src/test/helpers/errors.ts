@@ -18,7 +18,4 @@ export namespace MatchError {
         return err => err instanceof WampusIllegalOperationError && partialMatchText(err.message, substrings);
     }
 
-    export function cancelled() {
-        return err => err instanceof WampusInvocationCanceledError;
-    }
 }

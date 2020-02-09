@@ -1,5 +1,4 @@
 import test from "ava";
-import {MatchError} from "../../../helpers/errors";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {WampusNetworkError} from "../../../../lib/core/errors/types";

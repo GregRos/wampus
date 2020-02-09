@@ -83,10 +83,6 @@ export class MessageFactory {
         return new Wamp.Goodbye(details || {}, reason);
     }
 
-    unregistered(reqId: WampId) {
-        return new Wamp.Unregistered(reqId);
-    }
-
     result(callReqId: WampId, details: WampResultDetails, args ?: WampArray, kwargs ?: WampObject) {
         return new Wamp.Result(callReqId, details || {}, args, kwargs);
     }
@@ -95,28 +91,12 @@ export class MessageFactory {
         return new Wamp.Registered(registerReqId, this._config.reqId());
     }
 
-    challenge(authMethod: string, extra: WampObject) {
-        return new Wamp.Challenge(authMethod, extra);
-    }
-
-    subscribed(subscribeReqId: WampId) {
-        return new Wamp.Subscribed(subscribeReqId, this._config.reqId());
-    }
-
     event(subscriptionId: WampId, details ?: WampEventDetails, args ?: WampArray, kwargs ?: WampObject) {
         return new Wamp.Event(subscriptionId, this._config.reqId(), details || {}, args, kwargs);
     }
 
     invocation(registrationId: WampId, options ?: WampInvocationDetails, args ?: WampArray, kwargs ?: WampObject) {
         return new Wamp.Invocation(this._config.reqId(), registrationId, options || {}, args, kwargs);
-    }
-
-    welcome(details: WelcomeDetails) {
-        return new Wamp.Welcome(this._config.reqId(), details);
-    }
-
-    unsubscribed(unsubscribeReqId: WampId) {
-        return new Wamp.Unsubscribed(unsubscribeReqId);
     }
 
 }

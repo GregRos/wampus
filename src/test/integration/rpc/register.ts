@@ -1,6 +1,6 @@
 import {RealSessions} from "../../helpers/real-sessions";
 import {WampusSession} from "../../../lib";
-import {InvocationPolicy, MatchingPolicy, WampRegisterOptions} from "typed-wamp";
+import {WampRegisterOptions} from "typed-wamp";
 import {isMatch} from "lodash";
 import {test} from "../../helpers/my-test-interface";
 

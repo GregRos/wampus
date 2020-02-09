@@ -8,8 +8,8 @@ import {publishReplayAutoConnect} from "../../utils/rxjs-operators";
 import {Ticket} from "./ticket";
 import {WampusInvocationError} from "../../core/errors/types";
 import {CallResultData} from "./call-result";
-import CallSite = NodeJS.CallSite;
 import objy = require("objectology");
+import CallSite = NodeJS.CallSite;
 
 /**
  * An in-progress RPC call via the WAMP protocol.
@@ -72,14 +72,13 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
         ticket._base = call;
         ticket._services = services;
         ticket._replayProgress = call.progress.pipe(map(prog => {
-            let newResult = new CallResultData({
+            return new CallResultData({
                 details: prog.details,
                 args: prog.args ? prog.args.map(services.in.json.apply.bind(services.in.json)) : prog.args,
                 kwargs: services.in.json.apply(prog.kwargs),
                 isProgress: prog.isProgress,
                 source: ticket
             }, ticket);
-            return newResult;
         }), catchError(err => {
             if (err instanceof WampusInvocationError) {
                 err.args = err.args ? err.args.map(services.in.json.apply.bind(services.in.json)) : err.args;

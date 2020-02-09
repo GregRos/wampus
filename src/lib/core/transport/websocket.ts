@@ -111,10 +111,9 @@ export class WebsocketTransport implements Transport {
                 } as TransportError;
             }));
 
-            let messages: Observable<TransportEvent> = merge(closeEvent$, errorEvent$, msgEvent$).pipe(skipAfter((x: TransportEvent) => {
+            transport.events$ = merge(closeEvent$, errorEvent$, msgEvent$).pipe(skipAfter((x: TransportEvent) => {
                 return x.type === "closed";
             }));
-            transport.events$ = messages;
             if (ws.readyState === ws.OPEN) {
                 sub.next(transport);
             }

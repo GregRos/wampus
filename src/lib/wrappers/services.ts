@@ -1,4 +1,3 @@
-import {WampObject} from "typed-wamp";
 import {WampusSendErrorArguments} from "../core/session/message-arguments";
 import {WampusInvocationError} from "../core/errors/types";
 import CallSite = NodeJS.CallSite;
@@ -49,11 +48,11 @@ export function createServices(): AbstractWampusSessionServices {
  */
 export interface AbstractWampusSessionServices {
     out: {
-        json: Transcurse<any, any>,
+        json: Transcurse,
         error: Transcurse<Error, WampusSendErrorArguments>
     };
     in: {
-        json: Transcurse<any, any>;
+        json: Transcurse;
         error: Transcurse<WampusInvocationError, Error>
     };
     stackTraceService?: StackTraceService;
