@@ -83,20 +83,4 @@ export class MessageFactory {
         return new Wamp.Goodbye(details || {}, reason);
     }
 
-    result(callReqId: WampId, details: WampResultDetails, args ?: WampArray, kwargs ?: WampObject) {
-        return new Wamp.Result(callReqId, details || {}, args, kwargs);
-    }
-
-    registered(registerReqId: WampId) {
-        return new Wamp.Registered(registerReqId, this._config.reqId());
-    }
-
-    event(subscriptionId: WampId, details ?: WampEventDetails, args ?: WampArray, kwargs ?: WampObject) {
-        return new Wamp.Event(subscriptionId, this._config.reqId(), details || {}, args, kwargs);
-    }
-
-    invocation(registrationId: WampId, options ?: WampInvocationDetails, args ?: WampArray, kwargs ?: WampObject) {
-        return new Wamp.Invocation(this._config.reqId(), registrationId, options || {}, args, kwargs);
-    }
-
 }
