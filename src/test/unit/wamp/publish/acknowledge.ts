@@ -1,10 +1,10 @@
 import test from "ava";
-import {SessionStages} from "../../../helpers/dummy-session";
-import {Rxjs} from "../../../helpers/observable-monitor";
+import {SessionStages} from "~test/helpers/dummy-session";
+import {Rxjs} from "~test/helpers/observable-monitor";
 import {WampType} from "typed-wamp";
 import {WampusCoreSession} from "~lib/core/session/core-session";
-import {MatchError} from "../../../helpers/errors";
-import {timeoutPromise} from "../../../helpers/promises";
+import {MatchError} from "~test/helpers/errors";
+import {timeoutPromise} from "~test/helpers/promises";
 
 async function publishAck(s: WampusCoreSession) {
     return s.publish({

@@ -1,10 +1,10 @@
 import test, {ExecutionContext} from "ava";
-import {SessionStages} from "../../../helpers/dummy-session";
+import {SessionStages} from "~test/helpers/dummy-session";
 import {WampType} from "typed-wamp";
 import {map, toArray} from "rxjs/operators";
 import {Observable} from "rxjs";
-import {Rxjs} from "../../../helpers/observable-monitor";
-import {MatchError} from "../../../helpers/errors";
+import {Rxjs} from "~test/helpers/observable-monitor";
+import {MatchError} from "~test/helpers/errors";
 import {WampusInvocationError, WampusNetworkError} from "~lib/core/errors/types";
 import {isMatch} from "lodash";
 

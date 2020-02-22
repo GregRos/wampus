@@ -37,10 +37,7 @@ export function dummyTransport() {
     let server: DummyServer = {
         error(x) {
             Promise.resolve().then(() => {
-                intoClient.next({
-                    type: "error",
-                    data: x
-                });
+                intoClient.error(x);
             });
         },
         send(x) {

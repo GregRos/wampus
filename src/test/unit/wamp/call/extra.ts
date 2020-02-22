@@ -1,5 +1,5 @@
 import test from "ava";
-import {SessionStages} from "../../../helpers/dummy-session";
+import {SessionStages} from "~test/helpers/dummy-session";
 import {Feature} from "~lib/core/protocol/feature-names";
 import {WampusIllegalOperationError} from "~lib/core/errors/types";
 

@@ -1,11 +1,11 @@
 import test from "ava";
-import {SessionStages} from "../../../helpers/dummy-session";
+import {SessionStages} from "~test/helpers/dummy-session";
 import {WampType} from "typed-wamp";
 
-import {Rxjs} from "../../../helpers/observable-monitor";
+import {Rxjs} from "~test/helpers/observable-monitor";
 import {WampusIllegalOperationError, WampusInvocationCanceledError} from "~lib/core/errors/types";
 import {timer} from "rxjs";
-import {timeoutPromise} from "../../../helpers/promises";
+import {timeoutPromise} from "~test/helpers/promises";
 
 
 async function cancelSession() {

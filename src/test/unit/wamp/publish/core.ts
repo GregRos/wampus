@@ -1,7 +1,7 @@
 import test from "ava";
-import {SessionStages} from "../../../helpers/dummy-session";
-import {Rxjs} from "../../../helpers/observable-monitor";
-import {MatchError} from "../../../helpers/errors";
+import {SessionStages} from "~test/helpers/dummy-session";
+import {Rxjs} from "~test/helpers/observable-monitor";
+import {MatchError} from "~test/helpers/errors";
 import {isMatch} from "lodash";
 
 test("should send PUBLISH", async t => {

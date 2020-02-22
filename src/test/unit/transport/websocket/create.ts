@@ -1,6 +1,6 @@
 import {WebsocketTransport} from "~lib/core/transport/websocket";
 import {JsonSerializer} from "~lib/core/serializer/json";
-import {getTransportAndServerConn, rxjsWsServer} from "../../../helpers/ws-server";
+import {getTransportAndServerConn, rxjsWsServer} from "~test/helpers/ws-server";
 import {WampusError, WampusNetworkError} from "~lib/core/errors/types";
 import test from "ava";
 

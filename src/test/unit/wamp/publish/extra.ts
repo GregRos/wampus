@@ -1,6 +1,6 @@
 import test from "ava";
-import {SessionStages} from "../../../helpers/dummy-session";
-import {MatchError} from "../../../helpers/errors";
+import {SessionStages} from "~test/helpers/dummy-session";
+import {MatchError} from "~test/helpers/errors";
 import {BrokerFeatures, WampPublishOptions} from "typed-wamp";
 
 

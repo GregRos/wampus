@@ -1,7 +1,7 @@
 import test from "ava";
 
-import {SessionStages} from "../../../helpers/dummy-session";
-import {Rxjs} from "../../../helpers/observable-monitor";
+import {SessionStages} from "~test/helpers/dummy-session";
+import {Rxjs} from "~test/helpers/observable-monitor";
 import {timer} from "rxjs";
 
 test("when receive goodbye, send goodbye and close+disconnect", async t => {

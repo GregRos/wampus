@@ -1,6 +1,6 @@
 import test from "ava";
 import {take} from "rxjs/operators";
-import {getTransportAndServerConn, rxjsWsServer} from "../../../helpers/ws-server";
+import {getTransportAndServerConn, rxjsWsServer} from "~test/helpers/ws-server";
 
 import {choose} from "~lib/utils/rxjs-operators";
 import {WampusNetworkError} from "~lib/core/errors/types";
@@ -70,4 +70,3 @@ test("connected transport properties", async t => {
     let {server, client} = await getTransportAndServerConn();
     t.is(client.name, "websocket.json");
 });
-

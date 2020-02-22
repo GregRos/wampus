@@ -1,5 +1,5 @@
 import test from "ava";
-import {getTransportAndServerConn, receiveObjects$} from "../../../helpers/ws-server";
+import {getTransportAndServerConn, receiveObjects$} from "~test/helpers/ws-server";
 import {bufferCount, first, flatMap, take} from "rxjs/operators";
 import {fromArray} from "rxjs/internal/observable/fromArray";
 import {range} from "lodash";

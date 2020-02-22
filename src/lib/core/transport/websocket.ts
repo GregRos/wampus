@@ -1,4 +1,4 @@
-import {Transport, TransportClosed, TransportError, TransportEvent, TransportMessage} from "./transport";
+import {Transport, TransportClosed, TransportEvent, TransportMessage} from "./transport";
 
 import {WampusInvalidArgument, WampusNetworkError} from "../errors/types";
 import {Serializer} from "../serializer/serializer";
@@ -50,7 +50,6 @@ export class WebsocketTransport implements Transport {
      * @returns {Observable<WebsocketTransport>}
      */
     static async create$(config: WebsocketTransportConfig): Promise<WebsocketTransport> {
-
         if (config.timeout != null && typeof config.timeout !== "number") {
             throw new WampusInvalidArgument("Timeout value {timeout} is invalid.", {
                 timeout: config.timeout
@@ -113,7 +112,7 @@ export class WebsocketTransport implements Transport {
             transport.events$ = merge(closeEvent$, errorEvent$, msgEvent$).pipe(skipAfter((x: TransportEvent) => {
                 return x.type === "closed";
             }));
-            if (ws.readyState === ws.OPEN) {
+            if (ws.readyState === WebSocket.OPEN) {
                 sub.next(transport);
             }
             ws.onopen = () => {
