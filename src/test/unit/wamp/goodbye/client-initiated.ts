@@ -1,10 +1,10 @@
 import test from "ava";
 
-import {WampusNetworkError} from "../../../../lib/core/errors/types";
+import {WampusNetworkError} from "~lib/core/errors/types";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {WampType} from "typed-wamp";
-import {MessageFactory} from "../../../../lib/core/protocol/factory";
+import {MessageFactory} from "~lib/core/protocol/factory";
 import {throwError, timer} from "rxjs";
 import {timeoutWith} from "rxjs/operators";
 import {fromPromise} from "rxjs/internal-compatibility";

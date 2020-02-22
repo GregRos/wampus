@@ -5,7 +5,7 @@ import {map, toArray} from "rxjs/operators";
 import {Observable} from "rxjs";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {MatchError} from "../../../helpers/errors";
-import {WampusInvocationError, WampusNetworkError} from "../../../../lib/core/errors/types";
+import {WampusInvocationError, WampusNetworkError} from "~lib/core/errors/types";
 import {isMatch} from "lodash";
 
 test("call sends CALL message", async t => {

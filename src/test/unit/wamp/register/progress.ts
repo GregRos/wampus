@@ -2,7 +2,7 @@ import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {MatchError} from "../../../helpers/errors";
-import {WampusCoreSession} from "../../../../lib/core/session/core-session";
+import {WampusCoreSession} from "~lib/core/session/core-session";
 import {isMatch} from "lodash";
 
 

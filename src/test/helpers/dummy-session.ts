@@ -1,8 +1,8 @@
 import {dummyTransport} from "./dummy-transport";
-import {WampusCoreSession} from "../../lib/core/session/core-session";
+import {WampusCoreSession} from "~lib/core/session/core-session";
 import {first} from "rxjs/operators";
 import {BrokerFeatures, DealerFeatures} from "typed-wamp";
-import {AuthenticatorFunction} from "../../lib/core/session/authentication";
+import {AuthenticatorFunction} from "~lib/core/session/authentication";
 
 /**
  * Gets different session objects for testing.

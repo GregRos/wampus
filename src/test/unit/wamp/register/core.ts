@@ -3,9 +3,9 @@ import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {WampType, WampUri} from "typed-wamp";
 import {MatchError} from "../../../helpers/errors";
-import {WampusCoreSession} from "../../../../lib/core/session/core-session";
+import {WampusCoreSession} from "~lib/core/session/core-session";
 import {isMatch} from "lodash";
-import {WampusIllegalOperationError, WampusNetworkError} from "../../../../lib/core/errors/types";
+import {WampusIllegalOperationError, WampusNetworkError} from "~lib/core/errors/types";
 import {timeoutPromise} from "../../../helpers/promises";
 
 test("sends REGISTER", async t => {

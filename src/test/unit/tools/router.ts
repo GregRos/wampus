@@ -1,6 +1,6 @@
 import test from "ava";
 import {Subject} from "rxjs";
-import {PrefixRouter} from "../../../lib/core/routing/prefix-router";
+import {PrefixRouter} from "~lib/core/routing/prefix-router";
 import {isEqual} from "lodash";
 
 function getRoute<T>(key: any[], tag ?: string) {

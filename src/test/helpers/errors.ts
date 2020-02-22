@@ -2,7 +2,7 @@ import {
     WampusIllegalOperationError,
     WampusInvocationCanceledError,
     WampusNetworkError
-} from "../../lib/core/errors/types";
+} from "~lib/core/errors/types";
 
 // tslint:disable:completed-docs
 function partialMatchText(haystack, needles: string[]) {

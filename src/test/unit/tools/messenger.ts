@@ -1,10 +1,10 @@
 import test from "ava";
 import {dummyTransport} from "../../helpers/dummy-transport";
-import {WampProtocolClient} from "../../../lib/core/routing/wamp-protocol-client";
+import {WampProtocolClient} from "~lib/core/routing/wamp-protocol-client";
 import {take} from "rxjs/operators";
 import {WampArray} from "typed-wamp";
 
-import {WampusNetworkError} from "../../../lib/core/errors/types";
+import {WampusNetworkError} from "~lib/core/errors/types";
 import {Rxjs} from "../../helpers/observable-monitor";
 import {isMatch as _isMatch, range} from "lodash";
 import {timer} from "rxjs";

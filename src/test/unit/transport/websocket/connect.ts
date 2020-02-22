@@ -2,14 +2,14 @@ import test from "ava";
 import {take} from "rxjs/operators";
 import {getTransportAndServerConn, rxjsWsServer} from "../../../helpers/ws-server";
 
-import {choose} from "../../../../lib/utils/rxjs-operators";
-import {WampusNetworkError} from "../../../../lib/core/errors/types";
+import {choose} from "~lib/utils/rxjs-operators";
+import {WampusNetworkError} from "~lib/core/errors/types";
 import {timer} from "rxjs";
 import sinon from "sinon";
-import {JsonSerializer} from "../../../../lib/core/serializer/json";
+import {JsonSerializer} from "~lib/core/serializer/json";
 
 import WebSocket from "isomorphic-ws";
-import {WebsocketTransport} from "../../../../lib/core/transport/websocket";
+import {WebsocketTransport} from "~lib/core/transport/websocket";
 
 test.afterEach(() => {
     sinon.restore();

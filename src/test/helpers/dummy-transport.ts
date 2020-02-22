@@ -1,10 +1,10 @@
-import {Transport, TransportEvent} from "../../lib/core/transport/transport";
+import {Transport, TransportEvent} from "~lib/core/transport/transport";
 import {concat, defer, EMPTY, Observable, Subject, timer} from "rxjs";
 import {WampRaw} from "typed-wamp";
-import {choose} from "../../lib/utils/rxjs-operators";
+import {choose} from "~lib/utils/rxjs-operators";
 
 import {mergeMapTo} from "rxjs/operators";
-import {WampusNetworkError} from "../../lib/core/errors/types";
+import {WampusNetworkError} from "~lib/core/errors/types";
 
 /**
  * A mock server used to implement the mock transport.

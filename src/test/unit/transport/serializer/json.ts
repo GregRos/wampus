@@ -1,5 +1,5 @@
 import test from "ava";
-import {JsonSerializer} from "../../../../lib/core/serializer/json";
+import {JsonSerializer} from "~lib/core/serializer/json";
 
 let serializer = () => new JsonSerializer();
 

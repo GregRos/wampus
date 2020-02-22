@@ -1,7 +1,7 @@
 import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
-import {WampusNetworkError} from "../../../../lib/core/errors/types";
+import {WampusNetworkError} from "~lib/core/errors/types";
 
 
 async function getRegularGoodbyedSession() {

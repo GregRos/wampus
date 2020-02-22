@@ -3,7 +3,7 @@ import {SessionStages} from "../../../helpers/dummy-session";
 import {WampType} from "typed-wamp";
 
 import {Rxjs} from "../../../helpers/observable-monitor";
-import {WampusIllegalOperationError, WampusInvocationCanceledError} from "../../../../lib/core/errors/types";
+import {WampusIllegalOperationError, WampusInvocationCanceledError} from "~lib/core/errors/types";
 import {timer} from "rxjs";
 import {timeoutPromise} from "../../../helpers/promises";
 

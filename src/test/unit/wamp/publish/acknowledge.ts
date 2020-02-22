@@ -2,7 +2,7 @@ import test from "ava";
 import {SessionStages} from "../../../helpers/dummy-session";
 import {Rxjs} from "../../../helpers/observable-monitor";
 import {WampType} from "typed-wamp";
-import {WampusCoreSession} from "../../../../lib/core/session/core-session";
+import {WampusCoreSession} from "~lib/core/session/core-session";
 import {MatchError} from "../../../helpers/errors";
 import {timeoutPromise} from "../../../helpers/promises";
 
