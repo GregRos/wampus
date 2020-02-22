@@ -36,7 +36,7 @@ export namespace DependencyDeclarations {
 
             let slzr = serializer(config.serializer);
             return () => {
-                return WebsocketTransport.create$({
+                return WebsocketTransport.create({
                     serializer: slzr,
                     timeout: transportData.timeout,
                     url: transportData.url

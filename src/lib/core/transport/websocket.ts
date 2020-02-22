@@ -3,12 +3,11 @@ import {Transport, TransportClosed, TransportEvent, TransportError, TransportMes
 import {WampusInvalidArgument, WampusNetworkError} from "../errors/types";
 import {Serializer} from "../serializer/serializer";
 import {fromEvent, merge, NEVER, Observable, of, race, Subject, throwError, timer} from "rxjs";
-import {delay, map, take} from "rxjs/operators";
+import {delay, map, mapTo, take, tap} from "rxjs/operators";
 import {skipAfter} from "../../utils/rxjs-operators";
 
 import WebSocket from "isomorphic-ws";
 
-export let WebSocketImpl = WebSocket;
 /**
  * The object used to configure the {@see WebsocketTransport}.
  */
@@ -49,7 +48,7 @@ export class WebsocketTransport implements Transport {
      * @param {WebsocketTransportConfig} config
      * @returns {Observable<WebsocketTransport>}
      */
-    static async create$(config: WebsocketTransportConfig): Promise<WebsocketTransport> {
+    static async create(config: WebsocketTransportConfig): Promise<WebsocketTransport> {
         if (config.timeout != null && typeof config.timeout !== "number") {
             throw new WampusInvalidArgument("Timeout value {timeout} is invalid.", {
                 timeout: config.timeout
@@ -66,69 +65,63 @@ export class WebsocketTransport implements Transport {
             });
         }));
 
-        let transport$ = new Observable(sub => {
-            let transport = new WebsocketTransport();
-            transport._config = config;
-            try {
-                var ws = new WebSocketImpl(config.url, config.forceProtocol || `wamp.2.${config.serializer.id}`, {});
-            } catch (err) {
-                throw(new WampusNetworkError(`The WebSocket client could not be created. ${err.message}`, {
-                    innerError: err
-                }));
-            }
-            transport._ws = ws;
-            let closeEvent$ = fromEvent(ws, "close").pipe(map(x => {
-                return {
-                    type: "closed",
-                    data: x
-                } as TransportClosed;
+        let transport = new WebsocketTransport();
+        transport._config = config;
+        try {
+            var ws = new WebSocket(config.url, config.forceProtocol || `wamp.2.${config.serializer.id}`, {});
+        } catch (err) {
+            throw(new WampusNetworkError(`The WebSocket client could not be created. ${err.message}`, {
+                innerError: err
             }));
+        }
+        transport._ws = ws;
+        let closeEvent$ = fromEvent(ws, "close").pipe(map(x => {
+            return {
+                type: "closed",
+                data: x
+            } as TransportClosed;
+        }));
 
-            let msgEvent$: Observable<TransportEvent> = fromEvent(ws, "message").pipe(map((msg: any) => {
-                try {
-                    var result = transport._config.serializer.deserialize(msg.data);
-                } catch (err) {
-                    return {
-                        type: "error",
-                        data: new WampusNetworkError("Received a message that could not be deserialized.", {
-                            innerError: err
-                        })
-                    } as TransportError;
-                }
-                return {
-                    type: "message",
-                    data: result
-                } as TransportMessage;
-            }));
-            let errorEvent$: Observable<TransportEvent> = fromEvent(ws, "error").pipe(map(x => {
+        let msgEvent$: Observable<TransportEvent> = fromEvent(ws, "message").pipe(map((msg: any) => {
+            try {
+                var result = transport._config.serializer.deserialize(msg.data);
+            } catch (err) {
                 return {
                     type: "error",
-                    data: new WampusNetworkError("The WebSocket client emitted an error.", {
-                        innerError: x
+                    data: new WampusNetworkError("Received a message that could not be deserialized.", {
+                        innerError: err
                     })
                 } as TransportError;
-            }));
-
-            transport.events$ = merge(closeEvent$, errorEvent$, msgEvent$).pipe(skipAfter((x: TransportEvent) => {
-                return x.type === "closed";
-            }));
-            if (ws.readyState === WebSocket.OPEN) {
-                sub.next(transport);
             }
-            ws.onopen = () => {
-                ws.onopen = null;
-                sub.next(transport);
-            };
-            ws.onerror = event => {
-                ws.onerror = ws.onopen = null;
-                let err = new WampusNetworkError(`Failed to establish WebSocket connection with ${config.url}. ${event.message}`, {
-                    innerError: event.error
-                });
-                sub.error(err);
-            };
-        }) as Observable<WebsocketTransport>;
+            return {
+                type: "message",
+                data: result
+            } as TransportMessage;
+        }));
 
-        return race(errorOnTimeOut$, transport$).pipe(take(1)).toPromise();
+        const wsErrors$ = fromEvent<Error>(ws, "error")
+
+        let errorNow$: Observable<never> = wsErrors$.pipe(map(error  => {
+            throw new WampusNetworkError(`Failed to establish WebSocket connection with ${config.url}. ${error.message}`, {
+                innerError: error
+            });
+        }));
+
+        let errorLater$: Observable<never> = wsErrors$.pipe(map(x => {
+            throw new WampusNetworkError(`The WebSocket client closed with an error. ${x.message}`, {
+                innerError: x
+            });
+        }));
+
+        let openEvent$ = fromEvent(ws, "open").pipe(map(() => {
+            return transport;
+        }));
+
+        transport.events$ = merge(closeEvent$, errorLater$, msgEvent$).pipe(skipAfter((x: TransportEvent) => {
+            return x.type === "closed";
+        }));
+
+        return race(errorNow$, openEvent$, errorOnTimeOut$).pipe(take(1)).toPromise();
     }
 
     close(x ?: { code?: number, data?: any }): Promise<void> {
@@ -138,7 +131,7 @@ export class WebsocketTransport implements Transport {
         }
         this._expectingClose = new Promise((resolve, reject) => {
             if (this._ws.readyState === this._ws.CLOSED) resolve();
-            this._ws.once("close",msg => {
+            this._ws.once("close", msg => {
                 resolve();
             });
             if (this._ws.readyState !== this._ws.CLOSING) {

@@ -5,7 +5,7 @@ import {WampusError, WampusNetworkError} from "~lib/core/errors/types";
 import test from "ava";
 
 let getTransport = (url, timeout?, serializer?) => {
-    return WebsocketTransport.create$({
+    return WebsocketTransport.create({
         url,
         serializer: serializer || new JsonSerializer(),
         timeout

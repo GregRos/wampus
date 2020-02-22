@@ -80,7 +80,7 @@ test("configure websocket transport, assign serializer", async t => {
 test("assign websocket transport directly", async t => {
     let session = t.context.session = Wampus.connect({
         transport() {
-            return WebsocketTransport.create$({
+            return WebsocketTransport.create({
                 url: "ws://localhost:8080",
                 timeout: 1000,
                 serializer: new JsonSerializer()

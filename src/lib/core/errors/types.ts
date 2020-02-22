@@ -11,7 +11,7 @@ const template = str => lodashTemplate(str, {
  */
 export abstract class WampusError extends Error {
     name = this.constructor.name;
-
+    innerError?: Error;
     constructor(message: string, props: object) {
 
         super(template(message)(props || {}));
