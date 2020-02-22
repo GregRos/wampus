@@ -12,9 +12,7 @@ install:
   - yarn run prereq:router
 script:
   - yarn run build:clean
-  - yarn run test:fast
+  - yarn run test
   - yarn run codecov
-go:
-  - "1.13.x"
 node_js:
   - "10.13"
