@@ -1,14 +1,14 @@
 import {Transport, TransportClosed, TransportError, TransportEvent, TransportMessage} from "./transport";
-import * as ws from "ws";
 
 import {WampusInvalidArgument, WampusNetworkError} from "../errors/types";
 import {Serializer} from "../serializer/serializer";
-import {fromEvent, merge, NEVER, Observable, of, race, throwError} from "rxjs";
+import {fromEvent, merge, NEVER, Observable, of, race, Subject, throwError, timer} from "rxjs";
 import {delay, map, take} from "rxjs/operators";
 import {skipAfter} from "../../utils/rxjs-operators";
 
-const WebSocket = require("isomorphic-ws");
+import WebSocket from "isomorphic-ws";
 
+export let WebSocketImpl = WebSocket;
 /**
  * The object used to configure the {@see WebsocketTransport}.
  */
@@ -25,14 +25,13 @@ export interface WebsocketTransportConfig {
 export class WebsocketTransport implements Transport {
     events$: Observable<TransportEvent>;
     private _config: WebsocketTransportConfig;
-    private _ws: ws;
+    private _ws: WebSocket;
     private _expectingClose: Promise<void>;
 
     /**
      * Use `WebsocketTransport.connect` instead.
-     * @param {never} never
      */
-    constructor(never: never) {
+    private constructor() {
 
     }
 
@@ -50,7 +49,7 @@ export class WebsocketTransport implements Transport {
      * @param {WebsocketTransportConfig} config
      * @returns {Observable<WebsocketTransport>}
      */
-    static async create(config: WebsocketTransportConfig): Promise<WebsocketTransport> {
+    static async create$(config: WebsocketTransportConfig): Promise<WebsocketTransport> {
 
         if (config.timeout != null && typeof config.timeout !== "number") {
             throw new WampusInvalidArgument("Timeout value {timeout} is invalid.", {
@@ -68,11 +67,11 @@ export class WebsocketTransport implements Transport {
             });
         }));
 
-        let transport$ = Observable.create(sub => {
-            let transport = new WebsocketTransport(null as never);
+        let transport$ = new Observable(sub => {
+            let transport = new WebsocketTransport();
             transport._config = config;
             try {
-                var ws = new WebSocket(config.url, config.forceProtocol || `wamp.2.${config.serializer.id}`, {});
+                var ws = new WebSocketImpl(config.url, config.forceProtocol || `wamp.2.${config.serializer.id}`, {});
             } catch (err) {
                 throw(new WampusNetworkError(`The WebSocket client could not be created. ${err.message}`, {
                     innerError: err
@@ -155,7 +154,7 @@ export class WebsocketTransport implements Transport {
         if (this._expectingClose) {
             return throwError(new WampusNetworkError("This transport is closing or has already closed."));
         }
-        return Observable.create(sub => {
+        return new Observable(sub => {
             try {
                 var payload = this._config.serializer.serialize(msg);
             } catch (err) {
@@ -163,14 +162,9 @@ export class WebsocketTransport implements Transport {
                     err
                 });
             }
-            this._ws.send(payload, {}, err => {
-                if (err) {
-                    sub.error(new WampusNetworkError("Failed to send message via the web socket transport.", {
-                        innerError: err
-                    }));
-                } else {
-                    sub.complete();
-                }
+            this._ws.send(payload);
+            Promise.resolve().then(() => {
+                sub.complete();
             });
             return {
                 unsubscribe() {

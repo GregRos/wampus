@@ -1,11 +1,19 @@
 import test from "ava";
 import {take} from "rxjs/operators";
-import {getTransportAndServerConn} from "../../../helpers/ws-server";
+import {getTransportAndServerConn, rxjsWsServer} from "../../../helpers/ws-server";
 
 import {choose} from "../../../../lib/utils/rxjs-operators";
-import WebSocket = require("ws");
 import {WampusNetworkError} from "../../../../lib/core/errors/types";
 import {timer} from "rxjs";
+import sinon from "sinon";
+import {JsonSerializer} from "../../../../lib/core/serializer/json";
+
+import WebSocket from "isomorphic-ws";
+import {WebsocketTransport} from "../../../../lib/core/transport/websocket";
+
+test.afterEach(() => {
+    sinon.restore();
+});
 
 test("acuire", async t => {
     let {server, client} = await getTransportAndServerConn();
@@ -57,3 +65,9 @@ test("close xN, get same promise", async t => {
     let close3 = client.close();
     t.true(close3 === close2);
 });
+
+test("connected transport properties", async t => {
+    let {server, client} = await getTransportAndServerConn();
+    t.is(client.name, "websocket.json");
+});
+

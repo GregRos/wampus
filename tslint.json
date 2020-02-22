@@ -3,6 +3,7 @@
     "tslint-config-gregros"
   ],
   "rules": {
+    "no-implicit-dependencies": false,
     "completed-docs": {
       "severity": "warn",
       "options": {

@@ -5,7 +5,7 @@ import {WampType, WampUri} from "typed-wamp";
 import {MatchError} from "../../../helpers/errors";
 
 import {isMatch} from "lodash";
-import {WampusNetworkError} from "../../../../lib/core/errors/types";
+import {WampusNetworkError} from "~lib/core/errors/types";
 import {timer} from "rxjs";
 import {timeoutPromise} from "../../../helpers/promises";
 

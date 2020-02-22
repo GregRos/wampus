@@ -32,7 +32,7 @@ export interface TransportError {
     /**
      * The wrapped error thrown by the transport.
      */
-    data: WampusError;
+    data: Error;
 }
 
 /**

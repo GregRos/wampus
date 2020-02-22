@@ -4,22 +4,6 @@ import CallSite = NodeJS.CallSite;
 import {Transcurse, transcurse} from "transcurse";
 
 /**
- * A set of standard transformations used by Wampus.
- */
-export class TransformSet {
-    out = {
-        json: transcurse(),
-        error: transcurse<Error, WampusSendErrorArguments>()
-    };
-
-    in = {
-        json: transcurse<any, any>(),
-        error: transcurse<WampusInvocationError, Error>()
-    };
-
-}
-
-/**
  * An object used to capture stack traces, in order to help with debugging async calls.
  */
 export interface StackTraceService {

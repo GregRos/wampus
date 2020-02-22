@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "../../dist/test",
+    "baseUrl": ".",
+    "paths": {
+      "~lib/*": [
+        "../lib/*"
+      ]
+    },
+    "resolveJsonModule": true
+  },
+  "references": [{
+    "path": "../lib"
+  }],
+  "include": [
+    "**/*.ts",
+    "**/*.json"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "../../dist/lib",
+    "declaration": true
+  }
+}

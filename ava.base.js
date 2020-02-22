@@ -1,3 +1,6 @@
 export default {
-	verbose: true
+	verbose: true,
+    require: [
+        "./dist/test/setup"
+    ]
 };
