@@ -1,4 +1,4 @@
-import {Transport, TransportClosed, TransportEvent, TransportMessage} from "./transport";
+import {Transport, TransportClosed, TransportEvent, TransportError, TransportMessage} from "./transport";
 
 import {WampusInvalidArgument, WampusNetworkError} from "../errors/types";
 import {Serializer} from "../serializer/serializer";

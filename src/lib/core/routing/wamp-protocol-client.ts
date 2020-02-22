@@ -135,12 +135,7 @@ export class WampProtocolClient<T> {
         this.transport.events$.subscribe({
             next: x => {
                 if (x.type === "error") {
-                    let all = this._router.matchAll();
-                    if (all.length === 0) {
-                        this._defaultRoute.error(x.data);
-                    } else {
-                        all.forEach(route => route.error(x.data));
-                    }
+                    this._defaultRoute.error(x.data);
                 } else if (x.type === "message") {
                     if (!(Array.isArray(x.data))) {
                         throw new WampusNetworkError("Non-array message.", {});
@@ -161,7 +156,12 @@ export class WampProtocolClient<T> {
 
             },
             error:err => {
-                this._defaultRoute.error(err);
+                let all = this._router.matchAll();
+                if (all.length === 0) {
+                    this._defaultRoute.error(err);
+                } else {
+                    all.forEach(route => route.error(err));
+                }
             }
         });
     }

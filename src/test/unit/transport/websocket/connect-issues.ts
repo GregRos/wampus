@@ -6,7 +6,8 @@ import {JsonSerializer} from "~lib/core/serializer/json";
 import WebSocket from "isomorphic-ws";
 import {timer} from "rxjs";
 import {WampusNetworkError} from "~lib/core/errors/types";
-
+import {EventTarget} from "event-target-shim";
+import {EventEmitter} from "events";
 function getModuleWithPatchedWs(alt: () => void) {
     return rewiremock.proxy(() => require("~lib/core/transport/websocket"), r => {
         return {
@@ -15,16 +16,12 @@ function getModuleWithPatchedWs(alt: () => void) {
     });
 }
 
-const stubWithEventListener = () => {
-    return {
-        addEventListener() {
-
-        }
-    }
+const eventTargetStub = () => {
+    return new EventEmitter();
 };
 
 test("connection timeout", async t => {
-    const { WebsocketTransport } = await getModuleWithPatchedWs(() => stubWithEventListener());
+    const { WebsocketTransport } = await getModuleWithPatchedWs(() => eventTargetStub());
     const z = WebsocketTransport.create$({
         timeout: 50,
         serializer: new JsonSerializer(),
@@ -36,7 +33,7 @@ test("connection timeout", async t => {
 });
 
 test("ws error", async t => {
-    const stub: any = stubWithEventListener();
+    const stub: any = eventTargetStub();
     const { WebsocketTransport } = await getModuleWithPatchedWs(() => stub);
     const wsPromise = WebsocketTransport.create$({
         timeout: 50,
@@ -44,7 +41,7 @@ test("ws error", async t => {
         url: "ws://localhost:3000"
     });
 
-    timer(0).subscribe(() => {
+    timer(1).subscribe(() => {
         stub.onerror(new Error("err"));
     });
     const err = await t.throwsAsync(wsPromise);
