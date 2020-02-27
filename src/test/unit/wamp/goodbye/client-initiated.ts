@@ -23,7 +23,6 @@ test("when goodbye received, should disconnect and close", async t => {
 
 test("will allow abrupt disconnect during goodbye", async t => {
     let {session, server} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.events);
     let pGoodbye = session.close();
     await timer(100).toPromise();
     server.close();
@@ -37,7 +36,6 @@ const factory = new MessageFactory({
 });
 test("random messages should be allowed during goodbye", async t => {
     let {session, server} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.events);
     let pGoodbye = session.close();
     await timer(20).toPromise();
     server.send(factory.error(WampType.INVOCATION, 0, {}, "").toRaw());

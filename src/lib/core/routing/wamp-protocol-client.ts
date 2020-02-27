@@ -2,8 +2,8 @@ import {WampArray, Wamp, WampPrimitive, WampRaw} from "typed-wamp";
 import {WampusNetworkError} from "../errors/types";
 import {PrefixRoute, PrefixRouter} from "./prefix-router";
 import {Transport} from "../transport/transport";
-import {merge, Observable, of, Subject, timer} from "rxjs";
-import {flatMap, tap} from "rxjs/operators";
+import {defer, merge, Observable, of, Subject, timer} from "rxjs";
+import {delay, flatMap, tap} from "rxjs/operators";
 
 /**
  * A message-based WAMP protocol client that allows sending WAMP messages and receiving them.
@@ -69,10 +69,10 @@ export class WampProtocolClient<T> {
      * @param {WampMessage.Any} msg The message to send.
      */
     send$(msg: Wamp.Any): Observable<any> {
-        return of(null).pipe(flatMap(() => {
+        return defer(() => {
             let loose = msg.toRaw();
             return this.transport.send$(loose);
-        }));
+        });
     }
 
     /**

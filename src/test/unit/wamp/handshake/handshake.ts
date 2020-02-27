@@ -4,11 +4,14 @@ import {wampusHelloDetails} from "~lib/core/hello-details";
 import {MatchError} from "~test/helpers/errors";
 import {WampusNetworkError} from "~lib/core/errors/types";
 import {SessionStages} from "~test/helpers/dummy-session";
+import {Rxjs} from "~test/helpers/observable-monitor";
+import {WampType, WampUri} from "typed-wamp";
 
 test("HELLO is okay", async t => {
     let {server, session} = SessionStages.fresh("a");
-    let hello = await server.messages.pipe(first()).toPromise();
-    t.deepEqual(await hello, [1, "a", wampusHelloDetails]);
+    let sbs = Rxjs.monitor(server.messages);
+    let hello = sbs.next();
+    t.deepEqual(await hello, [WampType.HELLO, "a", wampusHelloDetails]);
 });
 
 test("send HELLO, when received ABORT(No such realm), throw error", async t => {
@@ -58,16 +61,16 @@ test("send hello, when received connection error, throw error", async t => {
     server.error(err);
     await t.throwsAsync(session, "ERROR! abcd");
 });
-
+const wDetails = {
+    roles: {
+        broker: {},
+        dealer: {}
+    }
+};
 test("send HELLO, when receive WELCOME, session should have received data", async t => {
     let {server, session} = SessionStages.fresh("a");
     await server.messages.pipe(first()).toPromise();
-    let wDetails = {
-        roles: {
-            broker: {},
-            dealer: {}
-        }
-    };
+
     server.send([2, 123, wDetails]);
     let s = await session;
     t.true(s.isActive);

@@ -861,7 +861,7 @@ export class WampusCoreSession {
             console.warn("Network error on ABORT.");
             return EMPTY;
         }));
-        return concat(all$);
+        return all$;
     }
 
     private _goodbye$(details: WampObject, reason: WampUriString) {
