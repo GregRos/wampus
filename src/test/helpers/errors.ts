@@ -1,5 +1,5 @@
 import {
-    WampusIllegalOperationError,
+    WampusIllegalOperationError, WampusInvalidArgument,
     WampusInvocationCanceledError,
     WampusNetworkError
 } from "~lib/core/errors/types";
@@ -18,4 +18,7 @@ export namespace MatchError {
         return err => err instanceof WampusIllegalOperationError && partialMatchText(err.message, substrings);
     }
 
+    export function invalidArgument(err: Error, ...substrings: string[]) {
+        return err instanceof WampusInvalidArgument && substrings.every(x => err.message.toLocaleLowerCase().includes(x.toLocaleLowerCase()));
+    }
 }

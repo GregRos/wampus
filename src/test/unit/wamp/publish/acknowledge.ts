@@ -49,6 +49,12 @@ testPublishError({
     title: "receive ERROR(invalid URI), throw"
 });
 
+testPublishError({
+    errMatch: MatchError.illegalOperation("whatever"),
+    errId: "wamp.error.whatever",
+    title: "receive ERROR(custom), throw"
+});
+
 test("publish on closing session", async t => {
     let {server, session} = await SessionStages.handshaken("a");
 

@@ -72,11 +72,3 @@ test("WS error after open", async t => {
     t.assert(err instanceof WampusNetworkError);
     t.assert(err.message.match(/closed with an error.*aaaa/i));
 });
-
-test("WS closes", async t => {
-    const stub: EventEmitter = eventTargetStub();
-    timer(1).subscribe(() => {
-        stub.emit("open");
-    });
-    const transport = await getCommonTransport(stub);
-});

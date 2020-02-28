@@ -40,7 +40,7 @@ import {
     timer
 } from "rxjs";
 import {
-    catchError,
+    catchError, endWith,
     flatMap,
     map,
     mapTo,
@@ -49,7 +49,7 @@ import {
     takeUntil,
     takeWhile,
     tap,
-    timeoutWith
+    timeoutWith, toArray
 } from "rxjs/operators";
 import {
     WampusCallArguments,
@@ -125,7 +125,7 @@ export class WampusCoreSession {
         session.protocol = messenger;
         let serverDroppedConnection$ = onErrorResumeNext(messenger.onClosed.pipe(flatMap(() => {
             return concat(timer(0), defer(() => {
-                messenger.invalidateAllRoutes(new WampusRouteCompletion(WampusCompletionReason.RouterDisconnect));
+                messenger.invalidateAllRoutes$(new WampusRouteCompletion(WampusCompletionReason.RouterDisconnect)).subscribe();
                 session._isClosing = true;
                 return undefined;
             }));
@@ -242,14 +242,14 @@ export class WampusCoreSession {
                 // Expect INTERRUPT message for cancellation
                 let completeInterrupt = new Subject();
                 let interruptRequest$ = this.protocol.expectAny$([WampType.INTERRUPT, invocationMsg.reqId])
-                .pipe(map(x => x as WM.Interrupt), map(x => {
-                    return {
-                        received: new Date(),
-                        options: x.options,
-                        source: procInvocationTicket,
-                        type: "cancel"
-                    } as CancellationToken;
-                }));
+                    .pipe(map(x => x as WM.Interrupt), map(x => {
+                        return {
+                            received: new Date(),
+                            options: x.options,
+                            source: procInvocationTicket,
+                            type: "cancel"
+                        } as CancellationToken;
+                    }));
 
                 // Fabricate a cancellation token if the timeout is elapsed.
                 let timeout = invocationMsg.details.timeout >= 0 ? timer(invocationMsg.details.timeout) : NEVER;
@@ -265,12 +265,12 @@ export class WampusCoreSession {
                 let anyInterrupt$ = merge(interruptRequest$, timeoutEvent$);
                 let expectInterrupt =
                     anyInterrupt$
-                    .pipe(take(1), takeUntil(completeInterrupt), catchError(err => {
-                        if (err instanceof WampusRouteCompletion) {
-                            return EMPTY;
-                        }
-                        throw err;
-                    }), publishReplayAutoConnect());
+                        .pipe(take(1), takeUntil(completeInterrupt), catchError(err => {
+                            if (err instanceof WampusRouteCompletion) {
+                                return EMPTY;
+                            }
+                            throw err;
+                        }), publishReplayAutoConnect());
                 let isHandled = false;
 
                 // Send the selected WAMP message as a reply to the invocation
@@ -299,21 +299,21 @@ export class WampusCoreSession {
                 // Create an invocation ticket.
                 let procInvocationTicket: InvocationTicket = {
                     source: procRegistrationTicket,
-                    error(err: WampusSendErrorArguments) {
+                    async error(err: WampusSendErrorArguments) {
                         if (typeof err !== "object") {
                             throw Errs.Register.resultIncorrectFormat(name, err);
                         }
                         let {args, error, kwargs, details} = err;
                         return send$(factory.error(WampType.INVOCATION, invocationMsg.reqId, details, error, args, kwargs)).toPromise();
                     },
-                    return(obj: WampusSendResultArguments) {
+                    async return(obj: WampusSendResultArguments) {
                         if (typeof obj !== "object") {
                             throw Errs.Register.resultIncorrectFormat(name, obj);
                         }
                         let {args, kwargs, options} = obj;
                         return send$(factory.yield(invocationMsg.reqId, options, args, kwargs)).toPromise();
                     },
-                    progress(args) {
+                    async progress(args) {
                         args.options = args.options || {};
                         args.options.progress = true;
                         return this.return(args);
@@ -358,9 +358,9 @@ export class WampusCoreSession {
 
         let result =
             merge(sending$, expectRegisteredOrError$)
-            .pipe(takeWhile(x => x !== null))
-            .pipe(failOnError, take(1))
-            .pipe(whenRegisteredReceived);
+                .pipe(takeWhile(x => x !== null))
+                .pipe(failOnError, take(1))
+                .pipe(whenRegisteredReceived);
         return result.toPromise();
     }
 
@@ -663,7 +663,7 @@ export class WampusCoreSession {
             // Merge sending and creating the route for the reply, and set up the conditions for non-error call completion.
             let allStream =
                 merge(expectResultOrError, sending)
-                .pipe(skipAfter((x: CallResultData) => !x.isProgress));
+                    .pipe(skipAfter((x: CallResultData) => !x.isProgress));
 
             // Start the cancelling flow
             let startCancelling = (cancel: WM.Cancel) => defer(async () => {
@@ -809,7 +809,7 @@ export class WampusCoreSession {
         }));
     }
 
-    private _abortDueToProtoViolation(message: string) {
+    private _abortDueToProtoViolation$(message: string) {
         return this._close$({
             message
         }, WampUri.Error.ProtoViolation, true);
@@ -821,12 +821,8 @@ export class WampusCoreSession {
         // expectRoute$(x).flatMap(x => _closeRoutes$())
         // Which basically means that as part of the inner obervable returned by flatMap, the outer observable `expectRoute$(x)` is going to error
         // So a sequence of timeouts is used that may not be portable or even a good idea.
-        return defer(async () => {
-            this.protocol.invalidateAllRoutes(err);
-            // We give the routes time to close before continuing
-            // note that await Promise.resolve() will not do the trick, because we need to event loop to execute
-            // and Promise.resolve creates a microtask, which isn't async enough
-            await timer(0).toPromise();
+        return defer(() => {
+            return concat(this.protocol.invalidateAllRoutes$(err), timer(0));
         }).pipe(take(1));
     }
 
@@ -939,18 +935,30 @@ export class WampusCoreSession {
             throw err;
         });
 
+        // We use take(1), toArray() to make sure to unsubscribe from the expect$ observable before running the
+        // closing code. otherwise, we run into some kind of rxjs bug where causing an observable to error
+        // causes it to hang.
+
         // Here we detect server-initiated closing of the session.
-        let serverInitiatedClose$ = this.protocol.expectAny$([WampType.ABORT], [WampType.GOODBYE]).pipe(take(1), flatMap((x: WM.Abort) => {
-            return concat(this._handleClose$(x));
-        }), catchCompletionError);
+        let serverInitiatedClose$ = this.protocol.expectAny$([WampType.ABORT], [WampType.GOODBYE]).pipe(
+            take(1),
+            toArray(),
+            flatMap(([x]) => {
+                return concat(this._handleClose$(x as Wamp.Goodbye));
+            }), catchCompletionError);
 
         // Now we define a few protocol violations that can be committed by the router.
         let serverSentInvalidMessage$ = this.protocol.expectAny$(
             [WampType.WELCOME],
             [WampType.CHALLENGE]
-        ).pipe(flatMap(x => {
-            return this._abortDueToProtoViolation(`Received unexpected message of type ${WampType[x.type]}.`);
-        }), catchCompletionError);
+        ).pipe(
+            take(1),
+            toArray(),
+            flatMap(([x]) => {
+                return this._abortDueToProtoViolation$(`Received unexpected message of type ${WampType[x.type]}.`);
+            }),
+            catchCompletionError
+        );
 
         let serverSentRouterMessage$ = this.protocol.expectAny$(
             [WampType.AUTHENTICATE],
@@ -963,8 +971,8 @@ export class WampusCoreSession {
             [WampType.SUBSCRIBE],
             [WampType.UNSUBSCRIBE],
             [WampType.CANCEL]
-        ).pipe(flatMap(x => {
-            return this._abortDueToProtoViolation(`Received message of type ${WampType[x.type]}, which is meant for routers not peers.`);
+        ).pipe(take(1), toArray(), flatMap(([x]) => {
+            return this._abortDueToProtoViolation$(`Received message of type ${WampType[x.type]}, which is meant for routers not peers.`);
         }), catchCompletionError);
 
         return merge(serverSentInvalidMessage$, serverSentRouterMessage$, serverInitiatedClose$);

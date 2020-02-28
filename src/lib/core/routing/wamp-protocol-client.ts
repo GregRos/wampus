@@ -2,7 +2,7 @@ import {WampArray, Wamp, WampPrimitive, WampRaw} from "typed-wamp";
 import {WampusNetworkError} from "../errors/types";
 import {PrefixRoute, PrefixRouter} from "./prefix-router";
 import {Transport} from "../transport/transport";
-import {defer, merge, Observable, of, Subject, timer} from "rxjs";
+import {defer, EMPTY, merge, Observable, of, Subject, timer} from "rxjs";
 import {delay, flatMap, tap} from "rxjs/operators";
 
 /**
@@ -10,7 +10,7 @@ import {delay, flatMap, tap} from "rxjs/operators";
  */
 export class WampProtocolClient<T> {
     transport: Transport;
-    public _router: PrefixRouter<T>;
+    _router: PrefixRouter<T>;
     private _onUnknownMessage = new Subject<any>();
     private _parser: (x: WampRaw.Unknown) => T;
     private _defaultRoute: PrefixRoute<any> = {
@@ -82,7 +82,7 @@ export class WampProtocolClient<T> {
      * @returns {Observable<WampMessage.Any>}
      */
     expect$(prefixKey: WampPrimitive[]): Observable<T> {
-        return Observable.create(sub => {
+        return new Observable(sub => {
             let inv = {
                 key: prefixKey,
                 next(x) {
@@ -109,17 +109,17 @@ export class WampProtocolClient<T> {
      * This should be used when terminating a session in order to violate all routes.
      * @param error
      */
-    invalidateAllRoutes(error: Error) {
+     invalidateAllRoutes$(error: Error) {
         // The wait(0) thing is needed to prevent a bug in rxjs where it seems that
         // causing a source observable to error while in a flatMap will hang the observable
-        // TODO: Report bug
-        timer(0).pipe(tap(() => {
+        return defer(() => {
             this._onClosed.complete();
             let routes = this._router.matchAll();
             for (let route of routes) {
                 route.error(error);
             }
-        })).subscribe();
+            return EMPTY;
+        });
     }
 
     /**

@@ -114,7 +114,3 @@ export class SubscriptionTicket extends Ticket {
     }
 
 }
-
-objy.configureDescriptorsOwn(SubscriptionTicket.prototype, (x, k) => {
-    x.enumerable = k === "info";
-});

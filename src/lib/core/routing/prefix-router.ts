@@ -95,7 +95,7 @@ export class PrefixRouter<T> {
      * @param key The given key to match against the routes.
      */
     reverseMatch(key: WampPrimitive[]) {
-        let routes = [];
+        let routes = [] as PrefixRoute<T>[];
 
         function rec(cur: RouteIndex<T>, index: number) {
             if (!cur) return;

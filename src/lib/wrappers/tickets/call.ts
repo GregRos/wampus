@@ -146,8 +146,3 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
         return this.result.catch(onrejected);
     }
 }
-
-objy.configureDescriptorsOwn(CallTicket.prototype, (x,k) => {
-    x.enumerable = k === "info";
-});
-

@@ -19,6 +19,8 @@ test("when goodbye received, should disconnect and close", async t => {
     let next = await sbs.next();
     await t.notThrowsAsync(pGoodbye);
     t.is(next.type, "closed");
+    t.deepEqual(session.protocol._router.matchAll(), []); // no outstanding routes
+
 });
 
 test("will allow abrupt disconnect during goodbye", async t => {
@@ -27,6 +29,8 @@ test("will allow abrupt disconnect during goodbye", async t => {
     await timer(100).toPromise();
     server.close();
     await t.notThrowsAsync(pGoodbye);
+    t.deepEqual(session.protocol._router.matchAll(), []); // no outstanding routes
+
 });
 
 const factory = new MessageFactory({
@@ -42,6 +46,8 @@ test("random messages should be allowed during goodbye", async t => {
     await t.throwsAsync(fromPromise(pGoodbye).pipe(timeoutWith(20, throwError(new Error()))).toPromise());
     server.send([3, {}, "waaa"]);
     await t.notThrowsAsync(pGoodbye);
+    t.deepEqual(session.protocol._router.matchAll(), []); // no outstanding routes
+
 });
 
 test("when abort received, should disconnect and close", async t => {
@@ -54,6 +60,8 @@ test("when abort received, should disconnect and close", async t => {
     let next = await sbs.next();
     await t.notThrowsAsync(pGoodbye);
     t.is(next.type, "closed");
+    t.deepEqual(session.protocol._router.matchAll(), []); // no outstanding routes
+
 });
 
 test("when nothing received after timeout, should disconnect and close", async t => {
@@ -65,6 +73,8 @@ test("when nothing received after timeout, should disconnect and close", async t
     let goodbye = await sbs.next();
     await timer(1500).toPromise();
     t.is((await sbs.next()).type, "closed");
+    t.deepEqual(session.protocol._router.matchAll(), []); // no outstanding routes
+
 });
 
 test("when server disconnects abruptly, should close", async t => {
@@ -76,6 +86,8 @@ test("when server disconnects abruptly, should close", async t => {
     server.close();
     await p;
     t.pass();
+    t.deepEqual(session.protocol._router.matchAll(), []); // no outstanding routes
+
 });
 
 test("when server errors, should close", async t => {
@@ -86,4 +98,6 @@ test("when server errors, should close", async t => {
     // TODO: Do something with an error in closing process
     server.error(new WampusNetworkError("Blah!"));
     await t.notThrowsAsync(closing);
+    t.deepEqual(session.protocol._router.matchAll(), []); // no outstanding routes
+
 });

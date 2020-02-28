@@ -17,7 +17,7 @@ export namespace DependencyDeclarations {
     export function serializer(declr: SerializerDeclaration) {
         if (declr === "json") {
             return new JsonSerializer();
-        } else if (typeof declr.deserialize === "function") {
+        } else if (typeof declr?.deserialize === "function") {
             return declr;
         } else {
             if (typeof declr === "string") {
@@ -31,7 +31,7 @@ export namespace DependencyDeclarations {
     export function transport(config: TransportDeclaration): TransportFactory {
         if (typeof config === "function") {
             return config;
-        } else if (config.type === "websocket") {
+        } else if (config?.type === "websocket") {
             let transportData = config;
 
             let slzr = serializer(config.serializer);
@@ -43,10 +43,10 @@ export namespace DependencyDeclarations {
                 });
             };
         } else {
-            if (typeof config.type === "string") {
+            if (typeof config?.type === "string") {
                 throw Errors.Creation.unknownTransportName(config.type);
             } else {
-                throw Errors.Creation.unknownTransport(config);
+                throw Errors.Creation.invalidTransport(config);
             }
         }
     }

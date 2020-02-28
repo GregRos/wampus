@@ -76,17 +76,17 @@ test("procedures", async t => {
     let session = t.context.session as WampusSession;
 
     let tickets = await session.procedures({
-        async ["wampus.a"](x) {
+        async "wampus.a"(x) {
             return {
                 args: ["a"]
             };
         },
-        async ["wampus.b"](x) {
+        async "wampus.b"(x) {
             return {
                 args: ["b"]
             };
         },
-        async ["wampus.c"](x) {
+        async "wampus.c"(x) {
             return {
                 args: ["c"]
             };

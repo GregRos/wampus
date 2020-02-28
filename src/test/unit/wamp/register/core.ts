@@ -97,6 +97,7 @@ test("after registered, receive INVOCATION, observable fires", async t => {
     }));
 });
 
+
 test("after registered, receive two INVOCATIONS, observable fire each time", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
@@ -132,6 +133,17 @@ test("after INVOCATION, return sends YIELD(final), no need for reply", async t =
         4: {a: 1}
     }));
     t.falsy(await serverMonitor.nextWithin(10));
+});
+
+test("after INVOCATION, try to YIELD invalid response", async t => {
+    let {session, server} = await SessionStages.handshaken("a");
+    let registration = await getRegistration({session, server});
+    let invocationMonitor = Rxjs.monitor(registration.invocations);
+    let serverMonitor = Rxjs.monitor(server.messages);
+    server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
+    let next = await invocationMonitor.next();
+    const err = await t.throwsAsync(next.return(5 as any));
+    t.assert(MatchError.illegalOperation(`procedure ${registration.info.name}`, "incorrectly structured")(err));
 });
 
 test("after INVOCATION, error sends ERROR, no need for reply", async t => {
@@ -318,6 +330,10 @@ test("procedure() on closing session throws", async t => {
     t.true(err instanceof WampusNetworkError);
 });
 
+function makeRegistration({session, server}) {
+
+}
+
 test("after registration, session close causes registration to close", async t => {
     let {session, server} = await SessionStages.handshaken("a");
 
@@ -333,10 +349,7 @@ test("after registration, session close causes registration to close", async t =
 
 test("receive INVOCATION, session closes, return() and error() throw", async t => {
     let {session, server} = await SessionStages.handshaken("a");
-
-    let serverMonitor = Rxjs.monitor(server.messages);
     let reg = await getRegistration({session, server});
-    t.true(reg.isOpen);
     let invocationMonitor = Rxjs.monitor(reg.invocations);
     server.send([WampType.INVOCATION, 101, reg.info.registrationId, {}, [], {a: 1}]);
     let invocation = await invocationMonitor.next();

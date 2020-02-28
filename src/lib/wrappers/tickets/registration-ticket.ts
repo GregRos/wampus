@@ -60,9 +60,6 @@ export class RegistrationTicket extends Ticket {
         ticket.trace.created = trace;
         ticket._base = coreTicket;
         ticket._services = services;
-        objy.configureDescriptorsOwn(ticket, x => {
-            x.enumerable = false;
-        });
         return ticket;
     }
 
@@ -84,8 +81,4 @@ export class RegistrationTicket extends Ticket {
         });
     }
 }
-
-objy.configureDescriptorsOwn(InvocationTicket.prototype, (x, k) => {
-    x.enumerable = k === "info";
-});
 

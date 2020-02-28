@@ -28,7 +28,7 @@ export namespace Errors {
             });
         }
 
-        export function unknownTransport(object) {
+        export function invalidTransport(object) {
             return new WampusInvalidArgument("Given invalid transport.", {});
         }
     }

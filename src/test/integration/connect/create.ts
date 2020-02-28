@@ -1,9 +1,11 @@
 import {Wampus} from "../../../lib";
 import {WebsocketTransport} from "~lib/core/transport/websocket";
 import {JsonSerializer} from "~lib/core/serializer/json";
-import {isInteger} from "lodash";
+import {isInteger, isObjectLike} from "lodash";
 import {test} from "../../helpers/my-test-interface";
 import {timeoutPromise} from "../../helpers/promises";
+import {Wamp} from "typed-wamp";
+import {WampProtocolClient} from "~lib/core/routing/wamp-protocol-client";
 
 test.afterEach(async t => {
     if (!t.context.session) return;
@@ -38,7 +40,9 @@ test("verify session details", async t => {
 
     t.true(isInteger(session.sessionId));
     t.true(session.isActive);
-
+    t.is(session.realm, "hi");
+    t.true(isObjectLike(session.details));
+    t.true(session.protocol instanceof WampProtocolClient);
 });
 
 test("invalid transport type, throws", async t => {
@@ -50,7 +54,7 @@ test("invalid transport type, throws", async t => {
     });
     await t.throwsAsync(session);
 });
-
+7
 test("invalid serializer type, throws", async t => {
     let session = Wampus.connect({
         transport: {

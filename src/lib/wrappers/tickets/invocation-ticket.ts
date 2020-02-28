@@ -9,8 +9,6 @@ import {WampInvocationDetails, WampArray, WampObject} from "typed-wamp";
 import {WampusInvocationCanceledError} from "../../core/errors/types";
 import {clone} from "lodash";
 
-import objy = require("objectology");
-
 /**
  * A ticket for the invocation of a procedure, on the callee's side.
  */
@@ -50,9 +48,6 @@ export class InvocationTicket {
         this.name = _base.name;
         this.invocationId = _base.invocationId;
 
-        objy.configureDescriptorsOwn(this, (x,k) => {
-            x.enumerable = ["args", "kwargs", "options", "name", "invocationId"].includes(k as string);
-        });
     }
 
     /**
@@ -144,10 +139,6 @@ export class InvocationTicket {
         await this._base.return(args);
     }
 }
-
-objy.configureDescriptorsOwn(InvocationTicket.prototype, x => {
-    x.enumerable = false;
-});
 
 /**
  * A cancellation request from the caller.
