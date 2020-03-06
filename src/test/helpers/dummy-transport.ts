@@ -62,6 +62,7 @@ export function dummyTransport() {
     };
     return {
         client: {
+            location: "",
             name: "dummy",
             async close() {
                 intoServer.next({

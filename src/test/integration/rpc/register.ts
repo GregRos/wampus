@@ -3,6 +3,8 @@ import {WampusSession} from "../../../lib";
 import {WampRegisterOptions} from "typed-wamp";
 import {isMatch} from "lodash";
 import {test} from "../../helpers/my-test-interface";
+import {WampusIllegalOperationError} from "~lib/core/errors/types";
+import {MatchError} from "~test/helpers/errors";
 
 test.beforeEach(async t => {
     t.context = {
@@ -115,6 +117,43 @@ test("procedures", async t => {
     await tickets.close();
 
     await t.throwsAsync(session.call({name: "wampus.a"}));
+});
+
+test("procedures fails, all are cleaned up", async t => {
+    let session = t.context.session as WampusSession;
+
+    let ticket = await session.procedure({
+        name: "wampus.a",
+        async called(x) {
+            return {};
+        }
+    });
+
+    let error = await t.throwsAsync(session.procedures({
+        "wampus.a": {
+            options: {
+                match: "error" as any
+            },
+            async called(x) {
+                return {
+                    args: [1]
+                };
+            }
+        },
+        "wampus.b": {
+            async called(x) {
+                return {
+                    args: [2]
+                }
+            }
+        }
+    }));
+
+    let shouldError = await t.throwsAsync(session.call({
+        name: "wampus.b"
+    }));
+
+    t.assert(MatchError.illegalOperation("wampus.b", "did not exist")(shouldError));
 });
 
 test("close session, registration should also be closed", async t => {

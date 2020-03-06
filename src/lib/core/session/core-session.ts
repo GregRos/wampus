@@ -635,6 +635,7 @@ export class WampusCoreSession {
             // Map a RESULT message to an object.
             let toLibraryResult = map((x: WM.Result) => {
                 return {
+                    id: x.reqId,
                     args: x.args,
                     kwargs: x.kwargs,
                     isProgress: x.details.progress || false,

@@ -36,10 +36,6 @@ async function allWithCleanup<T>(promises: PromiseLike<T>[], cleanup: (x: T) => 
     });
 }
 
-function isKeyType(x: any): x is keyof any {
-    return ["symbol", "number", "string"].indexOf(x) >= 0;
-}
-
 /**
  * A specification detailing multiple procedure definitions.
  */
@@ -200,5 +196,9 @@ export class WampusSession extends Ticket {
             args: wArgs.args ? wArgs.args.map(this._services.out.json.apply.bind(this._services.out.json)) : wArgs.args
         };
         return this._core.publish(wArgs);
+    }
+
+    toString() {
+        return `[Session (${this.isActive ? "open" : "closed"}) ${this.protocol.transport.location}, realm ${this.realm}, id #${this.sessionId}]`
     }
 }

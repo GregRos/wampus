@@ -1,5 +1,5 @@
 import * as Core from "../../core/session/ticket";
-import {WampArray, WampObject, WampResultDetails} from "typed-wamp";
+import {WampArray, WampId, WampObject, WampResultDetails} from "typed-wamp";
 import {CallTicket} from "./call";
 import objy = require("objectology");
 
@@ -7,6 +7,9 @@ import objy = require("objectology");
  * A result message sent from the callee.
  */
 export class CallResultData implements Core.CallResultData {
+
+    readonly id: WampId;
+
     /**
      * The ordered arguments of the call result.
      */
@@ -26,9 +29,7 @@ export class CallResultData implements Core.CallResultData {
         this.kwargs = _base.kwargs;
         this.args = _base.args;
         this.details = _base.details;
-        objy.configureDescriptorsOwn(this, (x, k) => {
-            x.enumerable = ["kwargs", "args", "details"].includes(k as string);
-        });
+        this.id = _base.id;
     }
 
     /**
@@ -37,4 +38,9 @@ export class CallResultData implements Core.CallResultData {
     get isProgress() {
         return this._base.isProgress;
     }
+
+    toString() {
+        return `[CallResult (${this.isProgress ? "progress" : "final"}) ${this.source.info.name}, id #${this.id}]`
+    }
+
 }

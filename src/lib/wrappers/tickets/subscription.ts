@@ -39,9 +39,7 @@ export class SubscriptionTicket extends Ticket {
                 details: x.details,
                 source: this
             } as EventInvocation;
-            objy.configureDescriptorsOwn(data, (x,k) => {
-                x.enumerable = ["args", "kwargs", "details"].includes(k as any);
-            });
+
             return data;
         }));
     }
@@ -81,9 +79,7 @@ export class SubscriptionTicket extends Ticket {
                 arg: x
             };
         }, ["event"]);
-        objy.configureDescriptorsOwn(ticket, (x,k) => {
-            x.enumerable = false;
-        });
+
 
         return ticket;
     }
@@ -113,4 +109,7 @@ export class SubscriptionTicket extends Ticket {
         this._adapter.on(name, handler);
     }
 
+    toString() {
+        return `[Topic (${this.isOpen ? "active" : "closed"}) ${this.info.name}, id #${this.info.subscriptionId}]`;
+    }
 }

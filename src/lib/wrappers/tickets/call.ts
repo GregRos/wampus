@@ -77,7 +77,8 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
                 args: prog.args ? prog.args.map(services.in.json.apply.bind(services.in.json)) : prog.args,
                 kwargs: services.in.json.apply(prog.kwargs),
                 isProgress: prog.isProgress,
-                source: ticket
+                source: ticket,
+                id: prog.id
             }, ticket);
         }), catchError(err => {
             if (err instanceof WampusInvocationError) {
@@ -95,9 +96,6 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
                 arg: x
             };
         }, ["data"]);
-        objy.configureDescriptorsOwn(ticket, (x,k) => {
-            x.enumerable = k === "info";
-        });
         return ticket;
     }
 
@@ -144,5 +142,9 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
      */
     catch(onrejected: (reason: any) => any): Promise<any> {
         return this.result.catch(onrejected);
+    }
+
+    toString() {
+        return `[Call (${this.isOpen ? "pending" : "finished"}) ${this.info.name}, id #${this.info.callId}]`
     }
 }

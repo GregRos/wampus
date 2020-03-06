@@ -80,5 +80,9 @@ export class RegistrationTicket extends Ticket {
             myTicket._handle(handler);
         });
     }
+
+    toString() {
+        return `[Procedure (${this.isOpen ? "active" : "closed"}) ${this.info.name}, id #${this.info.registrationId}]`;
+    }
 }
 

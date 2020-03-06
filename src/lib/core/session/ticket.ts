@@ -1,8 +1,9 @@
-import {WampArray, WampObject, CancelMode,
+import {
+    WampArray, WampObject, CancelMode,
     WampCallOptions,
     WampEventDetails,
     WampInvocationDetails,
-    WampResultDetails
+    WampResultDetails, WampId
 } from "typed-wamp";
 
 import {
@@ -79,6 +80,9 @@ export interface SubscriptionTicket extends Ticket {
  * Data from a procedure invocation.
  */
 export interface CallResultData extends WampResult {
+
+    readonly id: WampId;
+
     readonly source: CallTicket;
 
     readonly args: WampArray;

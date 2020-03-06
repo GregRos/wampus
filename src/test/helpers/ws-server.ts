@@ -52,7 +52,8 @@ export async function getTransportAndServerConn() {
     let server = srv.getConnectionFromServerSide(rnd);
     return {
         client,
-        server
+        server,
+        url: srv.url
     };
 }
 

@@ -143,10 +143,10 @@ export class WebsocketTransport implements Transport {
     }
 
     send$(msg: object): Observable<any> {
-        if (this._expectingClose) {
-            return throwError(new WampusNetworkError("This transport is closing or has already closed."));
-        }
         return new Observable(sub => {
+            if (this._expectingClose) {
+                throw new WampusNetworkError("This transport is closing or has already closed.");
+            }
             try {
                 var payload = this._config.serializer.serialize(msg);
             } catch (err) {
@@ -154,8 +154,8 @@ export class WebsocketTransport implements Transport {
                     err
                 });
             }
-            this._ws.send(payload);
             Promise.resolve().then(() => {
+                this._ws.send(payload);
                 sub.complete();
             });
             return {
@@ -164,6 +164,10 @@ export class WebsocketTransport implements Transport {
                 }
             };
         });
+    }
+
+    get location() {
+        return this._config.url;
     }
 
 }

@@ -138,6 +138,10 @@ export class InvocationTicket {
         args = this._applyOutputTransforms(args);
         await this._base.return(args);
     }
+
+    toString() {
+        return `[Invocation (${this.isHandled ? "finished" : "pending"}) ${this.source.info.name}, id #${this.invocationId}]`
+    }
 }
 
 /**

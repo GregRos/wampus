@@ -69,6 +69,10 @@ export interface Transport {
      * @param extra Some extra data that may be used as part of closing the transport.
      */
     close(extra ?: object): Promise<void>;
+
+    toString(): string;
+
+    readonly location: string;
 }
 
 /**

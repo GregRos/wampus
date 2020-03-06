@@ -15,9 +15,10 @@ test.afterEach(() => {
     sinon.restore();
 });
 
-test("acuire", async t => {
-    let {server, client} = await getTransportAndServerConn();
+test("acquire", async t => {
+    let {server, client, url} = await getTransportAndServerConn();
     t.is(server.readyState, WebSocket.OPEN);
+    t.is(client.location, url);
 });
 
 
