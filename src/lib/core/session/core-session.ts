@@ -40,8 +40,7 @@ import {
     timer
 } from "rxjs";
 import {
-    catchError, endWith,
-    flatMap,
+    catchError, flatMap,
     map,
     mapTo,
     mergeMapTo,
@@ -97,7 +96,7 @@ export class WampusCoreSession {
     private _welcomeDetails: WelcomeDetails;
     private _isClosing = false;
 
-    constructor(never: never) {
+    private constructor() {
 
     }
 
@@ -120,7 +119,7 @@ export class WampusCoreSession {
         //      On close: Initiate goodbye sequence.
         let transport = await config.transport();
         let messenger = WampProtocolClient.create<Wamp.Any>(transport, x => Wamp.parse(x));
-        let session = new WampusCoreSession(null as never);
+        let session = new WampusCoreSession();
         session.config = config;
         session.protocol = messenger;
         let serverDroppedConnection$ = onErrorResumeNext(messenger.onClosed.pipe(flatMap(() => {

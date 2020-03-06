@@ -4,7 +4,7 @@ import {Feature} from "~lib/core/protocol/feature-names";
 import {WampusIllegalOperationError} from "~lib/core/errors/types";
 
 test("disclose me fails when feature is not declared", async t => {
-    let {session, server} = await SessionStages.handshaken("a");
+    let {session} = await SessionStages.handshaken("a");
 
     let prog = session.call({
         name: "a",
@@ -18,7 +18,7 @@ test("disclose me fails when feature is not declared", async t => {
 });
 
 test("timeout fails when feature not declared", async t => {
-    let {session, server} = await SessionStages.handshaken("a");
+    let {session} = await SessionStages.handshaken("a");
 
     let prog = session.call({
         name: "a",
@@ -32,7 +32,7 @@ test("timeout fails when feature not declared", async t => {
 });
 
 test("progressive call results request fails when feature not declared", async t => {
-    let {session, server} = await SessionStages.handshaken("a");
+    let {session} = await SessionStages.handshaken("a");
 
     let prog = session.call({
         name: "a",

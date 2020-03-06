@@ -24,7 +24,7 @@ test("sends SUBSCRIBE", async t => {
 
 test("topic() waits for reply", async t => {
     let {session, server} = await SessionStages.handshaken("a");
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     await t.throwsAsync(timeoutPromise(session.topic({name: "x"}), 20));
 });
 
@@ -45,7 +45,7 @@ test("topic() on closed session throws", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     server.send([3, {}, "no"]);
     await session.close();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     let pendingSub = session.topic({name: "hi"});
     let err = await t.throwsAsync(pendingSub);
     t.assert(err instanceof WampusNetworkError);
@@ -145,7 +145,7 @@ test("close() sends UNSUBSCRIBE, expects reply", async t => {
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
-    let eventMonitor = Rxjs.monitor(sub.events);
+    Rxjs.monitor(sub.events);
     let unsubbing = sub.close();
     let unsubMsg = await serverMonitor.next();
     t.true(isMatch(unsubMsg, {
@@ -181,7 +181,7 @@ test("close() subscription, session closes instead of UNSUBSCRIBE, subscription 
     let sub = await pendingSub;
     let eventMonitor = Rxjs.monitor(sub.events);
     let unsubbing = sub.close();
-    let unsubMsg = await serverMonitor.next();
+    await serverMonitor.next();
     server.send([3, {}, "no"]);
     await session.close();
     await t.notThrowsAsync(unsubbing);
@@ -198,7 +198,7 @@ function testUnsubscribeReceiveError(o: { errorName: string, errMatch(err: Error
         let subscribeMsg = await serverMonitor.next();
         server.send([33, subscribeMsg[1], 101]);
         let sub = await pendingSub;
-        let eventMonitor = Rxjs.monitor(sub.events);
+        Rxjs.monitor(sub.events);
         let unsubbing1 = sub.close();
         let unsubMsg = await serverMonitor.next();
         server.send([WampType.ERROR, WampType.UNSUBSCRIBE, unsubMsg[1], {}, o.errorName]);
@@ -226,7 +226,7 @@ test("calling close() a 2nd time returns the same promise", async t => {
     let subscribeMsg = await serverMonitor.next();
     server.send([33, subscribeMsg[1], 101]);
     let sub = await pendingSub;
-    let eventMonitor = Rxjs.monitor(sub.events);
+    Rxjs.monitor(sub.events);
     let unsubbing1 = sub.close();
     let unsubbing2 = sub.close();
     t.is(unsubbing1, unsubbing2);

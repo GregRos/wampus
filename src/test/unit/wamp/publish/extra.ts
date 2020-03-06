@@ -6,7 +6,7 @@ import {BrokerFeatures, WampPublishOptions} from "typed-wamp";
 
 function testUsingUnsupportedPublishOption(option: keyof WampPublishOptions, feature: keyof BrokerFeatures, featureName: string, value = true) {
     test(`using publish option ${option} when unsupported throws error about ${featureName}`, async t => {
-        let {session, server} = await SessionStages.handshaken("a");
+        let {session} = await SessionStages.handshaken("a");
         let err = await t.throwsAsync(session.publish({
             name: "a",
             options: {

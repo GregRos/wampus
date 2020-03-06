@@ -2,14 +2,10 @@ import {
     HelloDetails,
     WampCallOptions,
     WampCancelOptions,
-    WampEventDetails,
-    WampInvocationDetails,
     WampPublishOptions,
     WampRegisterOptions,
-    WampResultDetails,
     WampSubscribeOptions,
     WampYieldOptions,
-    WelcomeDetails,
     WampArray, WampId, Wamp, WampObject, WampUriString, WampType
 } from "typed-wamp";
 

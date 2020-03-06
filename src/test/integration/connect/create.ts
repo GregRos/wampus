@@ -4,7 +4,6 @@ import {JsonSerializer} from "~lib/core/serializer/json";
 import {isInteger, isObjectLike} from "lodash";
 import {test} from "../../helpers/my-test-interface";
 import {timeoutPromise} from "../../helpers/promises";
-import {Wamp} from "typed-wamp";
 import {WampProtocolClient} from "~lib/core/routing/wamp-protocol-client";
 
 test.afterEach(async t => {
@@ -54,7 +53,7 @@ test("invalid transport type, throws", async t => {
     });
     await t.throwsAsync(session);
 });
-7;
+
 test("invalid serializer type, throws", async t => {
     let session = Wampus.connect({
         transport: {

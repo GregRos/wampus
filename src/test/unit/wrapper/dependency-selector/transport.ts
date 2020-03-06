@@ -1,8 +1,7 @@
 import test from "ava";
 import {rewiremock} from "~test/helpers/rewiremock";
-import {WebsocketTransport} from "~lib/core/transport/websocket";
 import {Transport} from "~lib/core/transport/transport";
-import {EMPTY, NEVER, Observable} from "rxjs";
+import {NEVER, Observable} from "rxjs";
 import {MatchError} from "~test/helpers/errors";
 
 const WebsocketTransportToken = {};

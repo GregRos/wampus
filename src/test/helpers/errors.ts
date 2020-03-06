@@ -1,6 +1,5 @@
 import {
     WampusIllegalOperationError, WampusInvalidArgument,
-    WampusInvocationCanceledError,
     WampusNetworkError
 } from "~lib/core/errors/types";
 

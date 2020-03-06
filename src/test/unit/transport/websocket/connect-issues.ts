@@ -6,7 +6,6 @@ import {JsonSerializer} from "~lib/core/serializer/json";
 import WebSocket from "isomorphic-ws";
 import {timer} from "rxjs";
 import {WampusNetworkError} from "~lib/core/errors/types";
-import {EventTarget} from "event-target-shim";
 import {EventEmitter} from "events";
 import {take} from "rxjs/operators";
 

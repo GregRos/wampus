@@ -1,6 +1,5 @@
 import {RealSessions} from "~test/helpers/real-sessions";
-import {Routes} from "~lib/core/routing/routes";
-import invocation = Routes.invocation;
+
 // tslint:disable
 export async function stringify(log: (...xs) => void) {
     function printObject(name: string, x: any) {

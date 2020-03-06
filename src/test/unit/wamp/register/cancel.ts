@@ -33,7 +33,7 @@ test("interruptSignal doesn't fire with no INTERRUPT message, and finishes once 
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let invReq = await invocationMonitor.next();
     let interruptMonitor = Rxjs.monitor(invReq.cancellation);
@@ -46,7 +46,7 @@ test("interruptSignal replays past interrupt", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let invReq = await invocationMonitor.next();
     server.send([69, invReq.invocationId, {}]);
@@ -59,7 +59,7 @@ test("interruptSignal waits for future interrupt", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let invReq = await invocationMonitor.next();
     let interrupt = invReq.cancellation.toPromise();
@@ -71,7 +71,7 @@ test("interruptSignal waits for future interrupt", async t => {
 test("receive INVOCATION, session closes, interruptSignal completes", async t => {
     let {session, server} = await SessionStages.handshaken("a");
 
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     let reg = await getRegistration({session, server});
     t.true(reg.isOpen);
     let invocationMonitor = Rxjs.monitor(reg.invocations);

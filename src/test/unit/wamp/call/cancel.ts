@@ -39,7 +39,7 @@ test("should send CANCEL", async t => {
     // don't await close(), because it will expect a RESULT or ERROR from server.
     // tslint:disable-next-line:no-floating-promises
     prog.close();
-    let a = await serverMonitor.next();
+    await serverMonitor.next();
     let expectCancel = await serverMonitor.next();
     t.deepEqual(expectCancel, [49, prog.info.callId, {
         mode: "kill"
@@ -166,7 +166,7 @@ test("try to cancel call on a closed session should be a no-op", async t => {
             call_canceling: true
         }
     });
-    let sbs = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
 
     let cp1 = session.call({
         name: "a"
@@ -182,12 +182,13 @@ test("close session while cancelling should be a no-op", async t => {
             call_canceling: true
         }
     });
-    let sbs = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
 
     let cp1 = session.call({
         name: "a"
     });
-    let a = cp1.close();
+    // tslint:disable-next-line:no-floating-promises
+    cp1.close();
     await timer(100).toPromise();
     server.send([3, {}, "no"]);
     await session.close();

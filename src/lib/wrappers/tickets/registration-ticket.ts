@@ -16,7 +16,7 @@ export class RegistrationTicket extends Ticket {
     private _base: Core.RegistrationTicket;
     private _services: AbstractWampusSessionServices;
 
-    constructor(never: never) {
+    private constructor() {
         super();
     }
 
@@ -56,7 +56,7 @@ export class RegistrationTicket extends Ticket {
             throw err;
         });
 
-        let ticket = new RegistrationTicket(null as never);
+        let ticket = new RegistrationTicket();
         ticket.trace.created = trace;
         ticket._base = coreTicket;
         ticket._services = services;

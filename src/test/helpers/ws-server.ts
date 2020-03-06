@@ -16,7 +16,7 @@ export class RxjsWsServer {
     }
 
     static async create(port: number) {
-        let createServer$ = Observable.create(sub => {
+        let createServer$ = new Observable<WebSocket.Server>(sub => {
             let server = new WebSocket.Server({
                 port
             }, () => {
@@ -25,7 +25,7 @@ export class RxjsWsServer {
             server.on("error", err => {
                 sub.error(err);
             });
-        }) as Observable<WebSocket.Server>;
+        });
         let innerWs = await createServer$.pipe(take(1)).toPromise();
         let outerWs = new RxjsWsServer();
         outerWs._innerServer = innerWs;
@@ -58,7 +58,7 @@ export async function getTransportAndServerConn() {
 }
 
 export function sendVia(server: WebSocket, data: any): Promise<void> {
-    return Observable.create(sub => {
+    return new Observable<void>(sub => {
         server.send(JSON.stringify(data), err => {
             if (err) {
                 return sub.error(err);

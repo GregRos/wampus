@@ -24,7 +24,7 @@ export class SubscriptionTicket extends Ticket {
     private _services: AbstractWampusSessionServices;
     private _adapter: RxjsEventAdapter;
 
-    constructor(never: never) {
+    private constructor() {
         super();
     }
 
@@ -69,7 +69,7 @@ export class SubscriptionTicket extends Ticket {
             if (trace) err.stack = services.stackTraceService.format(err, trace);
             throw err;
         });
-        let ticket = new SubscriptionTicket(null as never);
+        let ticket = new SubscriptionTicket();
         ticket.trace.created = trace;
         ticket._base = coreTicket;
         ticket._services = services;

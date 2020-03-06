@@ -2,8 +2,8 @@ import {Transport, TransportClosed, TransportEvent, TransportError, TransportMes
 
 import {WampusInvalidArgument, WampusNetworkError} from "../errors/types";
 import {Serializer} from "../serializer/serializer";
-import {fromEvent, merge, NEVER, Observable, of, race, Subject, throwError, timer} from "rxjs";
-import {delay, map, mapTo, take, tap} from "rxjs/operators";
+import {fromEvent, merge, NEVER, Observable, of, race} from "rxjs";
+import {delay, map, take} from "rxjs/operators";
 import {skipAfter} from "../../utils/rxjs-operators";
 
 import WebSocket from "isomorphic-ws";

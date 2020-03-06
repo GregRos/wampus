@@ -86,7 +86,7 @@ test("after registered, receive INVOCATION, observable fires", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     t.true(isMatch(next, {
@@ -102,7 +102,7 @@ test("after registered, receive two INVOCATIONS, observable fire each time", asy
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     t.deepEqual(next.kwargs, {a: 1});
@@ -139,7 +139,7 @@ test("after INVOCATION, try to YIELD invalid response", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     const err = await t.throwsAsync(next.return(5 as any));
@@ -177,7 +177,7 @@ test("after INVOCATION, after error(), cannot call result() or error().", async 
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     await next.error({
@@ -193,7 +193,7 @@ test("after INVOCATION, after return(final), cannot call result() or error().", 
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     // tslint:disable-next-line:no-floating-promises
@@ -233,7 +233,7 @@ test("while closing, receive UNREGISTERED, closing promise finishes, invocations
 test("closing 2nd time returns the same promise", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     let unregistering1 = registration.close();
     let unregistering2 = registration.close();
     t.is(unregistering1, unregistering2);
@@ -309,7 +309,7 @@ test("procedure() on closed session throws", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     server.send([3, {}, "no"]);
     await session.close();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     let registering = session.register({
         name: "a"
     });
@@ -320,7 +320,7 @@ test("procedure() on closed session throws", async t => {
 test("procedure() on closing session throws", async t => {
     let {session, server} = await SessionStages.handshaken("a");
 
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     let registeringThrows = t.throwsAsync(session.register({
         name: "a"
     }));
@@ -330,14 +330,10 @@ test("procedure() on closing session throws", async t => {
     t.true(err instanceof WampusNetworkError);
 });
 
-function makeRegistration({session, server}) {
-
-}
-
 test("after registration, session close causes registration to close", async t => {
     let {session, server} = await SessionStages.handshaken("a");
 
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     let reg = await getRegistration({session, server});
     t.true(reg.isOpen);
     server.send([3, {}, "no"]);
@@ -368,7 +364,7 @@ test("while closing registration, session closes instead of UNREGISTER reply", a
     let registration = await getRegistration({session, server});
     let serverMonitor = Rxjs.monitor(server.messages);
     let unregistering = registration.close();
-    let unregisterMsg = await serverMonitor.next();
+    await serverMonitor.next();
     server.send([3, {}, "no"]);
     await session.close();
     await t.notThrowsAsync(unregistering);

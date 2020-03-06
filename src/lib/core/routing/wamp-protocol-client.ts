@@ -2,8 +2,7 @@ import {WampArray, Wamp, WampPrimitive, WampRaw} from "typed-wamp";
 import {WampusNetworkError} from "../errors/types";
 import {PrefixRoute, PrefixRouter} from "./prefix-router";
 import {Transport} from "../transport/transport";
-import {defer, EMPTY, merge, Observable, of, Subject, timer} from "rxjs";
-import {delay, flatMap, tap} from "rxjs/operators";
+import {defer, EMPTY, merge, Observable, Subject} from "rxjs";
 
 /**
  * A message-based WAMP protocol client that allows sending WAMP messages and receiving them.
@@ -25,9 +24,8 @@ export class WampProtocolClient<T> {
 
     /**
      * Use {@link  WampProtocolClient.connect}.
-     * @param {never} never
      */
-    constructor(never: never) {
+    private constructor() {
 
     }
 
@@ -43,7 +41,7 @@ export class WampProtocolClient<T> {
     /**
      * When subscribed to, creates a route for all protocol messages.
      * When unsubscribed, deletes the route.
-     * @returns {Observable<WampMessage.Any>}
+     * @returns {Observable<Wamp.Any>}
      */
     get messages$() {
         return merge(this.expect$([]));
@@ -56,17 +54,17 @@ export class WampProtocolClient<T> {
      * @returns WampProtocolClient<T>
      */
     static create<T>(transport: Transport, selector: (x: WampRaw.Unknown) => T): WampProtocolClient<T> {
-        let messenger = new WampProtocolClient<T>(null as never);
+        let messenger = new WampProtocolClient<T>();
         messenger.transport = transport;
         messenger._parser = selector;
-        let router = messenger._router = new PrefixRouter<T>();
+        messenger._router = new PrefixRouter<T>();
         messenger._setupRouter();
         return messenger;
     }
 
     /**
      * Creates a cold observable that, when subscribed to, will send the given WAMP message via the transport and complete once the message has been sent.
-     * @param {WampMessage.Any} msg The message to send.
+     * @param {Wamp.Any} msg The message to send.
      */
     send$(msg: Wamp.Any): Observable<any> {
         return defer(() => {
@@ -79,7 +77,7 @@ export class WampProtocolClient<T> {
      * When subscribed to, creates a route for protocol messages with fields matching the given prefix.
      * When unsubscribed, deletes the route.
      * @param {WampArray} prefixKey
-     * @returns {Observable<WampMessage.Any>}
+     * @returns {Observable<Wamp.Any>}
      */
     expect$(prefixKey: WampPrimitive[]): Observable<T> {
         return new Observable(sub => {

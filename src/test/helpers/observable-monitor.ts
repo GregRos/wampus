@@ -43,7 +43,7 @@ export class ObservableMonitor<T> {
     }
 
     next$(count = 1): Observable<T> {
-        return Observable.create(sub => {
+        return new Observable(sub => {
             let i = 0;
             let unreg = this._register(({data, unregister}) => {
                 sub.next(data);

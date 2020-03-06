@@ -5,7 +5,7 @@ import {Rxjs} from "~test/helpers/observable-monitor";
 import {timer} from "rxjs";
 
 test("when receive goodbye, send goodbye and close+disconnect", async t => {
-    let {session, server} = await SessionStages.handshaken("a");
+    let {server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     server.send([6, {}, "wamp.close.goodbye_and_out"]);
     let goodbye = await sbs.next();
@@ -17,7 +17,7 @@ test("when receive goodbye, send goodbye and close+disconnect", async t => {
 
 test("when received abort, close+disconnect", async t => {
     // TODO: Do something when ABORT received
-    let {session, server} = await SessionStages.handshaken("a");
+    let {server} = await SessionStages.handshaken("a");
     let sbs = Rxjs.monitor(server.events);
     server.send([3, {}, "wamp.close.goodbye_and_out"]);
     let close = await sbs.next();

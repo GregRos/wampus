@@ -3,7 +3,6 @@ import {WampusSession} from "../../../lib";
 import {WampRegisterOptions} from "typed-wamp";
 import {isMatch} from "lodash";
 import {test} from "../../helpers/my-test-interface";
-import {WampusIllegalOperationError} from "~lib/core/errors/types";
 import {MatchError} from "~test/helpers/errors";
 
 test.beforeEach(async t => {

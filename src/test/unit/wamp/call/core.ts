@@ -2,7 +2,6 @@ import test, {ExecutionContext} from "ava";
 import {SessionStages} from "~test/helpers/dummy-session";
 import {WampType} from "typed-wamp";
 import {map, toArray} from "rxjs/operators";
-import {Observable} from "rxjs";
 import {Rxjs} from "~test/helpers/observable-monitor";
 import {MatchError} from "~test/helpers/errors";
 import {WampusInvocationError, WampusNetworkError} from "~lib/core/errors/types";
@@ -28,10 +27,6 @@ test("call sends CALL message", async t => {
     }));
     t.falsy(await sbs.nextWithin(10), "an exact message was sent?");
 });
-
-function arrify<T>(rx: Observable<T>) {
-    return rx.pipe(toArray()).toPromise();
-}
 
 test("send CALL, receive final RESULT, report result to caller, verify progress stream", async t => {
     let {server, session} = await SessionStages.handshaken("a");
@@ -164,7 +159,7 @@ sendCallReceiveErrorMacro({
 
 test("call() on closed session", async t => {
     let {server, session} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     server.send([3, {}, "no"]);
     await session.close();
     let cp1 = session.call({
@@ -176,7 +171,7 @@ test("call() on closed session", async t => {
 
 test("close connection before result received", async t => {
     let {server, session} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
 
     let cp1 = session.call({
         name: "a"

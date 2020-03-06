@@ -25,9 +25,8 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
 
     /**
      * Should not be called from user code.
-     * @param never
      */
-    constructor(never: never) {
+    private constructor() {
         super();
     }
 
@@ -67,7 +66,7 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
      * @param services
      */
     static create(call: Core.CallTicket, services: AbstractWampusSessionServices) {
-        let ticket = new CallTicket(null as never);
+        let ticket = new CallTicket();
         ticket.trace.created = services.stackTraceService.capture(CallTicket.create);
         ticket._base = call;
         ticket._services = services;

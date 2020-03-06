@@ -58,7 +58,7 @@ test("after return(), progress() errors", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {receive_progress: true}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     await next.return({kwargs: {a: 1}});
@@ -69,7 +69,7 @@ test("progress() errors if no progress has been requested", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
     let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
+    Rxjs.monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     let err = await t.throwsAsync(next.progress({kwargs: {a: 2}}));

@@ -1,7 +1,5 @@
 import {Serializer} from "./serializer";
 
-declare type Blob = any;
-
 /**
  * Serializes protocol messages into plain JSON.
  */

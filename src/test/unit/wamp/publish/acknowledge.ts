@@ -16,7 +16,7 @@ async function publishAck(s: WampusCoreSession) {
 }
 
 test("should expect reply", async t => {
-    let {session, server} = await SessionStages.handshaken("a");
+    let {session} = await SessionStages.handshaken("a");
     let publishing = publishAck(session);
     await t.throwsAsync(timeoutPromise(publishing, 10));
 });

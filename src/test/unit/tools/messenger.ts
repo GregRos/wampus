@@ -6,7 +6,7 @@ import {WampArray} from "typed-wamp";
 
 import {WampusNetworkError} from "~lib/core/errors/types";
 import {Rxjs} from "../../helpers/observable-monitor";
-import {isMatch as _isMatch, range} from "lodash";
+import {range} from "lodash";
 import {timer} from "rxjs";
 import {timeoutPromise} from "../../helpers/promises";
 
@@ -14,10 +14,6 @@ function createPair() {
     let {server, client} = dummyTransport();
     let messenger = WampProtocolClient.create<WampArray>(client, x => x);
     return {messenger, server};
-}
-
-function isMatch<A>(a: A, b: Partial<A>) {
-    return _isMatch(a as any, b as any);
 }
 
 test("define one route and then invoke it exactly", async t => {
@@ -42,7 +38,7 @@ test("define two routes, and invoke each separately", async t => {
 });
 
 test("close an observable to a route, check that the route was moved", async t => {
-    let {messenger, server} = createPair();
+    let {messenger} = createPair();
     let a = messenger.expect$([1]).subscribe();
     await timer(0).toPromise();
     t.is(messenger._router.count(), 1);
@@ -84,13 +80,13 @@ test("two expectNext routes get called at the same time", async t => {
 });
 
 test("invalidate route works with no routes", async t => {
-    let {messenger, server} = createPair();
+    let {messenger} = createPair();
     messenger.invalidateAllRoutes$(new Error("hi")).subscribe();
     t.pass();
 });
 
 test("invalidate route invalidates 5 routes", async t => {
-    let {messenger, server} = createPair();
+    let {messenger} = createPair();
     t.plan(10);
     let routes = range(0, 5).map(i => messenger.expect$([i]).toPromise());
     messenger.invalidateAllRoutes$(new WampusNetworkError("HA!")).subscribe();
