@@ -4,7 +4,7 @@ import {map} from "rxjs/operators";
 import {RxjsEventAdapter} from "../../utils/rxjs-other";
 import {Ticket} from "./ticket";
 import CallSite = NodeJS.CallSite;
-import objy = require("objectology");
+
 
 /**
  * Represents a single event invocation in a topic.

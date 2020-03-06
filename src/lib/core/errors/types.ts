@@ -1,7 +1,5 @@
 import {WampArray, WampObject} from "typed-wamp";
-import objy = require("objectology");
 import { template as lodashTemplate } from "lodash";
-
 const template = str => lodashTemplate(str, {
     interpolate: /{(.*?)}/g
 });
@@ -13,9 +11,8 @@ export abstract class WampusError extends Error {
     name = this.constructor.name;
     innerError?: Error;
     constructor(message: string, props: object) {
-
         super(template(message)(props || {}));
-        objy.mixin(this, props);
+        Object.assign(this, props);
     }
 }
 
@@ -61,10 +58,6 @@ export class WampusInvocationError extends WampusError {
     details: any;
 
 }
-
-objy.configureDescriptorsOwn(WampusInvocationError.prototype, (x, k) => {
-    x.enumerable = ["kwargs", "args", "details"].includes(k as any);
-});
 
 /**
  * Thrown when a WAMP RPC call is canceled.

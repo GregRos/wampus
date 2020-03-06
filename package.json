@@ -54,7 +54,7 @@
     "transcurse": "^0.2.0",
     "tsconfig-paths": "^3.9.0",
     "tslint": "^5.20.1",
-    "tslint-config-gregros": "^1.6.0",
+    "tslint-config-gregros": "^1.7.0",
     "typed-wamp": "^0.2.1",
     "typedoc": "^0.15.6",
     "typedoc-plugin-example-tag": "^1.0.2",
@@ -66,7 +66,6 @@
   "dependencies": {
     "isomorphic-ws": "^4.0.1",
     "lodash": "^4.17.15",
-    "objectology": "^0.0.5",
     "ws": "^5.2.1"
   },
   "peerDependencies": {

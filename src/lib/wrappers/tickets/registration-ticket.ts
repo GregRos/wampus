@@ -3,7 +3,7 @@ import {catchError, map} from "rxjs/operators";
 import {AbstractWampusSessionServices} from "../services";
 import {InvocationTicket, ProcedureHandler} from "./invocation-ticket";
 import {Ticket} from "./ticket";
-import objy = require("objectology");
+
 import CallSite = NodeJS.CallSite;
 
 /**

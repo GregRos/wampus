@@ -5,7 +5,7 @@ import {
     WampusInvocationError,
     WampusNetworkError
 } from "./types";
-import objy = require("objectology");
+
 import WM = Wamp;
 
 /**
@@ -25,9 +25,6 @@ function getWampErrorReplyBasedMembers(err: Wamp.Error) {
         members.kwargs = err.kwargs;
     }
 
-    objy.configureDescriptorsOwn(members, (x, k) => {
-        x.enumerable = ["kwargs", "args", "details", "error"].includes(k as any);
-    });
 
     return members;
 }
@@ -42,10 +39,6 @@ function getWampAbortBasedMembers(abort: Wamp.Abort) {
         details: abort.details,
         reason: abort.reason
     };
-    objy.configureDescriptorsOwn(members, {
-        _originalWampMessage: ["no-enum"]
-    });
-
     return members;
 }
 

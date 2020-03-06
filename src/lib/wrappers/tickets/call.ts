@@ -8,7 +8,7 @@ import {publishReplayAutoConnect} from "../../utils/rxjs-operators";
 import {Ticket} from "./ticket";
 import {WampusInvocationError} from "../../core/errors/types";
 import {CallResultData} from "./call-result";
-import objy = require("objectology");
+
 import CallSite = NodeJS.CallSite;
 
 /**
@@ -145,6 +145,6 @@ export class CallTicket extends Ticket implements PromiseLike<CallResultData> {
     }
 
     toString() {
-        return `[Call (${this.isOpen ? "pending" : "finished"}) ${this.info.name}, id #${this.info.callId}]`
+        return `[Call (${this.isOpen ? "pending" : "finished"}) ${this.info.name}, id #${this.info.callId}]`;
     }
 }

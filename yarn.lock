@@ -2967,11 +2967,6 @@ object.assign@^4.1.0:
     has-symbols "^1.0.0"
     object-keys "^1.0.11"
 
-objectology@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/objectology/-/objectology-0.0.5.tgz#b74a3647fb46aaf4c455e443d7367594dc2841e6"
-  integrity sha512-Mqcn7k/xW7gvKArOq2JCNnP76PtcJvxd/GyeM2kJLPGaM0j2SaSRgTE9EidAIZDpKmdkZYouEiaZh2a+gWv9NA==
-
 observable-to-promise@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/observable-to-promise/-/observable-to-promise-1.0.0.tgz#37e136f16a15385ac063411ada0e1202bfff58f4"
@@ -4150,10 +4145,10 @@ tslib@^1.9.0:
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.10.0.tgz#c3c19f95973fb0a62973fb09d90d961ee43e5c8a"
   integrity sha512-qOebF53frne81cf0S9B41ByenJ3/IuH8yJKngAX35CmiZySA0khhkovshKK+jGCaMnVomla7gVlIcc3EvKPbTQ==
 
-tslint-config-gregros@^1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/tslint-config-gregros/-/tslint-config-gregros-1.6.0.tgz#5457861bc31820712affbc4668d15e7b10cc2e59"
-  integrity sha512-m8TQds4sGzrgiAMUmQbrVz8psou2wBWwx/ugsQrxtYkLjybYFqKObKX7dcaRWldKL8uBlBN1m+IpypUg3+zj/A==
+tslint-config-gregros@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/tslint-config-gregros/-/tslint-config-gregros-1.7.0.tgz#f244cc042f6de277e01d9743e6c1b250a7281185"
+  integrity sha512-H0HUdqz6s5zlxcCJ7ZN4nLS5EppqbAEOGbw6g3pN2Omp7j3JkNQWQzdFTzzHehs7TIMee8g3N3n/JHXzqjFoqg==
   dependencies:
     tslint-consistent-codestyle "^1.15.1"
     tslint-eslint-rules "^5.4.0"
