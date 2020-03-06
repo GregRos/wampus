@@ -17,17 +17,13 @@ Wampus is currently a Node-only  client, but it will work on browsers in the fut
 ## Installation
 
 ```bash
-npm install wampus
-npm install rxjs@^6.3.3
-npm install wamp-types
+npm install wampus rxjs@^6.3.3 typed-wamp
 ```
 
 or:
 
 ```bash
-yarn install wampus
-yarn install rxjs@^6.3.3
-yarn install wamp-types
+yarn add wampus rxjs@^6.3.3 typed-wamp
 ```
 
 ## Features
