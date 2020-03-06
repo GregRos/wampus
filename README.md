@@ -15,15 +15,19 @@ Other examples of WAMP protocol clients:
 Wampus is currently a Node-only  client, but it will work on browsers in the future.
 
 ## Installation
+You need to install both `wampus` and its peer dependencies.
+1. `rxjs` - this library exposes lots of rxjs observables.
+2. `transcurse` - implements the transformations provided by the library.
+3. `typed-wamp` - type definitions and wrappers for WAMP messages, exposed by the library.
 
 ```bash
-npm install wampus rxjs@^6.3.3 typed-wamp
+npm install wampus rxjs typed-wamp transcurse
 ```
 
 or:
 
 ```bash
-yarn add wampus rxjs@^6.3.3 typed-wamp
+yarn add wampus rxjs typed-wamp transcurse
 ```
 
 ## Features
