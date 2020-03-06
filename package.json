@@ -31,7 +31,7 @@
     "lint:fix": "npm-run-all --parallel 'lint:project=* --fix'",
     "package:build": "npm-run-all lint build:clean test && node dist/tools/publish.js",
     "package:publish": "yarn run package:build && (cd .publish; yarn publish)",
-    "prereq:router": "./test-scripts/install-router.sh"
+    "prereq:router": "bash ./test-scripts/install-router.sh"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.149",
