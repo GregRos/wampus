@@ -19,13 +19,13 @@ function getModuleWithPatchedWs(alt: () => void): Promise<typeof import("~lib/co
 }
 
 function eventTargetStub() {
-    return new EventEmitter()
+    return new EventEmitter();
 }
 
 function wrapCtor<T>(x: T) {
-    return function () {
+    return function() {
         return x;
-    }
+    };
 }
 
 async function getCommonTransport(obj: any, timeout = 50) {
@@ -35,14 +35,14 @@ async function getCommonTransport(obj: any, timeout = 50) {
         serializer: new JsonSerializer(),
         url: "ws://localhost:3000"
     });
-    return conn
+    return conn;
 }
 
 test("WS connect timeout", async t => {
     const z = getCommonTransport(eventTargetStub());
     const err = await t.throwsAsync(z);
     t.true(err instanceof WampusNetworkError);
-    t.assert(err.message.includes("timed out"))
+    t.assert(err.message.includes("timed out"));
 });
 
 

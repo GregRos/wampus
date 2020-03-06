@@ -6,7 +6,7 @@ import {MatchError} from "~test/helpers/errors";
 const serializer = DependencyDeclarations.serializer;
 
 test("serializer by name - json", t => {
-    const dep = serializer("json")
+    const dep = serializer("json");
     t.true(dep instanceof JsonSerializer);
 });
 
@@ -41,5 +41,4 @@ test("null serializer throws", t => {
     t.true(err instanceof WampusInvalidArgument);
     t.assert(MatchError.invalidArgument(err, "invalid serializer"));
 });
-
 

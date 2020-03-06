@@ -1,10 +1,10 @@
 import {RealSessions} from "~test/helpers/real-sessions";
 import {Routes} from "~lib/core/routing/routes";
 import invocation = Routes.invocation;
-
+// tslint:disable
 export async function stringify(log: (...xs) => void) {
     function printObject(name: string, x: any) {
-        log(`-------${name}-------`)
+        log(`-------${name}-------`);
         log(x.toString());
     }
     const session = await RealSessions.session();
@@ -16,7 +16,7 @@ export async function stringify(log: (...xs) => void) {
             printObject("Invocation", ticket);
             return {
                 args: [0]
-            }
+            };
         }
     });
     printObject("Procedure", procedure);
@@ -35,7 +35,7 @@ export async function stringify(log: (...xs) => void) {
     });
     printObject("Subscription", subscription);
 
-    await session.close()
+    await session.close();
 }
 
 stringify(console.log);

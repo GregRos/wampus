@@ -16,7 +16,7 @@ const {DependencyDeclarations} = rewiremock.proxy(() => require("~lib/wrappers/d
                 }
             }
         }
-    }
+    };
 });
 
 test("type = websocket", async t => {

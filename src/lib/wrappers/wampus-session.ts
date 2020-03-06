@@ -199,6 +199,6 @@ export class WampusSession extends Ticket {
     }
 
     toString() {
-        return `[Session (${this.isActive ? "open" : "closed"}) ${this.protocol.transport.location}, realm ${this.realm}, id #${this.sessionId}]`
+        return `[Session (${this.isActive ? "open" : "closed"}) ${this.protocol.transport.location}, realm ${this.realm}, id #${this.sessionId}]`;
     }
 }

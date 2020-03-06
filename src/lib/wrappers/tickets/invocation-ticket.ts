@@ -140,7 +140,7 @@ export class InvocationTicket {
     }
 
     toString() {
-        return `[Invocation (${this.isHandled ? "finished" : "pending"}) ${this.source.info.name}, id #${this.invocationId}]`
+        return `[Invocation (${this.isHandled ? "finished" : "pending"}) ${this.source.info.name}, id #${this.invocationId}]`;
     }
 }
 

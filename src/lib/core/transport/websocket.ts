@@ -99,9 +99,9 @@ export class WebsocketTransport implements Transport {
             } as TransportMessage;
         }));
 
-        const wsErrors$ = fromEvent<Error>(ws, "error")
+        const wsErrors$ = fromEvent<Error>(ws, "error");
 
-        let errorNow$: Observable<never> = wsErrors$.pipe(map(error  => {
+        let errorNow$: Observable<never> = wsErrors$.pipe(map(error => {
             throw new WampusNetworkError(`Failed to establish WebSocket connection with ${config.url}. ${error.message}`, {
                 innerError: error
             });
@@ -154,6 +154,7 @@ export class WebsocketTransport implements Transport {
                     err
                 });
             }
+            // tslint:disable-next-line:no-floating-promises
             Promise.resolve().then(() => {
                 this._ws.send(payload);
                 sub.complete();

@@ -144,7 +144,7 @@ test("procedures fails, all are cleaned up", async t => {
             async called(x) {
                 return {
                     args: [2]
-                }
+                };
             }
         }
     }));

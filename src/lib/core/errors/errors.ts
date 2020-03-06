@@ -43,7 +43,6 @@ function getWampAbortBasedMembers(abort: Wamp.Abort) {
 }
 
 
-
 function getDescriptionByMessage(source: WM.Any) {
     if (source instanceof WM.Authenticate) {
         return "authenticating";

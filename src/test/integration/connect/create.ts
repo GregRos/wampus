@@ -54,7 +54,7 @@ test("invalid transport type, throws", async t => {
     });
     await t.throwsAsync(session);
 });
-7
+7;
 test("invalid serializer type, throws", async t => {
     let session = Wampus.connect({
         transport: {

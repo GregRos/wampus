@@ -14,7 +14,8 @@ test("receive CALL, proto violation, abort - existing route throws error", async
     server.send([WampType.CALL]);
     let abort = await monitored.next() as WampRaw.Abort;
     t.assert(abort[1].message.includes("CALL"));
-    t.assert(abort[1].message.includes("meant for routers"));    const err = await callTicketShouldFail;
+    t.assert(abort[1].message.includes("meant for routers"));
+    const err = await callTicketShouldFail;
     t.assert(MatchError.network("While calling procedure", "abc", "session", "closed")(err));
     t.falsy(await monitored.nextWithin(1)); // transport was closed
     t.deepEqual(session.protocol._router.matchAll(), []); // no outstanding routes
