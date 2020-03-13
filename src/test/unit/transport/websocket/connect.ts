@@ -8,65 +8,66 @@ import {timer} from "rxjs";
 import sinon from "sinon";
 
 import WebSocket from "isomorphic-ws";
+import {Rxjs} from "~test/helpers/observable-monitor";
 
 test.afterEach(() => {
     sinon.restore();
 });
 
 test("acquire", async t => {
-    let {server, client, url} = await getTransportAndServerConn();
-    t.is(server.readyState, WebSocket.OPEN);
-    t.is(client.location, url);
+    let {
+        transport
+    } = await getTransportAndServerConn();
+    t.is((await transport).location, "ws://localhost:3000");
 });
 
-
-test("stays open", async t => {
-    let {server} = await getTransportAndServerConn();
-    await timer(1000).toPromise();
-    t.is(server.readyState, WebSocket.OPEN);
-});
 
 test("closes from client-side", async t => {
-    let {server, client} = await getTransportAndServerConn();
+    let {
+        transport,
+        ws
+    } = await getTransportAndServerConn();
     await timer(1000).toPromise();
-    await client.close();
-    t.true([WebSocket.CLOSED, WebSocket.CLOSING].includes(server.readyState));
-    t.false(client.isActive);
+    transport.close();
+    const next = await ws.out.next();
+    t.true(next.event, "close");
+    t.false(transport.isActive);
 });
 
 test("sync closes from client side", async t => {
-    let {client} = await getTransportAndServerConn();
+    let {transport} = await getTransportAndServerConn();
     // tslint:disable-next-line:no-floating-promises
-    client.close();
-    t.false(client.isActive);
-    let err = await t.throwsAsync(client.send$({}).toPromise());
+    transport.close();
+    t.false(transport.isActive);
+    let err = await t.throwsAsync(transport.send$({}).toPromise());
     t.assert(err instanceof WampusNetworkError);
     t.assert(err.message.includes("closed"));
 });
 
 test("closes from server-side", async t => {
-    let {server, client} = await getTransportAndServerConn();
-    t.true(client.isActive);
-    t.is(server.readyState, WebSocket.OPEN);
-    let closeEvent = client.events$.pipe(choose(x => x.type === "closed" ? x : undefined), take(1)).toPromise();
-    server.close();
+    let {ws, transport} = await getTransportAndServerConn();
+    t.true(transport.isActive);
+    let closeEvent = transport.events$.pipe(choose(x => x.type === "closed" ? x : undefined), take(1)).toPromise();
+    ws.in.next({
+        event: "close"
+    });
     let ev = await closeEvent;
     t.is(ev.type, "closed");
 });
 
 test("close xN, get same promise", async t => {
-    let {client} = await getTransportAndServerConn();
-    let close1 = client.close();
-    let close2 = client.close();
+    let {transport} = await getTransportAndServerConn();
+    let close1 = transport.close();
+    let close2 = transport.close();
     t.true(close1 === close2);
     await close1;
-    t.is(client.isActive, false);
+    t.is(transport.isActive, false);
     await timer(1000).toPromise();
-    let close3 = client.close();
+    let close3 = transport.close();
     t.true(close3 === close2);
 });
 
 test("connected transport properties", async t => {
-    let {client} = await getTransportAndServerConn();
-    t.is(client.name, "websocket.json");
+    let {transport} = await getTransportAndServerConn();
+    t.is(transport.name, "websocket.json");
 });

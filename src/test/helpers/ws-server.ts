@@ -2,58 +2,19 @@ import {fromEvent, Observable} from "rxjs";
 import {map, take, takeUntil} from "rxjs/operators";
 import {WebsocketTransport} from "~lib/core/transport/websocket";
 import {JsonSerializer} from "~lib/core/serializer/json";
-import WebSocket = require("ws");
-
-/**
- * A websocket server used via rxjs.
- */
-export class RxjsWsServer {
-    public _innerServer: WebSocket.Server;
-    private _port: number;
-
-    get url() {
-        return `ws://localhost:${this._port}`;
-    }
-
-    static async create(port: number) {
-        let createServer$ = new Observable<WebSocket.Server>(sub => {
-            let server = new WebSocket.Server({
-                port
-            }, () => {
-                sub.next(server);
-            });
-            server.on("error", err => {
-                sub.error(err);
-            });
-        });
-        let innerWs = await createServer$.pipe(take(1)).toPromise();
-        let outerWs = new RxjsWsServer();
-        outerWs._innerServer = innerWs;
-        outerWs._port = port;
-        return outerWs;
-    }
-
-
-    getConnectionFromServerSide(protocol: string) {
-        return [...this._innerServer.clients].find(x => x.protocol === protocol);
-    }
-}
-
-export const rxjsWsServer = RxjsWsServer.create(9000 + Math.floor(Math.random() * 1000));
+import WebSocket, {Server} from "isomorphic-ws";
+import {MockWebsocket} from "./mock-ws";
+import {getCommonTransport} from "~test/helpers/create-mocked-ws-transport";
 
 export async function getTransportAndServerConn() {
-    let srv = await rxjsWsServer;
-    let rnd = (Math.random() * 100000).toString(36);
-    let client = await WebsocketTransport.create({
-        url: srv.url,
-        serializer: new JsonSerializer(),
-        forceProtocol: rnd
+    const {ws, transport} = getCommonTransport();
+    ws.in.next({
+        event: "open"
     });
-    let server = srv.getConnectionFromServerSide(rnd);
+
     return {
-        client,
-        server,
-        url: srv.url
+        ws,
+        transport: await transport
     };
 }
 

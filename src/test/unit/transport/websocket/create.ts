@@ -1,8 +1,8 @@
 import {WebsocketTransport} from "~lib/core/transport/websocket";
 import {JsonSerializer} from "~lib/core/serializer/json";
-import {rxjsWsServer} from "~test/helpers/ws-server";
 import {WampusError, WampusNetworkError} from "~lib/core/errors/types";
 import test from "ava";
+import {getCommonTransport} from "~test/helpers/create-mocked-ws-transport";
 
 let getTransport = (url, timeout?, serializer?) => {
     return WebsocketTransport.create({
@@ -11,32 +11,27 @@ let getTransport = (url, timeout?, serializer?) => {
         timeout
     });
 };
+
 test("url non-existent", async t => {
-    let conn = getTransport("http://www.aaaaaaaaaa123124.com");
-    let err = await t.throwsAsync(conn);
-    t.assert(err instanceof WampusNetworkError);
-});
-
-test("url malformed", async t => {
-    let conn = getTransport("ff44");
-    let err = await t.throwsAsync(conn);
-    t.assert(err instanceof WampusNetworkError);
-});
-
-test("connection refused", async t => {
-    let conn = getTransport("http://localhost:19413");
-    let err = await t.throwsAsync(conn);
+    let conn = getCommonTransport({
+        url: null
+    });
+    let err = await t.throwsAsync(conn.transport);
     t.assert(err instanceof WampusNetworkError);
 });
 
 test("invalid timeout", async t => {
-    let conn = getTransport(await rxjsWsServer.then(x => x.url), "hi");
-    let err = await t.throwsAsync(conn);
+    let {transport} = getCommonTransport({
+        timeout: "abc" as any
+    });
+    let err = await t.throwsAsync(transport);
     t.assert(err instanceof WampusError);
 });
 
 test("invalid serializer", async t => {
-    let conn = getTransport(await rxjsWsServer.then(x => x.url), 1000, "asd");
-    let err = await t.throwsAsync(conn);
+    let {transport} = getCommonTransport({
+        serializer: "asdsd" as any
+    });
+    let err = await t.throwsAsync(transport);
     t.assert(err instanceof WampusError);
 });

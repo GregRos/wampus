@@ -4,6 +4,7 @@
     "composite": true,
     "outDir": "../../dist/test",
     "baseUrl": ".",
+    "noImplicitThis": true,
     "paths": {
       "~lib/*": [
         "../lib/*"

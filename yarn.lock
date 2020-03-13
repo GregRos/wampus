@@ -4525,11 +4525,6 @@ write-file-atomic@^3.0.0:
     signal-exit "^3.0.2"
     typedarray-to-buffer "^3.1.5"
 
-ws-mock@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/ws-mock/-/ws-mock-0.1.0.tgz#76460c5d71634ae18e0f0246c472c4f262de757d"
-  integrity sha512-mdw+vk3GRP9qW/Kh8V6U+ai2tkkS3oAH6tqYQrnxBxP6MKWU5ryJhWOzm5tFcXfaxfL8Cf8ssA0wRZzE3LgTvw==
-
 ws@^5.2.1:
   version "5.2.2"
   resolved "https://registry.yarnpkg.com/ws/-/ws-5.2.2.tgz#dffef14866b8e8dc9133582514d1befaf96e980f"
