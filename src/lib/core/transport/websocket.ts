@@ -3,7 +3,7 @@ import {Transport, TransportClosed, TransportEvent, TransportError, TransportMes
 import {WampusInvalidArgument, WampusNetworkError} from "../errors/types";
 import {Serializer} from "../serializer/serializer";
 import {fromEvent, merge, NEVER, Observable, of, race} from "rxjs";
-import {delay, map, take} from "rxjs/operators";
+import {delay, filter, first, map, take} from "rxjs/operators";
 import {skipAfter} from "../../utils/rxjs-operators";
 
 import WebSocket from "isomorphic-ws";
@@ -130,10 +130,15 @@ export class WebsocketTransport implements Transport {
             return this._expectingClose;
         }
         this._expectingClose = new Promise((resolve, reject) => {
-            if (this._ws.readyState === this._ws.CLOSED) resolve();
-            this._ws.once("close", msg => {
+            if (this._ws.readyState === this._ws.CLOSED) {
+                return resolve();
+            }
+
+            // We use fromEvent because it works in both client and server-side
+            this.events$.pipe(filter(x => x.type === "closed")).subscribe(() => {
                 resolve();
             });
+
             if (this._ws.readyState !== this._ws.CLOSING) {
                 this._ws.close(code, data);
             }

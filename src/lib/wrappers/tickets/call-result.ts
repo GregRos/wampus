@@ -8,6 +8,9 @@ import {CallTicket} from "./call";
  */
 export class CallResultData implements Core.CallResultData {
 
+    /**
+     * The ID of the original RESULT message that delivered this result data.
+     */
     readonly id: WampId;
 
     /**

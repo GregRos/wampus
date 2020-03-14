@@ -31,3 +31,4 @@ node_modules
 # Publish-related folders
 .tmp
 .publish
+.cache

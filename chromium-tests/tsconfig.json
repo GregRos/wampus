@@ -1,0 +1,25 @@
+{
+  "extends": "../tsconfig.base",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "~lib/*": [
+        "../src/lib/*"
+      ],
+      "~client-side/*": [
+        "./*"
+      ]
+    },
+    "composite": true,
+    "noImplicitThis": true,
+    "resolveJsonModule": true
+  },
+  "references": [{
+    "path": "../src/lib"
+  }],
+  "include": [
+    "**/*.ts",
+    "**/*.json"
+  ]
+}
