@@ -5,14 +5,9 @@ import {getTransportAndServerConn} from "~test/helpers/ws-server";
 import {choose} from "~lib/utils/rxjs-operators";
 import {WampusNetworkError} from "~lib/core/errors/types";
 import {timer} from "rxjs";
-import sinon from "sinon";
 
 import WebSocket from "isomorphic-ws";
 import {Rxjs} from "~test/helpers/observable-monitor";
-
-test.afterEach(() => {
-    sinon.restore();
-});
 
 test("acquire", async t => {
     let {
@@ -30,7 +25,7 @@ test("closes from client-side", async t => {
     await timer(1000).toPromise();
     transport.close();
     const next = await ws.out.next();
-    t.true(next.event, "close");
+    t.is(next.event, "close");
     t.false(transport.isActive);
 });
 

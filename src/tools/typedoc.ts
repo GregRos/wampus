@@ -4,7 +4,8 @@ import {exec} from "shelljs";
 
 import {CommentPlugin} from "typedoc/dist/lib/converter/plugins";
 
-async function run() {
+// tslint:disable-next-line:no-floating-promises
+(async function() {
     let files = await globby(["./src/lib/**/*.ts", "./src/lib/*.ts", "!**/*.ranges.ts"], {
         absolute: true
     });
@@ -42,8 +43,5 @@ async function run() {
     exec("rm -rf docs/");
     app.generateDocs(rs, "docs");
 
-}
-
-// tslint:disable-next-line:no-floating-promises
-run();
+})();
 

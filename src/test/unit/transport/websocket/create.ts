@@ -1,6 +1,6 @@
 import {WebsocketTransport} from "~lib/core/transport/websocket";
 import {JsonSerializer} from "~lib/core/serializer/json";
-import {WampusError, WampusNetworkError} from "~lib/core/errors/types";
+import {WampusError, WampusInvalidArgument, WampusNetworkError} from "~lib/core/errors/types";
 import test from "ava";
 import {getCommonTransport} from "~test/helpers/create-mocked-ws-transport";
 
@@ -17,7 +17,7 @@ test("url non-existent", async t => {
         url: null
     });
     let err = await t.throwsAsync(conn.transport);
-    t.assert(err instanceof WampusNetworkError);
+    t.assert(err instanceof WampusInvalidArgument);
 });
 
 test("invalid timeout", async t => {
@@ -25,7 +25,7 @@ test("invalid timeout", async t => {
         timeout: "abc" as any
     });
     let err = await t.throwsAsync(transport);
-    t.assert(err instanceof WampusError);
+    t.assert(err instanceof WampusInvalidArgument);
 });
 
 test("invalid serializer", async t => {
@@ -33,5 +33,5 @@ test("invalid serializer", async t => {
         serializer: "asdsd" as any
     });
     let err = await t.throwsAsync(transport);
-    t.assert(err instanceof WampusError);
+    t.assert(err instanceof WampusInvalidArgument);
 });

@@ -30,7 +30,7 @@ export function monitor<T>(source: Observable<T>): MonitoredObservable<T> & Obse
         }
     });
     return Object.assign(source, {
-        next$(count?: number): Observable<T> {
+        next$(count = 1): Observable<T> {
             return new Observable(sub => {
                 let i = 0;
                 let unreg = this._register(({data, unregister}) => {

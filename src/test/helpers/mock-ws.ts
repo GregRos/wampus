@@ -4,6 +4,7 @@ import {merge, Observable, Subject} from "rxjs";
 import {skipAfter} from "~lib/utils/rxjs-operators";
 import {filter} from "rxjs/operators";
 import {monitor} from "~test/helpers/monitored-observable";
+import {Serializer} from "~lib/core/serializer/serializer";
 
 // tslint:disable:completed-docs
 
@@ -40,6 +41,7 @@ export class MockWebsocket extends EventEmitter {
     private readonly _out = new Subject<OutputEvent>();
     readonly out = monitor(this._out.asObservable());
     readonly in = new Subject<InputEvent>();
+    serializer: Serializer;
     constructor(
         public readonly url: string,
         public readonly protocol: string,
@@ -59,7 +61,14 @@ export class MockWebsocket extends EventEmitter {
                     this.readyState = OrigWebsocket.OPEN;
                     break;
             }
-            this.emit(event.event, (event as any).data || {});
+            if (event.event === "message") {
+                this.emit(event.event, {
+                    data: this.serializer.serialize(event.data)
+                });
+            } else {
+                this.emit(event.event, (event as any).data || {});
+            }
+
         });
     }
 
@@ -85,7 +94,7 @@ export class MockWebsocket extends EventEmitter {
         setTimeout(() => {
             this._out.next({
                 event: "message",
-                data
+                data: this.serializer?.deserialize(data) || data
             });
         }, 0);
     }

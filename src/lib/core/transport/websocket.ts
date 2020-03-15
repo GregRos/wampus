@@ -49,6 +49,11 @@ export class WebsocketTransport implements Transport {
      * @returns {Observable<WebsocketTransport>}
      */
     static async create(config: WebsocketTransportConfig): Promise<WebsocketTransport> {
+        if (!config.url) {
+            throw new WampusInvalidArgument("The url is required.", {
+
+            });
+        }
         if (config.timeout != null && typeof config.timeout !== "number") {
             throw new WampusInvalidArgument("Timeout value {timeout} is invalid.", {
                 timeout: config.timeout
@@ -160,10 +165,10 @@ export class WebsocketTransport implements Transport {
                 });
             }
             // tslint:disable-next-line:no-floating-promises
-            Promise.resolve().then(() => {
+            setTimeout(() => {
                 this._ws.send(payload);
                 sub.complete();
-            });
+            }, 0);
             return {
                 unsubscribe() {
 

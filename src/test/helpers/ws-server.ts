@@ -17,21 +17,3 @@ export async function getTransportAndServerConn() {
         transport: await transport
     };
 }
-
-export function sendVia(server: WebSocket, data: any): Promise<void> {
-    return new Observable<void>(sub => {
-        server.send(JSON.stringify(data), err => {
-            if (err) {
-                return sub.error(err);
-            }
-            sub.complete();
-        });
-    }).toPromise();
-}
-
-export function receiveObjects$(server: WebSocket): Observable<any> {
-    let wsClose = fromEvent(server, "close");
-    return fromEvent(server, "message").pipe(map((x: any) => {
-        return JSON.parse(x.data);
-    }), takeUntil(wsClose));
-}

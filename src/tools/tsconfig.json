@@ -3,5 +3,6 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "../../dist/tools"
-  }
+  },
+  "include": ["**/*.ts"]
 }

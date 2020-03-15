@@ -1,7 +1,6 @@
-import {WampusSession} from "~lib/wrappers/wampus-session";
-import {Wampus} from "~lib/wrappers/wampus";
+import {WampusSession} from "../lib/wrappers/wampus-session";
+import {Wampus} from "../lib/wrappers/wampus";
 import {assert} from "chai";
-import {wampServerUrl} from "../shared";
 import {first} from "rxjs/operators";
 
 async function getWampus(realm: string) {
@@ -10,7 +9,7 @@ async function getWampus(realm: string) {
         transport: {
             type: "websocket",
             serializer: "json",
-            url: wampServerUrl
+            url: "ws://localhost:8080"
         }
     });
 }
@@ -30,7 +29,7 @@ describe("Wampus actions", () => {
     it("connects", async () => {
         session1 = await getWampus(realm);
         assert.isTrue(session1.isActive);
-        assert.equal(session1.protocol.transport.location, wampServerUrl);
+        assert.equal(session1.protocol.transport.location, "ws://localhost:8080");
         assert.equal(session1.realm, realm);
         session2 = await getWampus(realm);
     });

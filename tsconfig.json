@@ -8,6 +8,8 @@
     "path": "./src/test"
   }, {
     "path": "./src/tools"
+  }, {
+    "path": "./src/browser-test"
   }],
   "files": []
 }

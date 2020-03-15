@@ -8,7 +8,6 @@ import {Subject, timer} from "rxjs";
 import {WampusNetworkError} from "~lib/core/errors/types";
 import {EventEmitter} from "events";
 import {take} from "rxjs/operators";
-import {WebSocket as WS} from "mock-socket";
 import {getCommonTransport, getModuleWithPatchedWs} from "~test/helpers/create-mocked-ws-transport";
 import {InputEvent, MockWebsocket} from "~test/helpers/mock-ws";
 
