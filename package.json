@@ -19,11 +19,11 @@
     "clean": "rm -rf dist/",
     "build": "tsc -b",
     "build:clean": "npm-run-all clean build",
-    "test:server:unit": "nyc ava --config ava.unit.js",
-    "test:server:integration": "ava --config ava.integration.js",
-    "test:server:all": "nyc ava --config ava.all.js",
+    "test:node:unit": "nyc ava --config ava.unit.js",
+    "test:node:integration": "ava --config ava.integration.js",
+    "test:node:all": "nyc ava --config ava.all.js",
     "test:browser": "node ./dist/tools/browser-test-runner/index.js",
-    "test": "npm-run-all test:server:all test:browser",
+    "test": "npm-run-all test:node:all test:browser",
     "docs": "node dist/tools/run.js",
     "lint:project=lib": "tslint -p src/lib/tsconfig.json -t stylish",
     "lint:project=test": "tslint -p src/test/tsconfig.json -t stylish",
@@ -74,18 +74,19 @@
     "typedoc-plugin-external-module-name": "^2.1.0",
     "typedoc-plugin-internal-external": "^2.0.2",
     "typescript": "^3.7.4",
-    "webpack": "^4.42.0"
+    "webpack": "^4.42.0",
+    "ws": "^7.2.3"
   },
   "dependencies": {
     "isomorphic-ws": "^4.0.1",
-    "lodash": "^4.17.15",
-    "ws": "^5.2.1"
+    "lodash": "^4.17.15"
   },
   "peerDependencies": {
     "rxjs": "^6.5.4",
     "transcurse": "^0.2.0",
     "typed-wamp": "^0.2.1"
   },
+  "optionalDependencies": {},
   "nyc": {
     "produce-source-map": true,
     "include": [

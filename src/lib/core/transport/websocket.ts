@@ -12,10 +12,27 @@ import WebSocket from "isomorphic-ws";
  * The object used to configure the {@see WebsocketTransport}.
  */
 export interface WebsocketTransportConfig {
+    /**
+     * The url to connect to.
+     */
     url: string;
+    /**
+     * The serializer used by this transport.
+     */
     serializer: Serializer;
+    /**
+     * How long to wait before giving up.
+     */
     timeout?: number;
+    /**
+     * The protocol used by the websocket. Adds the Sec-Websocket-Protocol header.
+     */
     forceProtocol?: string;
+    /**
+     * An additional argument given to the websocket constructor. See the third parameter of the `ws`
+     * WebSocket client. Only supported in node.
+     */
+    additionalOptions?: object;
 }
 
 /**
@@ -49,6 +66,7 @@ export class WebsocketTransport implements Transport {
      * @returns {Observable<WebsocketTransport>}
      */
     static async create(config: WebsocketTransportConfig): Promise<WebsocketTransport> {
+        config.additionalOptions = config.additionalOptions || {};
         if (!config.url) {
             throw new WampusInvalidArgument("The url is required.", {
 
@@ -73,7 +91,10 @@ export class WebsocketTransport implements Transport {
         let transport = new WebsocketTransport();
         transport._config = config;
         try {
-            var ws = new WebSocket(config.url, config.forceProtocol || `wamp.2.${config.serializer.id}`, {});
+            var ws = new WebSocket(config.url, config.forceProtocol || `wamp.2.${config.serializer.id}`, {
+                handshakeTimeout: config.timeout ? config.timeout + 5 : undefined,
+                ...config.additionalOptions
+            });
         } catch (err) {
             throw(new WampusNetworkError(`The WebSocket client could not be created. ${err.message}`, {
                 innerError: err

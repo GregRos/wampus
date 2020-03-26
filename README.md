@@ -12,14 +12,9 @@ Other examples of WAMP protocol clients:
 * [Autobahn|JS](https://github.com/crossbario/autobahn-js), which convinced me to write my own client.
 * [others...](https://wamp-proto.org/implementations/index.html)
 
-Wampus is currently a Node-only  client, but it will work on browsers in the future.
+Wampus works in Node and in the browser.
 
 ## Installation
-You need to install both `wampus` and its peer dependencies.
-1. `rxjs` - this library exposes lots of rxjs observables.
-2. `transcurse` - implements the transformations provided by the library.
-3. `typed-wamp` - type definitions and wrappers for WAMP messages, exposed by the library.
-
 ```bash
 npm install wampus rxjs typed-wamp transcurse
 ```
@@ -30,11 +25,23 @@ or:
 yarn add wampus rxjs typed-wamp transcurse
 ```
 
+If you're running on node, you'll also have to install the `ws` package for web socket support.
+
+```bash
+yarn add ws
+```
+
+1. `rxjs` - this library exposes lots of rxjs observables.
+2. `transcurse` - Used to be part of Wampus in early versions. Implements the transformations provided by the library.
+3. `typed-wamp` - Used to be part of Wampus in early versions. Type definitions and wrappers for WAMP messages, exposed by the library.
+
 ## Features
 
 ✓ Accurate implementation of the WAMP protocol.
 
 ✓ Observable- and Promise- based API, using `rxjs`.
+
+✓ Secondary callback-based API for callers unused to observables.
 
 ✓ Primary high-level invocation-based API (e.g. `session.call("name")`).
 
@@ -44,11 +51,11 @@ yarn add wampus rxjs typed-wamp transcurse
 
 ✓ Human-readable error messages.
 
-✓ Secondary callback-based API for callers unused to observables.
-
 ✓ Intelligent stack trace collection.
 
-✓  Support for reviving simple JSON into complex objects and vice versa.
+✓  Support for reviving simple JSON into complex objects and vice versa, using [transcurse](https://github.com/GregRos/transcurse).
+
+✓  Runs on both server and client
 
 ## Connecting
 
@@ -378,12 +385,6 @@ const conn = await Wampus.connect({
     }
 })
 ```
-
-
-
-### How it works
-
-
 
 ## Stack trace service
 
