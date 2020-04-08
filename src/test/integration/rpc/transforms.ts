@@ -14,7 +14,7 @@ class Token {
 test("call input, invocation output", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
-            s.out.json = s.out.json.pre(ctrl => {
+            s.out.json.push(ctrl => {
                 const x = ctrl.val;
                 if (x instanceof Token) return "modified";
                 // This is to make sure the array in args isn't transformed:
@@ -68,14 +68,14 @@ test("call input, invocation output", async t => {
 test("call output, invocation input", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
-            s.in.json = s.in.json.pre(ctrl => {
+            s.in.json.push(ctrl => {
                 const x = ctrl.val;
                 if (x === "modified") return "original2";
                 // This is to make sure the array in args isn't transformed:
                 if (Array.isArray(x)) return x.length;
                 return ctrl.next(x);
             });
-            s.out.json = s.out.json.pre(ctrl => {
+            s.out.json.push(ctrl => {
                 const x = ctrl.val;
                 if (x === "original") return "modified";
 
@@ -136,7 +136,7 @@ class MySpecialError extends Error {
 test("invocation error to error response", async t => {
     let session = t.context.session = await RealSessions.session({
         services(s) {
-            s.in.error = s.in.error.pre(ctrl => {
+            s.in.error.push(ctrl => {
                 const x = ctrl.val;
                 if (x.error === "wampus.my_special_error") {
                     return Object.assign(new MySpecialError(), {
@@ -149,7 +149,7 @@ test("invocation error to error response", async t => {
                 return ctrl.next(x);
             });
 
-            s.out.error = s.out.error.pre(ctrl => {
+            s.out.error.push(ctrl => {
                 const x = ctrl.val;
                 if (x instanceof MySpecialError) {
                     return {

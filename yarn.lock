@@ -6130,10 +6130,10 @@ toidentifier@1.0.0:
   resolved "https://registry.yarnpkg.com/toidentifier/-/toidentifier-1.0.0.tgz#7e1be3470f1e77948bc43d94a3c8f4d7752ba553"
   integrity sha512-yaOH/Pk/VEhBWWTlhI+qXxDFXlejDGcQipMlyxda9nthulaxLZUNcUqFxokp0vcYnvteJln5FNQDRrxj3YcbVw==
 
-transcurse@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/transcurse/-/transcurse-0.2.0.tgz#41a274948c20689339ec72daaaf2044655131653"
-  integrity sha512-ptryOlx0kt0PDPw5/BlIqCKLM31AvnnzUVhMcw8F2M0lJCNxFB7jAgA7FA32xrLwSitYX1oVRa5iVdHaeIljFg==
+transcurse@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/transcurse/-/transcurse-0.3.0.tgz#55555d70881c3c72601c7c9a2c65aceb1aa1e381"
+  integrity sha512-lPqAFYF+ahdlakVVrRcSf9SWLo1IyVspYvTuq546jwMxCNicsVyuwQ7x911fzn0VfHjK/2OtA/vE+9iWnWKxHQ==
 
 trim-newlines@^2.0.0:
   version "2.0.0"
@@ -6278,10 +6278,10 @@ type-is@~1.6.17:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-typed-wamp@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/typed-wamp/-/typed-wamp-0.2.1.tgz#8da81bcdcd3744f32e1f146b97723fed93a75182"
-  integrity sha512-vZKF5MIzVt002gCGnpykrAoXHw68KhdDsbnB2B1ZeTkQzjDHn3p/TD3QjR3Mo+WSqxN6wab0ab/4odpUetdZVw==
+typed-wamp@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/typed-wamp/-/typed-wamp-0.2.2.tgz#7f2414d82d3024a6a25790542edaf31cc3f2cbb6"
+  integrity sha512-aGoNeWsWM4ekB7bN6MGiByR303j9KiPaMzzhiUlLqV3R4nMJpUYLDj1qOhbOqL2uxqwqqqXGXeL2tsfYMuAqBw==
 
 typedarray-to-buffer@^3.1.5:
   version "3.1.5"
