@@ -1,10 +1,10 @@
 import test from "ava";
-import {SessionStages} from "~test/helpers/dummy-session";
+import {SessionStages} from "~test/helpers/mocks/mocked-transport-session";
 import {WampusCoreSession} from "~lib/core/session/core-session";
 
 import {WampType} from "typed-wamp";
 import {timer} from "rxjs";
-import {monitor} from "~test/helpers/monitored-observable";
+import {monitor} from "~test/helpers/rxjs-monitor";
 
 async function getRegistration({session, server}: { session: WampusCoreSession, server: any }) {
     let serverMonitor = monitor(server.messages);

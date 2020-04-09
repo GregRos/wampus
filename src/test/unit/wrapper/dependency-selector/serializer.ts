@@ -2,7 +2,7 @@ import test from "ava";
 import {DependencyDeclarations} from "~lib/wrappers/dependency-selector";
 import {JsonSerializer} from "~lib/core/serializer/json";
 import {WampusInvalidArgument} from "~lib/core/errors/types";
-import {MatchError} from "~test/helpers/errors";
+import {MatchError} from "~test/helpers/error-matchers";
 const serializer = DependencyDeclarations.serializer;
 
 test("serializer by name - json", t => {

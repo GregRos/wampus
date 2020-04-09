@@ -23,7 +23,7 @@ export interface DummyServer {
 /**
  * Returns a mock transport object that gives access to the messages that go through it.
  */
-export function dummyTransport() {
+export function mockTransport() {
     let intoClient = new Subject<TransportEvent>();
     let intoServer = new Subject<TransportEvent>();
     let isActive = true;

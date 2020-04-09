@@ -1,18 +1,18 @@
 /* tslint:disable:object-literal-shorthand */
 import test from "ava";
 
-import {rewiremock} from "~test/helpers/rewiremock";
+import {rewiremock} from "~test/helpers/mocks/rewiremock";
 import {JsonSerializer} from "~lib/core/serializer/json";
 import WebSocket from "isomorphic-ws";
 import {Subject, timer} from "rxjs";
 import {WampusNetworkError} from "~lib/core/errors/types";
 import {EventEmitter} from "events";
 import {take} from "rxjs/operators";
-import {getCommonTransport, getModuleWithPatchedWs} from "~test/helpers/create-mocked-ws-transport";
-import {InputEvent, MockWebsocket} from "~test/helpers/mock-ws";
+import {getMockTransportWsPair, getModuleWithPatchedWs} from "~test/helpers/mocks/mocked-ws-transport";
+import {InputEvent, MockWebsocket} from "~test/helpers/mocks/websocket";
 
 test("WS connect timeout", async t => {
-    const z = getCommonTransport({
+    const z = getMockTransportWsPair({
         timeout: 100
     });
     const err = await t.throwsAsync(z.transport);
@@ -25,7 +25,7 @@ test("WS error during open", async t => {
     const {
         ws,
         transport
-    } = getCommonTransport();
+    } = getMockTransportWsPair();
     timer(1).subscribe(() => {
         ws.in.next({
             event: "error",
@@ -42,7 +42,7 @@ test("WS error after open", async t => {
     const {
         transport,
         ws
-    } = getCommonTransport();
+    } = getMockTransportWsPair();
     ws.in.next({
         event: "open"
     });

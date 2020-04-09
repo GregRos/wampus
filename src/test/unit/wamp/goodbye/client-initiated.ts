@@ -1,13 +1,13 @@
 import test from "ava";
 
 import {WampusNetworkError} from "~lib/core/errors/types";
-import {SessionStages} from "~test/helpers/dummy-session";
+import {SessionStages} from "~test/helpers/mocks/mocked-transport-session";
 import {WampType} from "typed-wamp";
 import {MessageFactory} from "~lib/core/protocol/factory";
 import {throwError, timer} from "rxjs";
 import {timeoutWith} from "rxjs/operators";
 import {fromPromise} from "rxjs/internal-compatibility";
-import {monitor} from "~test/helpers/monitored-observable";
+import {monitor} from "~test/helpers/rxjs-monitor";
 
 test("when goodbye received, should disconnect and close", async t => {
     let {session, server} = await SessionStages.handshaken("a");

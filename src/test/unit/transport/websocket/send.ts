@@ -1,9 +1,9 @@
 import test from "ava";
-import {getTransportAndServerConn} from "~test/helpers/ws-server";
 import {bufferCount, first, flatMap, take} from "rxjs/operators";
 import {fromArray} from "rxjs/internal/observable/fromArray";
 import {range} from "lodash";
 import {JsonSerializer} from "~lib/core/serializer/json";
+import {getTransportAndServerConn} from "~test/helpers/mocks/mocked-ws-transport";
 
 test("just one", async t => {
     let {transport, ws} = await getTransportAndServerConn();

@@ -1,13 +1,13 @@
 import test from "ava";
-import {SessionStages} from "~test/helpers/dummy-session";
+import {SessionStages} from "~test/helpers/mocks/mocked-transport-session";
 import {WampType, WampUri} from "typed-wamp";
-import {MatchError} from "~test/helpers/errors";
+import {MatchError} from "~test/helpers/error-matchers";
 
 import {isMatch} from "lodash";
 import {WampusNetworkError} from "~lib/core/errors/types";
 import {timer} from "rxjs";
 import {timeoutPromise} from "~test/helpers/promises";
-import {monitor} from "~test/helpers/monitored-observable";
+import {monitor} from "~test/helpers/rxjs-monitor";
 
 test("sends SUBSCRIBE", async t => {
     let {session, server} = await SessionStages.handshaken("a");

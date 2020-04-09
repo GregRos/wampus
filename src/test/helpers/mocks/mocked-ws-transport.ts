@@ -1,11 +1,9 @@
-import {rewiremock} from "~test/helpers/rewiremock";
+import {rewiremock} from "~test/helpers/mocks/rewiremock";
 import WebSocket from "isomorphic-ws";
-import {InputEvent, MockWebsocket} from "~test/helpers/mock-ws";
-import {Subject} from "rxjs";
+import {MockWebsocket} from "~test/helpers/mocks/websocket";
 import {JsonSerializer} from "~lib/core/serializer/json";
-import {monitor} from "~test/helpers/monitored-observable";
 import {WebsocketTransportConfig} from "~lib/core/transport/websocket";
-import { defaults } from "lodash";
+import {defaults} from "lodash";
 
 export function getModuleWithPatchedWs(alt: () => void): typeof import("~lib/core/transport/websocket") {
     return rewiremock.proxy(() => require("~lib/core/transport/websocket"), r => {
@@ -15,7 +13,7 @@ export function getModuleWithPatchedWs(alt: () => void): typeof import("~lib/cor
     });
 }
 
-export function getCommonTransport(cfg?: Partial<WebsocketTransportConfig>) {
+export function getMockTransportWsPair(cfg?: Partial<WebsocketTransportConfig>) {
     let constructed: MockWebsocket = null;
     const cfg2 = defaults(cfg, {
         serializer: new JsonSerializer(),
@@ -31,5 +29,17 @@ export function getCommonTransport(cfg?: Partial<WebsocketTransportConfig>) {
     return {
         ws: constructed,
         transport: conn
+    };
+}
+
+export async function getTransportAndServerConn() {
+    const {ws, transport} = getMockTransportWsPair();
+    ws.in.next({
+        event: "open"
+    });
+
+    return {
+        ws,
+        transport: await transport
     };
 }

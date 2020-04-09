@@ -1,8 +1,8 @@
 import test from "ava";
-import {SessionStages} from "~test/helpers/dummy-session";
+import {SessionStages} from "~test/helpers/mocks/mocked-transport-session";
 import {WampRaw, WampType, WampUri} from "typed-wamp";
-import {MatchError} from "~test/helpers/errors";
-import {monitor} from "~test/helpers/monitored-observable";
+import {MatchError} from "~test/helpers/error-matchers";
+import {monitor} from "~test/helpers/rxjs-monitor";
 
 test("receive CALL, proto violation, abort - existing route throws error", async t => {
     let {server, session} = await SessionStages.handshaken("a");

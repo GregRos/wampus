@@ -1,7 +1,7 @@
 import test from "ava";
-import {SessionStages} from "~test/helpers/dummy-session";
+import {SessionStages} from "~test/helpers/mocks/mocked-transport-session";
 import {ChallengeEvent, ChallengeResponse} from "~lib/core/session/authentication";
-import {monitor} from "~test/helpers/monitored-observable";
+import {monitor} from "~test/helpers/rxjs-monitor";
 
 test("one CHALLENGE during handshake", async t => {
     let handshaker = async (x: ChallengeEvent) => {

@@ -1,12 +1,12 @@
 import test from "ava";
 import {take} from "rxjs/operators";
-import {getTransportAndServerConn} from "~test/helpers/ws-server";
 
 import {choose} from "~lib/utils/rxjs-operators";
 import {WampusNetworkError} from "~lib/core/errors/types";
 import {timer} from "rxjs";
 
 import WebSocket from "isomorphic-ws";
+import {getTransportAndServerConn} from "~test/helpers/mocks/mocked-ws-transport";
 
 test("acquire", async t => {
     let {

@@ -3,7 +3,7 @@ import EventEmitter = require("events");
 import {merge, Observable, Subject} from "rxjs";
 import {skipAfter} from "~lib/utils/rxjs-operators";
 import {filter} from "rxjs/operators";
-import {monitor} from "~test/helpers/monitored-observable";
+import {monitor} from "~test/helpers/rxjs-monitor";
 import {Serializer} from "~lib/core/serializer/serializer";
 
 // tslint:disable:completed-docs

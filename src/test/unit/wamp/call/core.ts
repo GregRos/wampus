@@ -1,11 +1,11 @@
 import test, {ExecutionContext} from "ava";
-import {SessionStages} from "~test/helpers/dummy-session";
+import {SessionStages} from "~test/helpers/mocks/mocked-transport-session";
 import {WampType} from "typed-wamp";
 import {map, toArray} from "rxjs/operators";
-import {MatchError} from "~test/helpers/errors";
+import {MatchError} from "~test/helpers/error-matchers";
 import {WampusInvocationError, WampusNetworkError} from "~lib/core/errors/types";
 import {isMatch} from "lodash";
-import {monitor} from "~test/helpers/monitored-observable";
+import {monitor} from "~test/helpers/rxjs-monitor";
 
 test("call sends CALL message", async t => {
     let {server, session} = await SessionStages.handshaken("a");

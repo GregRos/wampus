@@ -1,8 +1,8 @@
 import test from "ava";
-import {SessionStages} from "~test/helpers/dummy-session";
-import {MatchError} from "~test/helpers/errors";
+import {SessionStages} from "~test/helpers/mocks/mocked-transport-session";
+import {MatchError} from "~test/helpers/error-matchers";
 import {isMatch} from "lodash";
-import {monitor} from "~test/helpers/monitored-observable";
+import {monitor} from "~test/helpers/rxjs-monitor";
 
 test("should send PUBLISH", async t => {
     let {server, session} = await SessionStages.handshaken("a");

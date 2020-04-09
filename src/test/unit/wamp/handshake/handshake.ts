@@ -1,11 +1,11 @@
 import test from "ava";
 import {first} from "rxjs/operators";
 import {wampusHelloDetails} from "~lib/core/hello-details";
-import {MatchError} from "~test/helpers/errors";
+import {MatchError} from "~test/helpers/error-matchers";
 import {WampusNetworkError} from "~lib/core/errors/types";
-import {SessionStages} from "~test/helpers/dummy-session";
+import {SessionStages} from "~test/helpers/mocks/mocked-transport-session";
 import {WampType} from "typed-wamp";
-import {monitor} from "~test/helpers/monitored-observable";
+import {monitor} from "~test/helpers/rxjs-monitor";
 
 test("HELLO is okay", async t => {
     let {server} = SessionStages.fresh("a");

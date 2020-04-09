@@ -1,12 +1,12 @@
 import test from "ava";
-import {SessionStages} from "~test/helpers/dummy-session";
+import {SessionStages} from "~test/helpers/mocks/mocked-transport-session";
 import {WampType, WampUri} from "typed-wamp";
-import {MatchError} from "~test/helpers/errors";
+import {MatchError} from "~test/helpers/error-matchers";
 import {WampusCoreSession} from "~lib/core/session/core-session";
 import {isMatch} from "lodash";
 import {WampusIllegalOperationError, WampusNetworkError} from "~lib/core/errors/types";
 import {timeoutPromise} from "~test/helpers/promises";
-import {monitor} from "~test/helpers/monitored-observable";
+import {monitor} from "~test/helpers/rxjs-monitor";
 
 test("sends REGISTER", async t => {
     let {session, server} = await SessionStages.handshaken("a");

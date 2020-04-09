@@ -1,5 +1,5 @@
 import test from "ava";
-import {dummyTransport} from "../../helpers/dummy-transport";
+import {mockTransport} from "../../helpers/mocks/transport";
 import {WampProtocolClient} from "~lib/core/routing/wamp-protocol-client";
 import {take} from "rxjs/operators";
 import {WampArray} from "typed-wamp";
@@ -8,10 +8,10 @@ import {WampusNetworkError} from "~lib/core/errors/types";
 import {range} from "lodash";
 import {timer} from "rxjs";
 import {timeoutPromise} from "../../helpers/promises";
-import {monitor} from "~test/helpers/monitored-observable";
+import {monitor} from "~test/helpers/rxjs-monitor";
 
 function createPair() {
-    let {server, client} = dummyTransport();
+    let {server, client} = mockTransport();
     let messenger = WampProtocolClient.create<WampArray>(client, x => x);
     return {messenger, server};
 }

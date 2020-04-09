@@ -1,8 +1,8 @@
 import test from "ava";
 
-import {SessionStages} from "~test/helpers/dummy-session";
+import {SessionStages} from "~test/helpers/mocks/mocked-transport-session";
 import {timer} from "rxjs";
-import {monitor} from "~test/helpers/monitored-observable";
+import {monitor} from "~test/helpers/rxjs-monitor";
 
 test("when receive goodbye, send goodbye and close+disconnect", async t => {
     let {server} = await SessionStages.handshaken("a");
