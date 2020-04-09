@@ -1,17 +1,38 @@
 import {Notification, Observable, timer} from "rxjs";
-import {dematerialize, materialize, take, takeUntil, toArray} from "rxjs/operators";
+import {
+    dematerialize,
+    map,
+    materialize,
+    take,
+    takeUntil,
+    toArray
+} from "rxjs/operators";
 import {pull} from "lodash";
 
-export interface MonitoredObservable<T> {
+/**
+ * A mixin for monitoring functionality for a hot observable.
+ */
+export interface Monitoring<T> {
     next$(count?: number): Observable<T>;
     next(): Promise<T>;
     nextK(count: number): Promise<T[]>;
     nextWithin(time: number): Promise<T>;
     rest(): Promise<T[]>;
-
+    readonly isComplete: boolean;
+    close(): void;
 }
 
-export function monitor<T>(source: Observable<T>): MonitoredObservable<T> & Observable<T> {
+function mixinWithGetsetters(target, source): typeof target & typeof source {
+    const descs = Object.getOwnPropertyDescriptors(source);
+    Object.defineProperties(target, descs);
+    return target;
+}
+
+/**
+ * Adds real-time monitoring functionality to an observable.
+ * @param source
+ */
+export function monitor<T>(source: Observable<T>): Monitoring<T> & Observable<T> {
     const unclaimed = [] as Notification<T>[];
     const registrations = [] as ((x: Notification<T>) => void)[];
 
@@ -21,6 +42,7 @@ export function monitor<T>(source: Observable<T>): MonitoredObservable<T> & Obse
             for (let reg of registrations) {
                 reg(x);
             }
+            return;
         }
         let first = registrations[0];
         if (first) {
@@ -29,7 +51,7 @@ export function monitor<T>(source: Observable<T>): MonitoredObservable<T> & Obse
             unclaimed.push(x);
         }
     });
-    return Object.assign(source, {
+    return mixinWithGetsetters(source.pipe(map(x => x)), {
         next$(count = 1): Observable<T> {
             return new Observable(sub => {
                 let i = 0;
@@ -58,6 +80,12 @@ export function monitor<T>(source: Observable<T>): MonitoredObservable<T> & Obse
         },
         rest() {
             return this.next$(1000).pipe(toArray()).toPromise();
+        },
+        get isComplete() {
+            return sub.closed;
+        },
+        close() {
+            sub.unsubscribe();
         },
         _register(action: (x: { data: Notification<T>, unregister(): void }) => void) {
             let registered = true;

@@ -1,12 +1,12 @@
 import test from "ava";
 import {SessionStages} from "~test/helpers/dummy-session";
 import {WampRaw, WampType, WampUri} from "typed-wamp";
-import {Rxjs} from "~test/helpers/observable-monitor";
 import {MatchError} from "~test/helpers/errors";
+import {monitor} from "~test/helpers/monitored-observable";
 
 test("receive CALL, proto violation, abort - existing route throws error", async t => {
     let {server, session} = await SessionStages.handshaken("a");
-    let monitored = Rxjs.monitor(server.messages);
+    let monitored = monitor(server.messages);
     const callTicketShouldFail = t.throwsAsync(session.call({
         name: "abc"
     }).progress.toPromise());
@@ -23,7 +23,7 @@ test("receive CALL, proto violation, abort - existing route throws error", async
 
 test("receive WELCOME, proto violation, abort - existing route throws error", async t => {
     let {server, session} = await SessionStages.handshaken("a");
-    let monitored = Rxjs.monitor(server.messages);
+    let monitored = monitor(server.messages);
     let sess = await session;
     const callTicketShouldFail = t.throwsAsync(sess.call({
         name: "abc"

@@ -5,10 +5,10 @@ import {take} from "rxjs/operators";
 import {WampArray} from "typed-wamp";
 
 import {WampusNetworkError} from "~lib/core/errors/types";
-import {Rxjs} from "../../helpers/observable-monitor";
 import {range} from "lodash";
 import {timer} from "rxjs";
 import {timeoutPromise} from "../../helpers/promises";
+import {monitor} from "~test/helpers/monitored-observable";
 
 function createPair() {
     let {server, client} = dummyTransport();
@@ -19,7 +19,7 @@ function createPair() {
 test("define one route and then invoke it exactly", async t => {
     let {messenger, server} = createPair();
     let key = [1];
-    let a = Rxjs.monitor(messenger.expect$(key));
+    let a = monitor(messenger.expect$(key));
     server.send([1, "realm", {a: 1}]);
     t.deepEqual(await a.next(), [1, "realm", {a: 1}]);
 });
@@ -27,12 +27,12 @@ test("define one route and then invoke it exactly", async t => {
 test("define two routes, and invoke each separately", async t => {
     let {messenger, server} = createPair();
     let key = [2];
-    let a = Rxjs.monitor(messenger.expect$(key));
+    let a = monitor(messenger.expect$(key));
     server.send([3, "hi"]);
     t.falsy(await a.nextWithin(5));
     server.send([2, "hi"]);
     t.deepEqual(await a.next(), [2, "hi"]);
-    let b = Rxjs.monitor(messenger.expect$([3]));
+    let b = monitor(messenger.expect$([3]));
     server.send([3, "hi"]);
     t.deepEqual(await b.next(), [3, "hi"]);
 });
@@ -48,7 +48,7 @@ test("close an observable to a route, check that the route was moved", async t =
 
 test("the expectNext route should match together with a regular route", async t => {
     let {messenger, server} = createPair();
-    let routeSbs = Rxjs.monitor(messenger.expect$([1, 2, 10, 11]));
+    let routeSbs = monitor(messenger.expect$([1, 2, 10, 11]));
     let nextRoute = messenger.messages$.pipe(take(1)).toPromise();
     server.send([1, 2, 10, 11]);
     t.is(messenger._router.count(), 2);

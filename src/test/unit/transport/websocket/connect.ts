@@ -7,7 +7,6 @@ import {WampusNetworkError} from "~lib/core/errors/types";
 import {timer} from "rxjs";
 
 import WebSocket from "isomorphic-ws";
-import {Rxjs} from "~test/helpers/observable-monitor";
 
 test("acquire", async t => {
     let {
@@ -23,6 +22,7 @@ test("closes from client-side", async t => {
         ws
     } = await getTransportAndServerConn();
     await timer(1000).toPromise();
+    // tslint:disable-next-line:no-floating-promises
     transport.close();
     const next = await ws.out.next();
     t.is(next.event, "close");

@@ -2,14 +2,14 @@ import test, {ExecutionContext} from "ava";
 import {SessionStages} from "~test/helpers/dummy-session";
 import {WampType} from "typed-wamp";
 import {map, toArray} from "rxjs/operators";
-import {Rxjs} from "~test/helpers/observable-monitor";
 import {MatchError} from "~test/helpers/errors";
 import {WampusInvocationError, WampusNetworkError} from "~lib/core/errors/types";
 import {isMatch} from "lodash";
+import {monitor} from "~test/helpers/monitored-observable";
 
 test("call sends CALL message", async t => {
     let {server, session} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.messages);
+    let sbs = monitor(server.messages);
     let cr = session.call({
         name: "a",
         args: [1],
@@ -30,7 +30,7 @@ test("call sends CALL message", async t => {
 
 test("send CALL, receive final RESULT, report result to caller, verify progress stream", async t => {
     let {server, session} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.messages);
+    let sbs = monitor(server.messages);
     let cp = session.call({
         name: "a",
         args: [1],
@@ -50,7 +50,7 @@ test("send CALL, receive final RESULT, report result to caller, verify progress 
 
 test("send 2 identical calls, receive RESULTs, verify progress streams", async t => {
     let {server, session} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.messages);
+    let sbs = monitor(server.messages);
     let cp1 = session.call({
         name: "a"
     });
@@ -70,7 +70,7 @@ test("send 2 identical calls, receive RESULTs, verify progress streams", async t
 
 test("make 2 different calls, receive RESULTs, verify progress streams", async t => {
     let {server, session} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.messages);
+    let sbs = monitor(server.messages);
     let cp1 = session.call({
         name: "a"
     });
@@ -90,7 +90,7 @@ test("make 2 different calls, receive RESULTs, verify progress streams", async t
 function sendCallReceiveErrorMacro(o: { title: string, errId: string, errMatch(x: any): boolean }) {
     test(o.title, async (t: ExecutionContext<any>) => {
         let {server, session} = await SessionStages.handshaken("a");
-        let sbs = Rxjs.monitor(server.messages);
+        let sbs = monitor(server.messages);
         let cp1 = session.call({
             name: "a"
         });
@@ -159,7 +159,7 @@ sendCallReceiveErrorMacro({
 
 test("call() on closed session", async t => {
     let {server, session} = await SessionStages.handshaken("a");
-    Rxjs.monitor(server.messages);
+    monitor(server.messages);
     server.send([3, {}, "no"]);
     await session.close();
     let cp1 = session.call({
@@ -171,7 +171,7 @@ test("call() on closed session", async t => {
 
 test("close connection before result received", async t => {
     let {server, session} = await SessionStages.handshaken("a");
-    Rxjs.monitor(server.messages);
+    monitor(server.messages);
 
     let cp1 = session.call({
         name: "a"

@@ -2,10 +2,10 @@ import test from "ava";
 import {SessionStages} from "~test/helpers/dummy-session";
 import {WampType} from "typed-wamp";
 
-import {Rxjs} from "~test/helpers/observable-monitor";
 import {WampusIllegalOperationError, WampusInvocationCanceledError} from "~lib/core/errors/types";
 import {timer} from "rxjs";
 import {timeoutPromise} from "~test/helpers/promises";
+import {monitor} from "~test/helpers/monitored-observable";
 
 
 async function cancelSession() {
@@ -32,7 +32,7 @@ test("when cancel unsupported, throw error", async t => {
 
 test("should send CANCEL", async t => {
     let {session, server} = await cancelSession();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
     let prog = session.call({
         name: "a"
     });
@@ -48,7 +48,7 @@ test("should send CANCEL", async t => {
 
 test("reply with ERROR(cancel), close() should resolve and progress should error", async t => {
     let {session, server} = await cancelSession();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
     let prog = session.call({
         name: "a"
     });
@@ -68,7 +68,7 @@ test("reply with ERROR(cancel), close() should resolve and progress should error
 
 test("reply with RESULT(final), close() should resolve and progress should complete", async t => {
     let {session, server} = await cancelSession();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
     let prog = session.call({
         name: "a"
     });
@@ -88,11 +88,11 @@ test("reply with RESULT(final), close() should resolve and progress should compl
 
 test("reply with RESULT(progress), close() should not resolve and progress should next", async t => {
     let {session, server} = await cancelSession();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
     let prog = session.call({
         name: "a"
     });
-    let progressMonitor = Rxjs.monitor(prog.progress);
+    let progressMonitor = monitor(prog.progress);
     let closing = prog.close();
     // skip CALL and CANCEL
     await serverMonitor.nextK(2);
@@ -103,7 +103,7 @@ test("reply with RESULT(progress), close() should not resolve and progress shoul
 
 test("reply with ERROR(non-cancel), close() should reject", async t => {
     let {session, server} = await cancelSession();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
     let prog = session.call({
         name: "a"
     });
@@ -117,7 +117,7 @@ test("reply with ERROR(non-cancel), close() should reject", async t => {
 
 test("cancel is no-op in resolved call", async t => {
     let {session, server} = await cancelSession();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
     let prog = session.call({
         name: "a"
     });
@@ -132,7 +132,7 @@ test("cancel is no-op in resolved call", async t => {
 
 test("cancel is no-op in rejected call", async t => {
     let {session, server} = await cancelSession();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
 
     let prog = session.call({
         name: "a"
@@ -148,7 +148,7 @@ test("cancel is no-op in rejected call", async t => {
 
 test("2nd call to cancel is no-op, returns the same promise", async t => {
     let {session, server} = await cancelSession();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
     let prog = session.call({
         name: "a"
     });
@@ -166,7 +166,7 @@ test("try to cancel call on a closed session should be a no-op", async t => {
             call_canceling: true
         }
     });
-    Rxjs.monitor(server.messages);
+    monitor(server.messages);
 
     let cp1 = session.call({
         name: "a"
@@ -182,7 +182,7 @@ test("close session while cancelling should be a no-op", async t => {
             call_canceling: true
         }
     });
-    Rxjs.monitor(server.messages);
+    monitor(server.messages);
 
     let cp1 = session.call({
         name: "a"

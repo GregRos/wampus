@@ -1,7 +1,7 @@
 import test from "ava";
 import {SessionStages} from "~test/helpers/dummy-session";
 import {ChallengeEvent, ChallengeResponse} from "~lib/core/session/authentication";
-import {Rxjs} from "~test/helpers/observable-monitor";
+import {monitor} from "~test/helpers/monitored-observable";
 
 test("one CHALLENGE during handshake", async t => {
     let handshaker = async (x: ChallengeEvent) => {
@@ -23,7 +23,7 @@ test("one CHALLENGE during handshake", async t => {
         }
     };
     let {server, session} = SessionStages.fresh("a", handshaker);
-    let srvMonitor = Rxjs.monitor(server.messages);
+    let srvMonitor = monitor(server.messages);
     await srvMonitor.next();
     server.send([4, "auth", {b: 1}]);
     let authenticate = await srvMonitor.next();
@@ -36,7 +36,7 @@ test("no authenticator", async t => {
     let handshaker = null;
 
     let {server, session} = SessionStages.fresh("a", handshaker);
-    let srvMonitor = Rxjs.monitor(server.messages);
+    let srvMonitor = monitor(server.messages);
     let eventuallySessionThrows = t.throwsAsync(session);
     await srvMonitor.next();
     server.send([4, "auth", {b: 1}]);
@@ -59,7 +59,7 @@ test("two CHALLENGE during handshake", async t => {
         }
     };
     let {server, session} = SessionStages.fresh("a", handshaker);
-    let srvMonitor = Rxjs.monitor(server.messages);
+    let srvMonitor = monitor(server.messages);
     await srvMonitor.next();
     server.send([4, "auth", {b: 1}]);
     let authenticate = await srvMonitor.next();

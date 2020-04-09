@@ -1,9 +1,9 @@
 import test from "ava";
 import {SessionStages} from "~test/helpers/dummy-session";
-import {Rxjs} from "~test/helpers/observable-monitor";
 import {WampType} from "typed-wamp";
 import {WampusCoreSession} from "~lib/core/session/core-session";
 import {timer} from "rxjs";
+import {monitor} from "~test/helpers/monitored-observable";
 
 
 async function getProgressSession() {
@@ -25,9 +25,9 @@ async function makeProgressiveCall(session: WampusCoreSession, name: string) {
 
 test("make call, receive RESULT(progress) message, call doesn't finish", async t => {
     let {server, session} = await getProgressSession();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
     let cp1 = await makeProgressiveCall(session, "a");
-    let progressMonitor = Rxjs.monitor(cp1.progress);
+    let progressMonitor = monitor(cp1.progress);
     await serverMonitor.nextK(1);
     server.send([WampType.RESULT, cp1.info.callId, {progress: true}, [], {a: 1}]);
     let first = await progressMonitor.next();
@@ -38,9 +38,9 @@ test("make call, receive RESULT(progress) message, call doesn't finish", async t
 
 test("make call, receive several RESULT(progress) messages, call doesn't finish", async t => {
     let {server, session} = await getProgressSession();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
     let cp1 = await makeProgressiveCall(session, "a");
-    let progressMonitor = Rxjs.monitor(cp1.progress);
+    let progressMonitor = monitor(cp1.progress);
     await serverMonitor.nextK(1);
     server.send([WampType.RESULT, cp1.info.callId, {progress: true}, [], {a: 1}]);
     await timer(1000).toPromise();
@@ -56,9 +56,9 @@ test("make call, receive several RESULT(progress) messages, call doesn't finish"
 
 test("make call, receive RESULT(progress) message, and then RESULT(final), call finishes", async t => {
     let {server, session} = await getProgressSession();
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
     let cp1 = await makeProgressiveCall(session, "a");
-    let progressMonitor = Rxjs.monitor(cp1.progress);
+    let progressMonitor = monitor(cp1.progress);
     await serverMonitor.nextK(1);
     server.send([WampType.RESULT, cp1.info.callId, {progress: true}, [], {a: 1}]);
     let first = await progressMonitor.next();

@@ -60,15 +60,12 @@
     "puppeteer": "^2.1.1",
     "retarget-sourcemaps-after-move": "^0.2.0",
     "rewiremock": "^3.13.9",
-    "rxjs": "^6.5.4",
     "shelljs": "^0.8.3",
     "source-map-loader": "^0.2.4",
-    "transcurse": "^0.3.0",
     "tsconfig-paths": "^3.9.0",
     "tsconfig-paths-webpack-plugin": "^3.2.0",
     "tslint": "^5.20.1",
     "tslint-config-gregros": "^1.8.0",
-    "typed-wamp": "^0.2.2",
     "typedoc": "^0.15.6",
     "typedoc-plugin-example-tag": "^1.0.2",
     "typedoc-plugin-external-module-name": "^2.1.0",
@@ -82,9 +79,9 @@
     "lodash": "^4.17.15"
   },
   "peerDependencies": {
-    "rxjs": "^6.5.4",
-    "transcurse": "^0.2.0",
-    "typed-wamp": "^0.2.1"
+    "rxjs": "^6.5.5",
+    "transcurse": "^0.3.0",
+    "typed-wamp": "^0.2.2"
   },
   "optionalDependencies": {},
   "nyc": {

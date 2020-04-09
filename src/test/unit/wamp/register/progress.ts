@@ -1,13 +1,13 @@
 import test from "ava";
 import {SessionStages} from "~test/helpers/dummy-session";
-import {Rxjs} from "~test/helpers/observable-monitor";
 import {MatchError} from "~test/helpers/errors";
 import {WampusCoreSession} from "~lib/core/session/core-session";
 import {isMatch} from "lodash";
+import {monitor} from "~test/helpers/monitored-observable";
 
 
 async function getRegistration({session, server}: { session: WampusCoreSession, server: any }) {
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
     let registering = session.register({
         name: "a"
     });
@@ -19,8 +19,8 @@ async function getRegistration({session, server}: { session: WampusCoreSession, 
 test("progress() sends YIELD(progress)", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
-    let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let invocationMonitor = monitor(registration.invocations);
+    let serverMonitor = monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {receive_progress: true}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     await next.progress({
@@ -40,8 +40,8 @@ test("progress() sends YIELD(progress)", async t => {
 test("after progress(), call return(), invocation finished", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
-    let invocationMonitor = Rxjs.monitor(registration.invocations);
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let invocationMonitor = monitor(registration.invocations);
+    let serverMonitor = monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {receive_progress: true}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     await next.progress({
@@ -57,8 +57,8 @@ test("after progress(), call return(), invocation finished", async t => {
 test("after return(), progress() errors", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
-    let invocationMonitor = Rxjs.monitor(registration.invocations);
-    Rxjs.monitor(server.messages);
+    let invocationMonitor = monitor(registration.invocations);
+    monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {receive_progress: true}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     await next.return({kwargs: {a: 1}});
@@ -68,8 +68,8 @@ test("after return(), progress() errors", async t => {
 test("progress() errors if no progress has been requested", async t => {
     let {session, server} = await SessionStages.handshaken("a");
     let registration = await getRegistration({session, server});
-    let invocationMonitor = Rxjs.monitor(registration.invocations);
-    Rxjs.monitor(server.messages);
+    let invocationMonitor = monitor(registration.invocations);
+    monitor(server.messages);
     server.send([68, 1, registration.info.registrationId, {}, ["a"], {a: 1}]);
     let next = await invocationMonitor.next();
     let err = await t.throwsAsync(next.progress({kwargs: {a: 2}}));

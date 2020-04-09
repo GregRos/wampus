@@ -4,12 +4,12 @@ import {wampusHelloDetails} from "~lib/core/hello-details";
 import {MatchError} from "~test/helpers/errors";
 import {WampusNetworkError} from "~lib/core/errors/types";
 import {SessionStages} from "~test/helpers/dummy-session";
-import {Rxjs} from "~test/helpers/observable-monitor";
 import {WampType} from "typed-wamp";
+import {monitor} from "~test/helpers/monitored-observable";
 
 test("HELLO is okay", async t => {
     let {server} = SessionStages.fresh("a");
-    let sbs = Rxjs.monitor(server.messages);
+    let sbs = monitor(server.messages);
     let hello = sbs.next();
     t.deepEqual(await hello, [WampType.HELLO, "a", wampusHelloDetails]);
 });

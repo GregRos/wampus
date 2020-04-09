@@ -2,16 +2,16 @@ import test from "ava";
 
 import {WampusNetworkError} from "~lib/core/errors/types";
 import {SessionStages} from "~test/helpers/dummy-session";
-import {Rxjs} from "~test/helpers/observable-monitor";
 import {WampType} from "typed-wamp";
 import {MessageFactory} from "~lib/core/protocol/factory";
 import {throwError, timer} from "rxjs";
 import {timeoutWith} from "rxjs/operators";
 import {fromPromise} from "rxjs/internal-compatibility";
+import {monitor} from "~test/helpers/monitored-observable";
 
 test("when goodbye received, should disconnect and close", async t => {
     let {session, server} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.events);
+    let sbs = monitor(server.events);
     let pGoodbye = session.close();
     let nextMessage = await sbs.next();
     t.deepEqual(nextMessage.data, [6, {}, "wamp.close.goodbye_and_out"]);
@@ -53,7 +53,7 @@ test("random messages should be allowed during goodbye", async t => {
 test("when abort received, should disconnect and close", async t => {
     // TODO: Do something when goodbye violates protocol
     let {session, server} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.events);
+    let sbs = monitor(server.events);
     let pGoodbye = session.close();
     await sbs.next();
     server.send([3, {}, "waaa"]);
@@ -67,7 +67,7 @@ test("when abort received, should disconnect and close", async t => {
 test("when nothing received after timeout, should disconnect and close", async t => {
     // TODO: Do something when goodbye violates protocol
     let {session, server} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.events);
+    let sbs = monitor(server.events);
     // tslint:disable-next-line:no-floating-promises
     session.close();
     let goodbye = await sbs.next();
@@ -80,7 +80,7 @@ test("when nothing received after timeout, should disconnect and close", async t
 test("when server disconnects abruptly, should close", async t => {
     // TODO: Do something when goodbye violates protocol
     let {session, server} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.events);
+    let sbs = monitor(server.events);
     let p = session.close();
     let goodbye = await sbs.next();
     server.close();
@@ -92,7 +92,7 @@ test("when server disconnects abruptly, should close", async t => {
 
 test("when server errors, should close", async t => {
     let {session, server} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.events);
+    let sbs = monitor(server.events);
     let closing = session.close();
     let goodbye = await sbs.next();
     // TODO: Do something with an error in closing process

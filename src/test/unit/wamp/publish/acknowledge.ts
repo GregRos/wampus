@@ -1,10 +1,10 @@
 import test from "ava";
 import {SessionStages} from "~test/helpers/dummy-session";
-import {Rxjs} from "~test/helpers/observable-monitor";
 import {WampType} from "typed-wamp";
 import {WampusCoreSession} from "~lib/core/session/core-session";
 import {MatchError} from "~test/helpers/errors";
 import {timeoutPromise} from "~test/helpers/promises";
+import {monitor} from "~test/helpers/monitored-observable";
 
 async function publishAck(s: WampusCoreSession) {
     return s.publish({
@@ -23,7 +23,7 @@ test("should expect reply", async t => {
 
 test("receive PUBLISHED, resolve", async t => {
     let {session, server} = await SessionStages.handshaken("a");
-    let serverMonitor = Rxjs.monitor(server.messages);
+    let serverMonitor = monitor(server.messages);
     let publishing = publishAck(session);
     let publish = await serverMonitor.next();
     server.send([17, publish[1], 100]);
@@ -34,7 +34,7 @@ test("receive PUBLISHED, resolve", async t => {
 function testPublishError(o: { errId: string, errMatch(x: any): boolean, title: string }) {
     test(o.title, async t => {
         let {session, server} = await SessionStages.handshaken("a");
-        let serverMonitor = Rxjs.monitor(server.messages);
+        let serverMonitor = monitor(server.messages);
         let publishing = publishAck(session);
         let publish = await serverMonitor.next();
         server.send([8, WampType.PUBLISH, publish[1], {}, o.errId]);

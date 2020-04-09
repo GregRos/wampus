@@ -1,12 +1,12 @@
 import test from "ava";
 import {SessionStages} from "~test/helpers/dummy-session";
-import {Rxjs} from "~test/helpers/observable-monitor";
 import {WampusNetworkError} from "~lib/core/errors/types";
+import {monitor} from "~test/helpers/monitored-observable";
 
 
 async function getRegularGoodbyedSession() {
     let {session, server} = await SessionStages.handshaken("a");
-    let sbs = Rxjs.monitor(server.events);
+    let sbs = monitor(server.events);
     let p = session.close();
     let goodbye = await sbs.next();
     server.send([6, {}, "wamp.close.goodbye_and_out"]);
