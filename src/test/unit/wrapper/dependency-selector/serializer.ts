@@ -10,7 +10,7 @@ test("serializer by name - json", t => {
     t.true(dep instanceof JsonSerializer);
 });
 
-test("cusotm serializer", t => {
+test("custom serializer", t => {
     const custom = {
         id: "abc",
         serialize(x) {
